@@ -42,10 +42,31 @@ export function ParentLinkingStep() {
     const handleSubmit = async () => {
         setLoading(true)
         try {
-            // 1. Create Student
+            // 1. Get Current User and Tenant ID
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error("No authenticated user found")
+
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('tenant_id')
+                .eq('id', user.id)
+                .single()
+
+            if (profileError || !profile?.tenant_id) {
+                throw new Error("Could not find your school/tenant ID. Please try logging in again.")
+            }
+
+            // 2. Compute Full Name
+            const fullName = [data.firstName, data.middleName, data.lastName]
+                .filter(Boolean)
+                .join(' ')
+
+            // 3. Create Student
             const { data: student, error: studentError } = await supabase
                 .from('students')
                 .insert({
+                    tenant_id: profile.tenant_id,
+                    full_name: fullName,
                     first_name: data.firstName,
                     last_name: data.lastName,
                     middle_name: data.middleName,
@@ -57,21 +78,21 @@ export function ParentLinkingStep() {
                     class_id: data.classId,
                     house: data.house,
                     admission_number: data.admissionNumber,
-                    // tenant_id handled by RLS or default? Check schema defaults or triggers. 
-                    // Usually safer to rely on authenticated user context, but let's assume RLS handles it if not explicitly passed.
-                    // Actually, for SaaS, we might need to pass `tenant_id` if we are the admin.
+                    parent_id: data.parentId,
                 })
                 .select()
                 .single()
 
             if (studentError) throw studentError
 
-            // 2. Link Parent (Logic omitted for brevity - would link via student_parents table)
+            // 4. Link Parent (if existing or new - logic follows in next steps)
+            // ...
 
-            toast.success(`Student ${firstName} Admitted Successfully!`)
+            toast.success(`Student ${data.firstName} Admitted Successfully!`)
             setSuccess(true)
         } catch (error: any) {
-            toast.error("Admission Failed: " + error.message)
+            console.error('[ParentLinkingStep] Submission Error:', error)
+            toast.error("Admission Failed: " + (error.message || "Unknown error"))
         } finally {
             setLoading(false)
         }
@@ -142,9 +163,30 @@ export function ParentLinkingStep() {
 
                 {isNewParent && (
                     <div className="p-4 border border-white/10 rounded-lg space-y-4 bg-slate-900/30">
-                        <Input placeholder="Parent First Name" className="bg-slate-900 border-white/10 text-white" />
-                        <Input placeholder="Parent Phone Number" className="bg-slate-900 border-white/10 text-white" />
-                        <Input placeholder="Email Address" className="bg-slate-900 border-white/10 text-white" />
+                        <Input
+                            placeholder="Parent First Name"
+                            className="bg-slate-900 border-white/10 text-white"
+                            value={data.parentData?.firstName || ''}
+                            onChange={(e) => setData({ parentData: { ...data.parentData!, firstName: e.target.value } })}
+                        />
+                        <Input
+                            placeholder="Parent Last Name"
+                            className="bg-slate-900 border-white/10 text-white"
+                            value={data.parentData?.lastName || ''}
+                            onChange={(e) => setData({ parentData: { ...data.parentData!, lastName: e.target.value } })}
+                        />
+                        <Input
+                            placeholder="Parent Phone Number"
+                            className="bg-slate-900 border-white/10 text-white"
+                            value={data.parentData?.phone || ''}
+                            onChange={(e) => setData({ parentData: { ...data.parentData!, phone: e.target.value } })}
+                        />
+                        <Input
+                            placeholder="Email Address"
+                            className="bg-slate-900 border-white/10 text-white"
+                            value={data.parentData?.email || ''}
+                            onChange={(e) => setData({ parentData: { ...data.parentData!, email: e.target.value } })}
+                        />
                     </div>
                 )}
             </div>

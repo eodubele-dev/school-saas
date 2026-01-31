@@ -56,7 +56,14 @@ const initialData: AdmissionData = {
     admissionNumber: '',
     parentId: null,
     parentSearchQuery: '',
-    isNewParent: false
+    isNewParent: false,
+    parentData: {
+        firstName: '',
+        lastName: '',
+        phone: '',
+        email: '',
+        address: ''
+    }
 }
 
 export const useAdmissionStore = create<AdmissionState>()(

@@ -23,20 +23,29 @@ export default async function AdmissionsPage({ params }: { params: { domain: str
     }
 
     // Fetch initial data like classes and houses for the wizard
-    // Note: We'll pass these as props to the client component to pre-hydrate the forms
     const { data: classes } = await supabase
         .from('classes')
         .select('id, name')
         .eq('tenant_id', profile.tenant_id)
         .order('name')
 
-    // UsingHouses from general settings or hardcoded common ones if table not yet populated/existent (using update logic)
-    // For now assuming hardcoded common houses or empty list if no table
+    // Fetch Tenant Branding
+    const { data: tenant } = await supabase
+        .from('tenants')
+        .select('name, logo_url, theme_config')
+        .eq('id', profile.tenant_id)
+        .single()
+
     const houses = ['Red House', 'Blue House', 'Green House', 'Yellow House']
 
     return (
         <div className="flex flex-col h-full bg-slate-950">
-            <AdmissionsClient domain={params.domain} classes={classes || []} houses={houses} />
+            <AdmissionsClient
+                domain={params.domain}
+                classes={classes || []}
+                houses={houses}
+                tenant={tenant}
+            />
         </div>
     )
 }

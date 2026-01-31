@@ -14,9 +14,14 @@ interface AdmissionsClientProps {
     domain: string
     classes: any[]
     houses: string[]
+    tenant: {
+        name: string
+        logo_url: string | null
+        theme_config: any
+    } | null
 }
 
-export function AdmissionsClient({ domain, classes, houses }: AdmissionsClientProps) {
+export function AdmissionsClient({ domain, classes, houses, tenant }: AdmissionsClientProps) {
     const { isBulkMode, setBulkMode, isSuccess, setSuccess, reset } = useAdmissionStore()
 
     const handleReset = () => {
@@ -26,7 +31,7 @@ export function AdmissionsClient({ domain, classes, houses }: AdmissionsClientPr
 
     return (
         <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full p-4 md:p-8 space-y-8">
-            {isSuccess && <SuccessCard onClose={handleReset} />}
+            {isSuccess && <SuccessCard onClose={handleReset} tenant={tenant} />}
 
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
