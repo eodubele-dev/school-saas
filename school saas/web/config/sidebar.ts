@@ -4,30 +4,29 @@ export type UserRole = 'admin' | 'teacher' | 'parent' | 'student'
 
 export const SIDEBAR_LINKS = {
     admin: [
-        { icon: LayoutDashboard, label: "Overview", href: "/" },
-        { icon: Users, label: "Staff Management", href: "/staff" },
-        { icon: FileText, label: "Academic Reports", href: "/reports/academic" },
-        { icon: DollarSign, label: "Financial Reports", href: "/reports/financial" },
-        { icon: Settings, label: "School Settings", href: "/settings" },
+        { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
+        { icon: Users, label: "Staff Management", href: "/dashboard/staff" },
+        { icon: DollarSign, label: "Financial Reports", href: "/dashboard/reports" },
+        { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
     ],
     teacher: [
-        { icon: LayoutDashboard, label: "Overview", href: "/" },
-        { icon: GraduationCap, label: "My Classes", href: "/classes" },
-        { icon: ClipboardCheck, label: "Attendance", href: "/attendance" },
-        { icon: BookOpen, label: "Gradebook", href: "/gradebook" },
-        { icon: CalendarDays, label: "Lesson Plans", href: "/lesson-plans" },
+        { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
+        { icon: GraduationCap, label: "My Classes", href: "/dashboard/classes" },
+        { icon: ClipboardCheck, label: "Attendance", href: "/dashboard/attendance" },
+        { icon: BookOpen, label: "Gradebook", href: "/dashboard/gradebook" },
+        { icon: CalendarDays, label: "Lesson Plans", href: "/dashboard/lesson-plans" },
     ],
     parent: [
-        { icon: LayoutDashboard, label: "Overview", href: "/" },
-        { icon: UserCircle, label: "Child Profile", href: "/children" },
-        { icon: FileText, label: "Result Checker", href: "/results" },
-        { icon: CreditCard, label: "Fee Payment", href: "/fees" },
-        { icon: CalendarDays, label: "School Calendar", href: "/calendar" },
+        { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
+        { icon: UserCircle, label: "Child Profile", href: "/dashboard/children" },
+        { icon: FileText, label: "Result Checker", href: "/dashboard/results" },
+        { icon: CreditCard, label: "Fee Payment", href: "/dashboard/fees" },
+        { icon: CalendarDays, label: "School Calendar", href: "/dashboard/calendar" },
     ],
     student: [
-        { icon: LayoutDashboard, label: "Overview", href: "/" },
-        { icon: FileText, label: "My Results", href: "/results" },
-        { icon: BookOpen, label: "Assignments", href: "/assignments" },
+        { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
+        { icon: FileText, label: "My Results", href: "/dashboard/results" },
+        { icon: BookOpen, label: "Assignments", href: "/dashboard/assignments" },
     ]
 }
 

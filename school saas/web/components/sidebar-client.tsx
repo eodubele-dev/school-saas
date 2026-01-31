@@ -24,7 +24,7 @@ import { SIDEBAR_LINKS, ROLE_BADGES, ROLE_LABELS, type UserRole } from "@/config
 // It imports `LayoutDashboard` etc. 
 // So `items` in config are `{ icon: Component, label, href }`.
 
-export function SidebarClient({ role: initialRole = 'student' }: { role?: string }) {
+export function SidebarClient({ role: initialRole = 'student', userName = 'Guest User' }: { role?: string, userName?: string }) {
     const pathname = usePathname()
     // Cast string role to UserRole, fallback to student if invalid
     const role = (Object.keys(SIDEBAR_LINKS).includes(initialRole) ? initialRole : 'student') as UserRole
@@ -41,12 +41,15 @@ export function SidebarClient({ role: initialRole = 'student' }: { role?: string
     const activeStyle = roleStyles[role] || "bg-primary text-primary-foreground"
 
     return (
-        <div className="flex-1 px-4 py-6 space-y-6">
-            {/* Role Badge */}
-            <div className="px-2">
-                <div className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-xs font-medium text-slate-300 ring-1 ring-white/10">
+        <div className="flex-1 px-4 py-6 space-y-6 relative z-10">
+            {/* User Profile & Role Badge */}
+            <div className="px-2 flex flex-col gap-1">
+                <h3 className="font-semibold text-sm text-white truncate" title={userName}>
+                    {userName}
+                </h3>
+                <div className="flex items-center gap-1.5 text-xs text-slate-400">
                     <span>{ROLE_BADGES[role]}</span>
-                    <span>{ROLE_LABELS[role]} View</span>
+                    <span>{ROLE_LABELS[role]}</span>
                 </div>
             </div>
 
@@ -54,12 +57,16 @@ export function SidebarClient({ role: initialRole = 'student' }: { role?: string
             <div className="space-y-1">
                 {items.map((item) => {
                     const IconComponent = item.icon
-                    const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
+                    // Fix: Only highlight active link, handle /dashboard root specifically
+                    const isActive = item.href === '/dashboard'
+                        ? pathname === item.href
+                        : pathname.startsWith(item.href)
 
                     return (
                         <Link
                             key={item.href}
                             href={item.href}
+                            prefetch={false}
                             className={cn(
                                 "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors",
                                 isActive

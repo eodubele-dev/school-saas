@@ -55,8 +55,9 @@ const config = {
 				},
 				obsidian: "#050505",
 				neon: {
-					DEFAULT: "#7C3AED",
-					purple: "#7C3AED",
+					DEFAULT: "#3B82F6", // Electric Blue
+					blue: "#3B82F6",
+					purple: "#7C3AED", // Kept for legacy
 				},
 				emerald: {
 					DEFAULT: "#10B981",
@@ -69,6 +70,7 @@ const config = {
 				sm: "calc(var(--radius) - 4px)",
 			},
 			boxShadow: {
+				'glow-blue': '0 0 20px -5px #3B82F6',
 				'glow-purple': '0 0 20px -5px #7C3AED',
 				'glow-green': '0 0 20px -5px #10B981',
 			},

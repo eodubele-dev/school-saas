@@ -21,6 +21,21 @@ export default async function middleware(req: NextRequest) {
   const url = req.nextUrl
   const hostname = req.headers.get('host')
 
+  // FORCE TEST
+  if (url.pathname === '/') {
+    let debugHost = hostname?.replace(/:\d+$/, '')
+    debugHost = debugHost?.replace('.localhost', '')
+    debugHost = debugHost?.replace('.eduflow.ng', '')
+
+    console.log(`[Middleware Debug] Host: ${debugHost}`)
+    // return NextResponse.json({
+    //   currentHost: debugHost,
+    //   originalHost: hostname,
+    //   isLocalhost: debugHost === 'localhost',
+    //   willPassthrough: !debugHost || debugHost === 'www' || debugHost === 'localhost' || debugHost.includes(':')
+    // })
+  }
+
   // 1. Refresh Supabase Session (Critical for Auth persistence)
   let response = NextResponse.next({
     request: {
@@ -68,6 +83,7 @@ export default async function middleware(req: NextRequest) {
   // If no subdomain (or it's the main domain/www), allow standard routing
   if (!currentHost || currentHost === 'www' || currentHost === 'localhost' || currentHost.includes(':')) {
     // This will render the pages directly in `app/` (e.g., landing page)
+    console.log(`[Middleware] No subdomain detected. CurrentHost: '${currentHost}'. Passing through to landing page.`)
     return response // Return the response with refreshed cookies
   }
 
@@ -81,9 +97,8 @@ export default async function middleware(req: NextRequest) {
 
   if (!path.startsWith('/login') && !path.startsWith('/signup') && !path.startsWith('/auth') && !path.startsWith('/dashboard')) {
     if (path === '/') {
-      path = '/dashboard' + path
-    } else {
-      path = '/dashboard' + path
+      // PROD READY: Redirect root to /dashboard so URL matches sidebar active state
+      return NextResponse.redirect(new URL('/dashboard', req.url))
     }
   }
 
@@ -95,37 +110,60 @@ export default async function middleware(req: NextRequest) {
   // Check if we are on a dashboard route (not login/signup)
   const isDashboardRoute = !path.startsWith('/login') && !path.startsWith('/signup') && !path.startsWith('/auth')
 
-  if (isDashboardRoute && user) {
-    // Get Role (from metadata or fetch if missing)
-    let role = user.user_metadata?.role as UserRole
-
-    if (!role) {
-      // Fallback: Fetch from DB (slightly slower but safe)
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-      role = profile?.role as UserRole
+  if (isDashboardRoute) {
+    if (!user) {
+      // PROD READY: Redirect unauthenticated users to login
+      const loginUrl = new URL('/login', req.url)
+      // Optional: Add ?next=path to redirect back after login
+      loginUrl.searchParams.set('next', path)
+      return NextResponse.redirect(loginUrl)
     }
 
-    if (role) {
-      const allowedLinks = SIDEBAR_LINKS[role] || []
-      const currentPath = path.replace('/dashboard', '') || '/' // Normalize path
+    if (user) {
+      // Get Role (from metadata or fetch if missing)
+      let role = user.user_metadata?.role as UserRole
 
-      // Allow if currentPath is '/' (Overview) or matches any allowed link
-      // checking startsWith to allow sub-paths like /classes/123
-      const isAllowed = currentPath === '/' || allowedLinks.some(link =>
-        link.href !== '/' && currentPath.startsWith(link.href)
-      )
+      if (!role) {
+        // Fallback: Fetch from DB (slightly slower but safe)
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        role = profile?.role as UserRole
+      }
 
-      // If not allowed, redirect to root (Overview)
-      if (!isAllowed) {
-        console.log(`[Middleware] Access Denied for ${role} to ${currentPath}`)
-        return NextResponse.redirect(new URL('/', req.url))
+      if (role) {
+        const allowedLinks = SIDEBAR_LINKS[role] || []
+
+        // FIX: Match full path against allowed links
+        const isAllowed = allowedLinks.some(link => {
+          // Exact match for dashboard root to prevent it matching all sub-routes
+          if (link.href === '/dashboard') {
+            return path === '/dashboard' || path === '/dashboard/'
+          }
+          // Prefix match for sub-routes (e.g. /dashboard/children matches /dashboard/children/edit)
+          return path.startsWith(link.href)
+        })
+
+        // If not allowed, redirect to root (Overview)
+        if (!isAllowed) {
+          console.log(`[Middleware] Access Denied for ${role} to ${path}`)
+          return NextResponse.redirect(new URL('/dashboard', req.url))
+        }
       }
     }
   }
 
-  return NextResponse.rewrite(rewriteUrl)
+  console.log(`[Middleware] Rewriting to: ${rewriteUrl.toString()}`)
+
+  /* 
+     Fixing collision with 'let response' above. 
+     Using 'finalResponse' for the rewrite output.
+  */
+  const finalResponse = NextResponse.rewrite(rewriteUrl)
+  // FORCE CACHE CLEARING to ensure browser drops the old Landing Page redirect
+  finalResponse.headers.set('Cache-Control', 'no-store, max-age=0')
+
+  return finalResponse
 }

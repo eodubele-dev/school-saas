@@ -45,7 +45,7 @@ export async function login(formData: FormData) {
             // B. Verify User Profile is linked to this School
             const { data: profile, error: profileError } = await supabase
                 .from('profiles')
-                .select('school_id, role')
+                .select('tenant_id, role')
                 .eq('id', authData.user.id)
                 .single()
 
@@ -53,7 +53,7 @@ export async function login(formData: FormData) {
                 throw new Error("Profile not found")
             }
 
-            if (profile.school_id !== tenant.id) {
+            if (profile.tenant_id !== tenant.id) {
                 // Critical: User belongs to School A but tried to log in to School B
                 await supabase.auth.signOut() // Kill the session immediately
                 throw new Error(`Access Denied. You are not a member of ${domain}.`)
@@ -77,7 +77,14 @@ export async function login(formData: FormData) {
     // 3. Success Redirect
     // If context was valid, simply refresh and go to dashboard
     revalidatePath('/', 'layout')
-    redirect('/')
+
+    // FORCE ABSOLUTE REDIRECT to ensure Subdomain is respected
+    // (Prevents "localhost/school1/login" -> "localhost/" (Landing Page) issue)
+    if (process.env.NODE_ENV === 'development') {
+        redirect(`http://${domain}.localhost:3000/`)
+    } else {
+        redirect(`https://${domain}.eduflow.ng/`)
+    }
 }
 
 export async function signInWithMagicLink(formData: FormData) {

@@ -15,7 +15,7 @@ const AiDemoSection = dynamic(() => import("@/components/landing/ai-demo").then(
 })
 
 export const metadata: Metadata = {
-  title: "EduCare - #1 School Management Platform in Nigeria",
+  title: "LANDING PAGE HIT - DEBUG",
   description: "Empowering Nigerian schools with offline-first gradebooks, AI report cards, and GPS attendance. The best school software for Lagos, Abuja, and Port Harcourt.",
   keywords: ["School Management System Nigeria", "EduCare", "Offline Gradebook", "School Software Lagos", "CBT Software Nigeria", "School ERP Abuja"],
   openGraph: {
@@ -27,6 +27,7 @@ export const metadata: Metadata = {
 }
 
 export default function LandingPage() {
+  console.log("!!! ATTENTION: LANDING PAGE (app/page.tsx) IS RENDERING !!!")
   return (
     <div className="min-h-screen bg-black selection:bg-neon-purple selection:text-white">
       <Navbar />

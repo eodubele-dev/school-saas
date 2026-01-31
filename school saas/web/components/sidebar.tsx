@@ -31,6 +31,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
     let tenantName = "EduFlow"
     let tenantLogo = null
     let userRole = 'student' // Default fallback
+    let userName = 'Guest User'
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _slug = domain // Keeping domain prop usage for linting but ignoring it for links
@@ -51,12 +52,13 @@ export async function Sidebar({ className, domain }: { className?: string, domai
     if (user) {
         const { data: profile } = await supabase
             .from('profiles')
-            .select('role')
+            .select('role, full_name')
             .eq('id', user.id)
             .single()
 
-        if (profile?.role) {
-            userRole = profile.role
+        if (profile) {
+            if (profile.role) userRole = profile.role
+            if (profile.full_name) userName = profile.full_name
         }
     }
 
@@ -75,7 +77,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
                 </div>
             </div>
 
-            <SidebarClient role={userRole} />
+            <SidebarClient role={userRole} userName={userName} />
 
             <div className="border-t border-slate-800 px-4 py-6 space-y-2">
                 <Link

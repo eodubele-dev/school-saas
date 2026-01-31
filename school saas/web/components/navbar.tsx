@@ -24,10 +24,9 @@ export async function Navbar() {
     }
 
     return (
-        <header className="flex h-16 items-center justify-between border-b bg-white px-6">
+        <header className="flex h-16 items-center justify-between border-b border-white/10 bg-slate-900/80 backdrop-blur-md px-6 sticky top-0 z-50 shadow-lg shadow-black/20">
             <div className="flex items-center gap-4">
-                {/* Breadcrumb or Page Title placeholder */}
-                <h1 className="text-xl font-semibold text-slate-800">Dashboard</h1>
+                {/* Removed duplicate "Dashboard" title */}
             </div>
 
             <div className="flex items-center gap-6">
@@ -36,23 +35,19 @@ export async function Navbar() {
                     <input
                         type="text"
                         placeholder="Search..."
-                        className="h-9 w-64 rounded-full border border-slate-200 bg-slate-50 pl-9 pr-4 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                        className="h-9 w-64 rounded-full border border-white/10 bg-white/5 pl-9 pr-4 text-sm text-slate-200 placeholder:text-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                     />
                 </div>
 
-                <button className="relative text-slate-500 hover:text-slate-700">
+                <button className="relative text-slate-400 hover:text-white transition-colors">
                     <Bell className="h-5 w-5" />
-                    <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white"></span>
+                    <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-blue-500 border-2 border-slate-950"></span>
                 </button>
 
                 <div className="flex items-center gap-3">
-                    <div className="text-right hidden md:block">
-                        <p className="text-sm font-medium text-slate-900">{userName}</p>
-                        <p className="text-xs text-slate-500">{userRole}</p>
-                    </div>
-                    <div className="h-9 w-9 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
-                        {/* Avatar image would go here */}
-                        <User className="h-5 w-5 text-slate-500" />
+                    {/* Removed duplicate User Info text (Admin principal) */}
+                    <div className="h-9 w-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center overflow-hidden hover:bg-blue-500/20 transition-colors">
+                        <User className="h-5 w-5 text-blue-400" />
                     </div>
                 </div>
             </div>

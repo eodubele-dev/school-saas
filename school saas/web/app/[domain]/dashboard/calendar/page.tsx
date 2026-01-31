@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Construction } from "lucide-react"
 
-export default function LessonPlansPage() {
+export default function CalendarPage() {
     return (
         <div className="flex h-[50vh] items-center justify-center animate-in fade-in duration-500">
             <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl w-full max-w-md">
@@ -9,7 +9,7 @@ export default function LessonPlansPage() {
                     <div className="h-16 w-16 bg-blue-500/10 rounded-full flex items-center justify-center border border-blue-500/20 mb-4">
                         <Construction className="h-8 w-8 text-blue-400" />
                     </div>
-                    <h2 className="text-2xl font-bold text-white">Lesson Plans</h2>
+                    <h2 className="text-2xl font-bold text-white">School Calendar</h2>
                     <p className="text-slate-400">This feature is currently being developed.</p>
                 </CardContent>
             </Card>
