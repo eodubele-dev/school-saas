@@ -31,15 +31,8 @@ export function SidebarClient({ role: initialRole = 'student', userName = 'Guest
 
     const items = SIDEBAR_LINKS[role] || SIDEBAR_LINKS.student
 
-    const roleStyles: Record<UserRole, string> = {
-        admin: "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20",
-        teacher: "bg-purple-500/10 text-purple-500 hover:bg-purple-500/20",
-        // Updated to Cyan/Electric Blue for Parent as requested
-        parent: "bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20",
-        student: "bg-orange-500/10 text-orange-500 hover:bg-orange-500/20"
-    }
-
-    const activeStyle = roleStyles[role] || "bg-primary text-primary-foreground"
+    // Dynamic Active Style using CSS Variables from TenantThemeProvider
+    const activeStyle = "text-[var(--school-accent)] bg-[var(--school-accent)]/10 hover:bg-[var(--school-accent)]/20 shadow-[inset_3px_0_0_var(--school-accent)]"
 
     return (
         <div className="flex-1 px-4 py-6 space-y-6 relative z-10">
@@ -61,7 +54,7 @@ export function SidebarClient({ role: initialRole = 'student', userName = 'Guest
                         Switch Child
                     </label>
                     <div className="relative">
-                        <select className="w-full bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-md px-2 py-2 appearance-none focus:outline-none focus:border-cyan-500 transition-colors cursor-pointer">
+                        <select className="w-full bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-md px-2 py-2 appearance-none focus:outline-none focus:border-[var(--school-accent)] transition-colors cursor-pointer">
                             <option>Deborah Odubele</option>
                             <option>David Odubele</option>
                         </select>
@@ -91,7 +84,7 @@ export function SidebarClient({ role: initialRole = 'student', userName = 'Guest
                                     <IconComponent className="h-5 w-5 grayscale opacity-50 transition-all group-hover:grayscale-0 group-hover:opacity-100" />
                                     <span>{item.label}</span>
                                     {item.badge && (
-                                        <span className="ml-auto bg-cyan-500/20 text-cyan-400 text-[10px] px-2 py-0.5 rounded-full border border-cyan-500/30 animate-cyan-pulse font-bold tracking-tight">
+                                        <span className="ml-auto bg-[var(--school-accent)]/20 text-[var(--school-accent)] text-[10px] px-2 py-0.5 rounded-full border border-[var(--school-accent)]/30 font-bold tracking-tight">
                                             {item.badge}
                                         </span>
                                     )}
@@ -100,8 +93,8 @@ export function SidebarClient({ role: initialRole = 'student', userName = 'Guest
                                 {/* Sleek Glassmorphism Tooltip - Positioned for 720p safety */}
                                 <div className="absolute left-[105%] top-1/2 -translate-y-1/2 w-52 p-3 rounded-xl bg-slate-900/40 backdrop-blur-xl border border-white/10 text-[11px] text-slate-200 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-[100] shadow-2xl shadow-cyan-950/20 leading-relaxed translate-x-1 group-hover:translate-x-0 hidden md:block">
                                     <div className="flex flex-col gap-1.5">
-                                        <div className="flex items-center gap-2 text-cyan-400 font-bold uppercase text-[9px] tracking-widest">
-                                            <div className="h-1 w-1 rounded-full bg-cyan-400 animate-pulse" />
+                                        <div className="flex items-center gap-2 text-[var(--school-accent)] font-bold uppercase text-[9px] tracking-widest">
+                                            <div className="h-1 w-1 rounded-full bg-[var(--school-accent)] animate-pulse" />
                                             Premium Feature
                                         </div>
                                         <p className="font-medium text-slate-300">
@@ -121,11 +114,16 @@ export function SidebarClient({ role: initialRole = 'student', userName = 'Guest
                             href={item.href}
                             prefetch={false}
                             className={cn(
-                                "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors",
+                                "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200",
                                 isActive
-                                    ? activeStyle
+                                    ? "text-[var(--school-accent)]" // Fallback class
                                     : "text-slate-400 hover:bg-slate-900 hover:text-white"
                             )}
+                            style={isActive ? {
+                                color: 'var(--school-accent)',
+                                backgroundColor: 'rgb(var(--school-accent-rgb) / 0.1)',
+                                boxShadow: 'inset 3px 0 0 var(--school-accent)'
+                            } : {}}
                         >
                             {/* @ts-ignore - Lucide icon compatibility */}
                             <IconComponent className="h-5 w-5" />
