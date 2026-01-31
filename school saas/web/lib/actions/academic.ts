@@ -1,181 +1,141 @@
-'use server'
+"use server"
 
-import { createClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
+import { createClient } from "@/lib/supabase/server"
+import { revalidatePath } from "next/cache"
 
-export interface GradeEntry {
-    studentId: string
-    subjectId: string
-    classId: string
-    term: string
-    session: string
-    ca1?: number
-    ca2?: number
-    exam?: number
-}
-
-// WAEC Grading System
-const getGrade = (score: number): string => {
-    if (score >= 75) return 'A1'
-    if (score >= 70) return 'B2'
-    if (score >= 65) return 'B3'
-    if (score >= 60) return 'C4'
-    if (score >= 55) return 'C5'
-    if (score >= 50) return 'C6'
-    if (score >= 45) return 'D7'
-    if (score >= 40) return 'E8'
-    return 'F9'
-}
-
-/**
- * Upsert a student grade
- * Automatically calculates total and assigns grade
- */
-export async function upsertGrade(entry: GradeEntry) {
+export async function updateGlobalSession(domain: string, sessionData: any) {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
 
-    try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return { success: false, error: 'Not authenticated' }
+    // Get Tenant
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
 
-        // Get tenant ID
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('tenant_id')
-            .eq('id', user.id)
-            .single()
-
-        if (!profile) return { success: false, error: 'Profile not found' }
-
-        const ca1 = entry.ca1 || 0
-        const ca2 = entry.ca2 || 0
-        const exam = entry.exam || 0
-        const total = ca1 + ca2 + exam
-        const grade = getGrade(total)
-
-        const { error } = await supabase
-            .from('student_grades')
-            .upsert({
-                tenant_id: profile.tenant_id,
-                student_id: entry.studentId,
-                subject_id: entry.subjectId,
-                class_id: entry.classId,
-                term: entry.term,
-                session: entry.session,
-                ca1,
-                ca2,
-                exam,
-                total,
-                grade
-            }, {
-                onConflict: 'student_id,subject_id,term,session'
-            })
-
-        if (error) {
-            console.error('Error upserting grade:', error)
-            return { success: false, error: error.message }
-        }
-
-        revalidatePath('/academic/gradebook')
-        return { success: true }
-
-    } catch {
-        console.error('Error in upsertGrade')
-        return { success: false, error: 'Failed to save grade' }
+    // 1. Deactivate all other sessions
+    if (sessionData.is_active) {
+        await supabase
+            .from('academic_sessions')
+            .update({ is_active: false })
+            .eq('tenant_id', profile.tenant_id)
+            .neq('id', '00000000-0000-0000-0000-000000000000') // Safety check
     }
+
+    // 2. Upsert Session
+    const { error } = await supabase
+        .from('academic_sessions')
+        .upsert({
+            tenant_id: profile.tenant_id,
+            ...sessionData
+        })
+
+    if (error) return { success: false, error: error.message }
+
+    revalidatePath(`/${domain}/dashboard/admin/setup`)
+    return { success: true }
 }
 
-/**
- * Calculate positions for a class in a specific subject
- */
-export async function calculateSubjectPositions(
-    classId: string,
-    subjectId: string,
-    term: string,
-    session: string
-) {
+export async function saveGradeScales(scales: any[]) {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
 
-    try {
-        // Fetch all grades for this subject/class sorted by total desc
-        const { data: grades, error } = await supabase
-            .from('student_grades')
-            .select('id, total')
-            .eq('class_id', classId)
-            .eq('subject_id', subjectId)
-            .eq('term', term)
-            .eq('session', session)
-            .order('total', { ascending: false })
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
 
-        if (error) throw error
+    // Enrich with tenant_id
+    const data = scales.map(s => ({ ...s, tenant_id: profile.tenant_id }))
 
-        // Update positions
-        let currentPos = 1
-        for (const grade of grades) {
-            await supabase
-                .from('student_grades')
-                .update({ position: currentPos })
-                .eq('id', grade.id)
-            currentPos++
-        }
+    const { error } = await supabase
+        .from('grade_scales')
+        .upsert(data)
 
-        return { success: true }
-    } catch {
-        console.error("Error calculating positions")
-        return { success: false, error: 'Failed to calculate positions' }
-    }
+    if (error) return { success: false, error: error.message }
+    return { success: true }
 }
 
-/**
- * Fetch grades for a class sheet (all students, specific subject)
- */
-export async function getClassGrades(
-    classId: string,
-    subjectId: string,
-    term: string,
-    session: string
-) {
+export async function loadWAECStandards(domain: string) {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
 
-    try {
-        const { data, error } = await supabase
-            .from('student_grades')
-            .select(`
-                student_id,
-                ca1,
-                ca2,
-                exam,
-                total,
-                grade,
-                position
-            `)
-            .eq('class_id', classId)
-            .eq('subject_id', subjectId)
-            .eq('term', term)
-            .eq('session', session)
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
 
-        if (error) throw error
+    const waecScales = [
+        { grade: 'A1', min_score: 75, max_score: 100, remark: 'Excellent' },
+        { grade: 'B2', min_score: 70, max_score: 74, remark: 'Very Good' },
+        { grade: 'B3', min_score: 65, max_score: 69, remark: 'Good' },
+        { grade: 'C4', min_score: 60, max_score: 64, remark: 'Credit' },
+        { grade: 'C5', min_score: 55, max_score: 59, remark: 'Credit' },
+        { grade: 'C6', min_score: 50, max_score: 54, remark: 'Credit' },
+        { grade: 'D7', min_score: 45, max_score: 49, remark: 'Pass' },
+        { grade: 'E8', min_score: 40, max_score: 44, remark: 'Pass' },
+        { grade: 'F9', min_score: 0, max_score: 39, remark: 'Fail' },
+    ]
 
-        return { success: true, data }
-    } catch {
-        return { success: false, error: 'Failed to fetch grades' }
-    }
+    const data = waecScales.map(s => ({ ...s, tenant_id: profile?.tenant_id }))
+
+    // Delete existing to avoid conflicts/dupes logic if needed, but upsert is safer with IDs, here we just insert new if ID missing
+    // Ideally we should wipe and replace or smart update. For simplicity, we delete all for this tenant and re-insert.
+    await supabase.from('grade_scales').delete().eq('tenant_id', profile?.tenant_id)
+
+    const { error } = await supabase.from('grade_scales').insert(data)
+
+    if (error) return { success: false, error: error.message }
+    revalidatePath(`/${domain}/dashboard/admin/setup`)
+    return { success: true }
 }
 
-/**
- * Fetch all subjects for a tenant
- */
-export async function getSubjects() {
+export async function updateSubjectMapping(subjectId: string, classIds: string[]) {
     const supabase = createClient()
-    try {
-        const { data, error } = await supabase
-            .from('subjects')
-            .select('id, name, code')
-            .order('name')
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
 
-        if (error) throw error
-        return { success: true, data }
-    } catch {
-        return { success: false, error: 'Failed to fetch subjects' }
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+
+    // 1. Delete existing for this subject
+    await supabase.from('class_subjects').delete().eq('subject_id', subjectId).eq('tenant_id', profile?.tenant_id)
+
+    // 2. Insert new
+    if (classIds.length > 0) {
+        const rows = classIds.map(cid => ({
+            tenant_id: profile?.tenant_id,
+            subject_id: subjectId,
+            class_id: cid
+        }))
+        const { error } = await supabase.from('class_subjects').insert(rows)
+        if (error) return { success: false, error: error.message }
     }
+
+    return { success: true }
+}
+
+export async function bulkAddNigerianSubjects(domain: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user?.id).single()
+
+    const subjects = [
+        "Mathematics", "English Language", "Civic Education", "Biology", "Physics",
+        "Chemistry", "Economics", "Government", "Literature-in-English", "CRS",
+        "IRS", "Yoruba", "Igbo", "Hausa", "Data Processing", "Further Mathematics",
+        "Agricultural Science", "Geography", "Commerce", "Financial Accounting"
+    ]
+
+    // Upsert by name logic constraint would be nice, but simple logic:
+    // Check existing names to avoid dupes
+    const { data: existing } = await supabase.from('subjects').select('name').eq('tenant_id', profile?.tenant_id)
+    const existingNames = new Set(existing?.map(e => e.name))
+
+    const newSubjects = subjects
+        .filter(s => !existingNames.has(s))
+        .map(s => ({ tenant_id: profile?.tenant_id, name: s, code: s.substring(0, 3).toUpperCase() }))
+
+    if (newSubjects.length > 0) {
+        const { error } = await supabase.from('subjects').insert(newSubjects)
+        if (error) return { success: false, error: error.message }
+    }
+
+    revalidatePath(`/${domain}/dashboard/admin/setup`)
+    return { success: true }
 }
