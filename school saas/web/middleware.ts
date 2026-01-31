@@ -146,10 +146,15 @@ export default async function middleware(req: NextRequest) {
           return path.startsWith(link.href)
         })
 
-        // If not allowed, redirect to root (Overview)
+        // If not allowed, redirect to the first allowed link (e.g. /dashboard/profile)
         if (!isAllowed) {
           console.log(`[Middleware] Access Denied for ${role} to ${path}`)
-          return NextResponse.redirect(new URL('/dashboard', req.url))
+          const fallbackUrl = allowedLinks.length > 0 ? allowedLinks[0].href : '/dashboard'
+
+          // Prevent redirect loop if the fallback is also denied (should not happen with valid config)
+          if (path !== fallbackUrl) {
+            return NextResponse.redirect(new URL(fallbackUrl, req.url))
+          }
         }
       }
     }

@@ -81,3 +81,23 @@
 }
 
 /* Force Rebuild */
+
+@keyframes cyan-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(6, 182, 212, 0.3);
+    border-color: rgba(6, 182, 212, 0.4);
+    opacity: 0.8;
+  }
+
+  50% {
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.6);
+    border-color: rgba(6, 182, 212, 0.8);
+    opacity: 1;
+  }
+}
+
+.animate-cyan-pulse {
+  animation: cyan-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

@@ -17,11 +17,11 @@ export const SIDEBAR_LINKS = {
         { icon: CalendarDays, label: "Lesson Plans", href: "/dashboard/lesson-plans" },
     ],
     parent: [
-        { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
-        { icon: UserCircle, label: "Child Profile", href: "/dashboard/children" },
+        { icon: UserCircle, label: "Child Profile", href: "/dashboard/profile" },
         { icon: FileText, label: "Result Checker", href: "/dashboard/results" },
-        { icon: CreditCard, label: "Fee Payment", href: "/dashboard/fees" },
+        { icon: CreditCard, label: "School Fees", href: "/dashboard/billing" },
         { icon: CalendarDays, label: "School Calendar", href: "/dashboard/calendar" },
+        { icon: MapPin, label: "Bus Tracker", href: "/dashboard/bus-tracker", disabled: true, badge: "Premium" },
     ],
     student: [
         { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
