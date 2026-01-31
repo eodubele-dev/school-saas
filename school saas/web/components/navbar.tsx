@@ -1,7 +1,7 @@
 import { Bell, Search, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 
-export async function Navbar() {
+export async function Navbar({ domain }: { domain?: string }) {
     const supabase = createClient()
 
     // Fetch authenticated user
@@ -26,7 +26,7 @@ export async function Navbar() {
     return (
         <header className="flex h-16 items-center justify-between border-b border-white/10 bg-slate-900/80 backdrop-blur-md px-6 sticky top-0 z-50 shadow-lg shadow-black/20">
             <div className="flex items-center gap-4">
-                {/* Removed duplicate "Dashboard" title */}
+                {/* Branding moved to Sidebar to avoid duplication */}
             </div>
 
             <div className="flex items-center gap-6">
@@ -45,7 +45,6 @@ export async function Navbar() {
                 </button>
 
                 <div className="flex items-center gap-3">
-                    {/* Removed duplicate User Info text (Admin principal) */}
                     <div className="h-9 w-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center overflow-hidden hover:bg-blue-500/20 transition-colors">
                         <User className="h-5 w-5 text-blue-400" />
                     </div>

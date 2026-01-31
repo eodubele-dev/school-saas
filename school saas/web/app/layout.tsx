@@ -33,7 +33,7 @@ export default function RootLayout({
       >
         <ReactQueryProvider>
           {children}
-          <Toaster />
+          <Toaster theme="dark" richColors />
         </ReactQueryProvider>
       </body>
     </html>
