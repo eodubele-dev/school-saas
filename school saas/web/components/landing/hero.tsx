@@ -108,7 +108,7 @@ export function HeroSection() {
                     </div>
 
                     {/* Floating Badge Example */}
-                    <div className="absolute -right-4 top-10 bg-obsidian border border-white/10 p-4 rounded-xl shadow-xl hidden md:block animate-bounce duration-[3000ms]">
+                    <div className="absolute -right-4 top-10 bg-obsidian border border-white/10 p-4 rounded-xl shadow-xl hidden md:block animate-bounce [animation-duration:3s]">
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-full bg-emerald-green/20 flex items-center justify-center text-emerald-green">
                                 ₦

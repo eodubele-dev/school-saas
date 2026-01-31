@@ -6,7 +6,7 @@ export const SIDEBAR_LINKS = {
     admin: [
         { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
         { icon: Users, label: "Student Admissions", href: "/dashboard/admin/admissions" },
-        { icon: Users, label: "Staff Management", href: "/dashboard/staff" },
+        { icon: Users, label: "Staff Management", href: "/dashboard/admin/staff" },
         { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup" },
         { icon: DollarSign, label: "Financial Config", href: "/dashboard/finance" },
         { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
