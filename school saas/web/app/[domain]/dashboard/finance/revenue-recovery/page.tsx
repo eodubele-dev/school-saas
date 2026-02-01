@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { MessageCircle, DollarSign, RefreshCw, Smartphone } from "lucide-react"
+import { MessageCircle, RefreshCw, Smartphone } from "lucide-react"
+import { NairaIcon } from "@/components/ui/naira-icon"
 import { getDebtorStudents, generatePaystackLink } from "@/lib/actions/finance"
 import { toast } from "sonner"
 
@@ -46,7 +47,7 @@ export default function RevenueRecoveryPage() {
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant="outline"><RefreshCw className="mr-2 h-4 w-4" /> Sync Payments</Button>
-                    <Button className="bg-green-600 hover:bg-green-700"><DollarSign className="mr-2 h-4 w-4" /> Record Payment</Button>
+                    <Button className="bg-green-600 hover:bg-green-700"><NairaIcon className="mr-2 h-4 w-4" /> Record Payment</Button>
                 </div>
             </div>
 
@@ -54,7 +55,7 @@ export default function RevenueRecoveryPage() {
                 <Card className="bg-red-50 border-red-100">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium text-red-600">Total Outstanding</CardTitle>
-                        <DollarSign className="h-4 w-4 text-red-600" />
+                        <NairaIcon className="h-4 w-4 text-red-600" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-red-900">₦{totalOutstanding.toLocaleString()}</div>

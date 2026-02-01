@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server"
 import { AdminDashboard } from "@/components/dashboard/admin-dashboard"
 import { TeacherDashboard } from "@/components/dashboard/teacher-dashboard"
 import { ParentDashboard } from "@/components/dashboard/parent-dashboard"
+import { BursarDashboard } from "@/components/dashboard/bursar-dashboard"
+import { getBursarStats } from "@/lib/actions/finance"
 
 export default async function DashboardPage({
     params,
@@ -61,6 +63,7 @@ export default async function DashboardPage({
             {currentRole === 'admin' && <AdminDashboard />}
             {currentRole === 'teacher' && <TeacherDashboard />}
             {currentRole === 'parent' && <ParentDashboard />}
+            {currentRole === 'bursar' && <BursarDashboard stats={await getBursarStats()} />}
 
             {/* Fallback for unknown role */}
             {!['admin', 'teacher', 'parent'].includes(currentRole) && (

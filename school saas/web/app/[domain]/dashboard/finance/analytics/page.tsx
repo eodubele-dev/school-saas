@@ -9,7 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { getBursarStats, getClassRevenueStats, FinancialStats, ClassRevenue } from "@/lib/actions/bursar"
 import { getDebtorStudents, generatePaystackLink } from "@/lib/actions/finance" // Fixed import
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts"
-import { Loader2, DollarSign, Wallet, AlertCircle, MessageSquare } from "lucide-react"
+import { Loader2, Wallet, AlertCircle, MessageSquare } from "lucide-react"
+import { NairaIcon } from "@/components/ui/naira-icon"
 import { toast } from "sonner"
 
 const COLORS = ['#10b981', '#f59e0b', '#64748b'];
@@ -97,7 +98,7 @@ export default function BursarAnalyticsPage() {
                 <Card className="border-l-4 border-l-emerald-500 shadow-sm bg-emerald-50/10">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium text-emerald-600">Total Collected</CardTitle>
-                        <DollarSign className="h-4 w-4 text-emerald-600" />
+                        <NairaIcon className="h-4 w-4 text-emerald-600" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-emerald-700">₦{stats?.totalReceived.toLocaleString()}</div>

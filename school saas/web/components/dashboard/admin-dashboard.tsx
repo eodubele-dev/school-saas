@@ -1,4 +1,5 @@
-import { Users, DollarSign, School, Activity, TrendingUp, TrendingDown } from "lucide-react"
+import { Users, School, Activity, TrendingUp, TrendingDown } from "lucide-react"
+import { NairaIcon } from "@/components/ui/naira-icon"
 import { getAdminStats } from "@/lib/actions/dashboard"
 import { MetricCard } from "./metric-card"
 import { OverviewChart } from "./overview-chart"
@@ -21,7 +22,7 @@ export async function AdminDashboard() {
                 <MetricCard
                     title="Total Revenue"
                     value={new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(stats?.totalRevenue || 0)}
-                    icon={DollarSign}
+                    icon={NairaIcon}
                     trend={{ value: "12% from last month", positive: true }}
                 />
                 <MetricCard
