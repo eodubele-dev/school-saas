@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 
 import { createClient } from '@/lib/supabase/server'
 
@@ -60,12 +61,16 @@ export async function login(formData: FormData) {
             }
 
             // C. Update User Metadata with Role for Middleware RBAC
-            await supabase.auth.updateUser({
+            const { data: { user: updatedUser }, error: updateError } = await supabase.auth.updateUser({
                 data: {
                     role: profile.role,
                     school_slug: domain
                 }
             })
+
+            if (updatedUser) {
+                authData.user = updatedUser
+            }
 
         } catch (error: any) {
             // Rollback: Sign out and redirect with error
@@ -76,14 +81,23 @@ export async function login(formData: FormData) {
 
     // 3. Success Redirect
     // If context was valid, simply refresh and go to dashboard
+    console.log(`[Login Action Success] User: ${authData.user?.email}, Domain: ${domain}, Role: ${authData.user?.user_metadata?.role}`)
+
     revalidatePath('/', 'layout')
 
+    const host = headers().get('host') || 'localhost:3000'
+    const protocol = host.includes('localhost') ? 'http' : 'https'
+
     // FORCE ABSOLUTE REDIRECT to ensure Subdomain is respected
-    // (Prevents "localhost/school1/login" -> "localhost/" (Landing Page) issue)
     if (process.env.NODE_ENV === 'development') {
-        redirect(`http://${domain}.localhost:3000/`)
+        const targetDomain = (domain && domain !== 'login') ? domain : (authData.user?.user_metadata?.school_slug || 'school1')
+        const port = host.split(':')[1] || '3000'
+        const targetUrl = `${protocol}://${targetDomain}.localhost:${port}/dashboard`
+        console.log(`[Login Redirect] Dev Target: ${targetUrl}`)
+        redirect(targetUrl)
     } else {
-        redirect(`https://${domain}.eduflow.ng/`)
+        const targetDomain = domain || authData.user?.user_metadata?.school_slug
+        redirect(`${protocol}://${targetDomain}.eduflow.ng/dashboard`)
     }
 }
 

@@ -80,10 +80,12 @@ export default async function middleware(req: NextRequest) {
   currentHost = currentHost?.replace('.localhost', '') // remove .localhost
   currentHost = currentHost?.replace('.eduflow.ng', '') // remove main domain
 
+  console.log(`[Middleware Debug] Hostname: ${hostname}, CurrentHost: ${currentHost}, Path: ${url.pathname}`)
+
   // If no subdomain (or it's the main domain/www), allow standard routing
   if (!currentHost || currentHost === 'www' || currentHost === 'localhost' || currentHost.includes(':')) {
     // This will render the pages directly in `app/` (e.g., landing page)
-    console.log(`[Middleware] No subdomain detected. CurrentHost: '${currentHost}'. Passing through to landing page.`)
+    console.log(`[Middleware] No subdomain detected. CurrentHost: '${currentHost}'. User: ${user?.email || 'Guest'}. Passing through.`)
     return response // Return the response with refreshed cookies
   }
 
@@ -160,13 +162,13 @@ export default async function middleware(req: NextRequest) {
     }
   }
 
-  console.log(`[Middleware] Rewriting to: ${rewriteUrl.toString()}`)
+  console.log(`[Middleware] Rewriting ${url.pathname} to internal path: /${currentHost}${path}`)
 
-  /* 
-     Fixing collision with 'let response' above. 
-     Using 'finalResponse' for the rewrite output.
-  */
-  const finalResponse = NextResponse.rewrite(rewriteUrl)
+  const finalResponse = NextResponse.rewrite(rewriteUrl, {
+    request: {
+      headers: new Headers(req.headers)
+    }
+  })
   // FORCE CACHE CLEARING to ensure browser drops the old Landing Page redirect
   finalResponse.headers.set('Cache-Control', 'no-store, max-age=0')
 
