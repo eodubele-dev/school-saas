@@ -138,7 +138,7 @@ export async function updateTenantBranding(tenantId: string, data: {
     return { success: true }
 }
 
-export async function getUploadSignature(tenantId: string, fileName: string) {
+export async function getUploadSignature(_tenantId: string, _fileName: string) {
     // Note: For simplicity in this iteration, we'll likely use client-side upload 
     // or a simple multipart form action. Since Supabase Storage works well with
     // standard client uploads + RLS, we can stick to client upload if policies allow.
