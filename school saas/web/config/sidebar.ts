@@ -1,4 +1,4 @@
-import { LayoutDashboard, CalendarDays, BookOpen, Activity, FileText, MapPin, Users, Settings, GraduationCap, ClipboardCheck, CreditCard, UserCircle, BrainCircuit, MessageSquare, BookCheck as BookOpenCheck, Banknote, Wallet, ShieldCheck } from "lucide-react"
+import { LayoutDashboard, CalendarDays, BookOpen, Activity, FileText, MapPin, Users, Settings, GraduationCap, ClipboardCheck, CreditCard, UserCircle, BrainCircuit, MessageSquare, BookCheck as BookOpenCheck, Banknote, Wallet, ShieldCheck, Smartphone } from "lucide-react"
 import { NairaIcon } from "@/components/ui/naira-icon"
 
 export type UserRole = 'admin' | 'teacher' | 'parent' | 'student' | 'bursar'
@@ -34,6 +34,7 @@ export const SIDEBAR_LINKS = {
         { icon: FileText, label: "Lesson Plans", href: "/dashboard/teacher/lesson-plans" },
         { icon: MessageSquare, label: "Communication Hub", href: "/dashboard/messages" },
         { icon: CalendarDays, label: "Academic Calendar", href: "/dashboard/calendar" },
+        { icon: Smartphone, label: "Mobile App View", href: "/mobile/teacher" },
     ],
     parent: [
         { icon: UserCircle, label: "Child Profile", href: "/dashboard/profile" },
