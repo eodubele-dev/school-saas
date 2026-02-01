@@ -28,7 +28,7 @@ export const SIDEBAR_LINKS = {
     ],
     teacher: [
         { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
-        { icon: Users, label: "My Classes", href: "/dashboard/classes" },
+        { icon: Users, label: "My Classes", href: "/dashboard/teacher/classes" },
         { icon: BookOpenCheck, label: "Assessment Hub", href: "/dashboard/teacher/assessments" },
         { icon: ClipboardCheck, label: "Attendance", href: "/dashboard/attendance" },
         { icon: FileText, label: "Lesson Plans", href: "/dashboard/teacher/lesson-plans" },
