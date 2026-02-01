@@ -22,11 +22,11 @@ export async function generateSyllabus(subject: string, className: string, topic
             Output Example:
             [
               {
-                week_number: (plan as { week_number?: number }).week_number,
-            topic: (plan as { topic?: string }).topic,
-            learning_objectives: (plan as { learning_objectives?: string[] }).learning_objectives || [],
-            activities: (plan as { activities?: string[] }).activities || [],
-            resources: (plan as { resources?: string[] }).resources || []
+                "week_number": 1,
+                "topic": "Introduction",
+                "learning_objectives": ["Goal 1"],
+                "activities": ["Activity 1"],
+                "resources": ["Book"]
               },
               ...
             ]

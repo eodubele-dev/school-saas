@@ -139,3 +139,130 @@ export async function bulkAddNigerianSubjects(domain: string) {
     revalidatePath(`/${domain}/dashboard/admin/setup`)
     return { success: true }
 }
+
+export async function getClassGrades(classId: string, subjectId: string, term: string, session: string) {
+    const supabase = createClient()
+    const { data, error } = await supabase
+        .from('student_grades')
+        .select('*')
+        .eq('class_id', classId)
+        .eq('subject_id', subjectId)
+        .eq('term', term)
+        .eq('session', session)
+
+    if (error) {
+        console.error('Error fetching grades:', error)
+        return { success: false, error: error.message }
+    }
+
+    return { success: true, data }
+}
+
+export async function upsertGrade(gradeData: {
+    studentId: string,
+    subjectId: string,
+    classId: string,
+    term: string,
+    session: string,
+    ca1: number,
+    ca2: number,
+    exam: number
+}) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Profile not found" }
+
+    const total = (gradeData.ca1 || 0) + (gradeData.ca2 || 0) + (gradeData.exam || 0)
+    const grade = getGradeLetter(total)
+
+    const { error } = await supabase
+        .from('student_grades')
+        .upsert({
+            tenant_id: profile.tenant_id,
+            student_id: gradeData.studentId,
+            subject_id: gradeData.subjectId,
+            class_id: gradeData.classId,
+            term: gradeData.term,
+            session: gradeData.session,
+            ca1: gradeData.ca1,
+            ca2: gradeData.ca2,
+            exam: gradeData.exam,
+            total: total,
+            grade: grade,
+            updated_at: new Date().toISOString()
+        }, {
+            onConflict: 'student_id,subject_id,term,session'
+        })
+
+    if (error) {
+        console.error('Error upserting grade:', error)
+        return { success: false, error: error.message }
+    }
+
+    return { success: true }
+}
+
+export async function calculateSubjectPositions(classId: string, subjectId: string, term: string, session: string) {
+    const supabase = createClient()
+
+    // 1. Fetch all grades for this class/subject/term/session
+    const { data: grades, error } = await supabase
+        .from('student_grades')
+        .select('id, total')
+        .eq('class_id', classId)
+        .eq('subject_id', subjectId)
+        .eq('term', term)
+        .eq('session', session)
+        .order('total', { ascending: false })
+
+    if (error) return { success: false, error: error.message }
+    if (!grades || grades.length === 0) return { success: true }
+
+    // 2. Assign positions (handling ties)
+    const updates = []
+    let currentPos = 0
+    let lastTotal = -1
+    let skip = 0
+
+    for (let i = 0; i < grades.length; i++) {
+        if (grades[i].total !== lastTotal) {
+            currentPos += 1 + skip
+            skip = 0
+        } else {
+            skip++
+        }
+        lastTotal = grades[i].total
+
+        updates.push({
+            id: grades[i].id,
+            position: currentPos
+        })
+    }
+
+    // 3. Bulk update positions
+    // Note: In Supabase, bulk update with different values usually requires multiple calls 
+    // or a specialized RPC. For MVP simplicity, we'll loop or use upsert if ID is provided.
+    for (const update of updates) {
+        await supabase
+            .from('student_grades')
+            .update({ position: update.position })
+            .eq('id', update.id)
+    }
+
+    return { success: true }
+}
+
+function getGradeLetter(score: number) {
+    if (score >= 75) return 'A1'
+    if (score >= 70) return 'B2'
+    if (score >= 65) return 'B3'
+    if (score >= 60) return 'C4'
+    if (score >= 55) return 'C5'
+    if (score >= 50) return 'C6'
+    if (score >= 45) return 'D7'
+    if (score >= 40) return 'E8'
+    return 'F9'
+}

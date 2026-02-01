@@ -1,5 +1,7 @@
 import { Bell, Search, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
+import { MobileNav } from "./mobile-nav"
+import { Sidebar } from "./sidebar"
 
 export async function Navbar({ domain }: { domain?: string }) {
     const supabase = createClient()
@@ -26,7 +28,9 @@ export async function Navbar({ domain }: { domain?: string }) {
     return (
         <header className="flex h-16 items-center justify-between border-b border-white/10 bg-slate-900/80 backdrop-blur-md px-6 sticky top-0 z-50 shadow-lg shadow-black/20">
             <div className="flex items-center gap-4">
-                {/* Branding moved to Sidebar to avoid duplication */}
+                <MobileNav>
+                    <Sidebar domain={domain} className="w-full h-full border-none" />
+                </MobileNav>
             </div>
 
             <div className="flex items-center gap-6">
