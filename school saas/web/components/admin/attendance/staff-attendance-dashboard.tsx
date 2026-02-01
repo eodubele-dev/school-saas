@@ -2,16 +2,19 @@
 
 import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Loader2, UserCheck, UserX, Clock, AlertCircle } from "lucide-react"
 import { getStaffAttendanceStats } from "@/lib/actions/admin-attendance"
 import { LeaveRequestManager } from "./leave-request-manager"
 import { format } from "date-fns"
+import { toast } from "sonner"
 
 export function StaffAttendanceDashboard() {
     const [loading, setLoading] = useState(true)
     const [stats, setStats] = useState<any>(null)
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         loadStats()
@@ -22,13 +25,24 @@ export function StaffAttendanceDashboard() {
         const res = await getStaffAttendanceStats()
         if (res.success && res.data) {
             setStats(res.data)
+        } else {
+            setError(res.error || "Failed to load stats")
+            toast.error(res.error || "Failed to load stats")
         }
         setLoading(false)
     }
 
     if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-blue-500" /></div>
 
-    if (!stats) return <div className="text-white">Failed to load statistics.</div>
+    if (error) return (
+        <div className="flex flex-col items-center justify-center h-64 gap-4">
+            <AlertCircle className="h-10 w-10 text-red-500" />
+            <div className="text-red-400">Failed to load statistics: {error}</div>
+            <Button onClick={loadStats} variant="outline" className="border-white/10">Retry</Button>
+        </div>
+    )
+
+    if (!stats) return <div className="text-white p-4">No statistics available.</div>
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500 pb-20">

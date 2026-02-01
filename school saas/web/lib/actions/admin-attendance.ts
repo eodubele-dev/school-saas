@@ -19,12 +19,13 @@ export async function getStaffAttendanceStats() {
         const today = new Date().toISOString().split('T')[0]
 
         // Fetch all staff (teachers/admins)
+        // Schema check: profiles usually has full_name, not first/last in this project version
         const { data: staff, error: staffError } = await supabase
             .from('profiles')
-            .select('id, first_name, last_name, role, photo_url')
+            .select('id, full_name, role')
             .in('role', ['teacher', 'admin', 'principal'])
             .eq('tenant_id', profile.tenant_id)
-            .eq('status', 'active')
+        // .eq('status', 'active') // Status column not confirmed in schema
 
         if (staffError) throw staffError
 
@@ -77,8 +78,16 @@ export async function getStaffAttendanceStats() {
                 }
             }
 
+            const names = (s.full_name || '').split(' ')
+            const firstName = names[0] || 'Staff'
+            const lastName = names.length > 1 ? names.slice(1).join(' ') : ''
+
             return {
-                ...s,
+                id: s.id,
+                first_name: firstName,
+                last_name: lastName,
+                role: s.role,
+                photo_url: null, // Schema doesn't have photo_url yet
                 status,
                 checkInTime: checkIn,
                 isLate
@@ -95,7 +104,7 @@ export async function getStaffAttendanceStats() {
 
     } catch (error) {
         console.error("Error fetching staff stats:", error)
-        return { success: false, error: "Failed to load stats" }
+        return { success: false, error: error instanceof Error ? error.message : "Failed to load stats" }
     }
 }
 

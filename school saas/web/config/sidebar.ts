@@ -1,4 +1,4 @@
-import { LayoutDashboard, CalendarDays, BookOpen, Activity, FileText, MapPin, Users, Settings, GraduationCap, ClipboardCheck, CreditCard, UserCircle, BrainCircuit, MessageSquare, BookCheck as BookOpenCheck } from "lucide-react"
+import { LayoutDashboard, CalendarDays, BookOpen, Activity, FileText, MapPin, Users, Settings, GraduationCap, ClipboardCheck, CreditCard, UserCircle, BrainCircuit, MessageSquare, BookCheck as BookOpenCheck, Banknote, Wallet } from "lucide-react"
 import { NairaIcon } from "@/components/ui/naira-icon"
 
 export type UserRole = 'admin' | 'teacher' | 'parent' | 'student' | 'bursar'
@@ -10,6 +10,7 @@ export const SIDEBAR_LINKS = {
         { icon: CreditCard, label: "Revenue & Collections", href: "/dashboard/bursar/finance/collections" },
         { icon: Users, label: "Student Admissions", href: "/dashboard/admin/admissions" },
         { icon: Users, label: "Staff Management", href: "/dashboard/admin/staff" },
+        { icon: ClipboardCheck, label: "Staff Attendance", href: "/dashboard/admin/attendance/staff" },
         { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup" },
         { icon: NairaIcon, label: "Financial Config", href: "/dashboard/admin/finance/config" },
         { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
@@ -17,6 +18,8 @@ export const SIDEBAR_LINKS = {
     bursar: [
         { icon: LayoutDashboard, label: "Bursar Hub", href: "/dashboard/bursar" },
         { icon: CreditCard, label: "Revenue & Collections", href: "/dashboard/bursar/finance/collections" },
+        { icon: Banknote, label: "Payroll", href: "/dashboard/bursar/finance/payroll" },
+        { icon: Wallet, label: "Expenses & P&L", href: "/dashboard/bursar/finance/expenses" },
         { icon: NairaIcon, label: "Financial Config", href: "/dashboard/admin/finance/config" },
         { icon: FileText, label: "Invoices", href: "/dashboard/admin/finance/invoices" },
         { icon: CreditCard, label: "Transactions", href: "/dashboard/admin/finance/transactions" },
