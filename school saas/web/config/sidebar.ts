@@ -28,10 +28,9 @@ export const SIDEBAR_LINKS = {
     teacher: [
         { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
         { icon: Users, label: "My Classes", href: "/dashboard/classes" },
-        { icon: BookOpenCheck, label: "Assignments & CBT", href: "/dashboard/teacher/assessments" },
-        { icon: FileText, label: "Gradebook", href: "/dashboard/teacher/gradebook" },
-        { icon: Users, label: "My Students", href: "/dashboard/teacher/students" },
-        { icon: BrainCircuit, label: "CBT & Assessments", href: "/dashboard/assessments" },
+        { icon: BookOpenCheck, label: "Assessment Hub", href: "/dashboard/teacher/assessments" },
+        { icon: ClipboardCheck, label: "Attendance", href: "/dashboard/attendance" },
+        { icon: FileText, label: "Lesson Plans", href: "/dashboard/lesson-plans" },
         { icon: MessageSquare, label: "Communication Hub", href: "/dashboard/messages" },
         { icon: CalendarDays, label: "Academic Calendar", href: "/dashboard/calendar" },
     ],
