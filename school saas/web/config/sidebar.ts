@@ -1,4 +1,4 @@
-import { LayoutDashboard, CalendarDays, BookOpen, Activity, FileText, MapPin, Users, Settings, GraduationCap, ClipboardCheck, CreditCard, UserCircle, BrainCircuit, MessageSquare, BookCheck as BookOpenCheck, Banknote, Wallet } from "lucide-react"
+import { LayoutDashboard, CalendarDays, BookOpen, Activity, FileText, MapPin, Users, Settings, GraduationCap, ClipboardCheck, CreditCard, UserCircle, BrainCircuit, MessageSquare, BookCheck as BookOpenCheck, Banknote, Wallet, ShieldCheck } from "lucide-react"
 import { NairaIcon } from "@/components/ui/naira-icon"
 
 export type UserRole = 'admin' | 'teacher' | 'parent' | 'student' | 'bursar'
@@ -12,6 +12,7 @@ export const SIDEBAR_LINKS = {
         { icon: Users, label: "Staff Management", href: "/dashboard/admin/staff" },
         { icon: ClipboardCheck, label: "Staff Attendance", href: "/dashboard/admin/attendance/staff" },
         { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup" },
+        { icon: ShieldCheck, label: "Academic Approvals", href: "/dashboard/admin/approvals" }, // New Link
         { icon: NairaIcon, label: "Financial Config", href: "/dashboard/admin/finance/config" },
         { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
     ],
@@ -30,7 +31,7 @@ export const SIDEBAR_LINKS = {
         { icon: Users, label: "My Classes", href: "/dashboard/classes" },
         { icon: BookOpenCheck, label: "Assessment Hub", href: "/dashboard/teacher/assessments" },
         { icon: ClipboardCheck, label: "Attendance", href: "/dashboard/attendance" },
-        { icon: FileText, label: "Lesson Plans", href: "/dashboard/lesson-plans" },
+        { icon: FileText, label: "Lesson Plans", href: "/dashboard/teacher/lesson-plans" },
         { icon: MessageSquare, label: "Communication Hub", href: "/dashboard/messages" },
         { icon: CalendarDays, label: "Academic Calendar", href: "/dashboard/calendar" },
     ],

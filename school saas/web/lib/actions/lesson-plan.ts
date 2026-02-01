@@ -1,67 +1,121 @@
 'use server'
 
-import { model } from '@/lib/gemini'
 import { createClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
 
-export async function generateSyllabus(subject: string, className: string, topic?: string) {
-    try {
-        const prompt = `
-            Act as an Expert Curriculum Developer for the Nigerian National Curriculum (NERDC).
-            
-            Task:
-            Create a comprehensive 13-Week Lesson Plan / Syllabus for:
-            - Subject: ${subject}
-            - Class: ${className}
-            ${topic ? `- Focus Topic: ${topic}` : ''}
-            
-            Structure Guidelines:
-            1.  **Format**: strict JSON array of objects.
-            2.  **Fields**: 'week' (number), 'topic' (string), 'learning_objectives' (array of strings), 'activities' (array of strings), 'resources' (array of strings).
-            3.  **Content**: Must align with Nigerian educational standards.
-            
-            Output Example:
-            [
-              {
-                "week_number": 1,
-                "topic": "Introduction",
-                "learning_objectives": ["Goal 1"],
-                "activities": ["Activity 1"],
-                "resources": ["Book"]
-              },
-              ...
-            ]
-            
-            Provide ONLY the JSON array. No markdown blocks.
-        `
+export interface LessonPlan {
+    id: string
+    title: string
+    content: string
+    subject: string
+    term: string
+    week: string
+    date: string
+    is_published: boolean
+    class_id: string
+    teacher_id: string
+}
 
-        const result = await model.generateContent(prompt)
-        const response = await result.response
-        const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim()
+/**
+ * 1. AI Generation (Stub)
+ * Generates structured content based on NERDC standards.
+ */
+export async function generateLessonPlanAI(topic: string, subject: string, level: string, week: string) {
+    // Stub for Gemini 1.5 Flash
+    // We mock the structured response HTML
+    await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate 2s delay
 
-        const syllabus = JSON.parse(text)
+    const content = `
+    <h2>Topic: ${topic}</h2>
+    <p><strong>Class:</strong> ${level} | <strong>Week:</strong> ${week}</p>
+    
+    <h3>1. Behavioral Objectives</h3>
+    <p>By the end of the lesson, students should be able to:</p>
+    <ul>
+        <li>Define the concept of ${topic} clearly.</li>
+        <li>Identify at least three examples relevant to the Nigerian context.</li>
+        <li>Explain the importance of ${topic} in daily life.</li>
+    </ul>
 
-        // Save to Database (Optional: Could just return to UI first)
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+    <h3>2. Instructional Materials</h3>
+    <p>Textbooks, Charts showing ${topic}, and local examples such as nearby market items or household tools.</p>
 
-        if (user) {
-            const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    <h3>3. Introduction</h3>
+    <p>The teacher introduces the lesson by asking students to mention what they know about ${topic}. The teacher creates a link between their prior knowledge and the new topic.</p>
 
-            if (profile) {
-                await supabase.from('lesson_plans').insert({
-                    tenant_id: profile.tenant_id,
-                    title: `${subject} - ${className} (13-Week Plan)`,
-                    content: JSON.stringify(syllabus),
-                    subject: subject,
-                    // class_id would need valid ID, skipping for demo simplicity or use mock
-                })
-            }
-        }
+    <h3>4. Presentation</h3>
+    <ul>
+        <li><strong>Step 1:</strong> Teacher explains the definition of ${topic}.</li>
+        <li><strong>Step 2:</strong> Teacher demonstrates usage using the instructional materials.</li>
+        <li><strong>Step 3:</strong> Students are asked to give their own examples.</li>
+    </ul>
 
-        return { success: true, data: syllabus }
+    <h3>5. Evaluation (WAEC/JAMB Style)</h3>
+    <ol>
+        <li>Which of the following best describes ${topic}?<br/> A) Option A <br/> B) Option B <br/> C) Option C</li>
+        <li>Mention two applications of ${topic} in Nigeria.</li>
+    </ol>
 
-    } catch (error) {
-        console.error("Syllabus Gen Error:", error)
-        return { success: false, error: (error as Error).message }
+    <h3>6. Conclusion</h3>
+    <p>The teacher summarizes the key points and gives an assignment for the next class.</p>
+    `
+
+    return { success: true, content }
+}
+
+/**
+ * 2. Save Lesson Plan
+ */
+export async function saveLessonPlan(data: Partial<LessonPlan>) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+
+    const payload = {
+        title: data.title,
+        content: data.content,
+        subject: data.subject,
+        term: data.term,
+        week: data.week,
+        class_id: data.class_id,
+        is_published: data.is_published,
+        teacher_id: user.id,
+        tenant_id: profile?.tenant_id,
+        date: new Date().toISOString()
     }
+
+    const { error } = await supabase
+        .from('lesson_plans')
+        .upsert(data.id ? { ...payload, id: data.id } : payload)
+
+    if (error) {
+        console.error(error)
+        return { success: false, error: "Failed to save" }
+    }
+
+    revalidatePath('/dashboard/teacher/lesson-plans')
+    return { success: true }
+}
+
+/**
+ * 3. Fetch Plans
+ */
+export async function getLessonPlans() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return { success: false, data: [] }
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+
+    const { data } = await supabase
+        .from('lesson_plans')
+        .select('*')
+        .eq('teacher_id', user.id)
+        .eq('tenant_id', profile?.tenant_id)
+        .order('created_at', { ascending: false })
+
+    return { success: true, data: data || [] }
 }
