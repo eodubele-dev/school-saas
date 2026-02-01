@@ -12,6 +12,7 @@ export type BehavioralRating = {
     cooperation: number;
     leadership: number;
     attentiveness: number;
+    remark?: string;
 }
 
 // --- Actions ---
@@ -56,7 +57,6 @@ export async function saveBehavioralRatings(classId: string, term: string, sessi
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
 
-    // Prepare bulk upsert data
     const upsertData = ratings.map(r => ({
         tenant_id: profile?.tenant_id,
         student_id: r.student_id,
@@ -69,6 +69,7 @@ export async function saveBehavioralRatings(classId: string, term: string, sessi
         cooperation: r.cooperation,
         leadership: r.leadership,
         attentiveness: r.attentiveness,
+        overall_remark: r.remark, // Added mapping
         recorded_by: user.id,
         updated_at: new Date().toISOString()
     }))

@@ -42,9 +42,11 @@ export function TrophyCase({ achievements }: { achievements: any[] }) {
                         <TooltipProvider key={badge.id}>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div className="group flex flex-col items-center justify-center p-4 rounded-xl bg-slate-950/50 border border-white/5 hover:border-yellow-500/50 hover:bg-yellow-500/5 transition-all cursor-pointer">
-                                        <div className="h-12 w-12 rounded-full bg-slate-900 shadow-inner flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                                            <Icon className="h-6 w-6 text-yellow-400" />
+                                    <div className="group flex flex-col items-center justify-center p-4 rounded-xl bg-slate-950/50 border border-white/5 hover:border-yellow-500/50 transition-all cursor-pointer relative overflow-hidden">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                                        <div className="h-14 w-14 rounded-full bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-700 shadow-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform ring-2 ring-yellow-400/20">
+                                            <Icon className="h-7 w-7 text-white drop-shadow-md" />
                                         </div>
                                         <h4 className="text-sm font-bold text-white text-center leading-tight">{badge.title}</h4>
                                         <span className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider">{badge.category}</span>

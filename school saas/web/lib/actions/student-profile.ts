@@ -60,7 +60,8 @@ export async function getStudentProfileData() {
         politeness: 5,
         cooperation: 4,
         leadership: 3,
-        attentiveness: 5
+        attentiveness: 5,
+        overall_remark: "Demonstrates exceptional leadership qualities. Always neat and punctual. A true role model for the class."
     }
 
     const mockedIncidents = incidents?.length ? incidents : [
