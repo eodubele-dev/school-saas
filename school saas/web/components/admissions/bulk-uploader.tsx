@@ -5,134 +5,129 @@ import { useDropzone } from "react-dropzone"
 import Papa from "papaparse"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { UploadCloud, FileSpreadsheet, CheckCircle, AlertCircle, X, Download } from "lucide-react"
+import { UploadCloud, FileSpreadsheet, CheckCircle, AlertCircle, X, Download, ArrowRight, Wand2 } from "lucide-react"
 import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { createClient } from "@/lib/supabase/client"
+import { bulkAdmitStudents, AdmissionData } from "@/lib/actions/onboarding"
+import { Checkbox } from "@/components/ui/checkbox"
 
-interface StudentRow {
-    firstName: string
-    lastName: string
-    gender: string
-    class?: string
-    isValid: boolean
-    errors: string[]
+interface CSVRow {
+    [key: string]: string
 }
+
+const REQUIRED_FIELDS = [
+    { key: 'firstName', label: 'First Name' },
+    { key: 'lastName', label: 'Last Name' },
+    { key: 'gender', label: 'Gender' },
+    { key: 'parentPhone', label: 'Parent Phone' }
+]
 
 export function BulkUploader({ domain, classes }: { domain: string, classes: any[] }) {
     const [file, setFile] = useState<File | null>(null)
-    const [previewData, setPreviewData] = useState<StudentRow[]>([])
-    const [uploading, setUploading] = useState(false)
+    const [rawRows, setRawRows] = useState<CSVRow[]>([])
+    const [headers, setHeaders] = useState<string[]>([])
+    const [mapping, setMapping] = useState<Record<string, string>>({}) // DB Field -> CSV Header
+    const [step, setStep] = useState<'upload' | 'map' | 'validate'>('upload')
     const [targetClass, setTargetClass] = useState<string>("")
+    const [uploading, setUploading] = useState(false)
 
-    const supabase = createClient()
-
+    // 1. File Drop
     const onDrop = useCallback((acceptedFiles: File[]) => {
         const selectedFile = acceptedFiles[0]
         if (selectedFile) {
             setFile(selectedFile)
-            parseCSV(selectedFile)
+            Papa.parse(selectedFile, {
+                header: true,
+                skipEmptyLines: true,
+                complete: (results) => {
+                    const data = results.data as CSVRow[]
+                    if (data.length > 0) {
+                        setRawRows(data)
+                        setHeaders(Object.keys(data[0]))
+                        setStep('map')
+                        // Auto-Map if headers match exactly
+                        const initialMap: Record<string, string> = {}
+                        REQUIRED_FIELDS.forEach(field => {
+                            const match = Object.keys(data[0]).find(h => h.toLowerCase().replace(/_/g, '').includes(field.label.toLowerCase().replace(/ /g, '')))
+                            if (match) initialMap[field.key] = match
+                        })
+                        setMapping(initialMap)
+                    }
+                },
+                error: (error) => toast.error("Parse Error: " + error.message)
+            })
         }
     }, [])
 
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({
-        onDrop,
-        accept: { 'text/csv': ['.csv'] },
-        maxFiles: 1
-    })
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { 'text/csv': ['.csv'] }, maxFiles: 1 })
 
-    const parseCSV = (file: File) => {
-        Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
-            complete: (results) => {
-                const rows = results.data.map((row: any) => validateRow(row))
-                setPreviewData(rows)
-            },
-            error: (error) => {
-                toast.error("CSV Parse Error: " + error.message)
+    // 2. Validation
+    const getValidatedData = () => {
+        return rawRows.map(row => {
+            const firstName = row[mapping['firstName']]?.trim()
+            const lastName = row[mapping['lastName']]?.trim()
+            const gender = row[mapping['gender']]?.trim()
+            const parentPhone = row[mapping['parentPhone']]?.trim()
+
+            const errors: string[] = []
+            if (!firstName) errors.push("Missing First Name")
+            if (!lastName) errors.push("Missing Last Name")
+            if (!gender) errors.push("Missing Gender")
+            if (!parentPhone) errors.push("Missing Parent Phone")
+
+            return {
+                original: row,
+                mapped: { firstName, lastName, gender, parentPhone, classId: targetClass, dob: new Date().toISOString() } as AdmissionData,
+                isValid: errors.length === 0,
+                errors
             }
         })
     }
 
-    const validateRow = (row: any): StudentRow => {
-        const errors: string[] = []
-        if (!row.firstName) errors.push("Missing First Name")
-        if (!row.lastName) errors.push("Missing Last Name")
-        if (!row.gender || !['Male', 'Female'].includes(row.gender)) errors.push("Invalid Gender")
+    const validatedData = step === 'validate' ? getValidatedData() : []
+    const validCount = validatedData.filter(d => d.isValid).length
+    const errorCount = validatedData.length - validCount
 
-        return {
-            firstName: row.firstName,
-            lastName: row.lastName,
-            gender: row.gender,
-            isValid: errors.length === 0,
-            errors
-        }
-    }
-
-    const handleBulkUpload = async () => {
+    // 3. Final Upload
+    const handleFinalImport = async () => {
         if (!targetClass) {
-            toast.error("Please select a target class for these students.")
+            toast.error("Please select a target class")
             return
         }
-
-        const validRows = previewData.filter(r => r.isValid)
-        if (validRows.length === 0) {
-            toast.error("No valid students found to upload.")
-            return
-        }
-
         setUploading(true)
         try {
-            // Transform for DB
-            const studentsToInsert = validRows.map(r => ({
-                first_name: r.firstName,
-                last_name: r.lastName,
-                gender: r.gender,
-                class_id: targetClass,
-                admission_number: `ADM/${new Date().getFullYear().toString().slice(-2)}/${Math.floor(Math.random() * 10000)}` // Tmp unique
-                // In prod, use a better sequencer or database trigger
-            }))
+            const validStudents = validatedData.filter(d => d.isValid).map(d => d.mapped)
+            const res = await bulkAdmitStudents(validStudents)
 
-            const { error } = await supabase.from('students').insert(studentsToInsert)
-
-            if (error) throw error
-
-            toast.success(`Successfully uploaded ${studentsToInsert.length} students!`)
-            setFile(null)
-            setPreviewData([])
-        } catch (error: any) {
-            toast.error("Upload Failed: " + error.message)
+            if (res.success) {
+                toast.success(`Successfully imported ${res.count} students!`)
+                toast.info("Invoices generated & Welcome SMS sent.")
+                setFile(null)
+                setRawRows([])
+                setStep('upload')
+            } else {
+                toast.error("Import failed partially")
+            }
+        } catch (e) {
+            toast.error("System Error")
         } finally {
             setUploading(false)
         }
     }
 
-    const downloadTemplate = () => {
-        const csvContent = "firstName,lastName,gender\nJohn,Doe,Male\nJane,Smith,Female"
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement("a")
-        link.setAttribute("href", url)
-        link.setAttribute("download", "student_upload_template.csv")
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-    }
-
-    const validCount = previewData.filter(r => r.isValid).length
-    const errorCount = previewData.length - validCount
-
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold text-white">Bulk Student Upload</h2>
-                <Button variant="outline" size="sm" onClick={downloadTemplate} className="text-[var(--school-accent)] border-[var(--school-accent)]/20 hover:bg-[var(--school-accent)]/10">
-                    <Download className="mr-2 h-4 w-4" /> Download Template
-                </Button>
+                {step === 'upload' && (
+                    <Button variant="outline" size="sm" className="text-[var(--school-accent)] border-[var(--school-accent)]/20 hover:bg-[var(--school-accent)]/10">
+                        <Download className="mr-2 h-4 w-4" /> Download Template
+                    </Button>
+                )}
             </div>
 
-            {!file ? (
+            {/* STEP 1: UPLOAD */}
+            {step === 'upload' && (
                 <div
                     {...getRootProps()}
                     className={`border-2 border-dashed rounded-xl p-12 flex flex-col items-center justify-center cursor-pointer transition-colors ${isDragActive ? 'border-[var(--school-accent)] bg-[var(--school-accent)]/5' : 'border-white/10 hover:border-white/20'}`}
@@ -142,66 +137,93 @@ export function BulkUploader({ domain, classes }: { domain: string, classes: any
                     <p className="text-lg text-white font-medium">Drag & Drop CSV File here</p>
                     <p className="text-sm text-slate-500 mt-2">or click to browse computer</p>
                 </div>
-            ) : (
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-slate-900 border border-white/10 rounded-lg">
-                        <div className="flex items-center gap-3">
-                            <FileSpreadsheet className="h-8 w-8 text-green-500" />
-                            <div>
-                                <p className="text-white font-medium">{file.name}</p>
-                                <div className="text-xs flex gap-3 mt-1">
-                                    <span className="text-green-400 flex items-center gap-1"><CheckCircle className="h-3 w-3" /> {validCount} Valid</span>
-                                    {errorCount > 0 && <span className="text-red-400 flex items-center gap-1"><AlertCircle className="h-3 w-3" /> {errorCount} Errors</span>}
-                                </div>
+            )}
+
+            {/* STEP 2: MAPPING */}
+            {step === 'map' && (
+                <div className="bg-slate-900 border border-white/10 rounded-lg p-6 space-y-6">
+                    <div className="flex items-center gap-3 mb-4">
+                        <Wand2 className="text-[var(--school-accent)] h-5 w-5" />
+                        <h3 className="text-white font-medium">Map CSV Columns</h3>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        {REQUIRED_FIELDS.map(field => (
+                            <div key={field.key} className="space-y-2">
+                                <label className="text-xs text-slate-400 uppercase font-bold">{field.label} <span className="text-red-500">*</span></label>
+                                <Select
+                                    value={mapping[field.key]}
+                                    onValueChange={(val) => setMapping(prev => ({ ...prev, [field.key]: val }))}
+                                >
+                                    <SelectTrigger className="bg-slate-950 border-white/10 text-white">
+                                        <SelectValue placeholder="Select CSV Header" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {headers.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
                             </div>
-                        </div>
-                        <Button variant="ghost" size="icon" onClick={() => { setFile(null); setPreviewData([]); }}>
-                            <X className="h-4 w-4 text-slate-400" />
+                        ))}
+                    </div>
+
+                    <div className="flex justify-between pt-4">
+                        <Button variant="ghost" onClick={() => { setFile(null); setStep('upload'); }}>Cancel</Button>
+                        <Button onClick={() => setStep('validate')} className="bg-[var(--school-accent)] text-white">
+                            Next: Validate Data <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                     </div>
+                </div>
+            )}
 
-                    {/* Class Selector */}
-                    <div className="flex items-end gap-4 max-w-sm">
-                        <div className="w-full space-y-2">
-                            <label className="text-xs text-slate-400 uppercase font-bold tracking-wider">Assign All To Class</label>
-                            <Select value={targetClass} onValueChange={setTargetClass}>
-                                <SelectTrigger className="bg-slate-950 border-white/10 text-white">
-                                    <SelectValue placeholder="Select Class..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
+            {/* STEP 3: VALIDATION & IMPORT */}
+            {step === 'validate' && (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-4 bg-slate-900 p-4 rounded-lg border border-white/10">
+                        <div className="flex-1">
+                            <h3 className="text-white font-bold">Review & Import</h3>
+                            <p className="text-sm text-slate-400 mt-1">
+                                <span className="text-green-400">{validCount} valid rows</span> ready.
+                                <span className="text-red-400 ml-2">{errorCount} errors</span> to fix.
+                            </p>
                         </div>
+                        <Select value={targetClass} onValueChange={setTargetClass}>
+                            <SelectTrigger className="w-[200px] bg-slate-950 border-white/10 text-white">
+                                <SelectValue placeholder="Select Target Class" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
                     </div>
 
-                    {/* Preview Table */}
                     <div className="border border-white/10 rounded-lg overflow-hidden max-h-[400px] overflow-y-auto">
                         <Table>
                             <TableHeader className="bg-slate-900">
-                                <TableRow className="hover:bg-slate-900 border-white/5">
+                                <TableRow className="border-white/5">
                                     <TableHead className="text-slate-400">First Name</TableHead>
                                     <TableHead className="text-slate-400">Last Name</TableHead>
-                                    <TableHead className="text-slate-400">Gender</TableHead>
+                                    <TableHead className="text-slate-400">Phone</TableHead>
                                     <TableHead className="text-right text-slate-400">Status</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {previewData.map((row, idx) => (
+                                {validatedData.map((row, idx) => (
                                     <TableRow key={idx} className="border-white/5 hover:bg-white/5">
-                                        <TableCell className={!row.firstName ? "bg-red-500/10 text-red-400" : "text-slate-300"}>
-                                            {row.firstName || "MISSING"}
+                                        <TableCell className={!row.mapped.firstName ? "text-red-400 bg-red-500/10" : "text-slate-300"}>
+                                            {row.mapped.firstName || "MISSING"}
                                         </TableCell>
-                                        <TableCell className={!row.lastName ? "bg-red-500/10 text-red-400" : "text-slate-300"}>
-                                            {row.lastName || "MISSING"}
+                                        <TableCell className={!row.mapped.lastName ? "text-red-400 bg-red-500/10" : "text-slate-300"}>
+                                            {row.mapped.lastName || "MISSING"}
                                         </TableCell>
-                                        <TableCell className={row.errors.includes("Invalid Gender") ? "bg-red-500/10 text-red-400" : "text-slate-300"}>
-                                            {row.gender}
+                                        <TableCell className={!row.mapped.parentPhone ? "text-red-400 bg-red-500/10" : "text-slate-300"}>
+                                            {row.mapped.parentPhone || "MISSING"}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             {row.isValid
                                                 ? <CheckCircle className="h-4 w-4 text-green-500 inline" />
-                                                : <span className="text-xs text-red-400 bg-red-500/10 px-2 py-1 rounded">{row.errors[0]}</span>
+                                                : <div className="flex flex-col items-end gap-1">
+                                                    {row.errors.map(e => <span key={e} className="text-[10px] text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">{e}</span>)}
+                                                </div>
                                             }
                                         </TableCell>
                                     </TableRow>
@@ -210,11 +232,12 @@ export function BulkUploader({ domain, classes }: { domain: string, classes: any
                         </Table>
                     </div>
 
-                    <div className="flex justify-end pt-4">
+                    <div className="flex justify-between pt-4">
+                        <Button variant="ghost" onClick={() => setStep('map')}>Back to Mapping</Button>
                         <Button
-                            onClick={handleBulkUpload}
+                            onClick={handleFinalImport}
                             disabled={uploading || validCount === 0 || !targetClass}
-                            className="bg-[var(--school-accent)] hover:brightness-110 text-white shadow-lg"
+                            className="bg-[var(--school-accent)] hover:bg-[var(--school-accent)]/90 text-white min-w-[200px] shadow-lg shadow-blue-500/20"
                         >
                             {uploading ? "Importing..." : `Import ${validCount} Students`}
                         </Button>
