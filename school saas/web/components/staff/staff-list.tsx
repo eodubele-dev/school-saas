@@ -37,6 +37,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { TeacherMappingModal } from "@/components/staff/teacher-mapping-modal"
 import { StaffIDCard } from "@/components/staff/staff-id-card"
+import { PermissionsModal } from "@/components/staff/permissions-modal"
 
 export function StaffList({ initialData, domain, classes, tenant }: { initialData: any[], domain: string, classes: any[], tenant: any }) {
     const router = useRouter()
@@ -44,6 +45,7 @@ export function StaffList({ initialData, domain, classes, tenant }: { initialDat
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedUser, setSelectedUser] = useState<any>(null)
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
+    const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false)
     const [newRole, setNewRole] = useState("")
     const [loading, setLoading] = useState(false)
 
@@ -56,6 +58,11 @@ export function StaffList({ initialData, domain, classes, tenant }: { initialDat
         setSelectedUser(user)
         setNewRole(user.role)
         setIsRoleModalOpen(true)
+    }
+
+    const openPermissionsModal = (user: any) => {
+        setSelectedUser(user)
+        setIsPermissionsModalOpen(true)
     }
 
     const handleRoleUpdate = async () => {
@@ -144,6 +151,10 @@ export function StaffList({ initialData, domain, classes, tenant }: { initialDat
                                                 <UserCog className="mr-2 h-4 w-4" /> Change Role
                                             </DropdownMenuItem>
 
+                                            <DropdownMenuItem onClick={() => openPermissionsModal(user)} className="hover:bg-white/5 cursor-pointer">
+                                                <ShieldAlert className="mr-2 h-4 w-4" /> Permissions & Access
+                                            </DropdownMenuItem>
+
                                             {user.role === 'teacher' && (
                                                 <TeacherMappingModal teacher={user} classes={classes} />
                                             )}
@@ -229,6 +240,13 @@ export function StaffList({ initialData, domain, classes, tenant }: { initialDat
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+
+
+            <PermissionsModal
+                user={selectedUser}
+                isOpen={isPermissionsModalOpen}
+                onClose={() => setIsPermissionsModalOpen(false)}
+            />
+        </div >
     )
 }

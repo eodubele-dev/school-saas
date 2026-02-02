@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 
 export async function getStaffList(domain: string, page = 1, query = "") {
@@ -88,4 +89,95 @@ export async function updateStaffStatus(userId: string, status: 'active' | 'inac
     if (error) return { success: false, error: error.message }
     revalidatePath('/[domain]/dashboard/admin/staff', 'page')
     return { success: true }
+}
+
+export async function createStaff(formData: any) {
+    const supabase = createClient()
+    const supabaseAdmin = createAdminClient()
+
+    // 1. Auth & Admin Check
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: adminProfile } = await supabase
+        .from('profiles')
+        .select('tenant_id, role')
+        .eq('id', user.id)
+        .single()
+
+    if (!adminProfile || adminProfile.role !== 'admin') {
+        return { success: false, error: "Only admins can add staff" }
+    }
+
+    // 2. Create User (Standard Auth)
+    // Using admin client to invite by email to skip email verification (optional) or just signUp
+    // For credential delivery logic (Magic Link), we typically use inviteUserByEmail
+
+    // Note: This sends the built-in Supabase invite email. 
+    // To send custom Termii SMS, we would generate the link manually or use a password reset flow.
+    // For this prototype, we will create the user with a temporary password and "Simulate" the SMS.
+
+    const tempPassword = "TempPassword123!" // In prod, generate random
+
+    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+        email: formData.email,
+        password: tempPassword,
+        email_confirm: true,
+        user_metadata: {
+            full_name: `${formData.firstName} ${formData.lastName}`,
+            tenant_id: adminProfile.tenant_id,
+        }
+    })
+
+    if (createError) return { success: false, error: createError.message }
+    if (!newUser.user) return { success: false, error: "Failed to create user" }
+
+    const staffId = newUser.user.id
+
+    // 3. Create Profile (Manually if trigger doesn't handle it, or update it)
+    // Assuming we need to insert or update profile with role
+    const { error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+            id: staffId,
+            tenant_id: adminProfile.tenant_id,
+            full_name: `${formData.firstName} ${formData.lastName}`,
+            role: formData.role,
+            department: formData.department,
+            email: formData.email
+        })
+        .select()
+
+    // If conflict (trigger created it), update it
+    if (profileError && profileError.code === '23505') {
+        await supabaseAdmin
+            .from('profiles')
+            .update({
+                role: formData.role,
+                department: formData.department,
+                full_name: `${formData.firstName} ${formData.lastName}`
+            })
+            .eq('id', staffId)
+    }
+
+    // 4. Create Staff Permissions & Signature
+    const { error: permError } = await supabaseAdmin
+        .from('staff_permissions')
+        .insert({
+            tenant_id: adminProfile.tenant_id,
+            staff_id: staffId,
+            designation: formData.designation,
+            signature_url: formData.signature, // Storing Data URL directly
+            can_view_financials: formData.role === 'bursar' || formData.role === 'admin',
+            can_edit_results: formData.role === 'teacher',
+            can_send_bulk_sms: formData.role === 'admin'
+        })
+
+    if (permError) {
+        console.error("Permission Error", permError)
+        // Non-fatal, return success with warning
+    }
+
+    revalidatePath('/[domain]/dashboard/admin/staff', 'page')
+    return { success: true, tempPassword }
 }
