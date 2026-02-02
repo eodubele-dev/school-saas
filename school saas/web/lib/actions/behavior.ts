@@ -12,6 +12,8 @@ export type BehavioralRating = {
     cooperation: number;
     leadership: number;
     attentiveness: number;
+    honesty?: number;
+    peer_relations?: number;
     remark?: string;
 }
 
@@ -69,6 +71,8 @@ export async function saveBehavioralRatings(classId: string, term: string, sessi
         cooperation: r.cooperation,
         leadership: r.leadership,
         attentiveness: r.attentiveness,
+        honesty: r.honesty,
+        peer_relations: r.peer_relations,
         overall_remark: r.remark, // Added mapping
         recorded_by: user.id,
         updated_at: new Date().toISOString()

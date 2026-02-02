@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS public.behavioral_reports (
     cooperation INTEGER CHECK (cooperation BETWEEN 1 AND 5),
     leadership INTEGER CHECK (leadership BETWEEN 1 AND 5),
     attentiveness INTEGER CHECK (attentiveness BETWEEN 1 AND 5),
+    honesty INTEGER CHECK (honesty BETWEEN 1 AND 5),
+    peer_relations INTEGER CHECK (peer_relations BETWEEN 1 AND 5),
     
     overall_remark TEXT,
     recorded_by UUID REFERENCES public.profiles(id),

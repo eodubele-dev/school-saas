@@ -12,9 +12,9 @@ import { Input } from "@/components/ui/input"
 
 const BADGES = [
     { id: 'neatness_star', title: 'Neatness Star', icon: Sparkles, category: 'behavior', color: 'text-cyan-400' },
-    { id: 'math_wizard', title: 'Math Wizard', icon: Zap, category: 'academic', color: 'text-yellow-400' },
+    { id: 'problem_solver', title: 'Problem Solver', icon: Zap, category: 'academic', color: 'text-amber-400' },
     { id: 'punctuality', title: 'Early Bird', icon: Award, category: 'behavior', color: 'text-green-400' },
-    { id: 'helper', title: 'Class Helper', icon: ThumbsUp, category: 'leadership', color: 'text-blue-400' },
+    { id: 'honest', title: 'Honesty', icon: ThumbsUp, category: 'behavior', color: 'text-blue-400' },
     { id: 'leader', title: 'Leadership', icon: Crown, category: 'leadership', color: 'text-purple-400' },
 ]
 
