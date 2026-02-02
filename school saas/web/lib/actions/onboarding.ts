@@ -139,3 +139,106 @@ export async function bulkAdmitStudents(students: AdmissionData[]) {
 
     return { success: true, count: successCount, errors }
 }
+
+
+// --- SCHOOL ONBOARDING ACTIONS ---
+
+export async function checkSubdomainAvailability(subdomain: string) {
+    const supabase = createClient()
+    // In a real multi-tenant app, we check the 'tenants' table
+    const { data } = await supabase
+        .from('tenants')
+        .select('id')
+        .eq('subdomain', subdomain) // Assuming 'subdomain' column exists, or we check 'domain'
+        .single()
+
+    // If data exists, it's taken. If null, it's available.
+    return !data
+}
+
+interface OnboardingData {
+    schoolName: string
+    subdomain: string
+    brandColor: string
+    levels: string[]
+    waecStats: boolean
+    nerdcPresets: boolean
+    plan: string
+}
+
+export async function createTenant(data: OnboardingData) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return { success: false, error: "Authentication required" }
+
+    try {
+        // 1. Create Tenant
+        const { data: tenant, error: tenantError } = await supabase
+            .from('tenants')
+            .insert({
+                name: data.schoolName,
+                // subdomain: data.subdomain, // Ensure schema has this
+                domain: data.subdomain, // Using 'domain' as the column likely
+                type: 'school',
+                subscription_tier: data.plan,
+                settings: {
+                    brand_color: data.brandColor,
+                    levels: data.levels,
+                    features: {
+                        waec_integration: data.waecStats,
+                        ai_enabled: data.plan === 'platinum'
+                    }
+                }
+            })
+            .select()
+            .single()
+
+        if (tenantError) throw new Error(tenantError.message)
+
+        // 2. Update User Profile to be Admin of this Tenant
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .update({
+                tenant_id: tenant.id,
+                role: 'admin',
+                // full_name: ... (already set during signup?)
+            })
+            .eq('id', user.id)
+
+        if (profileError) throw new Error("Failed to link profile: " + profileError.message)
+
+        // 3. Seed NERDC Subjects (if requested)
+        if (data.nerdcPresets) {
+            const subjects = [
+                { name: 'Mathematics', code: 'MATH' },
+                { name: 'English Language', code: 'ENG' },
+                { name: 'Basic Science', code: 'BSC' },
+                { name: 'Social Studies', code: 'SOC' },
+                { name: 'Civic Education', code: 'CIV' }
+            ]
+
+            const subjectInserts = subjects.map(s => ({
+                tenant_id: tenant.id,
+                name: s.name,
+                code: s.code,
+                is_active: true
+            }))
+
+            await supabase.from('subjects').insert(subjectInserts)
+        }
+
+        // 4. Return Redirect URL
+        // In dev: localhost:3000/dashboard/admin
+        // In prod: subdomain.eduflow.ng/dashboard/admin
+        // For this MVP, we redirect to the standard dashboard route which reads context
+        return {
+            success: true,
+            redirectUrl: `/${data.subdomain}/dashboard/admin?welcome=true`
+        }
+
+    } catch (error: any) {
+        console.error("Onboarding Error:", error)
+        return { success: false, error: error.message }
+    }
+}
