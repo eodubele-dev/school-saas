@@ -24,7 +24,16 @@ export async function getStaffList(domain: string, page = 1, query = "") {
 
     let dbQuery = supabase
         .from('profiles')
-        .select('*', { count: 'exact' })
+        .select(`
+            *,
+            staff_permissions (
+                designation,
+                signature_url,
+                can_view_financials,
+                can_edit_results,
+                can_send_bulk_sms
+            )
+        `, { count: 'exact' })
         .eq('tenant_id', profile.tenant_id)
         .in('role', ['admin', 'teacher', 'bursar', 'registrar'])
         .order('created_at', { ascending: false })

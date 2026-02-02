@@ -129,7 +129,7 @@ export function SignaturePad({ onEnd }: SignaturePadProps) {
                     variant="ghost"
                     size="sm"
                     onClick={clear}
-                    className="text-slate-400 hover:text-white"
+                    className="text-slate-400 hover:text-white hover:bg-white/10"
                 >
                     <Eraser className="mr-2 h-4 w-4" /> Clear Signature
                 </Button>

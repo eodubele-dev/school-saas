@@ -103,6 +103,7 @@ export function StaffList({ initialData, domain, classes, tenant }: { initialDat
                             <TableHead className="text-slate-400">Role</TableHead>
                             <TableHead className="text-slate-400">Department</TableHead>
                             <TableHead className="text-slate-400">Status</TableHead>
+                            <TableHead className="text-slate-400">Signature</TableHead>
                             <TableHead className="text-right text-slate-400">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -136,6 +137,17 @@ export function StaffList({ initialData, domain, classes, tenant }: { initialDat
                                         }`}>
                                         {user.status || 'Active'}
                                     </span>
+                                </TableCell>
+                                <TableCell>
+                                    {user.staff_permissions?.[0]?.signature_url ? (
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                            Signed
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-800 text-slate-500 border border-slate-700">
+                                            Pending
+                                        </span>
+                                    )}
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <DropdownMenu>
