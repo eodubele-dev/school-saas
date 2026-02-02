@@ -13,6 +13,7 @@ export const SIDEBAR_LINKS = {
         { icon: ClipboardCheck, label: "Staff Attendance", href: "/dashboard/admin/attendance/staff" },
         { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup/academic" },
         { icon: ShieldCheck, label: "Academic Approvals", href: "/dashboard/admin/approvals" }, // New Link
+        { icon: Activity, label: "System Security", href: "/dashboard/admin/security/audit" },
         { icon: NairaIcon, label: "Financial Config", href: "/dashboard/admin/finance/config" },
         { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
     ],
