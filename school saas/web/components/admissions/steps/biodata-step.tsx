@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowRight, Upload } from "lucide-react"
+import { ArrowRight, Upload, Loader2 } from "lucide-react"
 import { useState } from "react"
 import Image from "next/image"
+import { createClient } from "@/lib/supabase/client"
+import { toast } from "sonner"
 
 export function BiodataStep() {
     const firstName = useAdmissionStore(state => state.data.firstName)
@@ -23,25 +25,56 @@ export function BiodataStep() {
     const setStep = useAdmissionStore(state => state.setStep)
 
     const [preview, setPreview] = useState<string | null>(passportUrl)
+    const [uploading, setUploading] = useState(false)
+    const supabase = createClient()
 
     const handleNext = () => {
         if (!firstName || !lastName || !gender) {
-            // Basic validation
+            toast.error("Please fill in all required fields")
             return
         }
         setStep(2)
     }
 
-    const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
-        if (file) {
-            const reader = new FileReader()
-            reader.onload = (re) => {
-                const result = re.target?.result as string
-                setPreview(result)
-                setData({ passportUrl: result }) // In real app, upload immediately or keep base64
-            }
-            reader.readAsDataURL(file)
+        if (!file) return
+
+        // Validate file size (e.g. 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            toast.error("File size must be less than 2MB")
+            return
+        }
+
+        setUploading(true)
+        try {
+            const fileExt = file.name.split('.').pop()
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+            const filePath = `${fileName}`
+
+            // Upload to Supabase Storage
+            const { error: uploadError } = await supabase.storage
+                .from('passports')
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                })
+
+            if (uploadError) throw uploadError
+
+            // Get Public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('passports')
+                .getPublicUrl(filePath)
+
+            setPreview(publicUrl)
+            setData({ passportUrl: publicUrl })
+            toast.success("Passport uploaded successfully")
+        } catch (error: any) {
+            console.error(error)
+            toast.error("Upload failed: " + (error.message || "Unknown error"))
+        } finally {
+            setUploading(false)
         }
     }
 
@@ -142,7 +175,9 @@ export function BiodataStep() {
                 {/* Photo Upload */}
                 <div className="flex flex-col items-center gap-4 pt-6">
                     <div className="relative h-40 w-40 rounded-full border-2 border-dashed border-white/20 bg-slate-950 overflow-hidden flex items-center justify-center group hover:border-[var(--school-accent)] transition-colors">
-                        {preview ? (
+                        {uploading ? (
+                            <Loader2 className="h-8 w-8 text-[var(--school-accent)] animate-spin" />
+                        ) : preview ? (
                             <Image src={preview} alt="Passport" fill className="object-cover" />
                         ) : (
                             <Upload className="h-8 w-8 text-slate-500" />
@@ -150,12 +185,13 @@ export function BiodataStep() {
                         <input
                             type="file"
                             accept="image/*"
-                            className="absolute inset-0 opacity-0 cursor-pointer"
+                            disabled={uploading}
+                            className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
                             onChange={handlePhotoUpload}
                         />
                     </div>
                     <p className="text-xs text-slate-500 text-center">
-                        Upload Passport<br />(White Background)
+                        Upload Passport<br />(White Background, Max 2MB)
                     </p>
                 </div>
             </div>

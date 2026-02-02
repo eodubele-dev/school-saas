@@ -22,7 +22,12 @@ interface AdmissionsClientProps {
 }
 
 export function AdmissionsClient({ domain, classes, houses, tenant }: AdmissionsClientProps) {
-    const { isBulkMode, setBulkMode, isSuccess, setSuccess, reset } = useAdmissionStore()
+    const { isBulkMode, setBulkMode, isSuccess, setSuccess, reset, setStep } = useAdmissionStore()
+
+    // Reset to Step 1 on mount to ensure user starts from Biodata
+    useState(() => {
+        setStep(1)
+    })
 
     const handleReset = () => {
         setSuccess(false)
@@ -76,7 +81,7 @@ export function AdmissionsClient({ domain, classes, houses, tenant }: Admissions
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 bg-slate-900/50 border border-white/5 rounded-2xl backdrop-blur-sm overflow-hidden md:p-8 p-4 relative">
+            <div className="flex-1 bg-slate-900/50 border border-white/5 rounded-2xl backdrop-blur-sm overflow-y-auto overflow-x-hidden md:p-8 p-4 relative">
                 {/* Decorative background blobs */}
                 <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--school-accent)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" style={{ backgroundColor: 'rgb(var(--school-accent-rgb) / 0.05)' }} />
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />

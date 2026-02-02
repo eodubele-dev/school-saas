@@ -5,6 +5,14 @@ const nextConfig = {
             allowedOrigins: ["localhost:3000", "localhost:3001", "*.localhost:3000", "*.localhost:3001"],
         },
     },
+    images: {
+        remotePatterns: [
+            {
+                protocol: "https",
+                hostname: "jggcixrapxccbxckuofw.supabase.co",
+            },
+        ],
+    },
 };
 
 export default nextConfig;

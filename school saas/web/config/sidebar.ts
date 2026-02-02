@@ -11,7 +11,7 @@ export const SIDEBAR_LINKS = {
         { icon: Users, label: "Student Admissions", href: "/dashboard/admin/admissions" },
         { icon: Users, label: "Staff Management", href: "/dashboard/admin/staff" },
         { icon: ClipboardCheck, label: "Staff Attendance", href: "/dashboard/admin/attendance/staff" },
-        { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup" },
+        { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup/academic" },
         { icon: ShieldCheck, label: "Academic Approvals", href: "/dashboard/admin/approvals" }, // New Link
         { icon: NairaIcon, label: "Financial Config", href: "/dashboard/admin/finance/config" },
         { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
