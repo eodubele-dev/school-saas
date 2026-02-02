@@ -36,16 +36,7 @@ export function SidebarClient({ role: initialRole = 'student', userName = 'Guest
 
     return (
         <div className="flex-1 px-4 py-6 space-y-6 relative z-10">
-            {/* User Profile & Role Badge */}
-            <div className="px-2 flex flex-col gap-1">
-                <h3 className="font-semibold text-sm text-white truncate" title={userName}>
-                    {userName}
-                </h3>
-                <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                    <span>{ROLE_BADGES[role]}</span>
-                    <span>{ROLE_LABELS[role]}</span>
-                </div>
-            </div>
+            {/* User Profile & Role Badge Removed (Moved to Global Header) */}
 
             {/* Child Switcher (Parent Only) */}
             {role === 'parent' && (

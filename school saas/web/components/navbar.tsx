@@ -5,6 +5,8 @@ import { Sidebar } from "./sidebar"
 import { LiveClock } from "@/components/live-clock"
 import { OmniSearch } from "@/components/omni-search"
 import { ProfileDropdown } from "@/components/profile-dropdown"
+import { NavbarLinks } from "@/components/navbar-links"
+import { getNextClass } from "@/lib/actions/schedule"
 import Link from "next/link"
 
 export async function Navbar({ domain }: { domain?: string }) {
@@ -29,6 +31,8 @@ export async function Navbar({ domain }: { domain?: string }) {
         }
     }
 
+    const scheduleData = await getNextClass()
+
     return (
         <header className="flex h-16 items-center justify-between border-b border-white/10 bg-slate-900/80 backdrop-blur-md px-4 lg:px-6 sticky top-0 z-50 shadow-lg shadow-black/20">
             {/* Left: Mobile Nav & Context Indicator */}
@@ -51,17 +55,10 @@ export async function Navbar({ domain }: { domain?: string }) {
             </div>
 
             {/* Center: Quick Links */}
-            <div className="hidden xl:flex items-center gap-6">
-                <Link href={`/${domain}/schedule`} className="text-sm font-medium text-slate-400 hover:text-white hover:underline decoration-blue-500 underline-offset-4 transition-all flex items-center gap-2">
-                    <Calendar className="h-3.5 w-3.5" /> My Schedule
-                </Link>
-                <button className="text-sm font-medium text-slate-400 hover:text-white hover:underline decoration-blue-500 underline-offset-4 transition-all flex items-center gap-2">
-                    <Book className="h-3.5 w-3.5" /> Directory
-                </button>
-                <Link href="#" className="text-sm font-medium text-slate-400 hover:text-white hover:underline decoration-blue-500 underline-offset-4 transition-all flex items-center gap-2">
-                    <ExternalLink className="h-3.5 w-3.5" /> Resources
-                </Link>
-            </div>
+            <NavbarLinks
+                domain={domain || 'school'}
+                scheduleData={scheduleData}
+            />
 
             {/* Right: Search, Notifications, Profile */}
             <div className="flex items-center gap-4 lg:gap-6">
