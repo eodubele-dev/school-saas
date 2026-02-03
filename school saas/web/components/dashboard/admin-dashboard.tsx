@@ -20,6 +20,7 @@ export async function AdminDashboard() {
             {/* Metrics Grid */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <MetricCard
+                    id="revenue-card"
                     title="Total Revenue"
                     value={new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(stats?.totalRevenue || 0)}
                     icon={NairaIcon}
@@ -32,6 +33,7 @@ export async function AdminDashboard() {
                     trend={{ value: "4% new enrollments", positive: true }}
                 />
                 <MetricCard
+                    id="staff-attendance-gauge"
                     title="Teaching Staff"
                     value={(stats?.totalTeachers || 0).toString()}
                     icon={School}
@@ -43,6 +45,17 @@ export async function AdminDashboard() {
                     icon={Activity}
                     description="Across 3 arms"
                 />
+            </div>
+
+            {/* Quick Actions (Tour Targets) */}
+            <div className="flex justify-end">
+                <button
+                    id="nudge-debtors-btn"
+                    className="flex items-center gap-2 px-4 py-2 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-md text-sm font-medium hover:bg-rose-500/20 transition-colors"
+                >
+                    <TrendingDown className="h-4 w-4" />
+                    Nudge Debtors
+                </button>
             </div>
 
             {/* Main Charts Section */}

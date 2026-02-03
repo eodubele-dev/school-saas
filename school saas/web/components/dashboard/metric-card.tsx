@@ -11,11 +11,12 @@ interface MetricCardProps {
         value: string
         positive: boolean
     }
+    id?: string
 }
 
-export function MetricCard({ title, value, icon: Icon, description, trend }: MetricCardProps) {
+export function MetricCard({ title, value, icon: Icon, description, trend, id }: MetricCardProps) {
     return (
-        <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:border-blue-500/20 transition-all duration-300">
+        <Card id={id} className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:border-blue-500/20 transition-all duration-300">
             {/* Hover Glow Effect */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity opacity-0 group-hover:opacity-100" />
 
