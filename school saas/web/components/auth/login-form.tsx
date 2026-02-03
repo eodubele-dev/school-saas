@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { cn } from "@/lib/utils"
+import { useRouter } from 'next/navigation'
 
 interface LoginFormProps {
     domain: string
@@ -18,7 +19,36 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb' }: LoginFormProps) {
+    const router = useRouter()
+    const [isLoading, setIsLoading] = useState(false)
     const [isMagicLinkLoading, setIsMagicLinkLoading] = useState(false)
+
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        setIsLoading(true)
+        const formData = new FormData(event.currentTarget)
+
+        try {
+            toast.info("Signing in...")
+            const result = await login(formData)
+
+            if (result?.error) {
+                toast.error(result.error)
+                setIsLoading(false)
+                return
+            }
+
+            // Success
+            toast.success("Login successful!")
+            router.push('/dashboard')
+            router.refresh()
+
+        } catch (error: any) {
+            console.error("Login Client Error:", error)
+            toast.error(error.message || "Something went wrong")
+            setIsLoading(false)
+        }
+    }
 
     async function handleMagicLink(formData: FormData) {
         setIsMagicLinkLoading(true)
@@ -101,7 +131,7 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
                         </p>
                     </div>
 
-                    <form action={login} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Hidden input to pass domain context */}
                         <input type="hidden" name="domain" value={domain} />
 
@@ -133,8 +163,13 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
                             />
                         </div>
 
-                        <Button className="w-full h-11 text-white font-medium rounded-md shadow-sm transition-all" type="submit" style={bgBrandStyle}>
-                            Sign in
+                        <Button
+                            className="w-full h-11 text-white font-medium rounded-md shadow-sm transition-all"
+                            type="submit"
+                            style={bgBrandStyle}
+                            disabled={isLoading || isMagicLinkLoading}
+                        >
+                            {isLoading ? "Signing in..." : "Sign in"}
                         </Button>
 
                         <div className="relative">

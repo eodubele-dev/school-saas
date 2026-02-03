@@ -28,7 +28,9 @@ export default async function middleware(req: NextRequest) {
           return req.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => req.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value))
+
+          // Update the response object (to send Set-Cookie to browser)
           response = NextResponse.next({
             request: {
               headers: req.headers,
@@ -75,13 +77,14 @@ export default async function middleware(req: NextRequest) {
   }
 
   // 3. Contextual Branding Injection
-  // Inject into Headers so Server Components can read them
-  response.headers.set('x-school-id', tenant.id)
-  response.headers.set('x-school-name', tenant.name)
-  if (tenant.logo_url) response.headers.set('x-school-logo', tenant.logo_url)
+  // Create a new Headers object for the rewrite request
+  const requestHeaders = new Headers(req.headers)
+
+  requestHeaders.set('x-school-id', tenant.id)
+  requestHeaders.set('x-school-name', tenant.name)
+  if (tenant.logo_url) requestHeaders.set('x-school-logo', tenant.logo_url)
   if (tenant.theme_config) {
-    // Assuming theme_config is a JSON object
-    response.headers.set('x-school-theme', JSON.stringify(tenant.theme_config))
+    requestHeaders.set('x-school-theme', JSON.stringify(tenant.theme_config))
   }
 
 
@@ -185,8 +188,15 @@ export default async function middleware(req: NextRequest) {
   // Pass branding headers in the final response
   const finalResponse = NextResponse.rewrite(rewriteUrl, {
     request: {
-      headers: response.headers
+      headers: requestHeaders
     }
   })
+
+  // Copy cookies from our temp response (which captured token refreshes) to final response
+  // This ensures the browser gets the Set-Cookie headers
+  response.cookies.getAll().forEach((cookie) => {
+    finalResponse.cookies.set(cookie.name, cookie.value, cookie)
+  })
+
   return finalResponse
 }

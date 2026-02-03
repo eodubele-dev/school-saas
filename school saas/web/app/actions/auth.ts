@@ -16,17 +16,18 @@ export async function login(formData: FormData) {
     const password = formData.get('password') as string
     const domain = formData.get('domain') as string // Context: "school1"
 
+    console.log(`[Auth Action] Login attempt for: ${email} on domain: ${domain}`)
+
     // 1. Authenticate User Credentials
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
     })
 
+    console.log(`[Auth Action] Auth result: User=${authData.user?.id}, Error=${authError?.message}`)
+
     if (authError || !authData.user) {
-        // preserve domain context in URL on error
-        const redirectUrl = domain ? `/${domain}/login` : '/login'
-        const errorMessage = authError?.message || "Authentication failed"
-        redirect(`${redirectUrl}?error=${encodeURIComponent(errorMessage)}`)
+        return { error: authError?.message || "Authentication failed" }
     }
 
     // 2. Context Verification (Only if logging in via a domain)
@@ -73,32 +74,20 @@ export async function login(formData: FormData) {
             }
 
         } catch (error: any) {
-            // Rollback: Sign out and redirect with error
+            // Rollback: Sign out and return error
             await supabase.auth.signOut()
-            redirect(`/${domain}/login?error=${encodeURIComponent(error.message)}`)
+            return { error: error.message }
         }
     }
 
-    // 3. Success Redirect
-    // If context was valid, simply refresh and go to dashboard
+    console.log("[Auth Action] Context verification passed (or skipped if no domain)")
+
+    // 3. Success
     console.log(`[Login Action Success] User: ${authData.user?.email}, Domain: ${domain}, Role: ${authData.user?.user_metadata?.role}`)
 
     revalidatePath('/', 'layout')
 
-    const host = headers().get('host') || 'localhost:3000'
-    const protocol = host.includes('localhost') ? 'http' : 'https'
-
-    // FORCE ABSOLUTE REDIRECT to ensure Subdomain is respected
-    if (process.env.NODE_ENV === 'development') {
-        const targetDomain = (domain && domain !== 'login') ? domain : (authData.user?.user_metadata?.school_slug || 'school1')
-        const port = host.split(':')[1] || '3000'
-        const targetUrl = `${protocol}://${targetDomain}.localhost:${port}/dashboard`
-        console.log(`[Login Redirect] Dev Target: ${targetUrl}`)
-        redirect(targetUrl)
-    } else {
-        const targetDomain = domain || authData.user?.user_metadata?.school_slug
-        redirect(`${protocol}://${targetDomain}.eduflow.ng/dashboard`)
-    }
+    return { success: true }
 }
 
 export async function signInWithMagicLink(formData: FormData) {

@@ -1,11 +1,11 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { GradeEntryGrid } from "@/components/academic/grade-entry-grid"
 import { AssignmentsManager } from "@/components/academic/assignments-manager"
-import { BuilderContainer } from "@/components/cbt/builder-container" // Re-using existing CBT
+import { BuilderContainer } from "@/components/cbt/builder-container"
 import { getClassGrades } from "@/lib/actions/gradebook"
+import { getAssignments } from "@/lib/actions/assignments"
 import { createClient } from "@/lib/supabase/server"
-import { AlertCircle, BookOpenCheck, FileText, BrainCircuit, Table } from "lucide-react"
+import { BookOpenCheck, FileText, BrainCircuit, Table } from "lucide-react"
 
 export default async function AssessmentHubPage({ searchParams }: { searchParams: { class_id?: string, subject_id?: string, tab?: string } }) {
     const supabase = createClient()
@@ -40,8 +40,9 @@ export default async function AssessmentHubPage({ searchParams }: { searchParams
         return <div className="p-10 text-center text-slate-400">Please configure Classes and Subjects first.</div>
     }
 
-    // 2. Fetch Data for Gradebook Tab
+    // 2. Fetch Data
     const gradesRes = await getClassGrades(classId, subjectId)
+    const assignmentsRes = await getAssignments(classId, subjectId)
 
     return (
         <div className="p-4 md:p-6 h-[calc(100vh-80px)] flex flex-col">
@@ -87,12 +88,15 @@ export default async function AssessmentHubPage({ searchParams }: { searchParams
 
                 {/* Tab 2: Assignments */}
                 <TabsContent value="assignments" className="flex-1 mt-0">
-                    <AssignmentsManager />
+                    <AssignmentsManager
+                        classId={classId}
+                        subjectId={subjectId}
+                        assignments={assignmentsRes.success ? assignmentsRes.data || [] : []}
+                    />
                 </TabsContent>
 
                 {/* Tab 3: CBT */}
                 <TabsContent value="cbt" className="flex-1 mt-0 h-full">
-                    {/* Re-using existing CBT Builder */}
                     <BuilderContainer />
                 </TabsContent>
             </Tabs>

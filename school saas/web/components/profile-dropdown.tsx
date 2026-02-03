@@ -13,6 +13,7 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar"
+import { useRouter } from "next/navigation"
 import { LogOut, Settings, User as UserIcon } from "lucide-react"
 import { logout } from "@/app/actions/auth"
 import { PreferencesModal } from "@/components/preferences-modal"
@@ -32,7 +33,18 @@ export function ProfileDropdown({ userName, userRole, userEmail }: ProfileDropdo
         .toUpperCase()
         .slice(0, 2)
 
+    const router = useRouter()
     const [preferencesOpen, setPreferencesOpen] = useState(false)
+
+    const handleLogout = async () => {
+        try {
+            await logout()
+        } catch (error) {
+            console.error("Logout failed", error)
+        } finally {
+            router.push('/login')
+        }
+    }
 
     return (
         <>
@@ -60,9 +72,10 @@ export function ProfileDropdown({ userName, userRole, userEmail }: ProfileDropdo
                             </p>
                         </div>
                     </DropdownMenuLabel>
-                    <DropdownMenuSeparator className="bg-white/10" />
-
-                    <DropdownMenuItem className="cursor-pointer hover:bg-white/5 focus:bg-white/5 focus:text-white">
+                    <DropdownMenuItem
+                        className="cursor-pointer hover:bg-white/5 focus:bg-white/5 focus:text-white"
+                        onSelect={() => router.push('/dashboard/profile')}
+                    >
                         <UserIcon className="mr-2 h-4 w-4" />
                         <span>My Profile</span>
                     </DropdownMenuItem>
@@ -78,7 +91,7 @@ export function ProfileDropdown({ userName, userRole, userEmail }: ProfileDropdo
 
                     <DropdownMenuItem
                         className="cursor-pointer text-slate-400 hover:text-red-400 hover:bg-red-500/10 focus:text-red-400 focus:bg-red-500/10 transition-colors mt-2"
-                        onClick={() => logout()}
+                        onSelect={handleLogout}
                     >
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>Log out</span>
