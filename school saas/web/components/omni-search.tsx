@@ -36,7 +36,7 @@ export function OmniSearch() {
         <>
             <button
                 onClick={() => setOpen(true)}
-                className="relative group flex items-center gap-2 h-9 w-64 rounded-full border border-white/10 bg-white/5 px-3 text-sm text-slate-400 hover:bg-white/10 hover:border-white/20 transition-all outline-none focus:ring-2 focus:ring-blue-500/50"
+                className="relative group flex items-center gap-2 h-9 w-full rounded-full border border-white/10 bg-white/5 px-3 text-sm text-slate-400 hover:bg-white/10 hover:border-white/20 transition-all outline-none focus:ring-2 focus:ring-blue-500/50"
             >
                 <Search className="h-4 w-4" />
                 <span className="flex-1 text-left truncate">Search students, staff...</span>

@@ -21,9 +21,11 @@ import { redirect } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 // --- Components for Client Interaction ---
 import { EditRequestButton } from "./edit-request-button"
+import { ProfileEditDialog } from "@/components/profile-edit-dialog"
 
 export default async function ChildProfilePage({ params }: { params: { domain: string } }) {
     const supabase = createClient()
@@ -48,22 +50,34 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
         .eq('id', user.id)
         .single()
 
-    // 4. Fetch Student (Linked to Parent)
-    // Note: Assuming single child for now per instructions, or taking the first one
-    const { data: student } = await supabase
-        .from('students')
-        .select(`
-            *,
-            classes (
-                name,
-                grade_level
-            )
-        `)
-        .eq('parent_id', user.id)
-        .eq('tenant_id', tenant.id)
-        .single() // Take first child
+    // 4. Role-Based Data Fetching
+    const userRole = parentProfile?.role || 'user'
+    const isParent = userRole === 'parent'
+    // Also treat 'student' as 'student' if we want, but for now specific check for parent logic.
 
-    if (!student) {
+    let student = null
+
+    if (isParent) {
+        const { data } = await supabase
+            .from('students')
+            .select(`
+                *,
+                classes (
+                    name,
+                    grade_level
+                )
+            `)
+            .eq('parent_id', user.id)
+            .eq('tenant_id', tenant.id)
+            .single() // Take first child
+        student = data
+    }
+
+
+    // 5. Render Logic
+
+    // CASE A: PARENT with NO STUDENT
+    if (isParent && !student) {
         return (
             <div className="flex h-[50vh] items-center justify-center p-8">
                 <Card className="bg-slate-900/50 border-white/5 p-8 text-center backdrop-blur-md">
@@ -75,6 +89,106 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
         )
     }
 
+    // CASE B: STAFF / ADMIN / STUDENT (Using Personal Profile)
+    if (!isParent) {
+        return (
+            <div className="space-y-8 animate-in fade-in duration-500 pb-20">
+                {/* Page Header */}
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h2 className="text-3xl font-bold tracking-tight text-white glow-blue">My Profile</h2>
+                        <p className="text-slate-400">Manage your personal information and security settings.</p>
+                    </div>
+                    {/* EDIT DIALOG */}
+                    <ProfileEditDialog profile={{ ...parentProfile, email: user.email }} />
+                </div>
+
+                {/* Digital ID Card Section - STAFF VERSION */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-950/20 to-slate-950 border border-indigo-500/20 p-8 md:p-12 shadow-[0_0_50px_rgba(99,102,241,0.05)]">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+
+                    <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                        {/* Photo */}
+                        <div className="relative group">
+                            <div className="h-32 w-32 md:h-40 md:w-40 rounded-full border-[3px] border-indigo-500/30 p-1 shadow-[0_0_30px_rgba(99,102,241,0.2)] bg-slate-950/50 backdrop-blur-sm">
+                                <div className="h-full w-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden relative">
+                                    <Avatar className="h-full w-full">
+                                        <AvatarImage src={parentProfile?.avatar_url} className="object-cover" />
+                                        <AvatarFallback className="bg-slate-800 flex items-center justify-center h-full w-full">
+                                            <User className="h-16 w-16 text-slate-600" />
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </div>
+                            </div>
+                            <div className="absolute bottom-2 right-2 h-8 w-8 bg-indigo-500 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-950" title="Verified Staff">
+                                <ShieldCheck className="h-4 w-4 text-slate-950" />
+                            </div>
+                        </div>
+
+                        {/* Info */}
+                        <div className="text-center md:text-left space-y-2">
+                            <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+                                {parentProfile?.full_name || "Staff Member"}
+                            </h1>
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm">
+                                <Badge variant="outline" className="border-indigo-500/30 text-indigo-400 bg-indigo-950/20 px-3 py-1 uppercase tracking-wider">
+                                    {userRole}
+                                </Badge>
+                                <span className="text-slate-500 flex items-center gap-1">
+                                    <School className="h-3 w-3" />
+                                    {tenant.name}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Info Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card className="bg-slate-900/40 border-white/5 backdrop-blur-sm group">
+                        <div className="p-6 space-y-6">
+                            <div className="flex items-center gap-3 border-b border-white/5 pb-4">
+                                <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+                                    <User className="h-5 w-5" />
+                                </div>
+                                <h3 className="font-bold text-white tracking-wide">Account Details</h3>
+                            </div>
+                            <div className="space-y-4">
+                                <InfoRow label="Full Name" value={parentProfile?.full_name} />
+                                <InfoRow label="Email Address" value={user.email} icon={Mail} />
+                                <InfoRow label="User ID" value={user.id.slice(0, 8).toUpperCase()} icon={Dna} />
+                                <InfoRow label="Role" value={userRole} icon={ShieldCheck} highlight />
+                            </div>
+                        </div>
+                    </Card>
+
+                    <Card className="bg-slate-900/40 border-white/5 backdrop-blur-sm group">
+                        <div className="p-6 space-y-6">
+                            <div className="flex items-center gap-3 border-b border-white/5 pb-4">
+                                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                                    <Activity className="h-5 w-5" />
+                                </div>
+                                <h3 className="font-bold text-white tracking-wide">System Status</h3>
+                            </div>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between text-sm">
+                                    <span className="text-slate-500">Account Status</span>
+                                    <span className="text-emerald-400 font-medium flex items-center gap-2">
+                                        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                                        Active
+                                    </span>
+                                </div>
+                                <InfoRow label="Last Login" value="Just Now" icon={Calendar} />
+                                <InfoRow label="Tenant ID" value={tenant.name} icon={School} />
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+            </div>
+        )
+    }
+
+    // CASE C: PARENT with CHILD (Existing Logic)
     // 5. Mock Data (for missing schema fields)
     const MOCK_DATA = {
         studentId: student.id.slice(0, 8).toUpperCase(), // Generate pseudo-ID
@@ -93,7 +207,7 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
             {/* Page Header */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight text-white glow-blue font-serif">Child Profile</h2>
+                    <h2 className="text-3xl font-bold tracking-tight text-white glow-blue">Child Profile</h2>
                     <p className="text-slate-400">View and manage student information.</p>
                 </div>
                 <EditRequestButton />

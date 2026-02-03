@@ -41,6 +41,14 @@ export async function Navbar({ domain }: { domain?: string }) {
                     <Sidebar domain={domain} className="w-full h-full border-none" />
                 </MobileNav>
 
+                {/* Mobile Brand (Logo Only) - "Prominent" 40px */}
+                <div className="flex lg:hidden items-center gap-2">
+                    <div className="h-10 w-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shadow-sm">
+                        {/* Short-circuit for logo if available, else Icon */}
+                        <Book className="h-5 w-5 text-indigo-400" />
+                    </div>
+                </div>
+
                 <div className="hidden lg:flex flex-col">
                     <div className="flex items-center gap-2 text-xs font-medium text-slate-400 uppercase tracking-widest">
                         <span>2025/2026 Session</span>
@@ -55,10 +63,22 @@ export async function Navbar({ domain }: { domain?: string }) {
             </div>
 
             {/* Center: Quick Links */}
-            <NavbarLinks
-                domain={domain || 'school'}
-                scheduleData={scheduleData}
-            />
+            {/* Center: Quick Links (Actually, user asked to push search to fill space, so we might need to adjust layout) */}
+            {/* The Prompt: "Ensure the 'Global Search' bar has a flex-grow property so it fills the remaining space properly, pushing the user profile to the far right." */}
+
+            {/* We will hide NavbarLinks on mobile if needed or keep it minimal. The prompt implies a layout shift.
+                Current Layout: Left (Brand/Nav) | Center (Links) | Right (Search/Proto).
+                Requested: Left (Brand) | ... | Search (Fill) | Profile.
+                
+                Let's keep NavbarLinks but make Search (OmniSearch) grow.
+            */}
+
+            <div className="flex-1 flex items-center justify-center px-4">
+                <NavbarLinks
+                    domain={domain || 'school'}
+                    scheduleData={scheduleData}
+                />
+            </div>
 
             {/* Right: Search, Notifications, Profile */}
             <div className="flex items-center gap-4 lg:gap-6">

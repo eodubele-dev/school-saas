@@ -39,14 +39,40 @@ export async function Sidebar({ className, domain }: { className?: string, domai
 
     const { data: tenant } = await supabase
         .from('tenants')
-        .select('name, logo_url')
+        .select('name, logo_url, theme_config, motto')
         .eq('slug', slug)
         .single()
+
+    let primaryColor = '#3b82f6' // Default Blue-500
+    let tenantMotto = "Excellence in Everything" // Default Slogan
 
     if (tenant) {
         tenantName = tenant.name || "EduFlow"
         tenantLogo = tenant.logo_url
+        if (tenant.motto) tenantMotto = tenant.motto
+        if (tenant.theme_config && typeof tenant.theme_config === 'object') {
+            // @ts-ignore
+            primaryColor = tenant.theme_config.primary || primaryColor
+        }
     }
+
+    // Helper to Convert Hex to RGB for Tailwind opacity modifiers
+    const hexToRgb = (hex: string) => {
+        let c: any;
+        if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+            c = hex.substring(1).split('');
+            if (c.length == 3) {
+                c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+            }
+            c = '0x' + c.join('');
+            return [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(' ');
+        }
+        return '59 130 246'; // Default fallback
+    }
+
+    const accentRgb = hexToRgb(primaryColor)
+
+    console.log('[Sidebar] Theme Color Debug:', { primaryColor, accentRgb })
 
     // Fetch User Role
     const { data: { user } } = await supabase.auth.getUser()
@@ -64,45 +90,58 @@ export async function Sidebar({ className, domain }: { className?: string, domai
     }
 
     return (
-        <div className={cn("flex h-screen w-64 flex-col bg-slate-950 text-white", className)}>
-            <div className="flex h-16 items-center px-6 border-b border-white/5 relative group">
-                {/* Premium Context-Aware Header */}
+        <div
+            className={cn("flex h-screen w-64 flex-col bg-slate-950 text-white", className)}
+            style={{
+                // @ts-ignore
+                '--school-accent': primaryColor,
+                '--school-accent-rgb': accentRgb
+            }}
+        >
+            {/* Premium 'High-Prominence' Brand Header */}
+            <div className="flex h-[88px] items-center px-3 border-b border-white/5 relative group shrink-0 gap-3">
+                {/* 3. Vertical Divider (Subtle Frame) */}
+                <div className="absolute bottom-0 right-0 top-0 w-px bg-white/10" />
+
+                {/* Premium Context-Aware Header Interaction */}
                 <div className="absolute inset-0 bg-[var(--school-accent)]/5 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ backgroundColor: 'rgb(var(--school-accent-rgb) / 0.05)' }} />
 
-                <div className="flex items-center gap-3 font-bold text-xl relative z-10 w-full">
-                    {tenantLogo ? (
-                        <div className="relative">
-                            <div className="absolute inset-0 blur-md rounded-lg" style={{ backgroundColor: 'rgb(var(--school-accent-rgb) / 0.2)' }} />
+                <div className="flex items-center gap-3 relative z-10 w-full overflow-hidden">
+                    {/* 1. Large 'Goldilocks' Logo Container (56px) */}
+                    <div className="h-14 w-14 shrink-0 flex items-center justify-center rounded-xl bg-slate-900/50 backdrop-blur transition-all duration-300 group-hover:scale-105 border border-white/10"
+                        style={{
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.3)', // Deep shadow for "Badge" effect
+                            filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))',
+                            borderColor: 'rgb(var(--school-accent-rgb) / 0.2)'
+                        }}>
+                        {tenantLogo ? (
                             <img
                                 src={tenantLogo}
                                 alt={tenantName}
-                                className="h-8 w-8 rounded-lg object-cover border relative z-10"
-                                style={{
-                                    borderColor: 'rgb(var(--school-accent-rgb) / 0.2)',
-                                    boxShadow: '0 0 15px rgba(var(--school-accent-rgb), 0.3)'
-                                }}
+                                className="h-full w-full object-contain p-1"
                             />
-                        </div>
-                    ) : (
-                        <div
-                            className="h-8 w-8 rounded-lg border flex items-center justify-center relative z-10"
-                            style={{
-                                backgroundColor: 'rgb(var(--school-accent-rgb) / 0.1)',
-                                borderColor: 'rgb(var(--school-accent-rgb) / 0.3)',
-                                color: 'var(--school-accent)',
-                                boxShadow: '0 0 15px rgba(var(--school-accent-rgb), 0.15)'
-                            }}
+                        ) : (
+                            <School className="h-8 w-8 text-[var(--school-accent)]" />
+                        )}
+                    </div>
+
+                    {/* 2. Dual-Line Identity Stack */}
+                    <div className="flex flex-col flex-1 min-w-0 justify-center">
+                        <span
+                            className="font-bold text-[20px] text-white leading-[1.1] tracking-tight drop-shadow-sm line-clamp-2"
+                            title={tenantName}
                         >
-                            <School className="h-4 w-4" />
-                        </div>
-                    )}
-                    <span className="bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent group-hover:to-white transition-all duration-300">
-                        {tenantName}
-                    </span>
+                            {tenantName}
+                        </span>
+                        {/* Slogan: Bolder, clearer, larger */}
+                        <span className="text-[12px] font-semibold text-cyan-400 mt-0.5 leading-none hidden lg:block tracking-wide truncate">
+                            {tenantMotto}
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            <SidebarClient role={userRole} userName={userName} />
+            <SidebarClient role={userRole} userName={userName} brandColor={primaryColor} />
 
 
         </div>

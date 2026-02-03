@@ -1,5 +1,12 @@
-'use client'
+"use client"
 
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { LogOut, Settings, User as UserIcon } from "lucide-react"
+
+import { logout } from "@/app/actions/auth"
+import { PreferencesModal } from "@/components/preferences-modal"
+import { useState } from "react"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -13,11 +20,6 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar"
-import { useRouter } from "next/navigation"
-import { LogOut, Settings, User as UserIcon } from "lucide-react"
-import { logout } from "@/app/actions/auth"
-import { PreferencesModal } from "@/components/preferences-modal"
-import { useState } from "react"
 
 interface ProfileDropdownProps {
     userName: string
@@ -26,6 +28,12 @@ interface ProfileDropdownProps {
 }
 
 export function ProfileDropdown({ userName, userRole, userEmail }: ProfileDropdownProps) {
+    const pathname = usePathname()
+    // Robust navigation: Detect if we are in a path-based tenant (e.g. /school1/dashboard) or subdomain (/dashboard)
+    // We assume the profile page is strictly at local "/dashboard/profile"
+    const basePath = pathname?.split('/dashboard')[0] || ""
+    const profileUrl = `${basePath}/dashboard/profile`
+
     const initials = userName
         .split(' ')
         .map((n) => n[0])
@@ -72,13 +80,14 @@ export function ProfileDropdown({ userName, userRole, userEmail }: ProfileDropdo
                             </p>
                         </div>
                     </DropdownMenuLabel>
-                    <DropdownMenuItem
-                        className="cursor-pointer hover:bg-white/5 focus:bg-white/5 focus:text-white"
-                        onSelect={() => router.push('/dashboard/profile')}
-                    >
-                        <UserIcon className="mr-2 h-4 w-4" />
-                        <span>My Profile</span>
+
+                    <DropdownMenuItem asChild>
+                        <Link href={profileUrl} className="flex items-center cursor-pointer hover:bg-white/5 focus:bg-white/5 focus:text-white w-full">
+                            <UserIcon className="mr-2 h-4 w-4" />
+                            <span>My Profile</span>
+                        </Link>
                     </DropdownMenuItem>
+
                     <DropdownMenuItem
                         className="cursor-pointer hover:bg-white/5 focus:bg-white/5 focus:text-white mb-2"
                         onSelect={() => setPreferencesOpen(true)}

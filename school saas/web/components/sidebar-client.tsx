@@ -23,7 +23,15 @@ import {
 
 import { SIDEBAR_LINKS, type UserRole, type SidebarCategory, type SidebarItem } from "@/config/sidebar"
 
-export function SidebarClient({ role: initialRole = 'student', userName = 'Guest User' }: { role?: string, userName?: string }) {
+export function SidebarClient({
+    role: initialRole = 'student',
+    userName = 'Guest User',
+    brandColor = '#3b82f6' // Default Blue
+}: {
+    role?: string,
+    userName?: string,
+    brandColor?: string
+}) {
     const pathname = usePathname()
     const router = useRouter()
     const role = (Object.keys(SIDEBAR_LINKS).includes(initialRole) ? initialRole : 'student') as UserRole
@@ -42,6 +50,16 @@ export function SidebarClient({ role: initialRole = 'student', userName = 'Guest
     // Effect: "Active Context" Auto-Collapse
     // When path changes, find which category contains the active link and open it.
     useEffect(() => {
+        // STRICT RULE: If we are on the main dashboard overview, collapse everything.
+        // Matches /dashboard, /dashboard/, /anything/dashboard, /anything/dashboard/
+        const isDashboardHome = /\/dashboard\/?$/.test(pathname)
+
+        if (isDashboardHome) {
+            // Force collapse all
+            setOpenCategories({})
+            return
+        }
+
         const activeCategory = categories.find(cat =>
             cat.items.some(item =>
                 item.href === '/dashboard' ? pathname === item.href : pathname.startsWith(item.href)
@@ -49,11 +67,20 @@ export function SidebarClient({ role: initialRole = 'student', userName = 'Guest
         )
 
         if (activeCategory) {
-            // Set only this category to open (Auto-collapse others logic)
-            // Or we could keep others open if we want "sticky" state. 
-            // The prompt asks for "Campus Logistics and Core Operations should automatically collapse"
-            // So we reset state to only the active one.
-            setOpenCategories({ [activeCategory.category]: true })
+            // Robust check: normalize string and check for inclusion
+            const categoryName = activeCategory.category.trim()
+            const isCampusOps = categoryName.toLowerCase().includes("campus operations")
+
+            if (!isCampusOps) {
+                // Auto-expand other categories
+                setOpenCategories(prev => ({ ...prev, [activeCategory.category]: true }))
+            } else {
+                // Double safety: If we somehow detected Campus Ops but weren't on root /dashboard
+                // (e.g. /dashboard/something-else that belongs to Campus Ops but isn't root)
+                // We can either open it or close it. 
+                // Let's assume user wants it closed unless explicitly opened by click.
+                // So we do nothing (don't set to true).
+            }
         }
     }, [pathname, categories])
 
@@ -98,7 +125,8 @@ export function SidebarClient({ role: initialRole = 'student', userName = 'Guest
             <div className="px-4 py-4">
                 <button
                     onClick={() => setOpenSearch(true)}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900 border border-white/10 text-slate-400 text-xs hover:border-[var(--school-accent)]/50 transition-colors group/search"
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900 border border-white/10 text-slate-400 text-xs hover:border-white/20 transition-colors group/search"
+                    style={{ borderColor: openSearch ? brandColor : undefined }}
                 >
                     <Search className="h-3 w-3 group-hover/search:text-white" />
                     <span className="flex-1 text-left">Quick Find...</span>
@@ -173,21 +201,34 @@ export function SidebarClient({ role: initialRole = 'student', userName = 'Guest
                                             key={item.href}
                                             href={item.href}
                                             className={cn(
-                                                "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all duration-200 group/link relative",
+                                                "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all duration-200 group/link relative font-medium",
                                                 isActive
-                                                    ? "text-white font-bold bg-white/5"
-                                                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                                                    ? "text-white"
+                                                    : "text-slate-400 hover:text-white"
                                             )}
+                                            style={isActive ? {
+                                                backgroundColor: `${brandColor}26`, // 15% opacity
+                                                boxShadow: `0 0 20px -5px ${brandColor}60` // Stronger Ambient Glow
+                                            } : undefined}
                                         >
-                                            <IconComponent className={cn(
-                                                "h-4 w-4 transition-colors",
-                                                isActive ? "text-[var(--school-accent)]" : "text-slate-500 group-hover/link:text-slate-300"
-                                            )} />
+                                            <IconComponent
+                                                className={cn(
+                                                    "h-4 w-4 transition-colors",
+                                                    !isActive && "text-slate-500 group-hover/link:text-slate-300"
+                                                )}
+                                                style={{ color: isActive ? brandColor : undefined }}
+                                            />
                                             <span>{item.label}</span>
 
                                             {/* Active Glow Bar */}
                                             {isActive && (
-                                                <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[var(--school-accent)] rounded-l-full shadow-[0_0_10px_var(--school-accent)] opactiy-80" />
+                                                <div
+                                                    className="absolute left-0 top-0 bottom-0 w-[4px] rounded-r-lg opacity-100"
+                                                    style={{
+                                                        backgroundColor: brandColor,
+                                                        boxShadow: `0 0 15px 1px ${brandColor}`
+                                                    }}
+                                                />
                                             )}
                                         </Link>
                                     )
@@ -211,8 +252,9 @@ export function SidebarClient({ role: initialRole = 'student', userName = 'Guest
                                 "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all duration-200 group/link relative",
                                 isActive ? "text-white font-bold" : "text-slate-400 hover:text-white"
                             )}
+                            style={isActive ? { color: brandColor } : undefined}
                         >
-                            <IconComponent className={cn("h-4 w-4", isActive ? "text-[var(--school-accent)]" : "text-slate-500")} />
+                            <IconComponent className={cn("h-4 w-4", !isActive && "text-slate-500")} style={isActive ? { color: brandColor } : undefined} />
                             <span>{item.label}</span>
                         </Link>
                     )
