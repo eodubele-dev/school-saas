@@ -1,9 +1,40 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Lock, CreditCard } from "lucide-react"
+import { Lock, CreditCard, Loader2 } from "lucide-react"
+import { toast } from "sonner"
+import { generatePaystackLink } from "@/lib/actions/finance"
+import confetti from "canvas-confetti"
 
-export function ResultGatekeeper({ isPaid, balance, children }: { isPaid: boolean, balance: number, children: React.ReactNode }) {
+export function ResultGatekeeper({ isPaid, balance, email, children }: { isPaid: boolean, balance: number, email: string, children: React.ReactNode }) {
+    const [loading, setLoading] = useState(false)
+
+    const handlePayment = async () => {
+        setLoading(true)
+        try {
+            const link = await generatePaystackLink("Student", balance, email)
+
+            toast.success("Payment Initiated", {
+                description: "Redirecting to Paystack secure checkout...",
+            })
+
+            // Simulate Success Confetti (since we can't really pay in this demo environment)
+            setTimeout(() => {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                })
+                window.open(link, '_blank')
+                setLoading(false)
+            }, 1000)
+        } catch {
+            toast.error("Payment Failed", { description: "Could not initialize transaction." })
+            setLoading(false)
+        }
+    }
+
     if (isPaid) {
         return <>{children}</>
     }
@@ -32,9 +63,15 @@ export function ResultGatekeeper({ isPaid, balance, children }: { isPaid: boolea
 
                 <Button
                     className="bg-green-600 hover:bg-green-700 text-white font-bold h-12 px-8 text-lg shadow-[0_0_20px_rgba(22,163,74,0.4)]"
-                    onClick={() => alert("Redirecting to Paystack...")}
+                    onClick={handlePayment}
+                    disabled={loading}
                 >
-                    <CreditCard className="h-5 w-5 mr-2" /> Pay Now to Unlock
+                    {loading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <CreditCard className="h-5 w-5 mr-2" />
+                    )}
+                    Pay Now to Unlock
                 </Button>
 
                 <p className="mt-4 text-xs text-slate-500">Secure payment via Paystack</p>

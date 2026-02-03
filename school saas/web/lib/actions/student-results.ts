@@ -30,29 +30,26 @@ export async function checkFeeStatus(term: string, session: string) {
     }
 
     // 2. Fallback: Check Billing (Real-time check if trigger failed or pre-dates trigger)
-    const { data: billing } = await supabase
-        .from('billing')
-        .select('status, balance, total_fees')
+    const invoiceTerm = `${session} ${term}`
+    const { data: invoice } = await supabase
+        .from('invoices')
+        .select('status, amount, amount_paid')
         .eq('student_id', student.id)
-        .eq('term', term)
-        .eq('session', session)
+        .eq('term', invoiceTerm)
         .single()
 
-    if (!billing) {
+    if (!invoice) {
         // Fallback for demo if no billing data seeded
-        // Default to 'locked' if report card exists and is locked? 
-        // Or 'paid' if missing billing?
-        // Let's assume strict: if locked in report card, it stays locked unless billing says paid.
         return { success: true, isPaid: false, balance: 50000 } // Mock outstanding
     }
 
-    const isPaid = billing.status === 'paid' || billing.balance <= 0
+    const isPaid = invoice.status === 'paid' || (Number(invoice.amount) - Number(invoice.amount_paid) <= 0)
 
     return {
         success: true,
-        isPaid, // If billing says paid, we trust it (and maybe should try trigger again? No, just allow)
-        balance: billing.balance,
-        total: billing.total_fees
+        isPaid,
+        balance: Number(invoice.amount) - Number(invoice.amount_paid),
+        total: invoice.amount
     }
 }
 

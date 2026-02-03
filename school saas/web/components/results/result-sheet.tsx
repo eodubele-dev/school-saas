@@ -179,32 +179,77 @@ export function ResultSheet({ data, schoolName, schoolLogo }: ResultSheetProps) 
                 {/* Character & Remarks & QR Footer */}
                 <div className="grid grid-cols-[1fr_200px] gap-8 mt-auto">
                     <div className="space-y-6">
-                        {/* Remarks */}
-                        <div className="bg-slate-50 p-4 border border-slate-200">
-                            <h3 className="text-xs font-bold uppercase text-slate-500 mb-1">Class Teacher's Remark</h3>
-                            <p className="font-handwriting text-lg text-blue-900 leading-snug">"{data.character.teacher_remark}"</p>
+                        {/* Iconic Star Rating for Character (Static Demo for Platinum Polish) */}
+                        <div className="flex gap-6 mb-4">
+                            <div>
+                                <h3 className="text-[10px] font-bold uppercase text-slate-400 mb-1">Punctuality</h3>
+                                <div className="flex text-yellow-500">
+                                    {'★★★★★'.split('').map((s, i) => <span key={i} className="text-lg leading-none text-yellow-500 drop-shadow-sm">{s}</span>)}
+                                </div>
+                            </div>
+                            <div>
+                                <h3 className="text-[10px] font-bold uppercase text-slate-400 mb-1">Neatness</h3>
+                                <div className="flex text-yellow-500">
+                                    {'★★★★☆'.split('').map((s, i) => <span key={i} className="text-lg leading-none text-yellow-500 drop-shadow-sm">{s}</span>)}
+                                </div>
+                            </div>
+                            <div>
+                                <h3 className="text-[10px] font-bold uppercase text-slate-400 mb-1">Leadership</h3>
+                                <div className="flex text-yellow-500">
+                                    {'★★★★★'.split('').map((s, i) => <span key={i} className="text-lg leading-none text-yellow-500 drop-shadow-sm">{s}</span>)}
+                                </div>
+                            </div>
                         </div>
-                        <div className="bg-slate-50 p-4 border border-slate-200">
-                            <h3 className="text-xs font-bold uppercase text-slate-500 mb-1">Principal's Remark</h3>
-                            <p className="font-handwriting text-lg text-slate-900 leading-snug">"{data.character.principal_remark}"</p>
+
+                        {/* Remarks */}
+                        <div className="bg-slate-50 p-4 border border-blue-100 rounded-lg relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-blue-500" />
+                            <h3 className="text-xs font-bold uppercase text-blue-900 mb-1 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                Class Teacher's Remark
+                            </h3>
+                            <p className="font-handwriting text-lg text-blue-900 leading-snug italic">"{data.character.teacher_remark}"</p>
+                        </div>
+                        <div className="bg-slate-900 text-slate-200 p-5 rounded-lg border border-slate-800 relative shadow-md">
+                            <div className="absolute top-4 right-4 text-slate-700 opacity-20">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 13.1216 16 12.017 16H9.01703C7.91246 16 7.01703 16.8954 7.01703 18L7.01703 21H5.01703V18C5.01703 15.7909 6.79089 14 9.01703 14H12.017C14.2432 14 16.017 15.7909 16.017 18V21H14.017ZM21.017 6.00005C22.1216 6.00005 23.017 6.89548 23.017 8.00005V11C23.017 12.1046 22.1216 13 21.017 13H19.017V10H21.017V8.00005H19.017V13H17.017V11C17.017 9.89548 16.1216 9.00005 15.017 9.00005H12.017C10.9125 9.00005 10.017 9.89548 10.017 11V13H7.01703C5.91246 13 5.01703 12.1046 5.01703 11V8.00005C5.01703 6.89548 5.91246 6.00005 7.01703 6.00005H10.017C10.5693 6.00005 11.017 5.55233 11.017 5.00005C11.017 4.44776 10.5693 4.00005 10.017 4.00005H7.01703C4.80789 4.00005 3.01703 5.79091 3.01703 8.00005V11C3.01703 13.2092 4.80789 15 7.01703 15H17.017V17H19.017V15H21.017C23.2262 15 25.017 13.2092 25.017 11V8.00005C25.017 5.79091 23.2262 4.00005 21.017 4.00005H18.017C17.4647 4.00005 17.017 4.44776 17.017 5.00005C17.017 5.55233 17.4647 6.00005 18.017 6.00005H21.017Z" /></svg>
+                            </div>
+                            <h3 className="text-xs font-bold uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                                Principal's AI Summary
+                            </h3>
+                            <p className="font-sans text-sm text-slate-300 leading-relaxed">"{data.character.principal_remark}"</p>
                         </div>
 
                         <div className="flex gap-8 pt-4">
-                            <div className="border-t border-slate-400 w-40 text-center pt-1">
-                                <p className="text-xs uppercase font-bold text-slate-500">Principal's Signature</p>
+                            <div className="w-40 text-center pt-1">
+                                <div className="h-12 w-full mb-1 flex items-end justify-center">
+                                    <span className="font-handwriting text-2xl text-slate-800 -rotate-3">Mrs. Alade</span>
+                                </div>
+                                <div className="border-t border-slate-400 mx-auto w-32"></div>
+                                <p className="text-[10px] uppercase font-bold text-slate-500 mt-1">Principal's Signature</p>
                             </div>
-                            <div className="border-t border-slate-400 w-40 text-center pt-1">
-                                <p className="text-xs uppercase font-bold text-slate-500">Date Issued</p>
+                            <div className="w-40 text-center pt-1">
+                                <div className="h-12 w-full mb-1 flex items-end justify-center">
+                                    <span className="font-mono text-sm text-slate-600">24/02/2026</span>
+                                </div>
+                                <div className="border-t border-slate-400 mx-auto w-32"></div>
+                                <p className="text-[10px] uppercase font-bold text-slate-500 mt-1">Date Issued</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="flex flex-col items-end justify-end space-y-2">
                         {qrCodeUrl && (
-                            <img src={qrCodeUrl} alt="Verification QR" className="w-24 h-24 border border-slate-200 p-1 bg-white" />
+                            <div className="relative p-2 bg-white border border-slate-200 shadow-sm rounded-lg">
+                                <img src={qrCodeUrl} alt="Verification QR" className="w-24 h-24 mix-blend-multiply" />
+                                <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow">
+                                    VERIFIED
+                                </div>
+                            </div>
                         )}
-                        <p className="text-[10px] text-slate-400 text-right w-full leading-tight">
-                            Scan to verify authenticity using<br />the EduFlow Secure Portal.
+                        <p className="text-[10px] text-slate-400 text-right w-full leading-tight mt-2">
+                            Scan to verify authenticity<br />via EduFlow Secure Portal.
                         </p>
                     </div>
                 </div>

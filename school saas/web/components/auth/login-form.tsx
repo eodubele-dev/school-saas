@@ -4,7 +4,7 @@ import { login, signInWithMagicLink } from '@/app/actions/auth'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, BookOpen, GraduationCap, School, Wand2 } from 'lucide-react'
+import { ArrowLeft, BookOpen, GraduationCap, School, Wand2, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -23,6 +23,7 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
     const [isMagicLinkLoading, setIsMagicLinkLoading] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
@@ -152,17 +153,32 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
-                                <Link href="#" className="text-sm font-medium hover:underline" style={brandStyle}>
+                                <Link href="/forgot-password" className="text-sm font-medium hover:underline" style={brandStyle}>
                                     Forgot password?
                                 </Link>
                             </div>
-                            <Input
-                                id="password"
-                                name="password"
-                                type="password"
-                                required
-                                className="h-10 bg-slate-50 border-slate-300 focus:bg-white rounded-md transition-all"
-                            />
+                            <div className="relative">
+                                <Input
+                                    id="password"
+                                    name="password"
+                                    type={showPassword ? "text" : "password"}
+                                    required
+                                    className="h-10 bg-slate-50 border-slate-300 focus:bg-white rounded-md transition-all pr-10"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="h-4 w-4 text-slate-400" />
+                                    ) : (
+                                        <Eye className="h-4 w-4 text-slate-400" />
+                                    )}
+                                </Button>
+                            </div>
                         </div>
 
                         <Button
@@ -201,7 +217,7 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
                     <p className="text-center text-sm text-slate-500">
                         New to {schoolName || domain}?
                         {/* Signup usually for parents/students self-reg, or contact admin */}
-                        <Link href={`/${domain}/signup`} className="ml-1 font-medium hover:underline" style={brandStyle}>
+                        <Link href="/signup" className="ml-1 font-medium hover:underline" style={brandStyle}>
                             Create an account
                         </Link>
                     </p>
