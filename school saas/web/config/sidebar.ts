@@ -10,6 +10,7 @@ export const SIDEBAR_LINKS = {
         { icon: NairaIcon, label: "Bursar Hub", href: "/dashboard/bursar" },
         { icon: CreditCard, label: "Revenue & Collections", href: "/dashboard/bursar/finance/collections" },
         { icon: Users, label: "Student Admissions", href: "/dashboard/admin/admissions" },
+        { icon: GraduationCap, label: "All Students", href: "/dashboard/admin/students" },
         { icon: Users, label: "Staff Management", href: "/dashboard/admin/staff" },
         { icon: ClipboardCheck, label: "Staff Attendance", href: "/dashboard/admin/attendance/staff" },
         { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup/academic" },
