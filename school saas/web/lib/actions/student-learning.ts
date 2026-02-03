@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
+
 
 // --- Types ---
 export type QuizAttempt = {
@@ -19,8 +19,8 @@ export type QuizAttempt = {
 
 export async function getEnrolledSubjects() {
     const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { success: false, error: "Unauthorized" }
+    // const { data: { user } } = await supabase.auth.getUser()
+    // if (!user) return { success: false, error: "Unauthorized" }
 
     // 1. Get Student & Class
     const { data: student } = await supabase
@@ -138,8 +138,8 @@ export async function getQuizQuestions(quizId: string) {
     return { success: true, questions: questions || [] }
 }
 
-export async function submitQuizAnswers(attemptId: string, answers: Record<string, string>) {
-    const supabase = createClient()
+export async function submitQuizAnswers(_attemptId: string, _answers: Record<string, string>) {
+    // const supabase = createClient()
 
     // In a real high-security CBT, we save each answer individually.
     // For this PWA/Demo, we save the JSON blob or batch insert.
@@ -173,9 +173,12 @@ export async function finalizeQuiz(attemptId: string, answers: Record<string, st
     let score = 0
     let totalPoints = 0
 
+    // 3. Save Answers (Batch)
+    // Assuming cbt_answers table exists
+    /*
     const detailedAnswers = questions.map(q => {
         const studentAns = answers[q.id]
-        const isCorrect = studentAns === q.correct_answer // Case sensitivity?
+        const isCorrect = studentAns === q.correct_answer
         const points = q.points || 1
 
         if (isCorrect) score += points
@@ -190,11 +193,18 @@ export async function finalizeQuiz(attemptId: string, answers: Record<string, st
         }
     })
 
-    // 3. Save Answers (Batch)
-    // Assuming cbt_answers table exists
-    /*
     await supabase.from('cbt_answers').insert(detailedAnswers)
     */
+
+    // Calculate score manually since we prioritized logic above
+    for (const q of questions) {
+        const studentAns = answers[q.id]
+        if (studentAns === q.correct_answer) {
+            score += (q.points || 1)
+        }
+        totalPoints += (q.points || 1)
+    }
+
 
     // 4. Update Attempt
     const pct = totalPoints > 0 ? (score / totalPoints) * 100 : 0

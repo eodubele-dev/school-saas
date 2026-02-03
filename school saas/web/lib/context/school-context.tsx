@@ -78,7 +78,7 @@ export function SchoolContextProvider({
         return () => {
             supabase.removeChannel(channel)
         }
-    }, [])
+    }, [supabase])
 
     const updateSettings = (partial: Partial<SchoolSettings>) => {
         setSettings(prev => ({ ...prev, ...partial }))

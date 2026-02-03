@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { DebtorsTab } from "@/components/finance/debtors-tab"
 import { SettlementsTab } from "@/components/finance/settlements-tab"
-import { Users, CreditCard, Wallet, Search, Filter } from "lucide-react"
+import { Users, CreditCard, Search, Filter } from "lucide-react"
 
 interface CollectionsHubProps {
     initialDebtors: any[]

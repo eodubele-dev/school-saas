@@ -106,7 +106,7 @@ export function ReportCard({ grades }: { grades: any[] }) {
                         {/* Placeholder for scanned signature */}
                         <span className="font-dancing-script text-2xl text-blue-900">Principal</span>
                     </div>
-                    <p className="text-xs text-slate-500 uppercase tracking-widest">Principal's Signature</p>
+                    <p className="text-xs text-slate-500 uppercase tracking-widest">Principal&apos;s Signature</p>
                 </div>
 
                 <div className="text-center w-32 opacity-50">

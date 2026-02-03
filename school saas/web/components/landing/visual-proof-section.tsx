@@ -41,11 +41,11 @@ export function VisualProofSection() {
                             Parent Mobile App
                         </div>
                         <h2 className="text-3xl md:text-5xl font-bold text-white">
-                            The "Pay-to-Unlock" <br />
+                            The &quot;Pay-to-Unlock&quot; <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Revenue Engine.</span>
                         </h2>
                         <p className="text-lg text-slate-400 leading-relaxed max-w-lg ml-auto">
-                            Automatic fee enforcement. Parents can see their child's face and attendance, but results are blurred until school fees are cleared.
+                            Automatic fee enforcement. Parents can see their child&apos;s face and attendance, but results are blurred until school fees are cleared.
                         </p>
                     </div>
                 </div>

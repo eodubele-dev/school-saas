@@ -55,7 +55,7 @@ export async function checkFeeStatus(term: string, session: string) {
 
 export async function getTermResults(term: string, session: string) {
     const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    // const { data: { user } } = await supabase.auth.getUser()
 
     // Get Student
     const { data: student } = await supabase.from('students').select('id, class_id').limit(1).single()
@@ -85,13 +85,13 @@ export async function getCognitiveStats(term: string, session: string) {
     if (!grades) return { success: false, stats: [] }
 
     // Mock mapping logic
-    const stats = [
-        { subject: 'Mathematics', A: 0, fullMark: 100 },
-        { subject: 'English', A: 0, fullMark: 100 },
-        { subject: 'Science', A: 0, fullMark: 100 },
-        { subject: 'Arts', A: 0, fullMark: 100 },
-        { subject: 'Social', A: 0, fullMark: 100 },
-    ]
+    // const stats = [
+    //     { subject: 'Mathematics', A: 0, fullMark: 100 },
+    //     { subject: 'English', A: 0, fullMark: 100 },
+    //     { subject: 'Science', A: 0, fullMark: 100 },
+    //     { subject: 'Arts', A: 0, fullMark: 100 },
+    //     { subject: 'Social', A: 0, fullMark: 100 },
+    // ]
 
     // Fill with real data if available, else random/mock for visualization if grades empty
     // ... logic ...
