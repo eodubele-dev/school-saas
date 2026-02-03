@@ -104,6 +104,7 @@ export function SidebarClient({ role: initialRole = 'student', userName = 'Guest
                             key={item.href}
                             href={item.href}
                             prefetch={false}
+                            id={item.label === "System Security" ? "sidebar-audit" : undefined}
                             className={cn(
                                 "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200",
                                 isActive

@@ -4,6 +4,7 @@ import { TeacherDashboard } from "@/components/dashboard/teacher-dashboard"
 import { ParentDashboard } from "@/components/dashboard/parent-dashboard"
 import { BursarDashboard } from "@/components/dashboard/bursar-dashboard"
 import { getBursarStats } from "@/lib/actions/finance"
+import { ExecutiveTour } from "@/components/onboarding/executive-tour"
 
 export default async function DashboardPage({
     params,
@@ -72,7 +73,12 @@ export default async function DashboardPage({
                 {/* PROD READY: Removed Dev Toggle */}
             </div>
 
-            {currentRole === 'admin' && <AdminDashboard />}
+            {currentRole === 'admin' && (
+                <>
+                    <ExecutiveTour enabled={true} />
+                    <AdminDashboard />
+                </>
+            )}
             {currentRole === 'teacher' && <TeacherDashboard />}
             {currentRole === 'parent' && <ParentDashboard />}
             {currentRole === 'bursar' && <BursarDashboard stats={await getBursarStats()} />}

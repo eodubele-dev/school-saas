@@ -1,7 +1,14 @@
 import { LoginForm } from "@/components/auth/login-form"
 import { headers } from "next/headers"
 
-export default function LoginPage({ params }: { params: { domain: string } }) {
+
+export default function LoginPage({
+    params,
+    searchParams
+}: {
+    params: { domain: string },
+    searchParams: { email?: string }
+}) {
     const headerList = headers()
 
     // Read branding from headers injected by middleware
@@ -25,6 +32,7 @@ export default function LoginPage({ params }: { params: { domain: string } }) {
             schoolName={schoolName}
             logoUrl={logoUrl}
             primaryColor={primaryColor}
+            initialEmail={searchParams?.email}
         />
     )
 }

@@ -16,9 +16,10 @@ interface LoginFormProps {
     schoolName?: string
     logoUrl?: string
     primaryColor?: string
+    initialEmail?: string
 }
 
-export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb' }: LoginFormProps) {
+export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb', initialEmail }: LoginFormProps) {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
     const [isMagicLinkLoading, setIsMagicLinkLoading] = useState(false)
@@ -143,6 +144,7 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
                                 type="email"
                                 placeholder={`name@${domain}.com`}
                                 required
+                                defaultValue={initialEmail}
                                 className="h-10 bg-slate-50 border-slate-300 focus:bg-white rounded-md transition-all"
                                 style={{ borderColor: primaryColor ? undefined : '' }}
                             />
