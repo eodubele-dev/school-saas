@@ -40,6 +40,36 @@ export async function transferStudent(studentId: string, newClassId: string, rea
     }
 }
 
+export async function bulkTransferStudents(studentIds: string[], newClassId: string, reason: string): Promise<TransferResult> {
+    const supabase = createClient()
+
+    try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return { success: false, message: 'Unauthorized' }
+
+        if (!studentIds.length) return { success: false, message: 'No students selected' }
+
+        const { error } = await supabase
+            .from('students')
+            .update({
+                class_id: newClassId,
+                updated_at: new Date().toISOString()
+            })
+            .in('id', studentIds)
+
+        if (error) throw error
+
+        console.log(`[Bulk Transfer] ${studentIds.length} students moved to Class ${newClassId} by ${user.id}. Reason: ${reason}`)
+
+        revalidatePath('/dashboard/admin/students')
+        return { success: true, message: `Successfully promoted ${studentIds.length} students` }
+
+    } catch (error: any) {
+        console.error('Bulk Transfer Error:', error)
+        return { success: false, message: error.message || 'Failed to transfer students' }
+    }
+}
+
 export async function getAllStudents() {
     const supabase = createClient()
 

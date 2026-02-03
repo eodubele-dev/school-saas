@@ -2,16 +2,13 @@
 
 import { useState } from 'react'
 import { TransferModal } from '@/components/students/transfer-modal'
+import { BulkTransferModal } from '@/components/students/bulk-transfer-modal'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { ArrowLeftRight, Search, GraduationCap } from 'lucide-react'
-
-// This would typically come from props or a fetch, but for Client Component wrapper pattern
-// we will assume data is passed in or we use a separate Client wrapper inside the Page.
-// To keep it simple and clean, let's make the Page Server Component fetch data, 
-// and a Client Component handle the UI.
+import { Checkbox } from '@/components/ui/checkbox'
+import { ArrowLeftRight, Search, GraduationCap, Users } from 'lucide-react'
 
 interface Student {
     id: string
@@ -39,6 +36,10 @@ export default function StudentListClient({
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
     const [isTransferOpen, setIsTransferOpen] = useState(false)
 
+    // Bulk Selection State
+    const [selectedIds, setSelectedIds] = useState<string[]>([])
+    const [isBulkOpen, setIsBulkOpen] = useState(false)
+
     // Filter Logic
     const filteredStudents = initialStudents.filter(s =>
         s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -48,6 +49,20 @@ export default function StudentListClient({
     const openTransfer = (student: Student) => {
         setSelectedStudent(student)
         setIsTransferOpen(true)
+    }
+
+    const toggleSelection = (id: string) => {
+        setSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        )
+    }
+
+    const toggleAll = () => {
+        if (selectedIds.length === filteredStudents.length) {
+            setSelectedIds([])
+        } else {
+            setSelectedIds(filteredStudents.map(s => s.id))
+        }
     }
 
     return (
@@ -63,7 +78,19 @@ export default function StudentListClient({
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                {/* Could add filters here */}
+
+                {selectedIds.length > 0 && (
+                    <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-10 duration-300">
+                        <span className="text-sm text-slate-400 font-medium mr-2">{selectedIds.length} selected</span>
+                        <Button
+                            onClick={() => setIsBulkOpen(true)}
+                            className="bg-[var(--school-accent)] hover:brightness-110 text-white shadow-[0_0_15px_rgba(var(--school-accent-rgb),0.4)]"
+                        >
+                            <Users className="mr-2 h-4 w-4" />
+                            Bulk Promote
+                        </Button>
+                    </div>
+                )}
             </div>
 
             {/* Students Table */}
@@ -71,6 +98,13 @@ export default function StudentListClient({
                 <Table>
                     <TableHeader className="bg-slate-900">
                         <TableRow className="border-white/5">
+                            <TableHead className="w-[40px] px-4">
+                                <Checkbox
+                                    checked={filteredStudents.length > 0 && selectedIds.length === filteredStudents.length}
+                                    onCheckedChange={toggleAll}
+                                    className="border-slate-600 data-[state=checked]:bg-[var(--school-accent)] data-[state=checked]:border-[var(--school-accent)]"
+                                />
+                            </TableHead>
                             <TableHead className="text-slate-400 font-bold">Student</TableHead>
                             <TableHead className="text-slate-400 font-bold">Admission No</TableHead>
                             <TableHead className="text-slate-400 font-bold">Class</TableHead>
@@ -81,54 +115,67 @@ export default function StudentListClient({
                     <TableBody>
                         {filteredStudents.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="h-32 text-center text-slate-500">
+                                <TableCell colSpan={6} className="h-32 text-center text-slate-500">
                                     No students found.
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            filteredStudents.map((student) => (
-                                <TableRow key={student.id} className="border-white/5 hover:bg-white/5 transition-colors group">
-                                    <TableCell>
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-white/10">
-                                                {student.avatar ? (
-                                                    <img src={student.avatar} alt={student.name} className="h-full w-full object-cover" />
-                                                ) : (
-                                                    <GraduationCap className="h-4 w-4 text-slate-500" />
-                                                )}
+                            filteredStudents.map((student) => {
+                                const isSelected = selectedIds.includes(student.id)
+                                return (
+                                    <TableRow
+                                        key={student.id}
+                                        className={`border-white/5 transition-colors group ${isSelected ? 'bg-[var(--school-accent)]/5 hover:bg-[var(--school-accent)]/10' : 'hover:bg-white/5'}`}
+                                    >
+                                        <TableCell className="px-4">
+                                            <Checkbox
+                                                checked={isSelected}
+                                                onCheckedChange={() => toggleSelection(student.id)}
+                                                className="border-slate-600 data-[state=checked]:bg-[var(--school-accent)] data-[state=checked]:border-[var(--school-accent)]"
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-white/10">
+                                                    {student.avatar ? (
+                                                        <img src={student.avatar} alt={student.name} className="h-full w-full object-cover" />
+                                                    ) : (
+                                                        <GraduationCap className="h-4 w-4 text-slate-500" />
+                                                    )}
+                                                </div>
+                                                <span className="text-slate-200 font-medium">{student.name}</span>
                                             </div>
-                                            <span className="text-slate-200 font-medium">{student.name}</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="font-mono text-xs text-slate-400">
-                                        {student.admissionNo}
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline" className="border-white/10 text-slate-300 bg-slate-900">
-                                            {student.class}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <span className={`
-                                            inline-flex items-center px-2 py-0.5 rounded textxs font-medium capitalize
-                                            ${student.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-slate-800 text-slate-400'}
-                                        `}>
-                                            {student.status}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            onClick={() => openTransfer(student)}
-                                            className="h-8 text-[var(--school-accent)] hover:text-[var(--school-accent)] hover:bg-[var(--school-accent)]/10"
-                                        >
-                                            <ArrowLeftRight className="mr-2 h-3.5 w-3.5" />
-                                            Transfer
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))
+                                        </TableCell>
+                                        <TableCell className="font-mono text-xs text-slate-400">
+                                            {student.admissionNo}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge variant="outline" className="border-white/10 text-slate-300 bg-slate-900">
+                                                {student.class}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <span className={`
+                                                inline-flex items-center px-2 py-0.5 rounded textxs font-medium capitalize
+                                                ${student.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-slate-800 text-slate-400'}
+                                            `}>
+                                                {student.status}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                onClick={() => openTransfer(student)}
+                                                className="h-8 text-[var(--school-accent)] hover:text-[var(--school-accent)] hover:bg-[var(--school-accent)]/10"
+                                            >
+                                                <ArrowLeftRight className="mr-2 h-3.5 w-3.5" />
+                                                Transfer
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            })
                         )}
                     </TableBody>
                 </Table>
@@ -138,6 +185,16 @@ export default function StudentListClient({
                 isOpen={isTransferOpen}
                 onClose={() => setIsTransferOpen(false)}
                 student={selectedStudent}
+                classes={classes}
+            />
+
+            <BulkTransferModal
+                isOpen={isBulkOpen}
+                onClose={() => {
+                    setIsBulkOpen(false)
+                    setSelectedIds([]) // Optional: clear selection after close or success
+                }}
+                studentIds={selectedIds}
                 classes={classes}
             />
         </div>
