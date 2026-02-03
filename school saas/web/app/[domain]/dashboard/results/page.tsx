@@ -27,10 +27,10 @@ export default async function ResultRedirectPage({ params }: { params: { domain:
 
     if (student) {
         // Redirect to Admission Number if available (Cleaner URL)
-        // e.g. /parent/results/ADM-2023-001
+        // e.g. /parent/results/ADM-2023-001 (Replacing / with - to prevent 404 on single segment route)
         // If not, fallback to UUID
         const identifier = student.admission_number
-            ? student.admission_number // Assume it is URL safe or already sanitized by system spec
+            ? student.admission_number.replace(/\//g, '-')
             : student.id
 
         redirect(`/parent/results/${identifier}`)

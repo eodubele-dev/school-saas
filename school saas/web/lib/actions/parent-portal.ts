@@ -16,19 +16,37 @@ export async function getStudentResultPortalData(studentId: string, term: string
     // In strict RBAC, we check 'parent_student' link.
     // Assuming 'students' has 'parent_id' or we use a strict policy.
     // For this Platinum Demo: We'll retrieve the student and ensure they check out.
-    const { data: student } = await supabase
-        .from('students')
-        .select('*, class:classes(name)')
-        .eq('id', studentId)
-        .single()
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(studentId);
 
-    if (!student) return { success: false, error: 'Student not found' }
+    let query = supabase.from('students').select('*, class:classes(name)')
+
+    if (isUUID) {
+        query = query.eq('id', studentId)
+    } else {
+        // Try exact match first
+        // But also try replacing - with / (common URL sanitization)
+        // If the ID looks like it has dashes but isn't UUID, it might be a sanitized admission number
+        // e.g. ADM-26-432 -> ADM/26/432
+        const potentialAdmNo = studentId.replace(/-/g, '/')
+        query = query.or(`admission_number.eq.${studentId},admission_number.eq.${potentialAdmNo}`)
+    }
+
+    // We use .data instead of .single() to handle potential duplicates or 0 results safely first
+    const { data: students, error: studentError } = await query
+
+    if (studentError || !students || students.length === 0) {
+        console.log("Student lookup failed:", studentId, studentError)
+        return { success: false, error: 'Student not found' }
+    }
+
+    // Take the first match
+    const student = students[0]
 
     // 2. Report Card & Lock Status
     const { data: reportCard } = await supabase
         .from('student_report_cards')
         .select('*')
-        .eq('student_id', studentId)
+        .eq('student_id', student.id)
         .eq('term', term)
         .eq('session', session)
         .single()
