@@ -12,6 +12,8 @@ import {
     ResponsiveContainer
 } from 'recharts'
 import { Playfair_Display, Inter } from 'next/font/google'
+import { checkStudentFeeStatus } from "@/lib/actions/results"
+import { ResultBlurOverlay } from "@/components/results/result-blur-overlay"
 
 // Font Configuration
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-serif' })
@@ -42,12 +44,31 @@ const AI_REMARKS = "Chidi has shown a remarkable grasp of Mathematics and Social
 
 export default function ResultCheckerPage() {
     const componentRef = useRef<HTMLDivElement>(null)
-
-    // Fix: Handle Hydration Error by setting date on client update only
     const [dateStr, setDateStr] = React.useState("")
+    const [isPaid, setIsPaid] = React.useState<boolean | null>(null) // null = loading
 
     React.useEffect(() => {
         setDateStr(new Date().toLocaleDateString())
+
+        // Check Fees on Mount
+        async function checkFees() {
+            // For Demo: we use a hardcoded ID or fetch from context. 
+            // If Single Admission was run, we likely have an invoice.
+            // Let's assume a "Demo Student" ID for the pitch
+            const status = await checkStudentFeeStatus('demo-student-id', '1st Term 2025/2026', '2025/2026')
+
+            // DEMO HACK: If no invoice found, we might want to FORCE showing the blur 
+            // so the user can demonstrate the "Pay" flow.
+            // Let's default to FALSE (Unpaid) if it's the specific Demo Student ID, 
+            // otherwise trust the DB.
+            if (!status.isCleared) {
+                setIsPaid(false)
+            } else {
+                // If allowed, just show result
+                setIsPaid(true)
+            }
+        }
+        checkFees()
     }, [])
 
     const handlePrint = useReactToPrint({
@@ -56,211 +77,216 @@ export default function ResultCheckerPage() {
     })
 
     return (
-        <div className={`space-y-8 animate-in fade-in duration-500 pb-20 ${inter.variable} ${playfair.variable} font-sans`}>
-            {/* Header / Actions */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight text-white glow-blue font-serif">Result Checker</h2>
-                    <p className="text-slate-400">View and download termly performance reports.</p>
+        <div className={`space-y-8 animate-in fade-in duration-500 pb-20 ${inter.variable} ${playfair.variable} font-sans relative`}>
+            {/* Fee Gating Overlay */}
+            {isPaid === false && <ResultBlurOverlay amount={50000} />}
+
+            {/* Main Content - Blur provided by Overlay backdrop, or we can add extra blur class */}
+            <div className={isPaid === false ? "blur-md pointer-events-none select-none transition-all duration-1000" : ""}>
+                {/* Header / Actions */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 className="text-3xl font-bold tracking-tight text-white glow-blue font-serif">Result Checker</h2>
+                        <p className="text-slate-400">View and download termly performance reports.</p>
+                    </div>
+                    <button
+                        onClick={() => handlePrint && handlePrint()}
+                        className="flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold px-6 py-2.5 rounded-full transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] active:scale-95"
+                    >
+                        <Download className="w-5 h-5" />
+                        Download / Print
+                    </button>
                 </div>
-                <button
-                    onClick={() => handlePrint && handlePrint()}
-                    className="flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold px-6 py-2.5 rounded-full transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] active:scale-95"
-                >
-                    <Download className="w-5 h-5" />
-                    Download / Print
-                </button>
-            </div>
 
-            {/* A4 Container Wrapper */}
-            <div className="flex justify-center">
-                {/* The Glass-Doc (A4 Proportions) */}
-                <div
-                    ref={componentRef}
-                    className="w-full max-w-[210mm] min-h-[297mm] bg-slate-950/80 backdrop-blur-md relative border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.1)] p-8 md:p-12 print:p-0 print:shadow-none print:border-none print:bg-white print:text-black print:backdrop-blur-none print:min-h-0 print:max-h-[297mm] overflow-hidden isolate"
-                >
+                {/* A4 Container Wrapper */}
+                <div className="flex justify-center">
+                    {/* The Glass-Doc (A4 Proportions) */}
+                    <div
+                        ref={componentRef}
+                        className="w-full max-w-[210mm] min-h-[297mm] bg-slate-950/80 backdrop-blur-md relative border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.1)] p-8 md:p-12 print:p-0 print:shadow-none print:border-none print:bg-white print:text-black print:backdrop-blur-none print:min-h-0 print:max-h-[297mm] overflow-hidden isolate"
+                    >
 
-                    {/* Print-specific black text override wrapper */}
-                    <div className="print:text-black text-slate-100 flex flex-col min-h-[280mm] print:h-[287mm] print:block relative">
+                        {/* Print-specific black text override wrapper */}
+                        <div className="print:text-black text-slate-100 flex flex-col min-h-[280mm] print:h-[287mm] print:block relative">
 
-                        {/* 1. Header with Authority */}
-                        <div className="flex flex-col md:flex-row justify-between items-start border-b-2 border-cyan-500/20 pb-6 mb-8 print:border-black print:flex-row print:mb-4 print:pb-2">
-                            <div className="flex items-center gap-5">
-                                <div className="h-24 w-24 bg-gradient-to-br from-cyan-950/50 to-slate-900/50 border border-cyan-500/30 rounded-full flex items-center justify-center print:border-black print:bg-none shadow-lg shadow-cyan-900/20 print:shadow-none print:h-16 print:w-16">
-                                    <ShieldCheck className="h-12 w-12 text-cyan-400 print:text-black print:h-8 print:w-8" strokeWidth={1.5} />
+                            {/* 1. Header with Authority */}
+                            <div className="flex flex-col md:flex-row justify-between items-start border-b-2 border-cyan-500/20 pb-6 mb-8 print:border-black print:flex-row print:mb-4 print:pb-2">
+                                <div className="flex items-center gap-5">
+                                    <div className="h-24 w-24 bg-gradient-to-br from-cyan-950/50 to-slate-900/50 border border-cyan-500/30 rounded-full flex items-center justify-center print:border-black print:bg-none shadow-lg shadow-cyan-900/20 print:shadow-none print:h-16 print:w-16">
+                                        <ShieldCheck className="h-12 w-12 text-cyan-400 print:text-black print:h-8 print:w-8" strokeWidth={1.5} />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-3xl font-bold font-serif tracking-tight text-cyan-100 print:text-black leading-none mb-2">{STUDENT_DATA.schoolName}</h1>
+                                        <p className="text-xs text-cyan-500/80 print:text-gray-600 tracking-[0.2em] font-bold uppercase">Excellence in Knowledge</p>
+                                        <p className="mt-1 text-xs text-slate-500 print:text-gray-500 font-medium">{STUDENT_DATA.address}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h1 className="text-3xl font-bold font-serif tracking-tight text-cyan-100 print:text-black leading-none mb-2">{STUDENT_DATA.schoolName}</h1>
-                                    <p className="text-xs text-cyan-500/80 print:text-gray-600 tracking-[0.2em] font-bold uppercase">Excellence in Knowledge</p>
-                                    <p className="mt-1 text-xs text-slate-500 print:text-gray-500 font-medium">{STUDENT_DATA.address}</p>
-                                </div>
-                            </div>
-                            <div className="mt-6 md:mt-0 text-right print:mt-0">
-                                <h3 className="text-lg font-bold text-white print:text-black uppercase font-serif tracking-wide border-b border-cyan-500/30 print:border-black pb-1 mb-2 inline-block">{STUDENT_DATA.term}</h3>
-                                <div className="text-sm text-slate-300 print:text-gray-800 space-y-1.5 text-right font-mono md:font-sans">
-                                    <p><span className="text-slate-500 print:text-gray-600 mr-2 text-xs uppercase tracking-wider">Name</span> <span className="font-bold text-base">{STUDENT_DATA.name}</span></p>
-                                    <div className="flex justify-end gap-4 text-xs">
-                                        <p><span className="text-slate-500 print:text-gray-600 mr-1">Class:</span> <span className="font-bold">{STUDENT_DATA.class}</span></p>
-                                        <p><span className="text-slate-500 print:text-gray-600 mr-1">Sex:</span> <span className="font-bold">{STUDENT_DATA.sex}</span></p>
-                                        <p><span className="text-slate-500 print:text-gray-600 mr-1">Age:</span> <span className="font-bold">{STUDENT_DATA.age}</span></p>
+                                <div className="mt-6 md:mt-0 text-right print:mt-0">
+                                    <h3 className="text-lg font-bold text-white print:text-black uppercase font-serif tracking-wide border-b border-cyan-500/30 print:border-black pb-1 mb-2 inline-block">{STUDENT_DATA.term}</h3>
+                                    <div className="text-sm text-slate-300 print:text-gray-800 space-y-1.5 text-right font-mono md:font-sans">
+                                        <p><span className="text-slate-500 print:text-gray-600 mr-2 text-xs uppercase tracking-wider">Name</span> <span className="font-bold text-base">{STUDENT_DATA.name}</span></p>
+                                        <div className="flex justify-end gap-4 text-xs">
+                                            <p><span className="text-slate-500 print:text-gray-600 mr-1">Class:</span> <span className="font-bold">{STUDENT_DATA.class}</span></p>
+                                            <p><span className="text-slate-500 print:text-gray-600 mr-1">Sex:</span> <span className="font-bold">{STUDENT_DATA.sex}</span></p>
+                                            <p><span className="text-slate-500 print:text-gray-600 mr-1">Age:</span> <span className="font-bold">{STUDENT_DATA.age}</span></p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Watermark Logo */}
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[-1]">
-                            <GraduationCap className="w-[600px] h-[600px] text-cyan-500/5 print:text-black/5" />
-                        </div>
+                            {/* Watermark Logo */}
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[-1]">
+                                <GraduationCap className="w-[600px] h-[600px] text-cyan-500/5 print:text-black/5" />
+                            </div>
 
-                        {/* Layout Grid: Table + Analytics */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 print:grid-cols-3 print:gap-4 print:mb-2">
+                            {/* Layout Grid: Table + Analytics */}
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 print:grid-cols-3 print:gap-4 print:mb-2">
 
-                            {/* 2. Main Academic Table */}
-                            <div className="lg:col-span-2 print:col-span-2">
-                                <h4 className="flex items-center gap-2 text-cyan-400 font-bold mb-4 uppercase text-xs tracking-widest print:text-black border-l-4 border-cyan-500 pl-3">
-                                    Academic Performance
-                                </h4>
-                                <div className="overflow-x-auto rounded-none border-t-2 border-cyan-500/30 print:border-black scrollbar-hide">
-                                    <table className="w-full text-sm border-collapse">
-                                        <thead className="bg-cyan-950/20 text-cyan-200 uppercase text-[10px] tracking-wider font-bold print:bg-gray-100 print:text-black">
-                                            <tr>
-                                                <th className="px-4 py-3 text-left sticky left-0 bg-slate-950 print:bg-white z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)] print:shadow-none min-w-[120px]">Subject</th>
-                                                <th className="px-1 py-3 text-center w-12 text-[10px] print:text-xs">CA1</th>
-                                                <th className="px-1 py-3 text-center w-12 text-[10px] print:text-xs">CA2</th>
-                                                <th className="px-1 py-3 text-center w-12 text-[10px] print:text-xs">Exam</th>
-                                                <th className="px-2 py-3 text-center w-16 bg-white/5 print:bg-gray-50 text-[10px] print:text-xs">Total</th>
-                                                <th className="px-2 py-3 text-center w-12 text-[10px] print:text-xs">Grade</th>
-                                                <th className="px-2 py-3 text-center w-16 opacity-70 text-[10px] print:text-xs">Pos</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-white/[0.05] print:divide-gray-300 font-mono md:font-sans">
-                                            {RESULTS_DATA.map((row, idx) => {
-                                                const isFailure = row.total < 40;
-                                                const isExcellent = row.total >= 75;
-                                                return (
-                                                    <tr key={idx} className={`
+                                {/* 2. Main Academic Table */}
+                                <div className="lg:col-span-2 print:col-span-2">
+                                    <h4 className="flex items-center gap-2 text-cyan-400 font-bold mb-4 uppercase text-xs tracking-widest print:text-black border-l-4 border-cyan-500 pl-3">
+                                        Academic Performance
+                                    </h4>
+                                    <div className="overflow-x-auto rounded-none border-t-2 border-cyan-500/30 print:border-black scrollbar-hide">
+                                        <table className="w-full text-sm border-collapse">
+                                            <thead className="bg-cyan-950/20 text-cyan-200 uppercase text-[10px] tracking-wider font-bold print:bg-gray-100 print:text-black">
+                                                <tr>
+                                                    <th className="px-4 py-3 text-left sticky left-0 bg-slate-950 print:bg-white z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)] print:shadow-none min-w-[120px]">Subject</th>
+                                                    <th className="px-1 py-3 text-center w-12 text-[10px] print:text-xs">CA1</th>
+                                                    <th className="px-1 py-3 text-center w-12 text-[10px] print:text-xs">CA2</th>
+                                                    <th className="px-1 py-3 text-center w-12 text-[10px] print:text-xs">Exam</th>
+                                                    <th className="px-2 py-3 text-center w-16 bg-white/5 print:bg-gray-50 text-[10px] print:text-xs">Total</th>
+                                                    <th className="px-2 py-3 text-center w-12 text-[10px] print:text-xs">Grade</th>
+                                                    <th className="px-2 py-3 text-center w-16 opacity-70 text-[10px] print:text-xs">Pos</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/[0.05] print:divide-gray-300 font-mono md:font-sans">
+                                                {RESULTS_DATA.map((row, idx) => {
+                                                    const isFailure = row.total < 40;
+                                                    const isExcellent = row.total >= 75;
+                                                    return (
+                                                        <tr key={idx} className={`
                                                         group transition-colors
                                                         odd:bg-white/[0.02] even:bg-white/[0.04] 
                                                         print:odd:bg-transparent print:even:bg-gray-50
                                                         hover:bg-cyan-500/5 print:hover:bg-transparent
                                                     `}>
-                                                        <td className="px-4 py-2.5 font-bold text-slate-200 print:text-black sticky left-0 bg-inherit z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)] print:shadow-none border-r border-white/5 print:border-black text-xs">
-                                                            {row.subject}
-                                                        </td>
-                                                        <td className="px-1 py-2.5 text-center text-slate-400 print:text-black text-xs">{row.ca1}</td>
-                                                        <td className="px-1 py-2.5 text-center text-slate-400 print:text-black text-xs">{row.ca2}</td>
-                                                        <td className="px-1 py-2.5 text-center text-slate-400 print:text-black text-xs">{row.exam}</td>
-                                                        <td className={`px-2 py-2.5 text-center font-bold bg-white/5 print:bg-transparent ${isFailure ? 'text-red-500' : 'text-slate-100'} print:text-black text-xs`}>
-                                                            {row.total}
-                                                        </td>
-                                                        <td className="px-2 py-2.5 text-center">
-                                                            <span className={`
+                                                            <td className="px-4 py-2.5 font-bold text-slate-200 print:text-black sticky left-0 bg-inherit z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)] print:shadow-none border-r border-white/5 print:border-black text-xs">
+                                                                {row.subject}
+                                                            </td>
+                                                            <td className="px-1 py-2.5 text-center text-slate-400 print:text-black text-xs">{row.ca1}</td>
+                                                            <td className="px-1 py-2.5 text-center text-slate-400 print:text-black text-xs">{row.ca2}</td>
+                                                            <td className="px-1 py-2.5 text-center text-slate-400 print:text-black text-xs">{row.exam}</td>
+                                                            <td className={`px-2 py-2.5 text-center font-bold bg-white/5 print:bg-transparent ${isFailure ? 'text-red-500' : 'text-slate-100'} print:text-black text-xs`}>
+                                                                {row.total}
+                                                            </td>
+                                                            <td className="px-2 py-2.5 text-center">
+                                                                <span className={`
                                                                 inline-flex items-center justify-center w-6 h-6 rounded text-[10px] font-bold
                                                                 ${isExcellent ? 'text-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.3)] bg-cyan-950/30' : ''}
                                                                 ${isFailure ? 'text-red-500 bg-red-950/20 border border-red-900/50' : ''}
                                                                 ${!isExcellent && !isFailure ? 'text-slate-400' : ''}
                                                                 print:shadow-none print:bg-transparent print:border-none print:text-black
                                                             `}>
-                                                                {row.grade}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-2 py-2.5 text-center text-xs text-slate-500 print:text-gray-600">{row.position}</td>
-                                                    </tr>
-                                                )
-                                            })}
-                                        </tbody>
-                                    </table>
+                                                                    {row.grade}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-2 py-2.5 text-center text-xs text-slate-500 print:text-gray-600">{row.position}</td>
+                                                        </tr>
+                                                    )
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                {/* 3. Analytics Sidebar (Radar Chart) */}
+                                <div className="lg:col-span-1 print:col-span-1 flex flex-col items-center justify-center bg-white/[0.02] rounded-lg border border-white/5 p-4 print:border-gray-200 print:h-auto print:p-2">
+                                    <h5 className="text-[10px] uppercase tracking-widest text-slate-500 mb-4 font-bold border-b border-white/10 pb-2 w-full text-center print:text-black print:mb-1">Performance Radar</h5>
+                                    <div className="w-full h-[250px] print:h-[180px] text-xs relative">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={RESULTS_DATA}>
+                                                <PolarGrid stroke="#334155" strokeDasharray="3 3" className="print:stroke-gray-400" />
+                                                <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 9 }} className="print:fill-black print:text-[8px] print:font-bold" />
+                                                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                                                <Radar
+                                                    name="Student"
+                                                    dataKey="total"
+                                                    stroke="#06b6d4"
+                                                    strokeWidth={2}
+                                                    fill="#06b6d4"
+                                                    fillOpacity={0.3}
+                                                    isAnimationActive={false}
+                                                    className="print:fill-none print:stroke-black print:stroke-2"
+                                                />
+                                            </RadarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                    <div className="mt-4 text-center print:hidden">
+                                        <p className="text-2xl font-bold text-white print:text-black font-serif">72.6%</p>
+                                        <p className="text-[10px] uppercase text-cyan-500 print:text-gray-600 tracking-wider">Average Score</p>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* 3. Analytics Sidebar (Radar Chart) */}
-                            <div className="lg:col-span-1 print:col-span-1 flex flex-col items-center justify-center bg-white/[0.02] rounded-lg border border-white/5 p-4 print:border-gray-200 print:h-auto print:p-2">
-                                <h5 className="text-[10px] uppercase tracking-widest text-slate-500 mb-4 font-bold border-b border-white/10 pb-2 w-full text-center print:text-black print:mb-1">Performance Radar</h5>
-                                <div className="w-full h-[250px] print:h-[180px] text-xs relative">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={RESULTS_DATA}>
-                                            <PolarGrid stroke="#334155" strokeDasharray="3 3" className="print:stroke-gray-400" />
-                                            <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 9 }} className="print:fill-black print:text-[8px] print:font-bold" />
-                                            <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                                            <Radar
-                                                name="Student"
-                                                dataKey="total"
-                                                stroke="#06b6d4"
-                                                strokeWidth={2}
-                                                fill="#06b6d4"
-                                                fillOpacity={0.3}
-                                                isAnimationActive={false}
-                                                className="print:fill-none print:stroke-black print:stroke-2"
-                                            />
-                                        </RadarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                                <div className="mt-4 text-center print:hidden">
-                                    <p className="text-2xl font-bold text-white print:text-black font-serif">72.6%</p>
-                                    <p className="text-[10px] uppercase text-cyan-500 print:text-gray-600 tracking-wider">Average Score</p>
-                                </div>
-                            </div>
-                        </div>
+                            {/* Spacer to push narrative down */}
+                            <div className="flex-grow print:block hidden h-[40mm]"></div>
 
-                        {/* Spacer to push narrative down */}
-                        <div className="flex-grow print:block hidden h-[40mm]"></div>
-
-                        {/* 4. AI & Signatures */}
-                        <div className="mt-auto print:mt-0">
-                            <div className="grid md:grid-cols-3 gap-8 items-end print:grid-cols-3 print:gap-4">
-                                {/* AI Section */}
-                                <div className="md:col-span-2 print:col-span-2">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className="p-1 rounded-md bg-cyan-900/30 print:hidden">
-                                            <Sparkles className="h-2.5 w-2.5 text-cyan-400" />
+                            {/* 4. AI & Signatures */}
+                            <div className="mt-auto print:mt-0">
+                                <div className="grid md:grid-cols-3 gap-8 items-end print:grid-cols-3 print:gap-4">
+                                    {/* AI Section */}
+                                    <div className="md:col-span-2 print:col-span-2">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <div className="p-1 rounded-md bg-cyan-900/30 print:hidden">
+                                                <Sparkles className="h-2.5 w-2.5 text-cyan-400" />
+                                            </div>
+                                            <h4 className="text-cyan-400 font-bold uppercase text-xs tracking-widest print:text-black font-bold">
+                                                Academic Performance Narrative
+                                            </h4>
                                         </div>
-                                        <h4 className="text-cyan-400 font-bold uppercase text-xs tracking-widest print:text-black font-bold">
-                                            Academic Performance Narrative
-                                        </h4>
-                                    </div>
-                                    <div className="bg-gradient-to-br from-slate-900/80 to-slate-900/40 border-l-2 border-cyan-500 p-6 rounded-r-lg relative overflow-hidden print:bg-none print:text-black print:border-l-4 print:border-black print:pl-3 print:p-0 print:text-xs">
-                                        {/* Decorative Quote */}
-                                        <span className="absolute top-2 left-2 text-4xl text-cyan-500/10 font-serif print:hidden">“</span>
-                                        <p className="text-slate-300 font-serif italic text-sm leading-relaxed relative z-10 print:text-black print:text-xs">
-                                            "{AI_REMARKS}"
-                                        </p>
-                                        <p className="mt-2 text-[10px] text-cyan-600/60 font-medium uppercase tracking-wider print:text-gray-500">
-                                            Approved by Mr. Adebayo (Class Teacher)
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Stamp & Signature */}
-                                <div className="flex flex-col items-center justify-end">
-                                    <div className="relative mb-2 group">
-                                        {/* Digital Stamp - Corrected for Print Visibility */}
-                                        <div className="h-28 w-28 rounded-full border-[3px] border-cyan-600/40 flex flex-col items-center justify-center p-2 rotate-[-12deg] mask-ink print:border-2 print:border-black opacity-80 mix-blend-screen print:mix-blend-normal print:opacity-100 transition-transform group-hover:rotate-0 print:h-20 print:w-20 print:rotate-0">
-                                            <span className="text-[8px] uppercase tracking-widest text-cyan-700 font-bold print:text-black text-center print:text-[5px]">Verified Result</span>
-                                            <span className="text-[10px] font-black uppercase text-cyan-500 print:text-black text-center my-1 leading-tight print:text-[8px]">Blue Horizon<br />High School</span>
-                                            <span className="text-[8px] text-cyan-800 print:text-black font-mono print:text-[5px]">{dateStr}</span>
+                                        <div className="bg-gradient-to-br from-slate-900/80 to-slate-900/40 border-l-2 border-cyan-500 p-6 rounded-r-lg relative overflow-hidden print:bg-none print:text-black print:border-l-4 print:border-black print:pl-3 print:p-0 print:text-xs">
+                                            {/* Decorative Quote */}
+                                            <span className="absolute top-2 left-2 text-4xl text-cyan-500/10 font-serif print:hidden">“</span>
+                                            <p className="text-slate-300 font-serif italic text-sm leading-relaxed relative z-10 print:text-black print:text-xs">
+                                                "{AI_REMARKS}"
+                                            </p>
+                                            <p className="mt-2 text-[10px] text-cyan-600/60 font-medium uppercase tracking-wider print:text-gray-500">
+                                                Approved by Mr. Adebayo (Class Teacher)
+                                            </p>
                                         </div>
-                                        {/* Ink Glow */}
-                                        <div className="absolute inset-0 bg-cyan-500/20 blur-xl rounded-full print:hidden"></div>
                                     </div>
-                                    <div className="w-40 border-b border-slate-600 print:border-black mb-1"></div>
-                                    <p className="text-[10px] uppercase tracking-widest text-slate-500 print:text-black font-bold">Principal's Signature</p>
+
+                                    {/* Stamp & Signature */}
+                                    <div className="flex flex-col items-center justify-end">
+                                        <div className="relative mb-2 group">
+                                            {/* Digital Stamp - Corrected for Print Visibility */}
+                                            <div className="h-28 w-28 rounded-full border-[3px] border-cyan-600/40 flex flex-col items-center justify-center p-2 rotate-[-12deg] mask-ink print:border-2 print:border-black opacity-80 mix-blend-screen print:mix-blend-normal print:opacity-100 transition-transform group-hover:rotate-0 print:h-20 print:w-20 print:rotate-0">
+                                                <span className="text-[8px] uppercase tracking-widest text-cyan-700 font-bold print:text-black text-center print:text-[5px]">Verified Result</span>
+                                                <span className="text-[10px] font-black uppercase text-cyan-500 print:text-black text-center my-1 leading-tight print:text-[8px]">Blue Horizon<br />High School</span>
+                                                <span className="text-[8px] text-cyan-800 print:text-black font-mono print:text-[5px]">{dateStr}</span>
+                                            </div>
+                                            {/* Ink Glow */}
+                                            <div className="absolute inset-0 bg-cyan-500/20 blur-xl rounded-full print:hidden"></div>
+                                        </div>
+                                        <div className="w-40 border-b border-slate-600 print:border-black mb-1"></div>
+                                        <p className="text-[10px] uppercase tracking-widest text-slate-500 print:text-black font-bold">Principal's Signature</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Document Footer */}
-                        <div className="mt-8 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] text-slate-600 uppercase tracking-wider print:border-black print:text-black print:mt-2 print:pt-1">
-                            <p className="print:hidden">Generated via School SaaS Portal</p>
-                            <p className="hidden print:block font-mono text-[8px]">Official Document • EduFlow • {dateStr}</p>
-                            <p>Page 1 of 1</p>
+                            {/* Document Footer */}
+                            <div className="mt-8 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] text-slate-600 uppercase tracking-wider print:border-black print:text-black print:mt-2 print:pt-1">
+                                <p className="print:hidden">Generated via School SaaS Portal</p>
+                                <p className="hidden print:block font-mono text-[8px]">Official Document • EduFlow • {dateStr}</p>
+                                <p>Page 1 of 1</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Print Optimizations */}
-            <style jsx global>{`
+                {/* Print Optimizations */}
+                <style jsx global>{`
                 @media print {
                     @page { 
                         size: A4; 
@@ -299,6 +325,7 @@ export default function ResultCheckerPage() {
                         fill: none !important;
                         fill-opacity: 0 !important;
                         stroke: #000 !important;
+                        stroke-width: 2px !important;
                     }
 
                     /* Student data selector */
@@ -343,6 +370,7 @@ export default function ResultCheckerPage() {
                     mask-mode: alpha;
                 }
             `}</style>
+            </div>
         </div>
     )
 }

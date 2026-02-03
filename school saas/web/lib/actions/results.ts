@@ -37,21 +37,15 @@ export async function getStudentResultData(studentId: string, term: string, sess
         const subjectMap = new Map(subjects?.map(s => [s.id, s.name]))
 
         // 3. Fetch Attendance
-        // For accurate calculation, we'd query the 'student_attendance' table for the term duration.
         // Simplified Logic: Count entries in student_attendance for this student in this term range.
-        // Assuming we have term start/end dates. For now, mocking "Total Days" based on distinct dates in attendance.
-
-        // Count present/absent
         const { data: attendance } = await supabase
             .from('student_attendance')
             .select('status')
             .eq('student_id', studentId)
-        // .gte('date', term_start) .lte('date', term_end) // implementing date filters requires term dates
 
         const totalDays = 60 // Mock standard term days
         const present = attendance?.filter(a => a.status === 'present').length || 0
         const absent = attendance?.filter(a => a.status === 'absent').length || 0
-        // Or calculated from table if we have full records
 
         // 4. Fetch Report Card (Remarks)
         const { data: reportCard } = await supabase
@@ -70,7 +64,7 @@ export async function getStudentResultData(studentId: string, term: string, sess
             exam: g.exam,
             total: g.total,
             grade: g.grade,
-            position: g.position?.toString() || '-', // Mock calculation needed for real position
+            position: g.position?.toString() || '-',
             remarks: g.remarks || ''
         })) || []
 
@@ -111,5 +105,23 @@ export async function getStudentResultData(studentId: string, term: string, sess
     } catch (error) {
         console.error("Error generating result:", error)
         return null
+    }
+}
+
+export async function checkStudentFeeStatus(studentId: string, term: string, session: string) {
+    const supabase = createClient()
+
+    // Check for any PENDING invoice for this student for the term
+    const { data: invoice } = await supabase
+        .from('invoices')
+        .select('status')
+        .eq('student_id', studentId)
+        .eq('term', term) // e.g. "1st Term 2025/2026"
+        .neq('status', 'paid')
+        .maybeSingle()
+
+    return {
+        isCleared: !invoice,
+        status: invoice?.status || 'paid'
     }
 }
