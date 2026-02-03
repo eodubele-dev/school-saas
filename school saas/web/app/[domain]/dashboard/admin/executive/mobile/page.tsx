@@ -49,11 +49,22 @@ export default function ExecutiveDashboard({ params }: { params: { domain: strin
             <header className="sticky top-0 z-30 bg-slate-950/80 backdrop-blur-md border-b border-white/5 px-4 h-14 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Crown className="h-5 w-5 text-amber-500" />
-                    <span className="font-bold text-white tracking-tight">Executive<span className="text-amber-500">View</span></span>
+                    <div>
+                        <span className="font-bold text-white tracking-tight block leading-none">Executive<span className="text-amber-500">View</span></span>
+                        <span className="text-[10px] text-slate-400 font-mono uppercase tracking-widest">{params.domain.split('.')[0]} Campus</span>
+                    </div>
                 </div>
-                <div className="h-8 w-8 rounded-full bg-slate-800 border border-white/10 overflow-hidden">
-                    {/* Simulating Owner Avatar */}
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Proprietor" alt="Owner" />
+                <div className="flex items-center gap-2">
+                    {/* Simulated Campus Switcher */}
+                    <select className="bg-slate-900 border border-white/10 text-xs text-slate-300 rounded px-2 py-1 outline-none focus:border-amber-500/50">
+                        <option>Lekki Campus</option>
+                        <option>Abuja Campus</option>
+                        <option>Port Harcourt Campus</option>
+                    </select>
+                    <div className="h-8 w-8 rounded-full bg-slate-800 border border-white/10 overflow-hidden">
+                        {/* Simulating Owner Avatar */}
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Proprietor" alt="Owner" />
+                    </div>
                 </div>
             </header>
 

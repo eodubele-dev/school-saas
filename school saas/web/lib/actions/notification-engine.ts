@@ -68,7 +68,7 @@ export async function triggerResultNotification({ studentId, term, session }: Tr
     const schoolName = student.tenant?.name || "School"
 
     // A. SMS
-    const smsMessage = `Hello ${parentName}, ${student.first_name}'s ${term} results are available at ${schoolName}. View here: ${fullMagicLink}. Pls clear balance of N${balance.toLocaleString()} to unlock.`
+    const smsMessage = `Hello ${parentName}, ${student.first_name}'s ${term} results are available at ${schoolName}. View here: ${fullMagicLink}. Pls clear balance of N${balance.toLocaleString()} to unlock. [Official Campus Communication]`
     const smsPromise = ChannelSimulator.sms({
         to: parentPhone,
         message: smsMessage
@@ -94,6 +94,11 @@ export async function triggerResultNotification({ studentId, term, session }: Tr
 
             <p style="font-size: 12px; color: #666; margin-top: 30px;">
                 This link will auto-log you in securely. Do not share it.
+            </p>
+            
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+            <p style="text-align: center; font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1px;">
+                Official Campus Communication • ${schoolName}
             </p>
         </div>
     `

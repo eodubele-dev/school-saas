@@ -104,15 +104,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
 
             <SidebarClient role={userRole} userName={userName} />
 
-            <div className="border-t border-slate-800 px-4 py-6 space-y-2">
-                <Link
-                    href="/help"
-                    className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-400 hover:bg-slate-900 hover:text-white transition-colors"
-                >
-                    <HelpCircle className="h-5 w-5" />
-                    Help & Support
-                </Link>
-            </div>
+
         </div>
     )
 }
