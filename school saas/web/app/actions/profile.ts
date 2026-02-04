@@ -61,7 +61,7 @@ export async function updateProfile(formData: FormData) {
 
         if (updateError) {
             console.error("Profile Update Error:", updateError)
-            return { error: "Failed to update profile database" }
+            return { error: `Failed to update profile database: ${updateError.message} - ${updateError.details || ''}` }
         }
 
         revalidatePath(base_path, 'layout') // Revalidate everything

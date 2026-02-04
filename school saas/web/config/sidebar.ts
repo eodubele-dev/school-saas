@@ -1,4 +1,4 @@
-import { LayoutDashboard, CalendarDays, BookOpen, Activity, FileText, MapPin, Users, Settings, GraduationCap, ClipboardCheck, CreditCard, UserCircle, BrainCircuit, MessageSquare, BookCheck as BookOpenCheck, Banknote, Wallet, ShieldCheck, Smartphone, Sparkles, Crown, Bus, Bed, Package, Search } from "lucide-react"
+import { LayoutDashboard, CalendarDays, BookOpen, Activity, FileText, MapPin, Users, Settings, GraduationCap, ClipboardCheck, CreditCard, UserCircle, BrainCircuit, MessageSquare, BookCheck as BookOpenCheck, Banknote, Wallet, ShieldCheck, Smartphone, Sparkles, Crown, Bus, Bed, Package, Search, Building2, Landmark, Truck, Shield } from "lucide-react"
 import { NairaIcon } from "@/components/ui/naira-icon"
 
 export type UserRole = 'admin' | 'teacher' | 'parent' | 'student' | 'bursar'
@@ -13,6 +13,7 @@ export type SidebarItem = {
 
 export type SidebarCategory = {
     category: string
+    icon?: any
     items: SidebarItem[]
 }
 
@@ -22,6 +23,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
     admin: [
         {
             category: "Campus Operations",
+            icon: Building2,
             items: [
                 { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
                 { icon: Crown, label: "Executive View", href: "/dashboard/admin/executive/mobile" },
@@ -36,6 +38,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
         },
         {
             category: "Financial Suite",
+            icon: Landmark,
             items: [
                 { icon: NairaIcon, label: "Bursar Hub", href: "/dashboard/bursar" },
                 { icon: CreditCard, label: "Revenue & Collections", href: "/dashboard/bursar/finance/collections" },
@@ -45,6 +48,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
         },
         {
             category: "Campus Logistics",
+            icon: Truck,
             items: [
                 { icon: Bus, label: "Transport Hub", href: "/dashboard/admin/logistics" },
                 { icon: Bed, label: "Hostel Management", href: "/dashboard/admin/hostels" },
@@ -52,6 +56,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
         },
         {
             category: "Security & Health",
+            icon: Shield,
             items: [
                 { icon: Activity, label: "System Security", href: "/dashboard/admin/security/audit" },
             ]

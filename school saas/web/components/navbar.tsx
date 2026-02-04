@@ -17,17 +17,19 @@ export async function Navbar({ domain }: { domain?: string }) {
 
     let userName = "Guest"
     let userRole = "User"
+    let userAvatarUrl = null
 
     if (user) {
         const { data: profile } = await supabase
             .from('profiles')
-            .select('full_name, role')
+            .select('full_name, role, avatar_url')
             .eq('id', user.id)
             .single()
 
         if (profile) {
             userName = profile.full_name || user.email?.split('@')[0] || "User"
             userRole = profile.role ? profile.role.charAt(0).toUpperCase() + profile.role.slice(1) : "User"
+            userAvatarUrl = profile.avatar_url
         }
     }
 
@@ -97,6 +99,7 @@ export async function Navbar({ domain }: { domain?: string }) {
                     userName={userName}
                     userRole={userRole}
                     userEmail={user?.email}
+                    userAvatarUrl={userAvatarUrl}
                 />
             </div>
         </header>

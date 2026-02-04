@@ -9,8 +9,13 @@ import { toast } from 'sonner'
 
 export function ExecutiveTour({ enabled = true }: { enabled?: boolean }) {
     const [run, setRun] = useState(false)
+    const [mounted, setMounted] = useState(false)
     const supabase = createClient()
     const router = useRouter()
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     useEffect(() => {
         // Check first_login status
@@ -156,6 +161,8 @@ export function ExecutiveTour({ enabled = true }: { enabled?: boolean }) {
             color: '#64748b', // slate-500
         }
     }
+
+    if (!mounted) return null
 
     return (
         <Joyride

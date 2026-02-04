@@ -25,9 +25,10 @@ interface ProfileDropdownProps {
     userName: string
     userRole: string
     userEmail?: string
+    userAvatarUrl?: string | null
 }
 
-export function ProfileDropdown({ userName, userRole, userEmail }: ProfileDropdownProps) {
+export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl }: ProfileDropdownProps) {
     const pathname = usePathname()
     // Robust navigation: Detect if we are in a path-based tenant (e.g. /school1/dashboard) or subdomain (/dashboard)
     // We assume the profile page is strictly at local "/dashboard/profile"
@@ -64,7 +65,7 @@ export function ProfileDropdown({ userName, userRole, userEmail }: ProfileDropdo
                             <div className="text-[10px] text-blue-400 font-semibold mt-1 uppercase tracking-wider">{userRole}</div>
                         </div>
                         <Avatar className="h-9 w-9 border border-white/10 shadow-inner group-hover:ring-2 group-hover:ring-blue-500/50 transition-all">
-                            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${userName}`} />
+                            <AvatarImage src={userAvatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${userName}`} className="object-cover" />
                             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-bold">
                                 {initials}
                             </AvatarFallback>

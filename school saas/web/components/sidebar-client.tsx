@@ -50,12 +50,11 @@ export function SidebarClient({
     // Effect: "Active Context" Auto-Collapse
     // When path changes, find which category contains the active link and open it.
     useEffect(() => {
-        // STRICT RULE: If we are on the main dashboard overview, collapse everything.
-        // Matches /dashboard, /dashboard/, /anything/dashboard, /anything/dashboard/
-        const isDashboardHome = /\/dashboard\/?$/.test(pathname)
+        // Helper to check if we are on the root dashboard
+        const isDashboardRoot = pathname === '/dashboard' || pathname === '/dashboard/'
 
-        if (isDashboardHome) {
-            // Force collapse all
+        if (isDashboardRoot) {
+            // STRICTLY collapse all categories on the main dashboard
             setOpenCategories({})
             return
         }
@@ -67,29 +66,22 @@ export function SidebarClient({
         )
 
         if (activeCategory) {
-            // Robust check: normalize string and check for inclusion
-            const categoryName = activeCategory.category.trim()
-            const isCampusOps = categoryName.toLowerCase().includes("campus operations")
+            // If we found an active category, but we are essentially on the root dashboard (defensive check),
+            // we should not expand it. But the explicit check above handles it.
 
-            if (!isCampusOps) {
-                // Auto-expand other categories
-                setOpenCategories(prev => ({ ...prev, [activeCategory.category]: true }))
-            } else {
-                // Double safety: If we somehow detected Campus Ops but weren't on root /dashboard
-                // (e.g. /dashboard/something-else that belongs to Campus Ops but isn't root)
-                // We can either open it or close it. 
-                // Let's assume user wants it closed unless explicitly opened by click.
-                // So we do nothing (don't set to true).
-            }
+            // Auto-expand the active category and collapse others
+            setOpenCategories({ [activeCategory.category]: true })
         }
     }, [pathname, categories])
 
     // Toggle Category
     const toggleCategory = (catName: string) => {
-        setOpenCategories(prev => ({
-            ...prev,
-            [catName]: !prev[catName]
-        }))
+        setOpenCategories(prev => {
+            const isOpen = prev[catName]
+            // If currently open, close it (empty object). 
+            // If closed, open it and strictly close others (object with only this key).
+            return isOpen ? {} : { [catName]: true }
+        })
     }
 
     // Keyboard shortcut for search
@@ -144,7 +136,11 @@ export function SidebarClient({
                     {categories.map((cat) => (
                         <CommandGroup key={cat.category} heading={cat.category}>
                             {cat.items.map((item) => (
-                                <CommandItem key={item.href} onSelect={() => handleSearchSelect(item.href)}>
+                                <CommandItem
+                                    key={item.href}
+                                    value={`${cat.category} ${item.label}`}
+                                    onSelect={() => handleSearchSelect(item.href)}
+                                >
                                     <item.icon className="mr-2 h-4 w-4" />
                                     <span>{item.label}</span>
                                 </CommandItem>
@@ -171,7 +167,10 @@ export function SidebarClient({
                                 onClick={() => toggleCategory(cat.category)}
                                 className="w-full flex items-center justify-between text-[11px] uppercase tracking-wider font-bold text-slate-500 hover:text-slate-300 py-2 group/cat transition-colors"
                             >
-                                {cat.category}
+                                <div className="flex items-center gap-2">
+                                    {cat.icon && <cat.icon className="h-3.5 w-3.5" />}
+                                    {cat.category}
+                                </div>
                                 <ChevronRight className={`h-3 w-3 text-slate-600 transition-transform duration-200 ${openCategories[cat.category] ? 'rotate-90' : ''}`} />
                             </button>
 
