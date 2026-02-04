@@ -3,8 +3,8 @@
 import { Card } from "@/components/ui/card"
 import { School, ShieldCheck } from "lucide-react"
 
-export function ResultPreview({ data }: { data: any }) {
-    const primaryColor = data?.theme_config?.primary || "#06b6d4"
+export function ResultPreview({ data }: { data: Record<string, unknown> }) {
+    const primaryColor = ((data?.theme_config as Record<string, unknown>)?.primary as string) || "#06b6d4"
 
     return (
         <div className="space-y-6 lg:sticky lg:top-24">
@@ -15,7 +15,7 @@ export function ResultPreview({ data }: { data: any }) {
                 <div className="p-8 border-b-2 border-slate-100 relative">
                     <div className="flex items-center gap-6">
                         {data?.logo_url ? (
-                            <img src={data.logo_url} className="h-20 w-20 rounded-lg object-cover shadow-lg border border-slate-100" />
+                            <img src={data.logo_url as string} alt="School Logo" className="h-20 w-20 rounded-lg object-cover shadow-lg border border-slate-100" />
                         ) : (
                             <div className="h-20 w-20 rounded-lg bg-slate-50 flex items-center justify-center text-slate-200">
                                 <School className="h-10 w-10 text-slate-300" />
@@ -23,13 +23,13 @@ export function ResultPreview({ data }: { data: any }) {
                         )}
                         <div className="flex-1 space-y-1">
                             <h2 className="text-2xl font-black uppercase tracking-tight leading-none" style={{ color: primaryColor }}>
-                                {data?.name || "School Name Placeholder"}
+                                {(data?.name as string) || "School Name Placeholder"}
                             </h2>
                             <p className="text-sm font-medium text-slate-500 italic">
-                                "{data?.motto || "School motto goes here..."}"
+                                &quot;{(data?.motto as string) || "School motto goes here..."}&quot;
                             </p>
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
-                                {data?.address || "123 School Road, City, State"}
+                                {(data?.address as string) || "123 School Road, City, State"}
                             </p>
                         </div>
                     </div>

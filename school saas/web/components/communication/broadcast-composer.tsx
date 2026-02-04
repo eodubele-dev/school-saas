@@ -34,7 +34,7 @@ export function BroadcastComposer() {
             } else {
                 toast.error("Failed to send broadcast")
             }
-        } catch (error) {
+        } catch (_error) {
             toast.error("An error occurred")
         }
         setSending(false)

@@ -54,7 +54,7 @@ export async function updateTenantBranding(tenantId: string, data: {
     name?: string
     motto?: string
     address?: string
-    theme_config?: any
+    theme_config?: Record<string, unknown>
     logo_base64?: string // Optional: for unexpected legacy handling, but we prefer directupload
     logo_path?: string
 }) {
@@ -75,7 +75,7 @@ export async function updateTenantBranding(tenantId: string, data: {
     }
 
     // 2. Prepare Update Object
-    const updates: any = {}
+    const updates: Record<string, unknown> = {}
     if (data.name) updates.name = data.name
     if (data.motto) updates.motto = data.motto
     if (data.address) updates.address = data.address
@@ -138,7 +138,7 @@ export async function updateTenantBranding(tenantId: string, data: {
     return { success: true }
 }
 
-export async function getUploadSignature(_tenantId: string, _fileName: string) {
+export async function getUploadSignature() {
     // Note: For simplicity in this iteration, we'll likely use client-side upload 
     // or a simple multipart form action. Since Supabase Storage works well with
     // standard client uploads + RLS, we can stick to client upload if policies allow.

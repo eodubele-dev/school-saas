@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 interface SchoolSettings {
     name: string
     logo_url: string | null
-    theme: any
+    theme: Record<string, unknown>
     session: string
     term: string
 }
@@ -54,7 +54,7 @@ export function SchoolContextProvider({
                 { event: 'UPDATE', schema: 'public', table: 'tenants' },
                 (payload) => {
                     console.log('[SchoolContext] Realtime Update:', payload)
-                    const newData = payload.new as any
+                    const newData = payload.new as Partial<SchoolSettings> & { current_session?: string, current_term?: string }
 
                     // Optimistically update relevant fields
                     setSettings(prev => ({

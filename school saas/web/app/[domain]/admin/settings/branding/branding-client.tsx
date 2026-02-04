@@ -4,11 +4,11 @@ import { useState } from "react"
 import { BrandingForm } from "./branding-form"
 import { ResultPreview } from "./result-preview"
 
-export function BrandingClient({ initialTenant }: { initialTenant: any }) {
-    const [tenant, setTenant] = useState(initialTenant)
+export function BrandingClient({ initialTenant }: { initialTenant: Record<string, unknown> }) {
+    const [tenant, setTenant] = useState<Record<string, unknown>>(initialTenant)
 
-    const handleUpdate = (updates: any) => {
-        setTenant((prev: any) => ({ ...prev, ...updates }))
+    const handleUpdate = (updates: Record<string, unknown>) => {
+        setTenant((prev: Record<string, unknown>) => ({ ...prev, ...updates }))
     }
 
     return (

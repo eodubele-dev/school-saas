@@ -34,7 +34,7 @@ export function RevenueMonitor({ expected, collected }: { expected: number, coll
                 </div>
                 <div className="text-right">
                     <div className="text-xs text-slate-500">outstanding</div>
-                    <div className="text-sm font-mono text-amber-500">
+                    <div className="text-sm font-mono text-amber-500 text-glow-cyan">
                         ₦{((expected - collected) / 1000000).toFixed(2)}M
                     </div>
                 </div>

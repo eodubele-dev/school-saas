@@ -9,17 +9,17 @@ import { toast } from "sonner"
 import { Upload, X, Loader2, Palette } from "lucide-react"
 
 interface BrandingFormProps {
-    tenant: any
-    onUpdate: (data: any) => void
+    tenant: Record<string, unknown>
+    onUpdate: (data: Record<string, unknown>) => void
 }
 
 export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
     const [loading, setLoading] = useState(false)
-    const [name, setName] = useState(tenant?.name || "")
-    const [motto, setMotto] = useState(tenant?.motto || "")
-    const [address, setAddress] = useState(tenant?.address || "")
-    const [logo, setLogo] = useState<string | null>(tenant?.logo_url || null)
-    const [accent, setAccent] = useState(tenant?.theme_config?.primary || "#06b6d4")
+    const [name, setName] = useState((tenant?.name as string) || "")
+    const [motto, setMotto] = useState((tenant?.motto as string) || "")
+    const [address, setAddress] = useState((tenant?.address as string) || "")
+    const [logo, setLogo] = useState<string | null>((tenant?.logo_url as string) || null)
+    const [accent, setAccent] = useState(((tenant?.theme_config as Record<string, unknown>)?.primary as string) || "#06b6d4")
 
     const handleSave = async () => {
         setLoading(true)
@@ -32,13 +32,13 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                 motto,
                 address,
                 logo_url: logo,
-                theme_config: { ...tenant?.theme_config, primary: accent }
+                theme_config: { ...(tenant?.theme_config as Record<string, unknown>), primary: accent }
             })
 
             toast.success("Branding Updated!", {
                 description: "All parents and teachers will now see your new institutional identity."
             })
-        } catch (e) {
+        } catch (_e) {
             toast.error("Failed to update branding")
         } finally {
             setLoading(false)
@@ -135,9 +135,9 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
             <div className="space-y-4">
                 <Label className="text-slate-400">Brand Accent Color</Label>
                 <div className="flex gap-4">
-                    <ColorOption active={accent === "#3b82f6"} color="#3b82f6" label="Electric Blue" onClick={() => { setAccent("#3b82f6"); onUpdate({ theme_config: { ...tenant?.theme_config, primary: "#3b82f6" } }) }} />
-                    <ColorOption active={accent === "#06b6d4"} color="#06b6d4" label="Cyan" onClick={() => { setAccent("#06b6d4"); onUpdate({ theme_config: { ...tenant?.theme_config, primary: "#06b6d4" } }) }} />
-                    <ColorOption active={accent === "#10b981"} color="#10b981" label="Emerald Green" onClick={() => { setAccent("#10b981"); onUpdate({ theme_config: { ...tenant?.theme_config, primary: "#10b981" } }) }} />
+                    <ColorOption active={accent === "#3b82f6"} color="#3b82f6" label="Electric Blue" onClick={() => { setAccent("#3b82f6"); onUpdate({ theme_config: { ...(tenant?.theme_config as Record<string, unknown>), primary: "#3b82f6" } }) }} />
+                    <ColorOption active={accent === "#06b6d4"} color="#06b6d4" label="Cyan" onClick={() => { setAccent("#06b6d4"); onUpdate({ theme_config: { ...(tenant?.theme_config as Record<string, unknown>), primary: "#06b6d4" } }) }} />
+                    <ColorOption active={accent === "#10b981"} color="#10b981" label="Emerald Green" onClick={() => { setAccent("#10b981"); onUpdate({ theme_config: { ...(tenant?.theme_config as Record<string, unknown>), primary: "#10b981" } }) }} />
                 </div>
             </div>
 
@@ -153,7 +153,14 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
     )
 }
 
-function ColorOption({ color, active, onClick, label }: any) {
+interface ColorOptionProps {
+    color: string
+    active: boolean
+    onClick: () => void
+    label: string
+}
+
+function ColorOption({ color, active, onClick, label }: ColorOptionProps) {
     return (
         <button
             onClick={onClick}
