@@ -111,7 +111,7 @@ export function HeroFlowBuilder() {
                             transition={{ duration: 0.6 }}
                         >
                             <h1 className="text-5xl md:text-7xl font-[800] tracking-tighter text-white leading-[1.05] drop-shadow-2xl">
-                                Supercharge Your Campus, Streamline Your Success.
+                                <span className="text-blue-500">Supercharge</span> your campus, streamline your success.
                             </h1>
                         </motion.div>
 

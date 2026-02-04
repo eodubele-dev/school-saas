@@ -10,9 +10,12 @@ export function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                     {/* Brand Column */}
                     <div className="space-y-6">
-                        <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tighter text-white">
-                            <Sparkles className="h-5 w-5 text-blue-500" />
-                            <span>EduCare</span>
+                        <Link href="/" className="block">
+                            <img
+                                src="/visuals/eduflow-logo.png?v=3"
+                                alt="EduFlow"
+                                className="h-[4.5rem] w-auto object-contain mix-blend-screen"
+                            />
                         </Link>
                         <p className="text-sm text-slate-500 max-w-xs leading-relaxed">
                             Empowering top 1% schools in Nigeria with forensic-grade operating systems.

@@ -15,49 +15,56 @@ export function Navbar() {
             <div className="container mx-auto px-4 h-20 flex items-center justify-between">
 
                 {/* Left Side: Logo & Links */}
-                <div className="flex items-center gap-12">
-                    <Link href="/" className="flex items-center gap-2 group">
-                        <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center group-hover:bg-blue-600/30 transition-colors">
-                            <Sparkles className="h-4 w-4 text-blue-400 group-hover:text-blue-300 transition-colors" />
-                        </div>
-                        <span className="font-bold text-lg tracking-tight text-white group-hover:text-blue-200 transition-colors">EduFlow</span>
-                    </Link>
-
-                    {/* Desktop Nav Links */}
-                    <div className="hidden md:flex items-center gap-8">
-                        {['Home', 'Features', 'Pricing', 'Contact'].map((item) => (
-                            <Link
-                                key={item}
-                                href={`#${item.toLowerCase()}`}
-                                className="text-sm font-medium text-slate-400 hover:text-white transition-colors relative group"
-                            >
-                                {item}
-                                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-blue-500 transition-all group-hover:w-full" />
-                            </Link>
-                        ))}
+                {/* Left Side: Logo */}
+                <div className="flex items-center gap-12 relative">
+                    {/* Glow Anchor */}
+                    <div className="absolute left-[-20px] top-1/2 -translate-y-1/2 w-[140px] h-[140px] pointer-events-none"
+                        style={{ background: 'radial-gradient(circle, rgba(0, 245, 255, 0.08) 0%, transparent 70%)' }}>
                     </div>
+
+                    <Link href="/" className="flex items-center gap-2 group relative z-10 transition-transform duration-300 hover:scale-[1.02]">
+                        <img
+                            src="/visuals/eduflow-logo.png?v=3"
+                            alt="EduFlow"
+                            className="h-[4.5rem] w-auto object-contain mix-blend-screen"
+                        />
+                    </Link>
                 </div>
 
+                {/* Center: Desktop Nav Links */}
+                <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+                    {['Home', 'Features', 'Pricing', 'Contact'].map((item) => (
+                        <Link
+                            key={item}
+                            href={`#${item.toLowerCase()}`}
+                            className={`text-base font-medium transition-colors relative group ${item === 'Features' ? 'text-white' : 'text-slate-400 hover:text-white'}`}
+                        >
+                            {item}
+                            {/* Active/Hover State Line */}
+                            {item === 'Features' && (
+                                <span className="absolute -bottom-2 left-0 w-full h-[2px] bg-blue-500 rounded-full shadow-[0_0_10px_#3b82f6]" />
+                            )}
+                        </Link>
+                    ))}
+                </div>
 
                 {/* Right Side: Actions */}
                 <div className="hidden md:flex items-center gap-6">
-                    {/* Documentation Ghost Link */}
-                    <Link href="/docs" className="text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-2 group">
-                        <BookOpen className="w-4 h-4 opacity-50 group-hover:opacity-100" />
-                        Documentation
+                    {/* Documentation - Ghost Link */}
+                    <Link href="/docs" className="group flex items-center gap-2 px-4 py-2 rounded-lg border border-transparent hover:border-white/10 hover:bg-white/5 transition-all duration-300">
+                        <BookOpen className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
+                        <span className="text-sm font-medium text-slate-500 group-hover:text-slate-200 transition-colors">Documentation</span>
                     </Link>
 
-                    <div className="h-4 w-[1px] bg-white/10" />
-
                     {/* Log in */}
-                    <Link href="/login" className="text-sm font-bold text-white hover:text-blue-400 transition-colors">
+                    <Link href="/login" className="text-base font-medium text-white hover:text-blue-400 transition-colors px-2">
                         Log in
                     </Link>
 
                     {/* Try it free Button */}
                     <Button
                         asChild
-                        className="bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold rounded-lg shadow-[0_0_20px_-5px_rgba(0,102,255,0.5)] border border-blue-400/20 px-6"
+                        className="bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold rounded-lg px-8 py-6 text-base shadow-[0_0_30px_-5px_rgba(0,102,255,0.4)] transition-all hover:scale-105"
                     >
                         <Link href="/signup">Try it free</Link>
                     </Button>
