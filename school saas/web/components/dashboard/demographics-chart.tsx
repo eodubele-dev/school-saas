@@ -13,9 +13,9 @@ const COLORS = ["#3B82F6", "#EC4899", "#64748B"]
 
 export function DemographicsChart() {
     return (
-        <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg h-full">
-            <CardHeader>
-                <CardTitle className="text-slate-400 font-medium text-sm">Student Demographics</CardTitle>
+        <Card className="bg-slate-900/90 border-white/10 backdrop-blur-xl shadow-2xl">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-slate-400 font-medium text-xs uppercase tracking-wider">Student Demographics</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="h-[240px] w-full flex items-center justify-center">

@@ -8,7 +8,10 @@ import { DemographicsChart } from "./demographics-chart"
 import { NudgeButton } from "./nudge-button"
 
 import { LockedWidget } from "./locked-widget"
+import { LockedSMSWidget } from "./locked-sms-widget"
+import { LockedGenericWidget } from "./locked-generic-widget"
 import { TierManager } from "./tier-manager"
+import { SMSWalletTopupButton } from "./sms-wallet-topup-button"
 
 export async function AdminDashboard({
     tier = 'starter',
@@ -27,7 +30,7 @@ export async function AdminDashboard({
     const isStarter = tier.toLowerCase() === 'starter'
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="space-y-6 animate-in fade-in duration-500">
             {isPilot && (
                 <div className="flex items-center justify-between p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl relative overflow-hidden group">
                     <div className="flex items-center gap-4">
@@ -46,12 +49,10 @@ export async function AdminDashboard({
                     <div className="flex items-center gap-6">
                         <div className="text-right">
                             <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">SMS Wallet</p>
-                            <p className={`text-sm font-black ${smsBalance < 1000 ? 'text-amber-400' : 'text-emerald-400'}`}>₦{smsBalance.toLocaleString()}</p>
+                            <p className={`text-sm font-black ${smsBalance < 2000 ? 'text-amber-400' : 'text-emerald-400'}`}>₦{smsBalance.toLocaleString()}</p>
                         </div>
-                        {smsBalance < 1000 && (
-                            <button className="bg-amber-500 text-black px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20">
-                                TOP UP TO ACTIVATE
-                            </button>
+                        {smsBalance < 2000 && (
+                            <SMSWalletTopupButton />
                         )}
                     </div>
 
@@ -61,22 +62,20 @@ export async function AdminDashboard({
             {/* Header Section Removed (Duplicate) */}
             {/* The BentoLoader now generates the 'Command Center' header dynamically */}
 
-            <TierManager currentTier={tier} schoolName={schoolName} subdomain={subdomain} />
-
-            {/* Metrics Grid */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {/* Metrics Grid - Enhanced with Glassmorphism */}
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
                 <MetricCard
                     id="revenue-card"
                     title="Total Revenue"
                     value={new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(stats?.totalRevenue || 0)}
                     icon={NairaIcon}
-                    trend={{ value: "12% from last month", positive: true }}
+                    trend={{ value: "+12%", positive: true }}
                 />
                 <MetricCard
                     title="Active Students"
                     value={(stats?.totalStudents || 0).toString()}
                     icon={Users}
-                    trend={{ value: "4% new enrollments", positive: true }}
+                    trend={{ value: "+4%", positive: true }}
                 />
                 <MetricCard
                     id="staff-attendance-gauge"
@@ -99,58 +98,64 @@ export async function AdminDashboard({
             </div>
 
             {/* Main Charts Section */}
-            <div className="grid gap-6 md:grid-cols-7 lg:h-[400px]">
-                <div className="col-span-4 lg:col-span-5 h-[350px] lg:h-full">
+            <div className="grid gap-6 md:grid-cols-7 items-start">
+                <div className="col-span-4 lg:col-span-5">
                     <OverviewChart />
                 </div>
-                <div className="col-span-3 lg:col-span-2 h-[350px] lg:h-full">
+                <div className="col-span-3 lg:col-span-2">
                     <DemographicsChart />
                 </div>
             </div>
 
             {/* Bottom Section */}
-            <div className="grid gap-6 md:grid-cols-2">
-                <div className="h-[420px]">
+            <div className="grid gap-6 md:grid-cols-2 items-start">
+                <div className="overflow-hidden">
                     <RecentActivity data={stats?.recentActivity} />
                 </div>
 
                 <div className="space-y-6">
                     {/* Revenue Recovery Hub (Pilot/Premium Proof) */}
                     {(tier === 'pilot' || tier === 'platinum') && (
-                        <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-6 relative overflow-hidden">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="p-2 rounded-lg bg-emerald-500/10">
-                                    <Activity className="h-5 w-5 text-emerald-400" />
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-bold text-white">Revenue Recovery Hub</h3>
-                                    <p className="text-[10px] text-slate-400">Lost Efficiency Analysis</p>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="p-4 rounded-xl bg-black/40 border border-white/5">
-                                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Estimated Leakage Prevented</p>
-                                    <p className="text-2xl font-black text-emerald-400 mt-1">₦2,450,000</p>
-                                    <div className="mt-2 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-emerald-500 w-[65%]" />
+                        <LockedSMSWidget
+                            tier={smsBalance > 0 ? 'platinum' : 'starter'}
+                            message="Funding required to resume automated revenue recovery nudges."
+                        >
+                            <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-6 relative overflow-hidden">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-2 rounded-lg bg-emerald-500/10">
+                                        <Activity className="h-5 w-5 text-emerald-400" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-bold text-white">Revenue Recovery Hub</h3>
+                                        <p className="text-[10px] text-slate-400">Lost Efficiency Analysis</p>
                                     </div>
                                 </div>
-                                <p className="text-[11px] text-slate-300 italic leading-relaxed">
-                                    "Our Forensic Audit logs detected identifying 16 orphaned fee records. Automated recovery notifications are ready to deploy."
-                                </p>
-                                {smsBalance < 1000 && (
-                                    <div className="flex items-center gap-2 p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                                        <Zap className="h-3 w-3 text-amber-500" />
-                                        <p className="text-[10px] text-amber-500 font-bold uppercase">SMS Wallet Low: Recovery Nudges Paused</p>
+                                <div className="space-y-4">
+                                    <div className="p-4 rounded-xl bg-black/40 border border-white/5">
+                                        <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Estimated Leakage Prevented</p>
+                                        <p className="text-2xl font-black text-emerald-400 mt-1">₦2,450,000</p>
+                                        <div className="mt-2 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                                            <div className="h-full bg-emerald-500 w-[65%]" />
+                                        </div>
                                     </div>
-                                )}
+                                    <p className="text-[11px] text-slate-300 italic leading-relaxed">
+                                        "Our Forensic Audit logs detected identifying 16 orphaned fee records. Automated recovery notifications are ready to deploy."
+                                    </p>
+                                    {smsBalance < 2000 && (
+                                        <div className="flex items-center gap-2 p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                                            <Zap className="h-3 w-3 text-amber-500" />
+                                            <p className="text-[10px] text-amber-500 font-bold uppercase">
+                                                {smsBalance <= 0 ? "SMS Wallet Empty: Operations Halted" : "SMS Wallet Low: Recovery Nudges Paused"}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        </LockedSMSWidget>
                     )}
 
                     {/* Standard Premium Module with Soft-Lock */}
-                    <LockedWidget tier={tier} requiredTier="platinum" message="Dormitory management requires the Platinum Institutional expansion.">
+                    <LockedGenericWidget tier={tier} requiredTier="platinum" message="Dormitory management requires the Platinum Institutional expansion.">
                         <div className="bg-indigo-950/20 border border-indigo-500/30 rounded-xl p-8 relative overflow-hidden group h-full">
                             <div className="absolute top-0 right-0 p-4">
                                 <div className="px-2 py-1 rounded bg-indigo-500/20 text-indigo-400 text-[10px] font-mono">PREMIUM_MODULE</div>
@@ -173,7 +178,7 @@ export async function AdminDashboard({
                             </div>
                             <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-colors" />
                         </div>
-                    </LockedWidget>
+                    </LockedGenericWidget>
                 </div>
             </div>
         </div>

@@ -116,52 +116,14 @@ export async function Sidebar({ className, domain }: { className?: string, domai
                 '--school-accent-rgb': accentRgb
             }}
         >
-            {/* Premium 'High-Prominence' Brand Header */}
-            <div className="flex h-[88px] items-center px-3 border-b border-white/5 relative group shrink-0 gap-3">
-                {/* 3. Vertical Divider (Subtle Frame) */}
-                <div className="absolute bottom-0 right-0 top-0 w-px bg-white/10" />
-
-                {/* Premium Context-Aware Header Interaction */}
-                <div className="absolute inset-0 bg-[var(--school-accent)]/5 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ backgroundColor: 'rgb(var(--school-accent-rgb) / 0.05)' }} />
-
-                <div className="flex items-center gap-3 relative z-10 w-full overflow-hidden">
-                    {/* 1. Large 'Goldilocks' Logo Container (56px) */}
-                    <div className="h-14 w-14 shrink-0 flex items-center justify-center rounded-xl bg-slate-900/50 backdrop-blur transition-all duration-300 group-hover:scale-105 border border-white/10"
-                        style={{
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.3)', // Deep shadow for "Badge" effect
-                            filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))',
-                            borderColor: 'rgb(var(--school-accent-rgb) / 0.2)'
-                        }}>
-                        {tenantLogo ? (
-                            <img
-                                src={tenantLogo}
-                                alt={tenantName}
-                                className="h-full w-full object-contain p-1"
-                            />
-                        ) : (
-                            <School className="h-8 w-8 text-[var(--school-accent)]" />
-                        )}
-                    </div>
-
-                    {/* 2. Dual-Line Identity Stack */}
-                    <div className="flex flex-col flex-1 min-w-0 justify-center">
-                        <span
-                            className="font-bold text-[20px] text-white leading-[1.1] tracking-tight drop-shadow-sm line-clamp-2"
-                            title={tenantName}
-                        >
-                            {tenantName}
-                        </span>
-                        {/* Slogan: Bolder, clearer, larger */}
-                        <span className="text-[12px] font-semibold text-cyan-400 mt-0.5 leading-none hidden lg:block tracking-wide truncate">
-                            {tenantMotto}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <SidebarClient role={userRole} userName={userName} brandColor={primaryColor} />
-
-
+            <SidebarClient
+                role={userRole}
+                userName={userName}
+                brandColor={primaryColor}
+                tenantName={tenantName}
+                tier="platinum"
+                tenantLogo={tenantLogo}
+            />
         </div>
     )
 }

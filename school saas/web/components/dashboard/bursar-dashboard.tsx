@@ -1,5 +1,7 @@
 "use client"
 
+import { cn, formatDate } from "@/lib/utils"
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
     TrendingUp,
@@ -10,7 +12,8 @@ import {
     FileText,
     Download,
     PlusCircle,
-    MoreHorizontal
+    MoreHorizontal,
+    Zap
 } from "lucide-react"
 import { NairaIcon } from "@/components/ui/naira-icon"
 import {
@@ -29,6 +32,7 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ManualPaymentModal } from "@/components/finance/manual-payment-modal"
+import { SMSTransactionWidget } from "@/components/dashboard/sms-transaction-widget"
 
 function MetricCard({ title, amount, subtitle, icon: Icon, trend, colorClass }: any) {
     return (
@@ -105,7 +109,14 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                     <h1 className="text-2xl font-bold text-white tracking-tight">Bursar Command Center</h1>
                     <p className="text-slate-400 text-sm">Financial overview for <span className="text-[var(--school-accent)] font-medium">{term}</span></p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
+                    {/* SMS Status for Bursar */}
+                    {(stats.smsBalance !== undefined) && (
+                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${stats.smsBalance < 2000 ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 'bg-white/5 border-white/10 text-slate-400'}`}>
+                            <Zap className={`h-3.5 w-3.5 ${stats.smsBalance < 2000 ? 'fill-current' : ''}`} />
+                            <span className="text-[10px] font-bold uppercase tracking-tight">Wallet: ₦{stats.smsBalance.toLocaleString()}</span>
+                        </div>
+                    )}
                     <Button variant="outline" size="sm" className="bg-slate-900 border-white/10 text-slate-300 hover:text-white">
                         <Download className="h-4 w-4 mr-2" /> Export Monthly
                     </Button>
@@ -161,7 +172,7 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                                     dataKey="date"
                                     stroke="#475569"
                                     fontSize={10}
-                                    tickFormatter={(val) => new Date(val).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                                    tickFormatter={(val) => new Date(val).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                                 />
                                 <YAxis stroke="#475569" fontSize={10} tickFormatter={(val) => `₦${val / 1000}k`} />
                                 <Tooltip
@@ -199,7 +210,7 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-medium text-slate-200">{trx.students?.full_name}</p>
-                                                    <p className="text-[10px] text-slate-500 uppercase">{trx.method} • {new Date(trx.date).toLocaleDateString()}</p>
+                                                    <p className="text-[10px] text-slate-500 uppercase">{trx.method} • {formatDate(trx.date)}</p>
                                                 </div>
                                             </div>
                                             <div className="text-right">
@@ -239,6 +250,11 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                         </CardContent>
                     </Card>
                 </div>
+            </div>
+
+            {/* SMS Transaction Ledger (Full Width) */}
+            <div className="mt-6">
+                <SMSTransactionWidget transactions={stats.smsTransactions || []} />
             </div>
         </div>
     )

@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { formatDate } from "@/lib/utils"
 import { BrainCircuit, Clock, ChevronRight, CheckCircle2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 
@@ -32,7 +33,7 @@ export function QuizDashboard({ quizzes }: { quizzes: any[] }) {
                                     <div className="flex gap-3 text-xs text-slate-400 mt-1">
                                         <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {quiz.duration_minutes}m</span>
                                         <span>•</span>
-                                        <span>{quiz.date ? new Date(quiz.date).toLocaleDateString() : 'Available Now'}</span>
+                                        <span>{quiz.date ? formatDate(quiz.date) : 'Available Now'}</span>
                                     </div>
                                 </div>
                             </div>

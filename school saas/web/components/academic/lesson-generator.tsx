@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
+import { formatDate } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -196,7 +197,7 @@ export function LessonGenerator() {
                                         <p className="text-xs uppercase tracking-[0.2em] text-slate-500 font-semibold">Official Lesson Note</p>
                                     </div>
                                     <div className="ml-auto text-right text-xs text-slate-400">
-                                        <p>{date.toLocaleDateString()}</p>
+                                        <p>{formatDate(date)}</p>
                                         <p>{subject} • {level}</p>
                                     </div>
                                 </div>

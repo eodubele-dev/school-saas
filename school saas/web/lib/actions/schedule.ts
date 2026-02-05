@@ -67,3 +67,59 @@ export async function getNextClass() {
         schedule: schedule || []
     }
 }
+
+export async function createTimetableSlot(data: {
+    day_of_week: string
+    start_time: string
+    end_time: string
+    subject_id: string
+    class_id: string
+    teacher_id: string
+}) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error("Unauthorized")
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) throw new Error("Profile not found")
+
+    const { error } = await supabase.from('timetables').insert({
+        ...data,
+        tenant_id: profile.tenant_id
+    })
+
+    if (error) throw new Error(error.message)
+    return { success: true }
+}
+
+export async function deleteTimetableSlot(id: string) {
+    const supabase = createClient()
+    const { error } = await supabase.from('timetables').delete().eq('id', id)
+    if (error) throw new Error(error.message)
+    return { success: true }
+}
+
+export async function getFullTimetable() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return []
+
+    const { data } = await supabase
+        .from('timetables')
+        .select(`
+            id,
+            day_of_week,
+            start_time,
+            end_time,
+            subject:subjects(id, name),
+            class:classes(id, name),
+            teacher:profiles(id, full_name)
+        `)
+        .eq('tenant_id', profile.tenant_id)
+        .order('start_time', { ascending: true })
+
+    return data || []
+}

@@ -20,9 +20,9 @@ const data = [
 
 export function OverviewChart() {
     return (
-        <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg h-full">
-            <CardHeader>
-                <CardTitle className="text-slate-400 font-medium text-sm">Revenue Overview</CardTitle>
+        <Card className="bg-slate-900/90 border-white/10 backdrop-blur-xl shadow-2xl">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-slate-400 font-medium text-xs uppercase tracking-wider">Revenue Overview</CardTitle>
             </CardHeader>
             <CardContent className="pl-2">
                 <div className="h-[240px] w-full">

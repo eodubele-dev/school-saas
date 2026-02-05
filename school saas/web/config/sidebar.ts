@@ -23,17 +23,28 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
     admin: [
         {
             category: "Campus Operations",
-            icon: Building2,
+            icon: LayoutDashboard,
             items: [
                 { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
                 { icon: Crown, label: "Executive View", href: "/dashboard/admin/executive/mobile" },
+            ]
+        },
+        {
+            category: "People & Records",
+            icon: Users,
+            items: [
                 { icon: Users, label: "Student Enrollment", href: "/dashboard/admin/admissions" },
-                { icon: GraduationCap, label: "All Students", href: "/dashboard/admin/students" },
                 { icon: Users, label: "Faculty Directory", href: "/dashboard/admin/staff" },
                 { icon: ClipboardCheck, label: "Staff Attendance", href: "/dashboard/admin/attendance/staff" },
+            ]
+        },
+        {
+            category: "Academic Oversight",
+            icon: GraduationCap,
+            items: [
                 { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup/academic" },
-                { icon: ShieldCheck, label: "Academic Approvals", href: "/dashboard/admin/approvals" },
                 { icon: GraduationCap, label: "Result Processor", href: "/dashboard/admin/results/generate" },
+                { icon: ShieldCheck, label: "Approvals Hub", href: "/dashboard/admin/approvals" },
             ]
         },
         {
@@ -65,6 +76,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             category: "System",
             items: [
                 { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
+                { icon: MessageSquare, label: "SMS Notifications", href: "/dashboard/settings/notifications" },
             ]
         }
     ],
@@ -87,6 +99,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             category: "System",
             items: [
                 { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+                { icon: MessageSquare, label: "SMS Notifications", href: "/dashboard/settings/notifications" },
             ]
         }
     ],

@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { formatDate } from "@/lib/utils"
 
 interface ActivityItem {
     type: string
@@ -35,17 +36,17 @@ export function RecentActivity({ data }: RecentActivityProps) {
     }
 
     return (
-        <Card className="bg-slate-900/80 border-white/10 backdrop-blur-xl shadow-2xl h-full flex flex-col">
-            <CardHeader className="pb-4">
+        <Card className="bg-slate-900/90 border-white/10 backdrop-blur-xl shadow-2xl flex flex-col">
+            <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-white font-semibold text-base tracking-tight">Recent System Activity</CardTitle>
-                    <span className="text-xs text-slate-500 font-mono bg-white/5 px-2 py-1 rounded">
+                    <CardTitle className="text-white font-semibold text-sm tracking-tight">Recent System Activity</CardTitle>
+                    <span className="text-[10px] text-slate-500 font-mono bg-white/5 px-2 py-0.5 rounded">
                         {activities.length} Events
                     </span>
                 </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col justify-between space-y-4">
-                <div className="space-y-6">
+            <CardContent className="space-y-3">
+                <div className="space-y-3">
                     {currentActivities.length > 0 ? (
                         currentActivities.map((item, index) => (
                             <div key={index} className="flex items-center animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: `${index * 50}ms` }}>
@@ -61,11 +62,7 @@ export function RecentActivity({ data }: RecentActivityProps) {
                                     </p>
                                 </div>
                                 <div className="ml-auto text-xs text-slate-400 whitespace-nowrap pl-2">
-                                    {new Date(item.time).toLocaleDateString("en-GB", {
-                                        day: "2-digit",
-                                        month: "2-digit",
-                                        year: "numeric"
-                                    })}
+                                    {formatDate(item.time)}
                                 </div>
                             </div>
                         ))

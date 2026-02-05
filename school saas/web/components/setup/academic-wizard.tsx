@@ -4,6 +4,7 @@ import { useState } from "react"
 import { ClassesArmsStep } from "./steps/step-1-classes-arms"
 import { SubjectRegistryStep } from "./steps/step-2-subjects"
 import { GradingConfigStep } from "./steps/step-3-grading"
+import { TimetableManagerStep } from "./steps/step-4-timetables"
 import { cn } from "@/lib/utils"
 
 export function AcademicWizard({ domain }: { domain: string }) {
@@ -12,7 +13,8 @@ export function AcademicWizard({ domain }: { domain: string }) {
     const steps = [
         { number: 1, title: "Class & Arm Manager", component: <ClassesArmsStep onNext={() => setStep(2)} /> },
         { number: 2, title: "Subject Registry", component: <SubjectRegistryStep onNext={() => setStep(3)} onPrev={() => setStep(1)} /> },
-        { number: 3, title: "Grading Scale Config", component: <GradingConfigStep onPrev={() => setStep(2)} /> }
+        { number: 3, title: "Grading Scale Config", component: <GradingConfigStep onNext={() => setStep(4)} onPrev={() => setStep(2)} /> },
+        { number: 4, title: "Timetable Hub", component: <TimetableManagerStep onPrev={() => setStep(3)} /> }
     ]
 
     return (

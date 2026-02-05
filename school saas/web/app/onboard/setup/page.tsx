@@ -70,11 +70,12 @@ export default function OnboardingWizard() {
     const handleNext = () => setStep(prev => prev + 1)
     const handleBack = () => setStep(prev => prev - 1)
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (initialDeposit?: number) => {
         setIsSubmitting(true)
         try {
             const payload = {
                 ...data,
+                initialDeposit,
                 levels: ['nursery', 'primary', 'jss', 'sss'],
                 waecStats: {},
                 nerdcPresets: {}

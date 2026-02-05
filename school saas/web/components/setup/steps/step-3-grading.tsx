@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowLeft, CheckCircle, Plus, Trash2 } from "lucide-react"
+import { ArrowLeft, ArrowRight, CheckCircle, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -29,7 +29,7 @@ interface GradeScale {
     remark: string
 }
 
-export function GradingConfigStep({ onPrev }: { onPrev: () => void }) {
+export function GradingConfigStep({ onNext, onPrev }: { onNext: () => void, onPrev: () => void }) {
     const [scales, setScales] = useState<GradeScale[]>([])
     const [loading, setLoading] = useState(true)
     const [tenantId, setTenantId] = useState<string | null>(null)
@@ -205,8 +205,8 @@ export function GradingConfigStep({ onPrev }: { onPrev: () => void }) {
                 <Button variant="ghost" onClick={onPrev} className="text-slate-400 hover:text-white hover:bg-white/5">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
-                <Button onClick={handleFinish} className="bg-green-600 hover:bg-green-500 text-white px-8 shadow-[0_0_20px_rgba(22,163,74,0.3)]">
-                    <CheckCircle className="mr-2 h-4 w-4" /> Save & Finish Setup
+                <Button onClick={onNext} className="bg-[var(--school-accent)] text-white px-8">
+                    Proceed to Timetable Hub <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </div>
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { formatDate } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -113,7 +114,7 @@ export function StudentRegister() {
             <div className="p-4 border-b border-white/5 flex items-center justify-between bg-slate-950/30">
                 <div>
                     <h3 className="font-bold text-white text-lg">{classInfo.name} Register</h3>
-                    <p className="text-xs text-slate-500">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+                    <p className="text-xs text-slate-500">{formatDate(new Date())}</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <Badge variant="outline" className="bg-red-500/10 text-red-400 border-red-500/20">

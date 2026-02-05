@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react"
 interface StepPlanProps {
     data: any
     updateData: (key: string, value: any) => void
-    onSubmit: () => void
+    onSubmit: (initialDeposit?: number) => void
     onBack: () => void
     isSubmitting: boolean
 }
@@ -64,6 +64,20 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
         }
     ]
 
+    const [isPaying, setIsPaying] = useState(false)
+
+    const handleAction = async () => {
+        if (data.plan === 'pilot' && !isPaying) {
+            setIsPaying(true)
+            // Mock Paystack Handshake
+            setTimeout(() => {
+                onSubmit(10000) // Trigger creation with 10k balance
+            }, 2500)
+            return
+        }
+        onSubmit()
+    }
+
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -74,7 +88,9 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
                             ? 'bg-blue-600/10 border-blue-500 shadow-[0_0_30px_rgba(37,99,235,0.2)]'
                             : 'bg-[#0A0A0B] border-white/10 hover:border-white/20 hover:bg-white/[0.02]'
                             }`}
-                        onClick={() => updateData('plan', plan.id)}
+                        onClick={() => {
+                            if (!isPaying && !isSubmitting) updateData('plan', plan.id)
+                        }}
                     >
                         {plan.isPopular && (
                             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-400 to-blue-500 text-black text-[10px] font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
@@ -102,9 +118,6 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
                                 </li>
                             ))}
                         </ul>
-                        {plan.id === 'platinum' && (
-                            <div className="bg-gradient-to-r from-blue-500 to-cyan-400 h-1 w-full rounded-full opacity-30 mb-2" />
-                        )}
                     </div>
                 ))}
             </div>
@@ -112,32 +125,35 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
             <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-[11px] text-slate-400 flex gap-4">
                 <Shield className="h-5 w-5 text-cyan-500 shrink-0" />
                 <p>
-                    Payments are securely processed by Paystack. You can cancel or upgrade your plan at any time.
-                    Opting for <strong>Platinum</strong> unlocks advanced AI capabilities immediately.
+                    {data.plan === 'pilot'
+                        ? "Lagos Pilot activation requires a minimum ₦10,000 SMS deposit. This credit is yours to use for all institutional communications."
+                        : "Payments are securely processed by Paystack. You can cancel or upgrade your plan at any time."
+                    }
                 </p>
             </div>
 
             <div className="flex gap-4">
                 <button
                     onClick={onBack}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isPaying}
                     className="px-8 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors border border-transparent hover:border-white/10 font-medium"
                 >
                     Back
                 </button>
                 <button
-                    onClick={onSubmit}
-                    disabled={!data.plan || isSubmitting}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold h-12 rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 flex items-center justify-center gap-2 group"
+                    onClick={handleAction}
+                    disabled={!data.plan || isSubmitting || isPaying}
+                    className={`flex-1 ${data.plan === 'pilot' ? 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-500/20' : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20'} text-white font-bold h-12 rounded-xl transition-all shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 group`}
                 >
-                    {isSubmitting ? (
+                    {isPaying || isSubmitting ? (
                         <>
-                            <Loader2 className="h-4 w-4 animate-spin" /> Transmitting Setup...
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            {isPaying ? "Verifying SMS Deposit..." : "Transmitting Setup..."}
                         </>
                     ) : (
                         <>
                             <Zap className="h-4 w-4 fill-white group-hover:scale-110 transition-transform" />
-                            Initialize Dashboard
+                            {data.plan === 'pilot' ? "Fund SMS Wallet & Activate" : "Initialize Dashboard"}
                         </>
                     )}
                 </button>

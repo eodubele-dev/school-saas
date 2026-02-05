@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { formatDate } from "@/lib/utils"
 import { MapPin, Clock, Navigation, CheckCircle, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
 
@@ -235,7 +236,7 @@ export function StaffClockIn() {
                                         <div className={`h-2 w-2 rounded-full ${record.status === 'present' ? 'bg-green-500' : 'bg-red-500'}`} />
                                         <div>
                                             <p className="font-medium text-sm">
-                                                {new Date(record.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                                                {formatDate(record.date)}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
                                                 {record.checkInTime || '--:--'} - {record.checkOutTime || '--:--'}

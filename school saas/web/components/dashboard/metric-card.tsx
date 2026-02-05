@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { LucideIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface MetricCardProps {
     title: string
@@ -12,19 +13,20 @@ interface MetricCardProps {
         positive: boolean
     }
     id?: string
+    className?: string
 }
 
-export function MetricCard({ title, value, icon: Icon, description, trend, id }: MetricCardProps) {
+export function MetricCard({ title, value, icon: Icon, description, trend, id, className }: MetricCardProps) {
     return (
-        <Card id={id} className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:border-blue-500/20 transition-all duration-300">
+        <Card id={id} className={cn("bg-slate-900/90 border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-cyan-500/40 transition-all duration-300", className)}>
             {/* Hover Glow Effect */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity opacity-0 group-hover:opacity-100" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity opacity-0 group-hover:opacity-100" />
 
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                 <CardTitle className="text-sm font-medium text-slate-400">
                     {title}
                 </CardTitle>
-                <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:text-blue-300 group-hover:scale-110 transition-all duration-300">
+                <div className="h-10 w-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 group-hover:text-cyan-300 group-hover:scale-110 transition-all duration-300">
                     <Icon className="h-5 w-5" />
                 </div>
             </CardHeader>
@@ -36,8 +38,8 @@ export function MetricCard({ title, value, icon: Icon, description, trend, id }:
                     {(description || trend) && (
                         <div className="flex items-center text-xs text-slate-500 gap-2">
                             {trend && (
-                                <span className={trend.positive ? "text-emerald-400" : "text-rose-400"}>
-                                    {trend.positive ? "+" : ""}{trend.value}
+                                <span className={trend.positive ? "text-cyan-400 font-semibold" : "text-amber-400 font-semibold"}>
+                                    {trend.value}
                                 </span>
                             )}
                             {description && <span>{description}</span>}

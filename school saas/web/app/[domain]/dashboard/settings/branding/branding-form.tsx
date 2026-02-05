@@ -150,8 +150,8 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                 </div>
             </div>
 
-            {/* Right Column: Controls */}
-            <div className="space-y-8 bg-slate-900/40 border border-white/5 p-8 rounded-2xl backdrop-blur-sm order-1 xl:order-2">
+            {/* Right Column: Controls - Now with independent scrolling */}
+            <div className="space-y-8 bg-slate-900/40 border border-white/5 p-8 rounded-2xl backdrop-blur-sm order-1 xl:order-2 max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent pr-4">
                 <div className="space-y-4">
                     <h3 className="text-xl font-bold text-white flex items-center gap-2">
                         <Palette className="h-5 w-5 text-[var(--school-accent)]" />

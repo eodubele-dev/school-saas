@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { PendingItem } from "@/lib/actions/approvals"
+import { formatDate } from "@/lib/utils"
 import { useState } from "react"
 import { ReviewModal } from "./review-modal"
 import { FileText, Calculator, Clock, ChevronRight } from "lucide-react"
@@ -64,7 +65,7 @@ function QueueList({ title, icon: Icon, items, onSelect }: { title: string, icon
                                     <span>{item.submitted_by}</span>
                                     <span>•</span>
                                     <Clock className="h-3 w-3" />
-                                    <span>{new Date(item.submitted_at).toLocaleDateString()}</span>
+                                    <span>{formatDate(item.submitted_at)}</span>
                                 </div>
                             </div>
                             <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-white transition-colors" />

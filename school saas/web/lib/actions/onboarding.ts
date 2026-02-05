@@ -141,6 +141,7 @@ interface OnboardingData {
     waecStats: boolean
     nerdcPresets: boolean
     plan: string
+    initialDeposit?: number
 }
 
 export async function createTenant(data: OnboardingData) {
@@ -158,7 +159,7 @@ export async function createTenant(data: OnboardingData) {
                 type: 'school',
                 subscription_tier: data.plan,
                 is_active: true,
-                sms_balance: 0, // Requires top-up to activate fully
+                sms_balance: data.initialDeposit || 0, // Recorded during onboarding for Pilot activation
                 pilot_ends_at: data.plan === 'pilot'
                     ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
                     : null,

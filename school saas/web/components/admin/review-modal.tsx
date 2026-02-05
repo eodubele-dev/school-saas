@@ -8,7 +8,7 @@ import { PendingItem, approveItem, rejectItem } from "@/lib/actions/approvals"
 import { useState } from "react"
 import { CheckCircle, XCircle, Stamp, UserCheck, AlertCircle } from "lucide-react"
 import { toast } from "sonner"
-import { cn } from "@/lib/utils"
+import { cn, formatDate } from "@/lib/utils"
 
 interface ReviewModalProps {
     item: PendingItem | null
@@ -77,7 +77,7 @@ export function ReviewModal({ item, isOpen, onClose }: ReviewModalProps) {
                         <UserCheck className="h-5 w-5 text-blue-400" />
                         Reviewing: <span className="text-blue-200">{item.title}</span>
                     </DialogTitle>
-                    <p className="text-xs text-slate-400">Submitted by {item.submitted_by} on {new Date(item.submitted_at).toLocaleDateString()}</p>
+                    <p className="text-xs text-slate-400">Submitted by {item.submitted_by} on {formatDate(item.submitted_at)}</p>
                 </DialogHeader>
 
                 <ScrollArea className="flex-1 p-8 bg-slate-900/50">
@@ -92,7 +92,7 @@ export function ReviewModal({ item, isOpen, onClose }: ReviewModalProps) {
                                 <span className="text-[10px]">Approved By</span>
                                 <span className="text-sm text-center leading-tight my-1">Principal's Office</span>
                                 <Stamp className="h-8 w-8 my-1" />
-                                <span className="text-[10px]">{new Date().toLocaleDateString()}</span>
+                                <span className="text-[10px]">{formatDate(new Date())}</span>
                             </div>
                         </div>
 

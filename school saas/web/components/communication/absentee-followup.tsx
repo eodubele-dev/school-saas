@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { formatDate } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -67,7 +68,7 @@ export function AbsenteeFollowUp() {
                         <AlertCircle className="h-5 w-5 text-red-400" />
                         Daily Absentees
                     </h3>
-                    <p className="text-sm text-slate-400">Students marked absent today ({new Date().toLocaleDateString()})</p>
+                    <p className="text-sm text-slate-400">Students marked absent today ({formatDate(new Date())})</p>
                 </div>
                 <Button
                     onClick={handleBulkNotify}

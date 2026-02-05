@@ -59,7 +59,7 @@ export function NavbarLinks({ domain, scheduleData }: NavbarLinksProps) {
     const DesktopView = () => (
         <div className="hidden lg:flex items-center gap-6">
             <Link
-                href={`/${domain}/dashboard/schedule`}
+                href="/dashboard/schedule"
                 className="text-sm font-medium text-slate-400 hover:text-white hover:underline decoration-blue-500 underline-offset-4 transition-all flex items-center gap-2 group"
             >
                 <Calendar className="h-3.5 w-3.5 group-hover:text-blue-400" />
@@ -98,7 +98,7 @@ export function NavbarLinks({ domain, scheduleData }: NavbarLinksProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48 bg-slate-900 border-slate-800 text-slate-300">
                     <DropdownMenuItem asChild>
-                        <Link href={`/${domain}/dashboard/schedule`} className="flex items-center gap-2 cursor-pointer focus:bg-slate-800 focus:text-white">
+                        <Link href="/dashboard/schedule" className="flex items-center gap-2 cursor-pointer focus:bg-slate-800 focus:text-white">
                             <Calendar className="h-4 w-4" /> My Schedule
                         </Link>
                     </DropdownMenuItem>
