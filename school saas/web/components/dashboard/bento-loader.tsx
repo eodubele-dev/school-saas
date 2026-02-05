@@ -62,6 +62,9 @@ export async function BentoDashboardLoader({ user, role, schoolName, primaryColo
                         <p className="mt-2 font-mono text-xs tracking-widest uppercase text-slate-400">
                             Role: <span className="text-cyan-400">{role.toUpperCase()}</span> // System ID: <span className="text-white">{user.id.slice(0, 8)}</span> // Status: <span className="text-emerald-400">ACTIVE</span>
                         </p>
+                        <p className="mt-1 text-sm text-slate-500 font-medium tracking-wide">
+                            Real-time school performance and financial analysis
+                        </p>
                     </div>
 
                     {/* Platinum Indicator */}

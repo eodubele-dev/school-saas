@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { CheckCircle2, XCircle, Loader2, Upload } from "lucide-react"
 import { checkSubdomainAvailability } from "@/lib/actions/onboarding"
+import { toast } from "sonner"
 
 interface StepBrandingProps {
     data: any
@@ -46,13 +47,14 @@ export function StepBranding({ data, updateData, onNext }: StepBrandingProps) {
                         <input
                             type="file"
                             accept="image/*"
-                            className="absolute inset-0 opacity-0 cursor-pointer"
+                            className="absolute inset-0 opacity-0 cursor-pointer z-20"
                             onChange={(e) => {
                                 const file = e.target.files?.[0]
                                 if (file) {
-                                    // In real app, upload here or store file
-                                    // For now, simulating presence
                                     updateData('logo', file.name)
+                                    toast.success("Identity Secured", {
+                                        description: `${file.name} uploaded successfully.`
+                                    })
                                 }
                             }}
                         />

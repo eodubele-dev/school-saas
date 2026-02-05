@@ -30,7 +30,7 @@ const testimonials = [
 
 export function SocialProofBento() {
     return (
-        <section className="py-24 bg-[#0A0A0B] relative overflow-hidden">
+        <section id="testimonials" className="py-24 bg-[#0A0A0B] relative overflow-hidden">
             {/* Background: Blue Wave Pattern */}
             <div className="absolute inset-0 z-0 pointer-events-none">
                 <div

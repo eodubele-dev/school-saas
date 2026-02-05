@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Menu, Sparkles, BookOpen } from "lucide-react"
 import { useState } from "react"
 import { motion } from "framer-motion"
+import { useExecutiveConversion } from "./executive-context"
 
 export function Navbar() {
     const [isOpen, setIsOpen] = useState(false)
+    const { openTenantPreview, toggleMegaMenu, openPhysicalDemo, scrollToSection } = useExecutiveConversion()
 
     return (
         // 1. the 'Infinite Obsidian' Navigation
@@ -34,39 +36,46 @@ export function Navbar() {
                 {/* Center: Desktop Nav Links */}
                 <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
                     {['Home', 'Features', 'Pricing', 'Contact'].map((item) => (
-                        <Link
+                        <button
                             key={item}
-                            href={`#${item.toLowerCase()}`}
+                            onClick={() => {
+                                if (item === 'Features') {
+                                    toggleMegaMenu()
+                                } else {
+                                    scrollToSection(item.toLowerCase())
+                                }
+                            }}
                             className={`text-base font-medium transition-colors relative group ${item === 'Features' ? 'text-white' : 'text-slate-400 hover:text-white'}`}
                         >
                             {item}
                             {/* Active/Hover State Line */}
                             {item === 'Features' && (
-                                <span className="absolute -bottom-2 left-0 w-full h-[2px] bg-blue-500 rounded-full shadow-[0_0_10px_#3b82f6]" />
+                                <span className="absolute -bottom-2 left-0 w-full h-[2px] bg-cyan-500 rounded-full shadow-[0_0_10px_#06b6d4]" />
                             )}
-                        </Link>
+                        </button>
                     ))}
                 </div>
-
                 {/* Right Side: Actions */}
-                <div className="hidden md:flex items-center gap-6">
-                    {/* Documentation - Ghost Link */}
-                    <Link href="/docs" className="group flex items-center gap-2 px-4 py-2 rounded-lg border border-transparent hover:border-white/10 hover:bg-white/5 transition-all duration-300">
-                        <BookOpen className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
-                        <span className="text-sm font-medium text-slate-500 group-hover:text-slate-200 transition-colors">Documentation</span>
-                    </Link>
+                <div className="hidden md:flex items-center gap-4">
+                    {/* Schedule Physical Demo Button - HIGH INTENT */}
+                    <button
+                        onClick={openPhysicalDemo}
+                        className="text-xs font-bold text-cyan-400 border border-cyan-500/20 px-3 py-1.5 rounded bg-cyan-950/20 hover:bg-cyan-900/40 transition-all uppercase tracking-tighter"
+                    >
+                        Schedule Physical Demo
+                    </button>
 
                     {/* Log in */}
-                    <Link href="/login" className="text-base font-medium text-white hover:text-blue-400 transition-colors px-2">
+                    <Link href="/login" className="text-base font-medium text-white hover:text-blue-400 transition-colors px-1">
                         Log in
                     </Link>
 
                     {/* Try it free Button */}
                     <Button
-                        asChild
-                        className="bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold rounded-lg px-8 py-6 text-base shadow-[0_0_30px_-5px_rgba(0,102,255,0.4)] transition-all hover:scale-105"
+                        onClick={openTenantPreview}
+                        className="bg-[#0066FF] hover:bg-cyan-500 text-white font-bold rounded-lg px-6 py-5 text-sm shadow-[0_0_30px_-5px_rgba(0,102,255,0.4)] hover:shadow-[0_0_40px_-5px_#06b6d4] transition-all duration-300 hover:scale-105 border border-blue-400/50"
                     >
-                        <Link href="/signup">Try it free</Link>
+                        Try it free
                     </Button>
                 </div>
 
@@ -91,8 +100,11 @@ export function Navbar() {
                     <div className="h-px bg-white/10 my-2" />
                     <Link href="/docs" className="text-sm font-medium text-slate-400 p-2">Documentation</Link>
                     <Link href="/login" className="text-sm font-bold text-white p-2">Log in</Link>
-                    <Button asChild className="w-full bg-[#0066FF] text-white font-bold shadow-lg shadow-blue-900/20">
-                        <Link href="/signup">Try it free</Link>
+                    <Button
+                        onClick={() => { setIsOpen(false); openTenantPreview(); }}
+                        className="w-full bg-[#0066FF] hover:bg-cyan-500 text-white font-bold shadow-lg shadow-blue-900/20 hover:shadow-cyan-500/20 transition-all duration-300"
+                    >
+                        Try it free
                     </Button>
                 </motion.div>
             )}

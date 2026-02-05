@@ -3,8 +3,10 @@
 import { motion } from "framer-motion"
 import { ArrowRight, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useExecutiveConversion } from "./executive-context"
 
 export function FinalCloserCta() {
+    const { openExecutiveDemo } = useExecutiveConversion()
     return (
         <section className="py-32 bg-[#000000] relative overflow-hidden">
 
@@ -48,7 +50,8 @@ export function FinalCloserCta() {
                             </p>
 
                             <Button
-                                className="h-14 px-8 text-lg font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-[0_0_40px_rgba(37,99,235,0.5)] animate-pulse w-fit group"
+                                onClick={openExecutiveDemo}
+                                className="h-14 px-8 text-lg font-bold bg-blue-600 hover:bg-cyan-500 text-white rounded-full shadow-[0_0_40px_rgba(37,99,235,0.5)] hover:shadow-[0_0_50px_#06b6d4] transition-all duration-300 animate-pulse w-fit group"
                             >
                                 Book My Executive Demo
                                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />

@@ -1,13 +1,23 @@
 "use client"
 
-import { useState } from "react"
 import { Play } from "lucide-react"
+import { useExecutiveConversion } from "./executive-context"
+import { useState, useEffect } from "react"
 
 export function ResultVideo() {
     const [isPlaying, setIsPlaying] = useState(false)
+    const { shouldPlayVideoDemo, resetVideoDemo } = useExecutiveConversion()
+
+    useEffect(() => {
+        if (shouldPlayVideoDemo) {
+            setIsPlaying(true)
+            // Optionally reset after some time or keep it playing
+            // resetVideoDemo()
+        }
+    }, [shouldPlayVideoDemo])
 
     return (
-        <section className="py-24 bg-black overflow-hidden relative">
+        <section id="video-demo" className="py-24 bg-black overflow-hidden relative transition-all duration-1000">
             {/* Header Content */}
             <div className="max-w-7xl mx-auto px-6 text-center mb-16 relative z-10">
                 <span className="text-blue-500 font-bold tracking-widest text-xs uppercase mb-4 block">Executive Demo</span>

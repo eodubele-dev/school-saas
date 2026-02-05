@@ -20,6 +20,12 @@ export const metadata: Metadata = {
 
 import { Toaster } from "@/components/ui/sonner";
 import { ReactQueryProvider } from "@/components/providers/query-provider";
+import { ExecutiveConversionProvider } from "@/components/landing/executive-context"
+import { ExecutiveModals } from "@/components/landing/executive-modals"
+import { MegaMenu } from "@/components/landing/mega-menu"
+import { PhysicalDemoModal } from "@/components/landing/physical-demo-modal"
+import { SupportSlideOver } from "@/components/landing/support-slide-over"
+import { ExecutiveFocusGlow } from "@/components/landing/executive-focus-glow"
 
 export default function RootLayout({
   children,
@@ -32,7 +38,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ReactQueryProvider>
-          {children}
+          <ExecutiveConversionProvider>
+            {children}
+            <ExecutiveModals />
+            <MegaMenu />
+            <PhysicalDemoModal />
+            <SupportSlideOver />
+            <ExecutiveFocusGlow />
+          </ExecutiveConversionProvider>
           <Toaster theme="dark" richColors />
         </ReactQueryProvider>
       </body>

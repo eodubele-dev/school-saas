@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { FileSpreadsheet, UploadCloud, ArrowRight } from "lucide-react"
+import { toast } from "sonner"
 
 interface StepImportProps {
     data: any
@@ -36,21 +37,37 @@ export function StepImport({ data, updateData, onNext, onBack }: StepImportProps
                 </div>
 
                 {/* Dropzone */}
-                <div className="border-2 border-dashed border-white/10 p-12 rounded-3xl flex flex-col items-center justify-center bg-black/20 hover:bg-black/40 hover:border-cyan-500/30 transition-all cursor-pointer group">
+                <div className="border-2 border-dashed border-white/10 p-12 rounded-3xl flex flex-col items-center justify-center bg-black/20 hover:bg-black/40 hover:border-cyan-500/30 transition-all cursor-pointer group relative overflow-hidden">
+                    <input
+                        type="file"
+                        accept=".csv,.xlsx"
+                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                        onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                                toast.success("File Ready for Migration", {
+                                    description: file.name
+                                })
+                            }
+                        }}
+                    />
                     <div className="h-16 w-16 bg-white/5 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <FileSpreadsheet className="h-8 w-8 text-slate-400 group-hover:text-white" />
                     </div>
-                    <button className="bg-white text-black px-6 py-2 rounded-full font-bold hover:bg-cyan-400 hover:text-black transition-colors shadow-lg">
+                    <div className="bg-white text-black px-6 py-2 rounded-full font-bold group-hover:bg-cyan-400 transition-colors shadow-lg z-0">
                         Select CSV File
-                    </button>
+                    </div>
                     <p className="mt-4 text-xs text-gray-500 font-mono">Supported formats: .csv, .xlsx (Max 5,000 students)</p>
                 </div>
             </div>
 
             <div className="flex gap-4 pt-4">
-                <Button variant="ghost" onClick={onBack} className="text-slate-400 hover:text-white">
+                <button
+                    onClick={onBack}
+                    className="px-6 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors border border-transparent hover:border-white/10"
+                >
                     Back
-                </Button>
+                </button>
                 <Button
                     onClick={onNext}
                     className="flex-1 bg-[#0066FF] hover:bg-blue-600 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/20"

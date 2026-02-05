@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion"
 import { Shield, Sparkles, AlertTriangle, UserCheck } from "lucide-react"
+import { useExecutiveConversion } from "./executive-context"
 
 export function ForensicCampusBento() {
+    const { highlightedSection } = useExecutiveConversion()
     return (
         <section className="py-24 bg-[#000000] relative overflow-hidden">
 
@@ -49,8 +51,9 @@ export function ForensicCampusBento() {
                     {/* 1. The 'Integrity' Anchor (Center-Stage) */}
                     {/* Spans 4 columns, 2 rows */}
                     <motion.div
+                        id="audit-integrity"
                         whileHover={{ y: -5 }}
-                        className="md:col-span-4 md:row-span-2 bento-card overflow-hidden relative group"
+                        className={`md:col-span-4 md:row-span-2 bento-card overflow-hidden relative group transition-all duration-700 ${highlightedSection === 'audit-integrity' ? 'ring-4 ring-cyan-500 shadow-[0_0_50px_rgba(6,182,212,0.5)] scale-[1.02] z-30' : ''}`}
                     >
                         {/* Floating Label */}
                         <div className="absolute top-4 right-4 px-2 py-1 bg-cyan-950/80 border border-cyan-500/30 rounded text-[10px] font-mono text-cyan-400 z-20">
@@ -112,8 +115,9 @@ export function ForensicCampusBento() {
 
                     {/* 3. The 'Zero-Leakage' Slot (Bottom Left) */}
                     <motion.div
+                        id="campus-logistics"
                         whileHover={{ y: -5 }}
-                        className="md:col-span-3 md:row-span-1 bento-card overflow-hidden relative group"
+                        className={`md:col-span-3 md:row-span-1 bento-card overflow-hidden relative group transition-all duration-700 ${highlightedSection === 'campus-logistics' ? 'ring-4 ring-amber-500 shadow-[0_0_50px_rgba(245,158,11,0.5)] scale-[1.02] z-30' : ''}`}
                     >
                         <div className="absolute top-4 right-4 px-2 py-1 bg-amber-950/80 border border-amber-500/30 rounded text-[10px] font-mono text-amber-400 z-20">
                             LOGISTICS_SYNC

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { ArrowRight, Lock, CheckCircle, Smartphone, PlayCircle, ShieldCheck } from "lucide-react"
+import { useExecutiveConversion } from "./executive-context"
 
 // --- Mock Data ---
 const revenueData = [
@@ -30,6 +31,7 @@ const securityLogs = [
 ]
 
 export function HeroFlowBuilder() {
+    const { openTenantPreview, triggerVideoDemo } = useExecutiveConversion()
     // Parallax Logic
     const ref = useRef<HTMLDivElement>(null)
     const x = useMotionValue(0)
@@ -64,7 +66,7 @@ export function HeroFlowBuilder() {
     }
 
     return (
-        <section className="relative min-h-[100vh] flex items-center justify-center pt-32 pb-20 overflow-hidden bg-[#000000]">
+        <section id="home" className="relative min-h-[100vh] flex items-center justify-center pt-32 pb-20 overflow-hidden bg-[#000000]">
 
             {/* 1. Background: 'Blue Obsidian' Canvas */}
             <div className="absolute inset-0 z-0 pointer-events-none bg-[#000000]">
@@ -130,11 +132,17 @@ export function HeroFlowBuilder() {
                             transition={{ duration: 0.6, delay: 0.2 }}
                             className="flex flex-col sm:flex-row items-center gap-5 justify-center lg:justify-start"
                         >
-                            <button className="px-8 py-4 bg-[#3B82F6] hover:bg-[#2563EB] hover:scale-105 transition-all duration-300 rounded-lg text-white font-bold text-lg shadow-[0_0_40px_-5px_#3B82F6] border border-blue-400/50 flex items-center gap-2 group ring-offset-2 ring-offset-black focus:ring-2 ring-blue-500">
+                            <button
+                                onClick={openTenantPreview}
+                                className="px-8 py-4 bg-[#3B82F6] hover:bg-cyan-500 hover:scale-105 transition-all duration-300 rounded-lg text-white font-bold text-lg shadow-[0_0_40px_-5px_#3B82F6] hover:shadow-[0_0_50px_-5px_#06b6d4] border border-blue-400/50 flex items-center gap-2 group ring-offset-2 ring-offset-black focus:ring-2 ring-blue-500"
+                            >
                                 Start Free
                             </button>
-                            <button className="px-8 py-4 bg-transparent hover:bg-white/5 border border-white/20 rounded-lg text-white font-medium text-lg backdrop-blur-md transition-all flex items-center gap-3">
-                                See it in Action
+                            <button
+                                onClick={triggerVideoDemo}
+                                className="px-8 py-4 bg-transparent hover:bg-white/5 border border-white/20 hover:border-cyan-500/50 rounded-lg text-white font-medium text-lg backdrop-blur-md transition-all flex items-center gap-3 hover:shadow-[0_0_30px_-5px_rgba(6,182,212,0.2)]"
+                            >
+                                Set It in Action
                             </button>
                         </motion.div>
                     </div>
