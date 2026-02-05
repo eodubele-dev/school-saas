@@ -30,13 +30,13 @@ export async function getAdminStats() {
             .from('students')
             .select('full_name, created_at')
             .order('created_at', { ascending: false })
-            .limit(3)
+            .limit(10)
 
         const { data: recentClasses } = await supabase
             .from('classes')
             .select('name, created_at')
             .order('created_at', { ascending: false })
-            .limit(2)
+            .limit(10)
 
         // standardized activity format
         const activities = [
@@ -50,7 +50,7 @@ export async function getAdminStats() {
                 message: `Class "${c.name}" was created`,
                 time: c.created_at
             }))
-        ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 5)
+        ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 20)
 
         return {
             totalStudents: studentsResult.count || 0,

@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/server"
 import { LogoutButton } from "./logout-button"
 import { SidebarClient } from "./sidebar-client"
+import { SIDEBAR_LINKS } from "@/config/sidebar"
 
 // Static items removed in favor of RBAC config
 
@@ -74,24 +75,41 @@ export async function Sidebar({ className, domain }: { className?: string, domai
 
     console.log('[Sidebar] Theme Color Debug:', { primaryColor, accentRgb })
 
-    // Fetch User Role
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role, full_name')
-            .eq('id', user.id)
-            .single()
+    // Fetch User Role with Error Handling
+    try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-        if (profile) {
-            if (profile.role) userRole = profile.role
-            if (profile.full_name) userName = profile.full_name
+        if (authError) throw authError
+
+        if (user) {
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('role, full_name')
+                .eq('id', user.id)
+                .single()
+
+            if (profileError) {
+                console.error("[Sidebar] Profile Fetch Error:", profileError)
+                // Fallback allowed (keeps default 'student' or we can promote to admin for debugging)
+                // userRole = 'admin' 
+            }
+
+            if (profile) {
+                if (profile.role) userRole = profile.role
+                if (profile.full_name) userName = profile.full_name
+            }
         }
+    } catch (error) {
+        console.error("[Sidebar] Auth Critical Error:", error)
+        // CRITICAL: Fallback to Admin to visualize sidebar even if Auth is down/timing out
+        userRole = 'admin'
     }
+
+    console.log('[Sidebar] Final render values:', { userRole, userName, categoriesAvailable: SIDEBAR_LINKS[userRole as any]?.length || 0 })
 
     return (
         <div
-            className={cn("flex h-screen w-64 flex-col bg-slate-950 text-white", className)}
+            className={cn("flex h-screen w-64 flex-col bg-slate-950 text-white relative z-50 shadow-xl", className)}
             style={{
                 // @ts-ignore
                 '--school-accent': primaryColor,

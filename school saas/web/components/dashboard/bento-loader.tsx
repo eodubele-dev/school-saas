@@ -53,14 +53,14 @@ export async function BentoDashboardLoader({ user, role, schoolName, primaryColo
     return (
         <div className="min-h-screen bg-[#0A0A0B] p-4 md:p-8 animate-in fade-in duration-700">
             {/* Dynamic Header */}
-            <header className="mb-8 md:mb-12 border-b border-white/5 pb-6">
+            <header className="mb-8 md:mb-12 border-b border-white/5 pb-6 relative z-10">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
                         <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
-                            {schoolName} <span className="text-slate-500 font-light">Command Center</span>
+                            {schoolName} <span className="text-white font-light">Command Center</span>
                         </h1>
-                        <p className="mt-2 font-mono text-xs tracking-widest uppercase opacity-80" style={accentStyle}>
-                            Role: {role.toUpperCase()} // System ID: {user.id.slice(0, 8)} // Status: ACTIVE
+                        <p className="mt-2 font-mono text-xs tracking-widest uppercase text-slate-400">
+                            Role: <span className="text-cyan-400">{role.toUpperCase()}</span> // System ID: <span className="text-white">{user.id.slice(0, 8)}</span> // Status: <span className="text-emerald-400">ACTIVE</span>
                         </p>
                     </div>
 
@@ -80,9 +80,11 @@ export async function BentoDashboardLoader({ user, role, schoolName, primaryColo
                 {ContentComponent}
             </main>
 
-            {/* Background Texture (Subtle) */}
-            <div className="fixed inset-0 bg-[url('/noise.png')] opacity-[0.02] pointer-events-none z-0" />
-            <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900/20 via-[#0A0A0B] to-[#0A0A0B] pointer-events-none z-0" />
+            {/* Background Texture (Subtle Noise via Data URI) */}
+            <div className="fixed inset-0 opacity-[0.03] pointer-events-none z-0"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
+            />
+            <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900/40 via-slate-950 to-slate-950 pointer-events-none z-0" />
         </div>
     )
 }

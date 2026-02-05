@@ -5,17 +5,15 @@ import { MetricCard } from "./metric-card"
 import { OverviewChart } from "./overview-chart"
 import { RecentActivity } from "./recent-activity"
 import { DemographicsChart } from "./demographics-chart"
+import { NudgeButton } from "./nudge-button"
 
 export async function AdminDashboard() {
     const stats = await getAdminStats()
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
-            {/* Header Section */}
-            <div className="flex flex-col space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight text-white glow-blue">Admin Command Center</h2>
-                <p className="text-slate-400">Real-time school performance & financial analytics.</p>
-            </div>
+            {/* Header Section Removed (Duplicate) */}
+            {/* The BentoLoader now generates the 'Command Center' header dynamically */}
 
             {/* Metrics Grid */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -49,13 +47,7 @@ export async function AdminDashboard() {
 
             {/* Quick Actions (Tour Targets) */}
             <div className="flex justify-end">
-                <button
-                    id="nudge-debtors-btn"
-                    className="flex items-center gap-2 px-4 py-2 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-md text-sm font-medium hover:bg-rose-500/20 transition-colors"
-                >
-                    <TrendingDown className="h-4 w-4" />
-                    Nudge Debtors
-                </button>
+                <NudgeButton />
             </div>
 
             {/* Main Charts Section */}
@@ -70,13 +62,12 @@ export async function AdminDashboard() {
 
             {/* Bottom Section */}
             <div className="grid gap-6 md:grid-cols-2">
-                {/* Re-using Overview for now as "Visit Performance" placeholder or similar */}
-                <div className="h-[350px] hidden md:block">
-                    {/* We can duplicate chart or add another component later */}
-                    <RecentActivity data={stats?.recentActivity} />
-                </div>
                 <div className="h-[350px]">
                     <RecentActivity data={stats?.recentActivity} />
+                </div>
+                <div className="h-[350px] bg-slate-900/30 border border-white/5 rounded-xl p-6 flex items-center justify-center text-slate-500 text-sm">
+                    {/* Placeholder for future widget (e.g., Quick Tasks or Calendar) */}
+                    <span>System Health & Performance (Coming Soon)</span>
                 </div>
             </div>
         </div>

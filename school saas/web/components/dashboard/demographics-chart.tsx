@@ -38,10 +38,13 @@ export function DemographicsChart() {
                             <Tooltip
                                 contentStyle={{
                                     backgroundColor: '#0f172a',
-                                    borderColor: '#1e293b',
+                                    borderColor: 'rgba(255,255,255,0.1)',
                                     borderRadius: '8px',
-                                    color: '#f8fafc'
+                                    color: '#ffffff',
+                                    fontWeight: '500',
+                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                                 }}
+                                itemStyle={{ color: '#fff' }}
                             />
                             <Legend
                                 verticalAlign="middle"
