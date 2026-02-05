@@ -10,11 +10,14 @@ DECLARE
     _tenant_subdomain text;
     _tenant_name text;
     _primary_color text;
+    _subscription_tier text;
+    _sms_balance decimal;
+    _pilot_ends_at timestamp with time zone;
     _role text;
 BEGIN
     -- Get Tenant Details
-    SELECT slug, name, theme_config->>'primary'
-    INTO _tenant_subdomain, _tenant_name, _primary_color
+    SELECT slug, name, theme_config->>'primary', subscription_tier, sms_balance, pilot_ends_at
+    INTO _tenant_subdomain, _tenant_name, _primary_color, _subscription_tier, _sms_balance, _pilot_ends_at
     FROM public.tenants
     WHERE id = NEW.tenant_id;
 
@@ -31,6 +34,10 @@ BEGIN
             'tenantSubdomain', _tenant_subdomain,
             'schoolName', _tenant_name,
             'primaryColor', COALESCE(_primary_color, '#00F5FF'),
+            'subscriptionTier', COALESCE(_subscription_tier, 'starter'),
+            'smsBalance', COALESCE(_sms_balance, 0),
+            'isPilot', (_subscription_tier = 'pilot'),
+            'pilotEndsAt', _pilot_ends_at,
             'role', _role
         )
     WHERE id = NEW.id;

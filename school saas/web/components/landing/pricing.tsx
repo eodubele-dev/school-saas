@@ -1,19 +1,33 @@
+import Link from "next/link"
 import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function PricingTable() {
     const plans = [
         {
-            name: "Standard",
+            name: "Lagos Pilot",
+            id: "pilot",
+            price: "0",
+            period: " for Term 1",
+            desc: "Zero-cost entry for Lagos schools.",
+            features: ["Forensic Audit Logs", "Bento Dashboard", "Revenue Engine", "₦10k SMS Min. Top-up"],
+            cta: "Start Free Pilot",
+            highlight: false,
+            special: "Limited Time"
+        },
+        {
+            name: "Starter",
+            id: "starter",
             price: "1,500",
             period: "/student/term",
             desc: "Essential automated record keeping.",
             features: ["Offline Gradebook", "Automated Report Cards", "Basic Fee Tracking", "Parent Mobile App"],
-            cta: "Get Standard",
+            cta: "Get Started",
             highlight: false
         },
         {
             name: "Professional",
+            id: "professional",
             price: "2,500",
             period: "/student/term",
             desc: "For schools scaling up fast.",
@@ -23,24 +37,25 @@ export function PricingTable() {
         },
         {
             name: "Platinum Edition",
+            id: "platinum",
             price: "4,500",
             period: "/student/term",
             desc: "The complete OS for top-tier schools.",
             features: ["All Professional features", "AI Lesson Planner", "AI Behavioral Remarks", "Executive 'God-View' Dashboard", "Dedicated Account Manager", "Audit & Fraud Logs"],
-            cta: "Contact Sales",
+            cta: "Start Setup",
             highlight: true
         }
     ]
 
     return (
         <section id="pricing" className="py-24 bg-slate-950 px-6">
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-[1400px] mx-auto">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl font-bold text-white mb-4">Transparent Pricing</h2>
                     <p className="text-slate-400">No hidden fees. Pay only for active students.</p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
                     {plans.map((plan, i) => (
                         <div
                             key={i}
@@ -54,6 +69,12 @@ export function PricingTable() {
                             {plan.highlight && (
                                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-cyan-500/20">
                                     Best Value
+                                </div>
+                            )}
+
+                            {plan.special && (
+                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-white font-bold text-[10px] uppercase tracking-widest px-3 py-1 rounded-full shadow-lg shadow-emerald-500/20 whitespace-nowrap">
+                                    {plan.special}
                                 </div>
                             )}
 
@@ -78,14 +99,16 @@ export function PricingTable() {
                                 ))}
                             </div>
 
-                            <Button
-                                className={`w-full h-12 rounded-xl font-semibold transition-all duration-300 ${plan.highlight
+                            <Link href={`/onboard/setup?plan=${plan.id}`} className="w-full">
+                                <Button
+                                    className={`w-full h-12 rounded-xl font-semibold transition-all duration-300 ${plan.highlight
                                         ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-[0_0_20px_rgba(0,245,255,0.4)]'
                                         : 'bg-white/5 hover:bg-white/10 text-white border border-white/10 hover:border-cyan-500/30'
-                                    }`}
-                            >
-                                {plan.cta}
-                            </Button>
+                                        }`}
+                                >
+                                    {plan.cta}
+                                </Button>
+                            </Link>
                         </div>
                     ))}
                 </div>

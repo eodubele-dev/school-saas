@@ -50,7 +50,7 @@ function formatTime(minutes: number): string {
     return `${hours}h ${mins}m`
 }
 
-export async function ParentDashboard() {
+export async function ParentDashboard({ tier = 'starter' }: { tier?: string }) {
     const statsPromise = getParentStats()
     const feedPromise = getParentFeed(5)
 

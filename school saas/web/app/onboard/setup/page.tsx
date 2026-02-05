@@ -1,37 +1,65 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { StepAccount } from "@/components/onboarding/step-account"
 import { StepBranding } from "@/components/onboarding/step-branding"
 import { StepImport } from "@/components/onboarding/step-import"
 import { StepPlan } from "@/components/onboarding/step-plan"
+import { ProvisioningSuccess } from "@/components/onboarding/provisioning-success"
 import { createTenant } from "@/lib/actions/onboarding"
 import { toast } from "sonner"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect } from "react"
+import { createClient } from "@/lib/supabase/client"
 
 export default function OnboardingWizard() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const [step, setStep] = useState(1)
+    const supabase = createClient()
+
+    const [step, setStep] = useState(1) // 1: Account, 2: Branding, 3: Import, 4: Launch
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [showSuccess, setShowSuccess] = useState(false)
     const [data, setData] = useState({
         schoolName: '',
         subdomain: '',
-        brandColor: '#00F5FF', // Default Platinum Blue
+        brandColor: '#00F5FF',
         logo: null,
-        plan: ''
+        plan: '',
+        fullName: '',
+        email: ''
     })
+
+    // Check for existing session on mount
+    useEffect(() => {
+        async function checkSession() {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user && step === 1) {
+                setStep(2) // Skip account creation if logged in
+                setData(prev => ({
+                    ...prev,
+                    fullName: user.user_metadata?.full_name || '',
+                    email: user.email || ''
+                }))
+            }
+        }
+        checkSession()
+    }, [])
 
     // Pre-fill from query params
     useEffect(() => {
         const schoolParam = searchParams.get('school')
+        const planParam = searchParams.get('plan')
+
         if (schoolParam && !data.schoolName) {
             const generatedSubdomain = schoolParam.toLowerCase().replace(/[^a-z0-9]/g, '-')
             setData(prev => ({
                 ...prev,
                 schoolName: schoolParam,
-                subdomain: generatedSubdomain
+                subdomain: generatedSubdomain,
+                plan: planParam || prev.plan
             }))
+        } else if (planParam) {
+            setData(prev => ({ ...prev, plan: planParam }))
         }
     }, [searchParams])
 
@@ -54,12 +82,10 @@ export default function OnboardingWizard() {
 
             const res = await createTenant(payload)
             if (res.success && res.redirectUrl) {
-                toast.success("Campus Established Successfully!", {
-                    description: "Initializing your command center..."
-                })
+                setShowSuccess(true)
                 setTimeout(() => {
                     window.location.href = res.redirectUrl
-                }, 1500)
+                }, 4000)
             } else {
                 toast.error("Setup Failed", {
                     description: res.error || "Please try again."
@@ -88,30 +114,35 @@ export default function OnboardingWizard() {
             <div className="flex items-center justify-center space-x-4 mb-4">
                 <div className={`flex items-center gap-2 ${step >= 1 ? 'text-[#00F5FF]' : 'text-slate-600'}`}>
                     <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${step >= 1 ? 'border-[#00F5FF] bg-[#00F5FF]/10' : 'border-slate-600'}`}>1</div>
-                    <span className="text-sm font-medium hidden sm:inline">Branding</span>
+                    <span className="text-sm font-medium hidden sm:inline">Account</span>
                 </div>
-                <div className="h-px w-12 bg-slate-800" />
+                <div className="h-px w-8 bg-slate-800" />
                 <div className={`flex items-center gap-2 ${step >= 2 ? 'text-[#00F5FF]' : 'text-slate-600'}`}>
                     <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${step >= 2 ? 'border-[#00F5FF] bg-[#00F5FF]/10' : 'border-slate-600'}`}>2</div>
-                    <span className="text-sm font-medium hidden sm:inline">Data Import</span>
+                    <span className="text-sm font-medium hidden sm:inline">Branding</span>
                 </div>
-                <div className="h-px w-12 bg-slate-800" />
+                <div className="h-px w-8 bg-slate-800" />
                 <div className={`flex items-center gap-2 ${step >= 3 ? 'text-[#00F5FF]' : 'text-slate-600'}`}>
                     <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${step >= 3 ? 'border-[#00F5FF] bg-[#00F5FF]/10' : 'border-slate-600'}`}>3</div>
+                    <span className="text-sm font-medium hidden sm:inline">Data</span>
+                </div>
+                <div className="h-px w-8 bg-slate-800" />
+                <div className={`flex items-center gap-2 ${step >= 4 ? 'text-[#00F5FF]' : 'text-slate-600'}`}>
+                    <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${step >= 4 ? 'border-[#00F5FF] bg-[#00F5FF]/10' : 'border-slate-600'}`}>4</div>
                     <span className="text-sm font-medium hidden sm:inline">Launch</span>
                 </div>
             </div>
 
             <div className="relative">
                 {step === 1 && (
-                    <StepBranding
+                    <StepAccount
                         data={data}
                         updateData={updateData}
                         onNext={handleNext}
                     />
                 )}
                 {step === 2 && (
-                    <StepImport
+                    <StepBranding
                         data={data}
                         updateData={updateData}
                         onNext={handleNext}
@@ -119,6 +150,14 @@ export default function OnboardingWizard() {
                     />
                 )}
                 {step === 3 && (
+                    <StepImport
+                        data={data}
+                        updateData={updateData}
+                        onNext={handleNext}
+                        onBack={handleBack}
+                    />
+                )}
+                {step === 4 && (
                     <StepPlan
                         data={data}
                         updateData={updateData}
@@ -128,6 +167,12 @@ export default function OnboardingWizard() {
                     />
                 )}
             </div>
+
+            <ProvisioningSuccess
+                schoolName={data.schoolName}
+                subdomain={data.subdomain}
+                isVisible={showSuccess}
+            />
         </div>
     )
 }

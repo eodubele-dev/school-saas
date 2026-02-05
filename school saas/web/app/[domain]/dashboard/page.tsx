@@ -23,6 +23,9 @@ export default async function DashboardPage({
     let role = appMeta.role || searchParams.role
     let schoolName = appMeta.schoolName
     let primaryColor = appMeta.primaryColor
+    let tier = appMeta.subscriptionTier || 'starter'
+    let isPilot = appMeta.isPilot || false
+    let smsBalance = appMeta.smsBalance || 0
 
     // Middleware might have injected headers if DB lookup happened there
     const headerList = headers()
@@ -49,6 +52,9 @@ export default async function DashboardPage({
             role={role || 'guest'}
             schoolName={schoolName || domain}
             primaryColor={primaryColor || '#00F5FF'}
+            tier={tier}
+            isPilot={isPilot}
+            smsBalance={smsBalance}
         />
     )
 }

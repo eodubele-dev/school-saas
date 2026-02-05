@@ -17,29 +17,44 @@ interface StepPlanProps {
 export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: StepPlanProps) {
     const plans = [
         {
-            id: 'basic',
-            name: 'Basic',
+            id: 'pilot',
+            name: 'Lagos Pilot',
             price: '₦0',
-            period: '/ month',
+            period: '/ Term 1',
+            description: 'Free entry for Lagos Schools. prove value early.',
+            features: [
+                'Forensic Audit Logs',
+                'Bento Dashboard',
+                'Revenue Engine (Recovery Hub)',
+                'AI Lesson Comments',
+                'Min. ₦10k SMS Wallet'
+            ],
+            isNew: true
+        },
+        {
+            id: 'starter',
+            name: 'Starter',
+            price: '₦20,000',
+            period: '/ term',
             description: 'Essential tools for small schools.',
             features: ['Student Records', 'Basic Results', 'Attendance', 'Up to 100 Students']
         },
         {
-            id: 'pro',
-            name: 'Pro',
-            price: '₦20,000',
+            id: 'professional',
+            name: 'Professional',
+            price: '₦50,000',
             period: '/ term',
             description: 'Advanced features for growing schools.',
-            features: ['Everything in Basic', 'CBT Exams', 'Finance & Bursary', 'Parent Portal', 'Unlimited Students']
+            features: ['Everything in Starter', 'CBT Exams', 'Finance & Bursary', 'Parent Portal', 'Unlimited Students']
         },
         {
             id: 'platinum',
             name: 'Platinum',
-            price: '₦50,000',
+            price: '₦150,000',
             period: '/ term',
             description: 'AI-Powered suite for elite institutions.',
             features: [
-                'Everything in Pro',
+                'Everything in Professional',
                 'Gemini AI Report Comments',
                 'AI Lesson Planner',
                 'Proprietor "God-Mode" Mobile App',
@@ -51,7 +66,7 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {plans.map((plan) => (
                     <div
                         key={plan.id}
@@ -64,6 +79,11 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
                         {plan.isPopular && (
                             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-400 to-blue-500 text-black text-[10px] font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
                                 <Sparkles className="h-3 w-3 fill-black" /> BEST VALUE
+                            </div>
+                        )}
+                        {plan.isNew && (
+                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+                                <Zap className="h-3 w-3 fill-white" /> PILOT
                             </div>
                         )}
                         <div className="text-center mb-6 pt-2">

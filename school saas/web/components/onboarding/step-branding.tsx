@@ -12,9 +12,10 @@ interface StepBrandingProps {
     data: any
     updateData: (key: string, value: any) => void
     onNext: () => void
+    onBack?: () => void
 }
 
-export function StepBranding({ data, updateData, onNext }: StepBrandingProps) {
+export function StepBranding({ data, updateData, onNext, onBack }: StepBrandingProps) {
     const [checking, setChecking] = useState(false)
     const [available, setAvailable] = useState<boolean | null>(null)
 
@@ -134,13 +135,24 @@ export function StepBranding({ data, updateData, onNext }: StepBrandingProps) {
                 </div>
             </div>
 
-            <Button
-                onClick={onNext}
-                className="w-full bg-[#0066FF] hover:bg-blue-600 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/20"
-                disabled={!available || !data.schoolName}
-            >
-                Initialize Campus Environment
-            </Button>
+            <div className="flex gap-4">
+                {onBack && (
+                    <Button
+                        variant="ghost"
+                        onClick={onBack}
+                        className="flex-1 text-slate-400 hover:text-white border border-white/5 hover:bg-white/5"
+                    >
+                        Back
+                    </Button>
+                )}
+                <Button
+                    onClick={onNext}
+                    className="flex-[2] bg-[#0066FF] hover:bg-blue-600 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/20"
+                    disabled={!available || !data.schoolName}
+                >
+                    Initialize Campus Environment
+                </Button>
+            </div>
         </div>
     )
 }

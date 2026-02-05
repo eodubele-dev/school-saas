@@ -127,7 +127,7 @@ export async function checkSubdomainAvailability(subdomain: string) {
     const { data } = await supabase
         .from('tenants')
         .select('id')
-        .eq('domain', subdomain)
+        .eq('slug', subdomain)
         .single()
 
     return !data
@@ -154,15 +154,20 @@ export async function createTenant(data: OnboardingData) {
             .from('tenants')
             .insert({
                 name: data.schoolName,
-                domain: data.subdomain,
+                slug: data.subdomain,
                 type: 'school',
                 subscription_tier: data.plan,
+                is_active: true,
+                sms_balance: 0, // Requires top-up to activate fully
+                pilot_ends_at: data.plan === 'pilot'
+                    ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+                    : null,
                 settings: {
                     brand_color: data.brandColor,
                     levels: data.levels,
                     features: {
                         waec_integration: data.waecStats,
-                        ai_enabled: data.plan === 'platinum'
+                        ai_enabled: data.plan === 'platinum' || data.plan === 'pilot' // Pilot gets AI to prove worth
                     }
                 }
             })
@@ -173,11 +178,13 @@ export async function createTenant(data: OnboardingData) {
 
         const { error: profileError } = await supabase
             .from('profiles')
-            .update({
+            .upsert({
+                id: user.id,
                 tenant_id: tenant.id,
                 role: 'admin',
+                full_name: user.user_metadata?.full_name || user.email,
+                email: user.email
             })
-            .eq('id', user.id)
 
         if (profileError) throw new Error("Failed to link profile: " + profileError.message)
 

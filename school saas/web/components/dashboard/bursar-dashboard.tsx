@@ -94,7 +94,7 @@ function CircularRate({ percentage }: { percentage: number }) {
     )
 }
 
-export function BursarDashboard({ stats }: { stats: any }) {
+export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?: string }) {
     const { metrics, recentTransactions, chartData, term } = stats
 
     return (

@@ -3,7 +3,7 @@ import { BookOpen, Calendar, Clock, UserCheck, PlayCircle, FileText } from "luci
 import { getTeacherStats } from "@/lib/actions/dashboard"
 import { MetricCard } from "./metric-card"
 
-export async function TeacherDashboard() {
+export async function TeacherDashboard({ tier = 'starter' }: { tier?: string }) {
     const stats = await getTeacherStats()
     const classes = stats?.classes || []
     const lessons = stats?.upcomingLessons || []

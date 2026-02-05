@@ -10,10 +10,22 @@ interface BentoDashboardLoaderProps {
     role: string // Role from metadata or profile
     schoolName: string
     primaryColor: string
+    tier: string
+    isPilot?: boolean
+    smsBalance?: number
 }
 
-export async function BentoDashboardLoader({ user, role, schoolName, primaryColor }: BentoDashboardLoaderProps) {
+export async function BentoDashboardLoader({
+    user,
+    role,
+    schoolName,
+    primaryColor,
+    tier,
+    isPilot = false,
+    smsBalance = 0
+}: BentoDashboardLoaderProps) {
     const normalizedRole = role.toLowerCase()
+    const normalizedTier = tier?.toLowerCase() || 'starter'
 
     // 1. Dynamic Header based on JWT Branding
     // Note: primaryColor is used for accenting
@@ -28,19 +40,17 @@ export async function BentoDashboardLoader({ user, role, schoolName, primaryColo
     switch (normalizedRole) {
         case 'admin':
         case 'proprietor':
-            ContentComponent = <AdminDashboard />
+            ContentComponent = <AdminDashboard tier={normalizedTier} isPilot={isPilot} smsBalance={smsBalance} />
             break
         case 'teacher':
-            ContentComponent = <TeacherDashboard />
+            ContentComponent = <TeacherDashboard tier={normalizedTier} />
             break
         case 'parent':
-            ContentComponent = <ParentDashboard />
+            ContentComponent = <ParentDashboard tier={normalizedTier} />
             break
         case 'bursar':
-            // Bursar needs stats passed normally, or fetches internally. 
-            // Existing code passes props. Let's fetch stats here.
             const stats = await getBursarStats()
-            ContentComponent = <BursarDashboard stats={stats} />
+            ContentComponent = <BursarDashboard stats={stats} tier={normalizedTier} />
             break
         default:
             ContentComponent = (
