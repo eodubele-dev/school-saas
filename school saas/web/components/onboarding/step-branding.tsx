@@ -4,8 +4,7 @@ import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { CheckCircle2, XCircle, Loader2, LayoutDashboard, Palette } from "lucide-react"
+import { CheckCircle2, XCircle, Loader2, Upload } from "lucide-react"
 import { checkSubdomainAvailability } from "@/lib/actions/onboarding"
 
 interface StepBrandingProps {
@@ -32,108 +31,113 @@ export function StepBranding({ data, updateData, onNext }: StepBrandingProps) {
         return () => clearTimeout(timer)
     }, [data.subdomain])
 
-    const colors = [
-        { name: "Blue Horizon", hex: "#2563eb" },
-        { name: "Emerald Edu", hex: "#059669" },
-        { name: "Purple Future", hex: "#7c3aed" },
-        { name: "Royal Gold", hex: "#d97706" },
-        { name: "Crimson Academy", hex: "#dc2626" },
-    ]
-
     return (
-        <div className="space-y-6">
-            <div className="space-y-4">
-                <div className="grid gap-2">
-                    <Label>School Name</Label>
-                    <Input
-                        placeholder="e.g. Springfield International School"
-                        value={data.schoolName}
-                        onChange={(e) => updateData('schoolName', e.target.value)}
-                    />
-                </div>
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-[#0A0A0B] p-8 rounded-3xl border border-white/10">
+            <div className="text-center">
+                <h2 className="text-2xl font-bold text-white mb-2">Establish Your Identity</h2>
+                <p className="text-gray-400">Upload your school crest and define your brand colors.</p>
+            </div>
 
-                <div className="grid gap-2 relative">
-                    <Label>Subdomain (Your Dashboard URL)</Label>
-                    <div className="relative">
-                        <Input
-                            placeholder="springfield"
-                            className="pr-32"
-                            value={data.subdomain}
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+                {/* Logo Upload Area */}
+                <div className="flex flex-col items-center gap-4 w-full md:w-auto">
+                    <div className="w-48 h-48 rounded-3xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center bg-black/40 hover:border-[#00F5FF]/50 transition-all cursor-pointer group relative overflow-hidden">
+                        {/* Hidden Input for file */}
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="absolute inset-0 opacity-0 cursor-pointer"
                             onChange={(e) => {
-                                const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')
-                                updateData('subdomain', val)
+                                const file = e.target.files?.[0]
+                                if (file) {
+                                    // In real app, upload here or store file
+                                    // For now, simulating presence
+                                    updateData('logo', file.name)
+                                }
                             }}
                         />
-                        <div className="absolute right-3 top-2.5 text-sm text-slate-400">
-                            .eduflow.ng
-                        </div>
+                        {data.logo ? (
+                            <div className="text-center p-4">
+                                <span className="text-3xl mb-2 block">✅</span>
+                                <p className="text-xs text-emerald-400 font-mono break-all">{data.logo}</p>
+                            </div>
+                        ) : (
+                            <>
+                                <span className="text-3xl mb-2 group-hover:scale-110 transition-transform">🏫</span>
+                                <p className="text-xs text-gray-500 font-mono">UPLOAD_CREST.SVG</p>
+                            </>
+                        )}
                     </div>
-                    {checking ? (
-                        <div className="text-xs text-blue-500 flex items-center gap-1">
-                            <Loader2 className="h-3 w-3 animate-spin" /> Checking availability...
-                        </div>
-                    ) : available === true ? (
-                        <div className="text-xs text-green-600 flex items-center gap-1">
-                            <CheckCircle2 className="h-3 w-3" /> Available!
-                        </div>
-                    ) : available === false ? (
-                        <div className="text-xs text-red-500 flex items-center gap-1">
-                            <XCircle className="h-3 w-3" /> Taken, try another.
-                        </div>
-                    ) : null}
                 </div>
 
-                <div className="grid gap-2">
-                    <Label>Brand Color</Label>
-                    <div className="flex gap-3 flex-wrap">
-                        {colors.map((c) => (
-                            <button
-                                key={c.hex}
-                                onClick={() => updateData('brandColor', c.hex)}
-                                className={`h-8 w-8 rounded-full border-2 transition-all ${data.brandColor === c.hex ? 'border-black scale-110' : 'border-transparent'}`}
-                                style={{ backgroundColor: c.hex }}
-                                title={c.name}
+                {/* Form Fields */}
+                <div className="flex-1 space-y-6 w-full">
+                    <div className="grid gap-2">
+                        <Label className="text-slate-400">School Name</Label>
+                        <Input
+                            placeholder="e.g. Springfield International School"
+                            value={data.schoolName}
+                            onChange={(e) => updateData('schoolName', e.target.value)}
+                            className="bg-white/5 border-white/10 text-white focus:border-[#00F5FF]/50"
+                        />
+                    </div>
+
+                    <div className="grid gap-2 relative">
+                        <Label className="text-slate-400">Subdomain (Dashboard URL)</Label>
+                        <div className="relative">
+                            <Input
+                                placeholder="springfield"
+                                className="pr-32 bg-white/5 border-white/10 text-white focus:border-[#00F5FF]/50"
+                                value={data.subdomain}
+                                onChange={(e) => {
+                                    const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')
+                                    updateData('subdomain', val)
+                                }}
                             />
-                        ))}
+                            <div className="absolute right-3 top-2.5 text-sm text-slate-500">
+                                .eduflow.ng
+                            </div>
+                        </div>
+                        {checking ? (
+                            <div className="text-xs text-blue-400 flex items-center gap-1 mt-1">
+                                <Loader2 className="h-3 w-3 animate-spin" /> Checking availability...
+                            </div>
+                        ) : available === true ? (
+                            <div className="text-xs text-emerald-400 flex items-center gap-1 mt-1">
+                                <CheckCircle2 className="h-3 w-3" /> Available!
+                            </div>
+                        ) : available === false ? (
+                            <div className="text-xs text-rose-400 flex items-center gap-1 mt-1">
+                                <XCircle className="h-3 w-3" /> Taken, try another.
+                            </div>
+                        ) : null}
+                    </div>
+
+                    {/* Platinum Color Picker */}
+                    <div>
+                        <label className="block text-sm font-mono text-cyan-400 mb-2 tracking-widest uppercase">Platinum Accent Color</label>
+                        <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+                            <input
+                                type="color"
+                                value={data.brandColor || '#00F5FF'}
+                                onChange={(e) => updateData('brandColor', e.target.value)}
+                                className="w-12 h-12 bg-transparent cursor-pointer rounded-lg overflow-hidden border-none"
+                            />
+                            <div className="flex flex-col">
+                                <span className="text-white font-mono uppercase">{data.brandColor || '#00F5FF'}</span>
+                                <span className="text-xs text-slate-500">Primary UI Emphasis</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Live Preview */}
-            <Card className="bg-slate-50 border-dashed border-2 p-4">
-                <div className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider flex items-center gap-2">
-                    <LayoutDashboard className="h-3 w-3" /> Dashboard Preview
-                </div>
-                <div className="flex gap-4">
-                    {/* Sidebar Preview */}
-                    <div className="w-12 h-32 rounded-lg flex flex-col items-center py-2 gap-2" style={{ backgroundColor: '#0f172a' }}>
-                        <div className="h-6 w-6 rounded bg-white/10 text-[8px] flex items-center justify-center text-white">Logo</div>
-                        <div className="h-1 w-6 bg-white/10 rounded" />
-                        <div className="h-1 w-6 bg-white/10 rounded" />
-                        <div className="mt-auto h-4 w-4 bg-white/10 rounded-full" />
-                    </div>
-                    {/* Main Content Preview */}
-                    <div className="flex-1 space-y-2">
-                        <div className="h-8 w-full bg-white rounded border shadow-sm flex items-center px-2 justify-between">
-                            <span className="text-[10px] font-bold" style={{ color: data.brandColor }}>
-                                {data.schoolName || 'Your School'}
-                            </span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                            <div className="h-20 bg-white rounded border shadow-sm p-2 flex flex-col justify-between">
-                                <div className="h-6 w-6 rounded-full bg-opacity-10 flex items-center justify-center" style={{ backgroundColor: `${data.brandColor}20` }}>
-                                    <Palette className="h-3 w-3" style={{ color: data.brandColor }} />
-                                </div>
-                                <div className="h-2 w-12 bg-slate-100 rounded" />
-                            </div>
-                            <div className="h-20 bg-white rounded border shadow-sm" />
-                        </div>
-                    </div>
-                </div>
-            </Card>
-
-            <Button onClick={onNext} className="w-full" disabled={!available || !data.schoolName}>
-                Continue to Academic Setup
+            <Button
+                onClick={onNext}
+                className="w-full bg-[#0066FF] hover:bg-blue-600 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/20"
+                disabled={!available || !data.schoolName}
+            >
+                Initialize Campus Environment
             </Button>
         </div>
     )

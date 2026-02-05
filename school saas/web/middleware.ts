@@ -120,25 +120,38 @@ export default async function middleware(req: NextRequest) {
       return NextResponse.redirect(loginUrl)
     }
 
-    // b. Fetch User Role & Profile
-    // We need the profile to confirm they belong to THIS tenant
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id, role, full_name')
-      .eq('id', user.id)
-      .single()
+    // b. Fetch User Role & Profile (Platinum Optimized)
+    // Try to get context from JWT (Stateless) to avoid DB Call
+    let userTenantId = user.app_metadata?.tenantId
+    let userRole = user.app_metadata?.role as UserRole
+    let userFullName = user.user_metadata?.full_name // user_metadata is standard for profile info
+
+    // Fallback: If JWT claims are missing (e.g. old session), fetch from DB
+    if (!userTenantId || !userRole) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('tenant_id, role, full_name')
+        .eq('id', user.id)
+        .single()
+
+      if (profile) {
+        userTenantId = profile.tenant_id
+        userRole = profile.role as UserRole
+        userFullName = profile.full_name
+      }
+    }
 
     // c. Tenant Isolation Guard
     // Prevent teacher from School A logging into School B
-    if (profile?.tenant_id !== tenant.id) {
-      console.log(`[Middleware] Security Alert: User ${user.email} (Tenant: ${profile?.tenant_id}) tried accessing ${currentHost} (Tenant: ${tenant.id})`)
-      // Force logout or redirect to their own dashboard?
-      // For security "Forbidden" is appropriate.
+    // 2. Cross-reference user's authorized tenant with the request subdomain
+    if (userTenantId !== tenant.id) {
+      // This is a "Forensic" security violation attempt
+      console.warn(`SECURITY ALERT: User ${user.email} attempted to access cross-tenant data at ${currentHost} (Tenant ID Mismatch)`)
       return NextResponse.rewrite(new URL('/403', req.url))
     }
 
     // d. Strict Route Protection
-    const role = profile?.role as UserRole
+    const role = userRole
 
     // Define Forbidden Zones
     const isTryingAdmin = path.startsWith('/dashboard/admin')
@@ -147,15 +160,8 @@ export default async function middleware(req: NextRequest) {
     let isViolation = false
 
     if (isTryingAdmin && role !== 'admin') isViolation = true
-    if (isTryingBursar && role !== 'bursar' && role !== 'admin') isViolation = true // Admins usually oversee bursary? User said "Only Bursar", assuming strict separation or Admin has override. Let's stick to "Only Bursar" if strict, but usually Admin > Bursar. Let's assume Admin has access to everything for now or strict?
-    // User said: "/[subdomain]/bursar/* Only the Bursar". 
-    // Let's enforce strict: if role != 'bursar' and trying /dashboard/bursar -> Block check.
-    // Actually, normally Admin needs access. But let's follow prompt "Only the Bursar". 
-    // Wait, typical SaaS Admin has god view. I'll allow Admin to access Bursar for safety unless specified otherwise.
-    // Re-reading: "/[subdomain]/admin/* Only the School Owner/Admin".
-    // "If a Teacher tries to access /[subdomain]/admin/executive/mobile..."
+    if (isTryingBursar && role !== 'bursar' && role !== 'admin') isViolation = true
 
-    // Let's focus on the specific Teacher vs Admin case requested.
     if (role === 'teacher' || role === 'student' || role === 'parent') {
       if (isTryingAdmin || isTryingBursar) isViolation = true
     }
@@ -163,21 +169,16 @@ export default async function middleware(req: NextRequest) {
     if (isViolation) {
       console.log(`[Middleware] Role Violation: ${role} tried accessing ${path}`)
 
-      // Log to Audit Log (Async, fire-and-forget logic if possible, but middleware awaits)
-      // We use the supabase client we have.
-      // NOTE: This insert might fail if RLS forbids 'teacher' from inserting 'Security' logs 
-      // BUT we checked the policy: "Audit logs insertable by authenticated users... with check tenant_id".
-      // It should work.
       await supabase.from('audit_logs').insert({
         tenant_id: tenant.id, // The tenant they are IN (which we verified matches their profile)
         actor_id: user.id,
-        actor_name: profile?.full_name || user.email,
+        actor_name: userFullName || user.email,
         actor_role: role,
         action: 'UNAUTHORIZED_ACCESS_ATTEMPT',
         category: 'Security',
         entity_type: 'route',
         details: `Attempted access to ${path}`,
-        metadata: { ip: req.ip, user_agent: req.headers.get('user-agent') }
+        metadata: { ip: req.ip, user_agent: req.headers.get('user-agent'), claim_source: user.app_metadata?.tenantId ? 'JWT' : 'DB' }
       })
 
       return NextResponse.rewrite(new URL('/403', req.url))

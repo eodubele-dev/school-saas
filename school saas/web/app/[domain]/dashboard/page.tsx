@@ -1,10 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
-import { AdminDashboard } from "@/components/dashboard/admin-dashboard"
-import { TeacherDashboard } from "@/components/dashboard/teacher-dashboard"
-import { ParentDashboard } from "@/components/dashboard/parent-dashboard"
-import { BursarDashboard } from "@/components/dashboard/bursar-dashboard"
-import { getBursarStats } from "@/lib/actions/finance"
-import { ExecutiveTour } from "@/components/onboarding/executive-tour"
+import { BentoDashboardLoader } from "@/components/dashboard/bento-loader"
+import { headers } from "next/headers"
 
 export default async function DashboardPage({
     params,
@@ -14,81 +10,45 @@ export default async function DashboardPage({
     searchParams: { role?: string }
 }) {
     const { domain } = params
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    // 1. Try to get role from query param (for demo/testing purposes)
-    let role = searchParams.role
-
-    // 2. If not in query, try to fetch from real authenticated user
-    if (!role) {
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-
-        if (user) {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', user.id)
-                .single()
-
-            if (profile) {
-                role = profile.role
-            }
-        }
+    if (!user) {
+        // Should be handled by middleware, but safe guard
+        return <div className="p-8 text-white">Access Denied: Please log in.</div>
     }
 
-    // 3. Use real auth role or redirect (Middleware should handle redirect, but safe fallback)
-    if (!role) {
-        // This case should be rare if middleware is working
-        // Debugging info
-        const supabase = createClient()
-        const { data: { user: debugUser } } = await supabase.auth.getUser()
+    // Platinum Optimization: Try to read from JWT app_metadata first
+    const appMeta = user.app_metadata || {}
+    let role = appMeta.role || searchParams.role
+    let schoolName = appMeta.schoolName
+    let primaryColor = appMeta.primaryColor
 
-        return (
-            <div className="flex h-screen items-center justify-center flex-col gap-4">
-                <div className="text-center">
-                    <h2 className="text-lg font-semibold">Access Denied</h2>
-                    <p className="text-muted-foreground">You do not have a role assigned.</p>
-                </div>
-                <div className="p-4 bg-slate-100 rounded text-xs font-mono text-left max-w-lg text-slate-900 overflow-auto">
-                    <p><strong>Debug Info:</strong></p>
-                    <p>User ID: {debugUser?.id}</p>
-                    <p>Email: {debugUser?.email}</p>
-                    <p>Detected Role: {role || 'null'}</p>
-                    <p>Params Domain: {domain}</p>
-                    <p>Metadata: {JSON.stringify(debugUser?.user_metadata, null, 2)}</p>
-                </div>
-            </div>
-        )
+    // Middleware might have injected headers if DB lookup happened there
+    const headerList = headers()
+    if (!schoolName) schoolName = headerList.get('x-school-name')
+
+    // Fallback: If metadata missing (legacy session), fetch from DB
+    if (!role) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+        role = profile?.role
     }
 
-    const currentRole = role
+    if (!schoolName) {
+        // Fallback branding (or if middleware skipped it?)
+        schoolName = domain.charAt(0).toUpperCase() + domain.slice(1)
+    }
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-white/50 hidden">Dashboard</h2>
-                    <p className="text-muted-foreground hidden">Welcome to {domain}</p>
-                </div>
-                {/* PROD READY: Removed Dev Toggle */}
-            </div>
-
-            {currentRole === 'admin' && (
-                <>
-                    <ExecutiveTour enabled={true} />
-                    <AdminDashboard />
-                </>
-            )}
-            {currentRole === 'teacher' && <TeacherDashboard />}
-            {currentRole === 'parent' && <ParentDashboard />}
-            {currentRole === 'bursar' && <BursarDashboard stats={await getBursarStats()} />}
-
-            {/* Fallback for unknown role */}
-            {!['admin', 'teacher', 'parent'].includes(currentRole) && (
-                <div className="p-4 border border-red-200 bg-red-50 text-red-600 rounded-md">
-                    Unknown role: {currentRole}
-                </div>
-            )}
-        </div>
+        <BentoDashboardLoader
+            user={user}
+            role={role || 'guest'}
+            schoolName={schoolName || domain}
+            primaryColor={primaryColor || '#00F5FF'}
+        />
     )
 }

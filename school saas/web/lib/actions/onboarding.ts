@@ -200,6 +200,22 @@ export async function createTenant(data: OnboardingData) {
             await supabase.from('subjects').insert(subjectInserts)
         }
 
+        // --- PLATINUM HANDOFF ---
+        // Send the Executive Welcome Email
+        // Note: Using 'user' email which comes from auth.getUser()
+        // We import the service dynamically or at top-level. 
+        // For clean diff, I'll rely on the top-level import I'll ask you to ensure, 
+        // or just import here if strictly needed, but let's assume I added import at top.
+        // Actually, let's just use the function.
+
+        try {
+            // We do a fire-and-forget or await? Await is safer for "completion" feel.
+            const { sendWelcomeEmail } = await import('@/lib/services/email')
+            await sendWelcomeEmail(user.email || '', data.schoolName, data.subdomain)
+        } catch (emailErr) {
+            console.error("Failed to send welcome email (Non-fatal):", emailErr)
+        }
+
         return {
             success: true,
             redirectUrl: `/${data.subdomain}/dashboard/admin?welcome=true`

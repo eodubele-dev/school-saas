@@ -73,153 +73,116 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
     }
 
     // Dynamic style for primary color
-    const brandStyle = { color: primaryColor } as React.CSSProperties
-    const bgBrandStyle = { backgroundColor: primaryColor } as React.CSSProperties
+    // Dynamic style for primary color can be used for glows
+    const primaryGlow = primaryColor || '#00F5FF'
 
     return (
-        <div className="flex h-screen w-full overflow-hidden">
-            {/* Left Side: Dark, Glowing, Brand */}
-            <div className="hidden lg:flex w-[45%] bg-[#0d1117] relative items-center justify-center p-12 overflow-hidden">
-                {/* Background Glows (Animated Blobs) - utilizing brand color if possible, or keeping generic */}
-                <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" style={{ backgroundColor: primaryColor }}></div>
-                <div className="absolute top-0 right-1/4 w-72 h-72 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob [animation-delay:2000ms]"></div>
-                <div className="absolute -bottom-32 left-1/3 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob [animation-delay:4000ms]"></div>
+        <div className="flex h-screen w-full items-center justify-center bg-[#0A0A0B] px-4 relative overflow-hidden font-sans selection:bg-cyan-900 selection:text-white">
+            {/* 1. Background Grid */}
+            <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
 
-                {/* Grid Pattern */}
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:30px_30px]"></div>
+            {/* Radial Glow (Customizable by School Color) */}
+            <div
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[100px] pointer-events-none opacity-20"
+                style={{ backgroundColor: primaryGlow }}
+            />
 
-                <div className="relative z-10 max-w-lg text-center">
-                    <div className="flex justify-center gap-6 mb-12">
-                        {logoUrl ? (
-                            // Use School Logo if available
-                            <div className="h-32 w-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow group hover:bg-white/10 transition-all duration-300 p-4">
-                                <img src={logoUrl} alt="School Logo" className="w-full h-full object-contain" />
-                            </div>
-                        ) : (
-                            // Default Icons
-                            <>
-                                <div className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow-purple group hover:bg-white/10 transition-all duration-300">
-                                    <School className="h-8 w-8 text-purple-400 group-hover:scale-110 transition-transform" />
-                                </div>
-                                <div className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow-green group hover:bg-white/10 transition-all duration-300">
-                                    <GraduationCap className="h-8 w-8 text-emerald-400 group-hover:scale-110 transition-transform" />
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    <h1 className="text-4xl font-bold text-white mb-4 tracking-tight">
-                        {schoolName || domain.charAt(0).toUpperCase() + domain.slice(1)} Portal
-                    </h1>
-                    <p className="text-slate-400 text-lg leading-relaxed">
-                        Secure access for teachers, students, and parents.
-                        Manage attendance, grades, and payments in one place.
-                    </p>
-                </div>
-            </div>
-
-            {/* Right Side: Login Form */}
-            <div className="flex-1 flex items-center justify-center bg-white p-8">
-                <div className="w-full max-w-sm space-y-8">
-                    <div className="text-center lg:text-left">
-                        <Link href="/" className="inline-flex items-center text-sm text-slate-500 hover:text-blue-600 mb-8 transition-colors">
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
-                        </Link>
-                        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-                            Welcome back
+            {/* The Card Wrapper */}
+            <div className="relative z-10 w-full max-w-md p-[1px] rounded-2xl bg-gradient-to-b from-white/10 to-transparent shadow-2xl">
+                <div className="w-full bg-black/60 backdrop-blur-xl border-none rounded-2xl text-white p-8">
+                    {/* Header: School Logo & Name */}
+                    <div className="text-center mb-8">
+                        <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.05)] overflow-hidden p-2">
+                            {logoUrl ? (
+                                <img src={logoUrl} alt={schoolName} className="w-full h-full object-contain" />
+                            ) : (
+                                <School className="h-10 w-10 text-slate-400" />
+                            )}
+                        </div>
+                        <h2 className="text-2xl font-bold tracking-tight text-white mb-2">
+                            {schoolName || domain}
                         </h2>
-                        <p className="mt-2 text-sm text-slate-500">
-                            Sign inside the <strong style={brandStyle}>{schoolName || domain}</strong> workspace.
+                        <p className="text-slate-500 text-sm">
+                            Command Center Access
                         </p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        {/* Hidden input to pass domain context */}
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         <input type="hidden" name="domain" value={domain} />
 
-                        <div className="space-y-2">
-                            <Label htmlFor="email" className="text-slate-700 font-medium">Email address</Label>
-                            <Input
-                                id="email"
-                                name="email"
-                                type="email"
-                                placeholder={`name@${domain}.com`}
-                                required
-                                defaultValue={initialEmail}
-                                className="h-10 bg-slate-50 border-slate-300 focus:bg-white rounded-md transition-all"
-                                style={{ borderColor: primaryColor ? undefined : '' }}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
-                                <Link href="/forgot-password" className="text-sm font-medium hover:underline" style={brandStyle}>
-                                    Forgot password?
-                                </Link>
-                            </div>
-                            <div className="relative">
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="email" className="text-xs font-mono uppercase tracking-widest text-slate-500 ml-1">Official Email</Label>
                                 <Input
-                                    id="password"
-                                    name="password"
-                                    type={showPassword ? "text" : "password"}
-                                    required
-                                    className="h-10 bg-slate-50 border-slate-300 focus:bg-white rounded-md transition-all pr-10"
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    defaultValue={initialEmail}
+                                    className="h-11 bg-[#050505] border-white/10 text-white placeholder:text-slate-600 focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500/50 rounded-lg transition-all"
+                                    readOnly={!!initialEmail} // If coming from finding flow, arguably read-only or editable? Let's leave editable but styled.
                                 />
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                >
-                                    {showPassword ? (
-                                        <EyeOff className="h-4 w-4 text-slate-400" />
-                                    ) : (
-                                        <Eye className="h-4 w-4 text-slate-400" />
-                                    )}
-                                </Button>
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="password" className="text-xs font-mono uppercase tracking-widest text-slate-500 ml-1">Password</Label>
+                                    <Link href="/forgot-password" className="text-xs text-cyan-500 hover:text-cyan-400">
+                                        Recover Key?
+                                    </Link>
+                                </div>
+                                <div className="relative">
+                                    <Input
+                                        id="password"
+                                        name="password"
+                                        type={showPassword ? "text" : "password"}
+                                        required
+                                        className="h-11 bg-[#050505] border-white/10 text-white focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500/50 rounded-lg transition-all pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-0 top-0 h-full px-3 text-slate-500 hover:text-white transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
                         <Button
-                            className="w-full h-11 text-white font-medium rounded-md shadow-sm transition-all"
+                            className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white font-bold tracking-wide shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] transition-all duration-300"
                             type="submit"
-                            style={bgBrandStyle}
                             disabled={isLoading || isMagicLinkLoading}
                         >
-                            {isLoading ? "Signing in..." : "Sign in"}
+                            {isLoading ? "Verifying Credentials..." : "Authenticate"}
                         </Button>
 
-                        <div className="relative">
+                        <div className="relative my-6">
                             <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-slate-200" />
+                                <span className="w-full border-t border-white/10" />
                             </div>
-                            <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-white px-2 text-slate-500">Or continue with</span>
+                            <div className="relative flex justify-center text-[10px] uppercase">
+                                <span className="bg-[#0A0A0B] px-2 text-slate-600">Alternative Access</span>
                             </div>
                         </div>
 
                         <Button
-                            className="w-full h-11 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-medium rounded-md shadow-sm transition-all"
+                            className="w-full h-11 bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 font-medium rounded-lg transition-all"
                             variant="outline"
                             formAction={handleMagicLink}
                             disabled={isMagicLinkLoading}
                         >
-                            {isMagicLinkLoading ? "Sending..." : (
-                                <>
-                                    <Wand2 className="mr-2 h-4 w-4" style={brandStyle} />
+                            {isMagicLinkLoading ? "Sending Link..." : (
+                                <span className="flex items-center gap-2">
+                                    <Wand2 className="h-4 w-4 text-purple-400" />
                                     Sign in with Magic Link
-                                </>
+                                </span>
                             )}
                         </Button>
                     </form>
 
-                    <p className="text-center text-sm text-slate-500">
-                        New to {schoolName || domain}?
-                        {/* Signup usually for parents/students self-reg, or contact admin */}
-                        <Link href="/signup" className="ml-1 font-medium hover:underline" style={brandStyle}>
-                            Create an account
-                        </Link>
+                    <p className="text-center text-xs text-slate-600 mt-8">
+                        Authorized Personnel Only • <Link href="/" className="hover:text-slate-400 transition-colors">Abort Session</Link>
                     </p>
                 </div>
             </div>
