@@ -12,12 +12,21 @@ export default function DocsLayout({
     return (
         <div className="min-h-screen bg-[#0A0A0B] text-slate-300 font-sans selection:bg-cyan-900 selection:text-white">
             <Toaster position="top-center" theme="dark" />
-            {/* Top Bar (Mobile/Tablet only - simplified) */}
-            <div className="lg:hidden border-b border-white/10 p-4 bg-[#0A0A0B]/80 backdrop-blur-md sticky top-0 z-50">
-                <Link href="/" className="flex items-center gap-2">
-                    <span className="font-bold text-white tracking-tight">EduFlow <span className="text-cyan-400">Docs</span></span>
-                </Link>
+
+            {/* Global Return Nav */}
+            <div className="fixed top-0 w-full z-50 border-b border-white/5 bg-[#0A0A0B]/80 backdrop-blur-xl">
+                <div className="container mx-auto max-w-7xl px-4 lg:px-6 h-16 flex items-center justify-between">
+                    <Link href="/" className="flex items-center gap-2 group">
+                        <span className="font-bold text-lg text-white tracking-tight group-hover:text-cyan-400 transition-colors">EduFlow <span className="text-slate-500 font-light">Docs</span></span>
+                    </Link>
+
+                    <Link href="/" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg border border-white/5">
+                        <ChevronRight className="w-3 h-3 rotate-180" />
+                        Back to Landing Page
+                    </Link>
+                </div>
             </div>
+
 
             <div className="container mx-auto max-w-7xl flex flex-col lg:flex-row">
                 {/* Sticky Sidebar */}

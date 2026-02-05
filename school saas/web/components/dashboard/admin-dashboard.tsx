@@ -7,14 +7,21 @@ import { RecentActivity } from "./recent-activity"
 import { DemographicsChart } from "./demographics-chart"
 import { NudgeButton } from "./nudge-button"
 
+import { LockedWidget } from "./locked-widget"
+import { TierManager } from "./tier-manager"
+
 export async function AdminDashboard({
     tier = 'starter',
     isPilot = false,
-    smsBalance = 0
+    smsBalance = 0,
+    schoolName = '',
+    subdomain = ''
 }: {
     tier?: string,
     isPilot?: boolean,
-    smsBalance?: number
+    smsBalance?: number,
+    schoolName?: string,
+    subdomain?: string
 }) {
     const stats = await getAdminStats()
     const isStarter = tier.toLowerCase() === 'starter'
@@ -53,6 +60,8 @@ export async function AdminDashboard({
             )}
             {/* Header Section Removed (Duplicate) */}
             {/* The BentoLoader now generates the 'Command Center' header dynamically */}
+
+            <TierManager currentTier={tier} schoolName={schoolName} subdomain={subdomain} />
 
             {/* Metrics Grid */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -140,9 +149,9 @@ export async function AdminDashboard({
                         </div>
                     )}
 
-                    {/* Standard Premium Module */}
-                    {!isStarter ? (
-                        <div className="bg-indigo-950/20 border border-indigo-500/30 rounded-xl p-8 relative overflow-hidden group">
+                    {/* Standard Premium Module with Soft-Lock */}
+                    <LockedWidget tier={tier} requiredTier="platinum" message="Dormitory management requires the Platinum Institutional expansion.">
+                        <div className="bg-indigo-950/20 border border-indigo-500/30 rounded-xl p-8 relative overflow-hidden group h-full">
                             <div className="absolute top-0 right-0 p-4">
                                 <div className="px-2 py-1 rounded bg-indigo-500/20 text-indigo-400 text-[10px] font-mono">PREMIUM_MODULE</div>
                             </div>
@@ -164,15 +173,7 @@ export async function AdminDashboard({
                             </div>
                             <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-colors" />
                         </div>
-                    ) : (
-                        <div className="h-[250px] bg-slate-900/30 border border-white/5 rounded-xl p-6 flex flex-col items-center justify-center text-center space-y-4">
-                            <School className="w-12 h-12 text-slate-700" />
-                            <div>
-                                <p className="text-slate-500 text-sm font-medium">Upgrade to Platinum</p>
-                                <p className="text-slate-600 text-xs mt-1">Unlock Dorm-Master, AI-Grading, and more.</p>
-                            </div>
-                        </div>
-                    )}
+                    </LockedWidget>
                 </div>
             </div>
         </div>

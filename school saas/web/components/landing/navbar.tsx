@@ -57,13 +57,14 @@ export function Navbar() {
                 </div>
                 {/* Right Side: Actions */}
                 <div className="hidden md:flex items-center gap-4">
-                    {/* Schedule Physical Demo Button - HIGH INTENT */}
-                    <button
-                        onClick={openPhysicalDemo}
-                        className="text-xs font-bold text-cyan-400 border border-cyan-500/20 px-3 py-1.5 rounded bg-cyan-950/20 hover:bg-cyan-900/40 transition-all uppercase tracking-tighter"
+                    {/* Documentation Link - FAINT */}
+                    <Link
+                        href="/docs"
+                        className="flex items-center gap-2 text-[10px] font-bold text-slate-500 hover:text-slate-300 transition-colors uppercase tracking-widest mr-2"
                     >
-                        Schedule Physical Demo
-                    </button>
+                        <BookOpen className="h-3 w-3" />
+                        Documentation
+                    </Link>
 
                     {/* Log in */}
                     <Link href="/login" className="text-base font-medium text-white hover:text-blue-400 transition-colors px-1">

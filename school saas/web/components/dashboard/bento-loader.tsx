@@ -13,6 +13,7 @@ interface BentoDashboardLoaderProps {
     tier: string
     isPilot?: boolean
     smsBalance?: number
+    subdomain: string
 }
 
 export async function BentoDashboardLoader({
@@ -22,7 +23,8 @@ export async function BentoDashboardLoader({
     primaryColor,
     tier,
     isPilot = false,
-    smsBalance = 0
+    smsBalance = 0,
+    subdomain
 }: BentoDashboardLoaderProps) {
     const normalizedRole = role.toLowerCase()
     const normalizedTier = tier?.toLowerCase() || 'starter'
@@ -40,7 +42,15 @@ export async function BentoDashboardLoader({
     switch (normalizedRole) {
         case 'admin':
         case 'proprietor':
-            ContentComponent = <AdminDashboard tier={normalizedTier} isPilot={isPilot} smsBalance={smsBalance} />
+            ContentComponent = (
+                <AdminDashboard
+                    tier={normalizedTier}
+                    isPilot={isPilot}
+                    smsBalance={smsBalance}
+                    schoolName={schoolName}
+                    subdomain={subdomain}
+                />
+            )
             break
         case 'teacher':
             ContentComponent = <TeacherDashboard tier={normalizedTier} />
