@@ -13,7 +13,7 @@ export function Navbar() {
 
     return (
         // 1. the 'Infinite Obsidian' Navigation
-        <nav className="fixed top-0 w-full z-50 border-b-[0.5px] border-[rgba(255,255,255,0.08)] bg-transparent backdrop-blur-[25px]">
+        <nav className="fixed top-0 w-full z-50 border-b-[0.5px] border-[rgba(255,255,255,0.08)] bg-black/80 backdrop-blur-[25px]">
             <div className="container mx-auto px-4 h-20 flex items-center justify-between">
 
                 {/* Left Side: Logo & Links */}

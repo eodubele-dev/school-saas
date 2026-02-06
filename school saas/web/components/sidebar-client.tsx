@@ -295,14 +295,15 @@ export function SidebarClient({
                                                 key={item.href}
                                                 href={item.href}
                                                 className={cn(
-                                                    "block py-2 text-xs transition-colors duration-200",
+                                                    "flex items-center gap-3 py-2 text-xs transition-colors duration-200",
                                                     isActive
                                                         ? "font-semibold"
                                                         : "text-slate-500 hover:text-white"
                                                 )}
                                                 style={isActive ? { color: 'var(--school-accent)' } : undefined}
                                             >
-                                                {item.label}
+                                                {ItemIcon && <ItemIcon className="h-3.5 w-3.5" strokeWidth={1.5} />}
+                                                <span>{item.label}</span>
                                             </Link>
                                         )
                                     })}

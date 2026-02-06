@@ -13,9 +13,10 @@ interface QuizCanvasProps {
     questions: BankQuestion[]
     onRemove: (id: string) => void
     onUpdate: (id: string, updates: Partial<BankQuestion>) => void
+    onReorder: (questions: BankQuestion[]) => void
 }
 
-export function QuizCanvas({ questions, onRemove, onUpdate }: QuizCanvasProps) {
+export function QuizCanvas({ questions, onRemove, onUpdate, onReorder }: QuizCanvasProps) {
     if (questions.length === 0) {
         return (
             <div className="h-full border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center text-center p-12 bg-slate-900/40">

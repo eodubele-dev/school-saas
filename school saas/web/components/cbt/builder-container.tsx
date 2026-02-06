@@ -8,23 +8,70 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { syncAssessment, BankQuestion } from "@/lib/actions/cbt-builder"
+import { syncAssessment, getQuiz, BankQuestion } from "@/lib/actions/cbt-builder"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 
-export function BuilderContainer() {
+interface BuilderContainerProps {
+    classId: string
+    subjectId: string
+    className?: string
+    subjectName?: string
+    initialQuizId?: string
+    onClose?: () => void
+}
+
+export function BuilderContainer({ classId, subjectId, className, subjectName, initialQuizId, onClose }: BuilderContainerProps) {
     const router = useRouter()
+    const [quizId, setQuizId] = useState<string | undefined>(initialQuizId)
     const [quizTitle, setQuizTitle] = useState("Untitled Assessment")
     const [questions, setQuestions] = useState<BankQuestion[]>([])
     const [isSaving, setIsSaving] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [duration, setDuration] = useState(60)
     const [shuffle, setShuffle] = useState(false)
     const [visibility, setVisibility] = useState<'draft' | 'published'>('draft')
 
+    // Load Existing Draft or Specific Quiz
+    useEffect(() => {
+        async function loadContent() {
+            setIsLoading(true)
+            try {
+                const res = await getQuiz(classId, subjectId, initialQuizId)
+
+                if (res.success && res.data) {
+                    const quiz = res.data
+                    setQuizId(quiz.id)
+                    setQuizTitle(quiz.title)
+                    setDuration(quiz.duration_minutes || 60)
+                    setShuffle(quiz.shuffle_mode || false)
+                    setVisibility(quiz.is_active ? 'published' : 'draft')
+
+                    if (quiz.questions) {
+                        setQuestions(quiz.questions.map((q: any) => ({
+                            id: q.id,
+                            question_text: q.question_text,
+                            options: q.options,
+                            correct_option: q.correct_option,
+                            explanation: q.explanation || "",
+                            points: q.points || 1
+                        })))
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to load content", e)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        loadContent()
+    }, [classId, subjectId, initialQuizId])
+
     const addQuestions = (newQs: BankQuestion[]) => {
         setQuestions(prev => [...prev, ...newQs.map(q => ({
             ...q,
-            id: crypto.randomUUID(), // Temp ID for canvas management
+            id: q.id || crypto.randomUUID(),
             points: 1
         }))])
     }
@@ -37,20 +84,38 @@ export function BuilderContainer() {
         setQuestions(prev => prev.map(q => q.id === id ? { ...q, ...updates } : q))
     }
 
-    const handleSave = async () => {
+    const handleSave = async (isPublishing: boolean = false) => {
         if (!quizTitle) return toast.error("Enter a title")
         setIsSaving(true)
+
+        const targetVisibility = isPublishing ? 'published' : visibility
+
         try {
             const res = await syncAssessment({
+                id: quizId,
                 title: quizTitle,
+                class_id: classId,
+                subject_id: subjectId,
                 duration,
                 shuffle_mode: shuffle,
-                visibility,
+                visibility: targetVisibility,
                 total_marks: questions.reduce((sum, q) => sum + (q.points || 0), 0)
             }, questions)
 
             if (res.success) {
-                toast.success("Assessment Saved Successfully")
+                setQuizId(res.quizId)
+                if (isPublishing) {
+                    setVisibility('published')
+                    toast.success("Assessment Published Successfully", {
+                        description: "Your quiz is now live for all students in this class."
+                    })
+                    // Clear the page/Close builder after publish as requested
+                    setTimeout(() => {
+                        onClose?.()
+                    }, 1500)
+                } else {
+                    toast.success("Draft Revision Saved")
+                }
                 router.refresh()
             } else {
                 toast.error(res.error || "Failed to save")
@@ -62,12 +127,35 @@ export function BuilderContainer() {
         }
     }
 
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center h-[400px] text-slate-500 gap-4">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                <p className="animate-pulse font-medium">Checking for existing drafts...</p>
+            </div>
+        )
+    }
+
     return (
         <div className="flex flex-col h-[calc(100vh-140px)] gap-6 animate-in fade-in duration-700 bg-slate-950 text-white p-4 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden">
+            {/* Context Breadcrumb */}
+            <div className="px-4 -mb-4 flex items-center gap-2 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                Targeting: <span className="text-blue-400">{className || "Current Class"}</span>
+                <span className="mx-1 opacity-20">|</span>
+                Subject: <span className="text-blue-400">{subjectName || "Current Subject"}</span>
+                <span className="ml-auto text-slate-600 italic">Work is saved to this specific context</span>
+            </div>
+
             {/* Top Bar */}
             <div className="flex items-center justify-between bg-slate-900/40 backdrop-blur-md p-4 rounded-2xl border border-white/5">
                 <div className="flex items-center gap-4 flex-1">
-                    <Button variant="ghost" size="icon" className="text-slate-500" onClick={() => router.back()}>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-slate-500 hover:text-white"
+                        onClick={() => onClose?.()}
+                    >
                         <ChevronLeft className="h-5 w-5" />
                     </Button>
                     <div className="space-y-0.5 max-w-md w-full">
@@ -118,7 +206,7 @@ export function BuilderContainer() {
                     <Button
                         variant="outline"
                         className="border-white/10 bg-white/5 text-slate-300 gap-2 font-bold"
-                        onClick={handleSave}
+                        onClick={() => handleSave(false)}
                         disabled={isSaving}
                     >
                         {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -126,10 +214,8 @@ export function BuilderContainer() {
                     </Button>
                     <Button
                         className="bg-blue-600 hover:bg-blue-600 text-white gap-2 font-bold shadow-lg shadow-blue-500/20"
-                        onClick={() => {
-                            setVisibility('published')
-                            handleSave()
-                        }}
+                        onClick={() => handleSave(true)}
+                        disabled={isSaving}
                     >
                         <Rocket className="h-4 w-4" />
                         Publish

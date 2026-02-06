@@ -39,7 +39,15 @@ export async function getTeacherClasses() {
     // 2. Fetch classes where user is Subject Teacher
     const { data: subjectAssignments } = await supabase
         .from('subject_assignments')
-        .select('subject, classes(id, name, grade_level, students(count))')
+        .select(`
+            subject,
+            classes(
+                id, 
+                name, 
+                grade_level, 
+                students(count)
+            )
+        `)
         .eq('teacher_id', user.id)
 
     // Combine and Format
@@ -52,7 +60,7 @@ export async function getTeacherClasses() {
                 name: c.name,
                 grade_level: c.grade_level,
                 role: 'form_teacher',
-                student_count: c.students?.[0]?.count || 0
+                student_count: (c.students as any[])?.[0]?.count || 0
             })
         })
     }
@@ -67,21 +75,10 @@ export async function getTeacherClasses() {
                     grade_level: c.grade_level,
                     role: 'subject_teacher',
                     subject: sa.subject,
-                    student_count: c.students?.[0]?.count || 0
+                    student_count: (c.students as any[])?.[0]?.count || 0
                 })
             }
         })
-    }
-
-    // Mock Data if empty (for Demo/Development)
-    if (classesMap.size === 0) {
-        return {
-            success: true, data: [
-                { id: 'mock-1', name: 'JSS 1 Gold', grade_level: 'JSS 1', role: 'form_teacher', student_count: 32 },
-                { id: 'mock-2', name: 'JSS 1 Silver', grade_level: 'JSS 1', role: 'subject_teacher', subject: 'Mathematics', student_count: 28 },
-                { id: 'mock-3', name: 'JSS 2 Alpha', grade_level: 'JSS 2', role: 'subject_teacher', subject: 'Mathematics', student_count: 30 },
-            ] as TeacherClass[]
-        }
     }
 
     return { success: true, data: Array.from(classesMap.values()) }
@@ -91,10 +88,6 @@ export async function getTeacherClasses() {
  * Get Student Roster for a specific class
  */
 export async function getClassRoster(classId: string) {
-    if (classId.startsWith('mock-')) {
-        return { success: true, data: mockRoster(classId) }
-    }
-
     const supabase = createClient()
     const { data: students } = await supabase
         .from('students')
@@ -112,20 +105,8 @@ export async function getClassRoster(classId: string) {
         avatar_url: s.avatar_url,
         medical_info: s.medical_info || {},
         financial_status: s.financial_status || 'paid',
-        performance_trend: Math.random() > 0.5 ? 'up' : 'stable' // Mock trend for now
+        performance_trend: 'stable' // Can be computed later
     }))
 
     return { success: true, data: roster }
-}
-
-function mockRoster(classId: string): StudentRosterItem[] {
-    return Array.from({ length: 15 }).map((_, i) => ({
-        id: `student-${i}`,
-        full_name: `Student Name ${i + 1}`,
-        admission_number: `ADM/${new Date().getFullYear()}/00${i + 1}`,
-        status: 'active',
-        medical_info: i === 2 ? { conditions: ['Asthmatic'] } : {},
-        financial_status: i === 5 ? 'owing' : 'paid',
-        performance_trend: i % 3 === 0 ? 'up' : 'stable'
-    }))
 }

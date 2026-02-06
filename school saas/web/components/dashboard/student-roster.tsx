@@ -9,6 +9,13 @@ import {
     MoreHorizontal, Filter
 } from "lucide-react"
 import { StudentRosterItem } from "@/lib/actions/classes"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 import { useState, useMemo } from "react"
 
 interface StudentRosterProps {
@@ -18,13 +25,48 @@ interface StudentRosterProps {
 
 export function StudentRoster({ students, className }: StudentRosterProps) {
     const [search, setSearch] = useState("")
+    const [statusFilter, setStatusFilter] = useState<string | null>(null)
 
     const filteredStudents = useMemo(() => {
-        return students.filter(s =>
-            s.full_name.toLowerCase().includes(search.toLowerCase()) ||
-            s.admission_number.toLowerCase().includes(search.toLowerCase())
-        )
-    }, [students, search])
+        return students.filter(s => {
+            const matchesSearch = s.full_name.toLowerCase().includes(search.toLowerCase()) ||
+                s.admission_number.toLowerCase().includes(search.toLowerCase())
+            const matchesFilter = statusFilter ? s.status === statusFilter : true
+            return matchesSearch && matchesFilter
+        })
+    }, [students, search, statusFilter])
+
+    const handleExport = () => {
+        if (filteredStudents.length === 0) {
+            toast.error("No data to export")
+            return
+        }
+
+        const headers = ["Full Name", "Admission Number", "Status", "Financial Status"]
+        const csvContent = [
+            headers.join(","),
+            ...filteredStudents.map(s => [
+                `"${s.full_name}"`,
+                `"${s.admission_number}"`,
+                `"${s.status}"`,
+                `"${s.financial_status}"`
+            ].join(","))
+        ].join("\n")
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const link = document.createElement("a")
+        const url = URL.createObjectURL(blob)
+        link.setAttribute("href", url)
+        link.setAttribute("download", `student_roster_${new Date().toISOString().split('T')[0]}.csv`)
+        link.style.visibility = 'hidden'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+
+        toast.success("Roster exported successfully", {
+            description: `${filteredStudents.length} students exported to CSV.`
+        })
+    }
 
     return (
         <Card className={`bg-slate-900 border-white/10 overflow-hidden flex flex-col ${className}`}>
@@ -33,17 +75,37 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
                 <div className="relative w-full md:w-72">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
                     <Input
-                        placeholder="Search roster..."
-                        className="pl-9 bg-slate-950 border-white/10 h-9 text-sm"
+                        placeholder="Search by name or ID..."
+                        className="pl-9 bg-slate-900 border-white/5 h-9 text-sm text-white placeholder:text-slate-500 focus:bg-slate-800 transition-all border-white/10"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="h-9 border-white/10 text-slate-400 hover:text-white">
-                        <Filter className="h-4 w-4 mr-2" /> Filter
-                    </Button>
-                    <Button size="sm" className="h-9 bg-[var(--school-accent)] hover:bg-[var(--school-accent)]/90 text-white">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className={`h-9 border border-white/10 text-slate-400 hover:bg-white/10 hover:text-white transition-all ${statusFilter ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : ''}`}
+                            >
+                                <Filter className="h-4 w-4 mr-2" />
+                                {statusFilter ? `Status: ${statusFilter}` : 'Filter'}
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-slate-900 border-white/10 text-slate-300">
+                            <DropdownMenuItem onClick={() => setStatusFilter(null)}>All Students</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setStatusFilter('active')}>Active Only</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setStatusFilter('inactive')}>Inactive Only</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setStatusFilter('graduated')}>Graduated</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <Button
+                        size="sm"
+                        onClick={handleExport}
+                        className="h-9 bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 active:scale-95 transition-all"
+                    >
                         Export List
                     </Button>
                 </div>

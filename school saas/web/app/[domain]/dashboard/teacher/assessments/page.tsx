@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { GradeEntryGrid } from "@/components/academic/grade-entry-grid"
 import { AssignmentsManager } from "@/components/academic/assignments-manager"
-import { BuilderContainer } from "@/components/cbt/builder-container"
+import { CBTManager } from "@/components/cbt/cbt-manager"
 import { getClassGrades } from "@/lib/actions/gradebook"
 import { getAssignments } from "@/lib/actions/assignments"
 import { createClient } from "@/lib/supabase/server"
@@ -97,7 +97,12 @@ export default async function AssessmentHubPage({ searchParams }: { searchParams
 
                 {/* Tab 3: CBT */}
                 <TabsContent value="cbt" className="flex-1 mt-0 h-full">
-                    <BuilderContainer />
+                    <CBTManager
+                        classId={classId}
+                        subjectId={subjectId}
+                        className={className}
+                        subjectName={subjectName}
+                    />
                 </TabsContent>
             </Tabs>
         </div>

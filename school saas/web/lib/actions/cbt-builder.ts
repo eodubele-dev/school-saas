@@ -26,6 +26,43 @@ export interface QuizData {
 }
 
 /**
+ * Fetch a quiz by ID or the latest draft for a class/subject
+ */
+export async function getQuiz(classId: string, subjectId: string, quizId?: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, data: null }
+
+    let query = supabase
+        .from('cbt_quizzes')
+        .select(`
+            *,
+            questions:cbt_questions(*)
+        `)
+
+    if (quizId) {
+        query = query.eq('id', quizId)
+    } else {
+        query = query
+            .eq('class_id', classId)
+            .eq('subject_id', subjectId)
+            .eq('teacher_id', user.id)
+            .eq('is_active', false)
+            .order('created_at', { ascending: false })
+            .limit(1)
+    }
+
+    const { data: quiz, error } = await query.maybeSingle()
+
+    if (error) {
+        console.error('Error fetching quiz:', error)
+        return { success: false, data: null }
+    }
+
+    return { success: true, data: quiz }
+}
+
+/**
  * Search the external exam bank (JAMB/WAEC/etc)
  */
 export async function searchExamBank(filters: {
@@ -67,32 +104,41 @@ export async function generateAIQuestions(params: {
 }) {
     const prompt = `
         Act as an expert Nigerian curriculum assessment specialist.
-        Generate ${params.count} multiple-choice questions for ${params.subject} on the topic "${params.topic}".
+        Generate ${params.count} multiple-choice questions for the subject "${params.subject}" on the topic "${params.topic}".
         Difficulty Level: ${params.difficulty}
 
         Requirements:
-        1. Each question must have exactly 4 options (A-D).
+        1. Each question must have exactly 4 options (A, B, C, D).
         2. Provide a clear "explanation" for the correct answer.
         3. Format the output as a strict JSON array.
 
-        Output Format:
+        Output Schema:
         [
           {
-            "question_text": "...",
-            "options": ["...", "...", "...", "..."],
-            "correct_option": 0, (index 0-3)
-            "explanation": "..."
+            "question_text": "string",
+            "options": ["string", "string", "string", "string"],
+            "correct_option": number (0-3),
+            "explanation": "string"
           }
         ]
         
-        Provide ONLY the JSON array. No markdown blocks.
+        Return ONLY the JSON.
     `
 
     try {
         const result = await model.generateContent(prompt)
         const response = await result.response
-        const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim()
-        return JSON.parse(text)
+        const rawText = response.text()
+
+        // Robust JSON extraction
+        const jsonMatch = rawText.match(/\[[\s\S]*\]/)
+        if (!jsonMatch) {
+            console.error('AI Response did not contain a JSON array:', rawText)
+            return []
+        }
+
+        const cleanJson = jsonMatch[0]
+        return JSON.parse(cleanJson)
     } catch (error) {
         console.error('AI Generation Error:', error)
         return []
@@ -179,4 +225,55 @@ export async function syncAssessment(quizData: QuizData, questions: BankQuestion
         console.error('Sync Error:', error)
         return { success: false, error: (error as Error).message }
     }
+}
+
+/**
+ * Fetch all quizzes for a class and subject
+ */
+export async function getAllQuizzes(classId: string, subjectId: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, data: [] }
+
+    const { data: quizzes, error } = await supabase
+        .from('cbt_quizzes')
+        .select(`
+            *,
+            question_count:cbt_questions(count)
+        `)
+        .eq('class_id', classId)
+        .eq('subject_id', subjectId)
+        .eq('teacher_id', user.id)
+        .order('created_at', { ascending: false })
+
+    if (error) {
+        console.error('Error fetching quizzes:', error)
+        return { success: false, data: [] }
+    }
+
+    // Flatten count
+    const formatted = quizzes.map(q => ({
+        ...q,
+        total_questions: q.question_count?.[0]?.count || 0
+    }))
+
+    return { success: true, data: formatted }
+}
+
+/**
+ * Delete a quiz
+ */
+export async function deleteQuiz(id: string) {
+    const supabase = createClient()
+    const { error } = await supabase
+        .from('cbt_quizzes')
+        .delete()
+        .eq('id', id)
+
+    if (error) {
+        console.error('Delete error:', error)
+        return { success: false, error: error.message }
+    }
+
+    return { success: true }
 }

@@ -34,15 +34,24 @@ export function SourceSelector({ onAddQuestions }: SourceSelectorProps) {
         setLoading(true)
         try {
             const qs = await generateAIQuestions({
-                subject: "Mixed", // Could be dynamic
+                subject: "Mixed",
                 topic: aiTopic,
                 count: parseInt(aiCount),
                 difficulty: "Medium"
             })
+
+            if (qs.length === 0) {
+                toast.error("AI returned 0 questions. This can happen if the topic is too obscure or the model is busy.", {
+                    description: "Please try a different topic or try again in a moment."
+                })
+                return
+            }
+
             onAddQuestions(qs)
             toast.success(`Generated ${qs.length} questions`)
-        } catch {
-            toast.error("Failed to generate questions")
+        } catch (error) {
+            console.error('Gemini Error:', error)
+            toast.error("Failed to generate questions. Please check your internet connection or try again later.")
         } finally {
             setLoading(false)
         }
