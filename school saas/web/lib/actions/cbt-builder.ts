@@ -73,24 +73,36 @@ export async function searchExamBank(filters: {
 }) {
     const supabase = createClient()
 
-    let query = supabase
-        .from('past_questions')
-        .select('*')
-        .eq('subject', filters.subject)
-        .eq('exam_type', filters.examType)
+    try {
+        let query = supabase
+            .from('past_questions')
+            .select('*')
+            .ilike('subject', filters.subject)
+            .ilike('exam_type', filters.examType)
 
-    if (filters.year) {
-        query = query.eq('year', parseInt(filters.year))
-    }
+        if (filters.year) {
+            const y = parseInt(filters.year)
+            if (!isNaN(y)) {
+                query = query.eq('year', y)
+            }
+        }
 
-    const { data, error } = await query.limit(50)
+        if (filters.topic) {
+            query = query.ilike('question_text', `%${filters.topic}%`)
+        }
 
-    if (error) {
-        console.error('Error searching bank:', error)
+        const { data, error } = await query.limit(50)
+
+        if (error) {
+            console.error('Error searching bank:', error)
+            return []
+        }
+
+        return (data || []) as BankQuestion[]
+    } catch (e) {
+        console.error('Search Exception:', e)
         return []
     }
-
-    return data as BankQuestion[]
 }
 
 /**
@@ -172,6 +184,11 @@ export async function getAIExplanation(question: string, answer: string) {
  */
 export async function syncAssessment(quizData: QuizData, questions: BankQuestion[]) {
     const supabase = createClient()
+
+    // Validation: Published assessments must have at least one question
+    if (quizData.visibility === 'published' && (!questions || questions.length === 0)) {
+        return { success: false, error: "Cannot publish an assessment with zero questions." }
+    }
 
     try {
         const { data: { user } } = await supabase.auth.getUser()

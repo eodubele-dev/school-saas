@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Loader2, Send, Save } from "lucide-react"
 import { toast } from "sonner"
 import { getAssignedClass, getClassStudents, markStudentAttendance, sendAbsenceSMS, StudentAttendanceDTO } from "@/lib/actions/student-attendance"
+import { getClockInStatus } from "@/lib/actions/staff-clock-in"
 
 export function StudentRegister() {
     const [loading, setLoading] = useState(true)
@@ -16,6 +17,7 @@ export function StudentRegister() {
     const [classInfo, setClassInfo] = useState<{ id: string, name: string } | null>(null)
     const [students, setStudents] = useState<any[]>([])
     const [attendance, setAttendance] = useState<Record<string, { status: 'present' | 'absent' | 'excused', remarks?: string }>>({})
+    const [isVerified, setIsVerified] = useState(false)
 
     useEffect(() => {
         loadData()
@@ -24,6 +26,15 @@ export function StudentRegister() {
     const loadData = async () => {
         setLoading(true)
         try {
+            // 0. Check Clock-In Status first
+            const statusRes = await getClockInStatus()
+            if (!statusRes.success || !statusRes.data?.clockedIn) {
+                setIsVerified(false)
+                setLoading(false)
+                return
+            }
+            setIsVerified(true)
+
             // 1. Get Assigned Class
             const classRes = await getAssignedClass()
             if (!classRes.success || !classRes.data) {
@@ -97,6 +108,20 @@ export function StudentRegister() {
 
     if (loading) {
         return <div className="h-64 flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-slate-500" /></div>
+    }
+
+    if (!isVerified) {
+        return (
+            <Card className="p-8 text-center bg-slate-900 border-white/5 flex flex-col items-center gap-4">
+                <div className="h-16 w-16 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                    <Loader2 className="h-8 w-8 text-blue-500 animate-pulse" />
+                </div>
+                <div>
+                    <h3 className="text-white font-bold">Pending Site-Verification</h3>
+                    <p className="text-slate-400 text-sm mt-1">Attendance register activates upon successful Clock-In.</p>
+                </div>
+            </Card>
+        )
     }
 
     if (!classInfo) {

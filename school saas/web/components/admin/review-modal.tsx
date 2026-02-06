@@ -9,17 +9,20 @@ import { useState } from "react"
 import { CheckCircle, XCircle, Stamp, UserCheck, AlertCircle } from "lucide-react"
 import { toast } from "sonner"
 import { cn, formatDate } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 interface ReviewModalProps {
     item: PendingItem | null
     isOpen: boolean
     onClose: () => void
+    domain: string
 }
 
-export function ReviewModal({ item, isOpen, onClose }: ReviewModalProps) {
+export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps) {
     const [comment, setComment] = useState("")
     const [isProcessing, setIsProcessing] = useState(false)
     const [isStamped, setIsStamped] = useState(false)
+    const router = useRouter()
 
     if (!item) return null
 
@@ -32,9 +35,10 @@ export function ReviewModal({ item, isOpen, onClose }: ReviewModalProps) {
 
         // 2. Server Action
         try {
-            const res = await approveItem(item.id, item.type)
+            const res = await approveItem(domain, item.id, item.type)
             if (res.success) {
                 toast.success("Approved & Stamped Successfully")
+                router.refresh()
                 onClose()
             } else {
                 toast.error("Failed to approve")
@@ -55,12 +59,13 @@ export function ReviewModal({ item, isOpen, onClose }: ReviewModalProps) {
         }
         setIsProcessing(true)
         try {
-            const res = await rejectItem(item.id, item.type, comment)
+            const res = await rejectItem(domain, item.id, item.type, comment)
             if (res.success) {
                 toast.success("Returned for corrections")
+                router.refresh()
                 onClose()
             } else {
-                toast.error("Failed to reject")
+                toast.error(res.error || "Failed to reject")
             }
         } catch (e) {
             toast.error("Error processing rejection")

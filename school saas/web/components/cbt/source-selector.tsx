@@ -66,10 +66,17 @@ export function SourceSelector({ onAddQuestions }: SourceSelectorProps) {
                 year: bankYear,
                 topic: bankTopic
             })
+
+            if (!qs || qs.length === 0) {
+                toast.info("No questions found matching your filters")
+                return
+            }
+
             onAddQuestions(qs)
             toast.success(`Found ${qs.length} questions`)
-        } catch {
-            toast.error("Bank search failed")
+        } catch (e) {
+            console.error('Bank Search Error:', e)
+            toast.error("Bank search failed. Please try again.")
         } finally {
             setLoading(false)
         }

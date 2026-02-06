@@ -110,9 +110,9 @@ export function IncidentForm({ students }: { students: any[] }) {
                 <Button
                     onClick={handleLog}
                     disabled={!studentId || !title || submitting}
-                    className={`w-full font-bold ${type === 'disciplinary' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-cyan-600 hover:bg-cyan-700'} text-white`}
+                    className={`w-full font-bold ${type === 'disciplinary' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-cyan-600 hover:bg-cyan-700'} text-white shadow-lg`}
                 >
-                    {submitting ? "Logging..." : "Log Entry"}
+                    {submitting ? "Submitting for Approval..." : "Log Entry"}
                 </Button>
             </div>
         </Card>

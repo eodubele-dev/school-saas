@@ -69,6 +69,7 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
     }, [classId, subjectId, initialQuizId])
 
     const addQuestions = (newQs: BankQuestion[]) => {
+        if (!newQs || !Array.isArray(newQs)) return
         setQuestions(prev => [...prev, ...newQs.map(q => ({
             ...q,
             id: q.id || crypto.randomUUID(),
@@ -86,6 +87,11 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
 
     const handleSave = async (isPublishing: boolean = false) => {
         if (!quizTitle) return toast.error("Enter a title")
+        if (isPublishing && questions.length === 0) {
+            return toast.error("Cannot publish an empty assessment", {
+                description: "Add at least one question before making this quiz live."
+            })
+        }
         setIsSaving(true)
 
         const targetVisibility = isPublishing ? 'published' : visibility

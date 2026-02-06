@@ -9,7 +9,7 @@ import { useState } from "react"
 import { ReviewModal } from "./review-modal"
 import { FileText, Calculator, Clock, ChevronRight } from "lucide-react"
 
-export function ApprovalQueue({ initialItems }: { initialItems: PendingItem[] }) {
+export function ApprovalQueue({ initialItems, domain }: { initialItems: PendingItem[], domain: string }) {
     const [selectedItem, setSelectedItem] = useState<PendingItem | null>(null)
 
     const lessonPlans = initialItems.filter(i => i.type === 'lesson_plan')
@@ -34,6 +34,7 @@ export function ApprovalQueue({ initialItems }: { initialItems: PendingItem[] })
                 item={selectedItem}
                 isOpen={!!selectedItem}
                 onClose={() => setSelectedItem(null)}
+                domain={domain}
             />
         </div>
     )

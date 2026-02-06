@@ -1,11 +1,13 @@
-
-import { getPendingApprovals } from "@/lib/actions/approvals"
+import { getPendingApprovals, getComplianceStats } from "@/lib/actions/approvals"
 import { ApprovalQueue } from "@/components/admin/approval-queue"
 import { ComplianceAnalytics } from "@/components/admin/compliance-analytics"
 import { ShieldCheck } from "lucide-react"
 
-export default async function ApprovalsPage() {
-    const res = await getPendingApprovals()
+export default async function ApprovalsPage({ params }: { params: { domain: string } }) {
+    const [approvalsRes, stats] = await Promise.all([
+        getPendingApprovals(),
+        getComplianceStats()
+    ])
 
     return (
         <div className="h-[calc(100vh-80px)] p-6 md:p-8 flex flex-col animate-in fade-in duration-700">
@@ -19,11 +21,11 @@ export default async function ApprovalsPage() {
                         <p className="text-slate-400 text-xs mt-0.5">Admin & HOD Vetting Portal</p>
                     </div>
                 </div>
-                <ComplianceAnalytics />
+                <ComplianceAnalytics stats={stats} />
             </div>
 
             <div className="flex-1 min-h-0">
-                <ApprovalQueue initialItems={res.data || []} />
+                <ApprovalQueue initialItems={approvalsRes.data || []} domain={params.domain} />
             </div>
         </div>
     )

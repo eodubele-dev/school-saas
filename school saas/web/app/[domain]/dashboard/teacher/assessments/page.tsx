@@ -7,42 +7,65 @@ import { getAssignments } from "@/lib/actions/assignments"
 import { createClient } from "@/lib/supabase/server"
 import { BookOpenCheck, FileText, BrainCircuit, Table } from "lucide-react"
 
-export default async function AssessmentHubPage({ searchParams }: { searchParams: { class_id?: string, subject_id?: string, tab?: string } }) {
+export default async function AssessmentHubPage({ params, searchParams }: { params: { domain: string }, searchParams: { class_id?: string, subject_id?: string, tab?: string } }) {
     const supabase = createClient()
 
-    // 1. Fetch Context (Class/Subject)
+    // 1. Fetch Context & Auth parallel
+    const [authRes, tenantRes] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.from('tenants').select('current_term, current_session').eq('slug', params.domain).single()
+    ])
+
+    const user = authRes.data.user
+    const tenant = tenantRes.data
+    const currentTerm = tenant?.current_term || '1st Term'
+    const currentSession = tenant?.current_session || '2025/2026'
+
+    // 2. Fetch Profile & Classes/Subjects parallel
+    const profilePromise = supabase.from('profiles').select('role').eq('id', user?.id).single()
+
     let classId = searchParams.class_id
     let subjectId = searchParams.subject_id
     let className = "Selected Class"
     let subjectName = "Selected Subject"
 
-    // Default params if missing (Same logic as old Gradebook)
-    if (!classId || !subjectId) {
-        const { data: firstClass } = await supabase.from('classes').select('id, name').limit(1).single()
-        const { data: firstSubject } = await supabase.from('subjects').select('id, name').limit(1).single()
+    const contextPromises: Promise<any>[] = [profilePromise]
 
-        if (firstClass) {
-            classId = classId || firstClass.id
-            className = firstClass.name
+    if (!classId || !subjectId) {
+        contextPromises.push(supabase.from('classes').select('id, name').limit(1).single())
+        contextPromises.push(supabase.from('subjects').select('id, name').limit(1).single())
+    } else {
+        contextPromises.push(supabase.from('classes').select('name').eq('id', classId).single())
+        contextPromises.push(supabase.from('subjects').select('name').eq('id', subjectId).single())
+    }
+
+    const [profileRes, res1, res2] = await Promise.all(contextPromises)
+
+    const userRole = (profileRes.data?.role || 'teacher').toLowerCase().trim()
+
+    if (!classId || !subjectId) {
+        if (res1.data) {
+            classId = classId || res1.data.id
+            className = res1.data.name
         }
-        if (firstSubject) {
-            subjectId = subjectId || firstSubject.id
-            subjectName = firstSubject.name
+        if (res2.data) {
+            subjectId = subjectId || res2.data.id
+            subjectName = res2.data.name
         }
     } else {
-        const { data: c } = await supabase.from('classes').select('name').eq('id', classId).single()
-        const { data: s } = await supabase.from('subjects').select('name').eq('id', subjectId).single()
-        if (c) className = c.name
-        if (s) subjectName = s.name
+        if (res1.data) className = res1.data.name
+        if (res2.data) subjectName = res2.data.name
     }
 
     if (!classId || !subjectId) {
         return <div className="p-10 text-center text-slate-400">Please configure Classes and Subjects first.</div>
     }
 
-    // 2. Fetch Data
-    const gradesRes = await getClassGrades(classId, subjectId)
-    const assignmentsRes = await getAssignments(classId, subjectId)
+    // 3. Fetch Data in Parallel
+    const [gradesRes, assignmentsRes] = await Promise.all([
+        getClassGrades(classId, subjectId, currentTerm, currentSession),
+        getAssignments(classId, subjectId)
+    ])
 
     return (
         <div className="p-4 md:p-6 h-[calc(100vh-80px)] flex flex-col">
@@ -53,7 +76,7 @@ export default async function AssessmentHubPage({ searchParams }: { searchParams
                         Assessment Hub
                     </h1>
                     <p className="text-slate-400 ml-10">
-                        {className} • {subjectName} • 1st Term
+                        {className} • {subjectName} • {currentTerm} • {currentSession}
                     </p>
                 </div>
             </div>
@@ -79,6 +102,10 @@ export default async function AssessmentHubPage({ searchParams }: { searchParams
                                 initialGrades={gradesRes.data || []}
                                 classId={classId}
                                 subjectId={subjectId}
+                                userRole={userRole}
+                                domain={params.domain}
+                                term={currentTerm}
+                                session={currentSession}
                             />
                         ) : (
                             <div className="text-red-400 p-4">Failed to load grades</div>

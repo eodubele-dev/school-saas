@@ -125,7 +125,7 @@ export function QuizList({ classId, subjectId, onEdit, onNew }: QuizListProps) {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="h-8 text-blue-400 hover:bg-blue-400/10"
+                                            className="h-8 text-blue-400 hover:bg-blue-400/10 hover:text-blue-400 transition-colors"
                                             onClick={() => onEdit(quiz.id)}
                                         >
                                             <Edit2 className="h-3.5 w-3.5 mr-1" /> Edit

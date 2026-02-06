@@ -38,6 +38,12 @@ export async function getAdminStats() {
             .order('created_at', { ascending: false })
             .limit(10)
 
+        const { data: recentAchievements } = await supabase
+            .from('achievements')
+            .select('title, created_at, student:students(full_name)')
+            .order('created_at', { ascending: false })
+            .limit(10)
+
         // standardized activity format
         const activities = [
             ...(recentStudents || []).map(s => ({
@@ -49,6 +55,11 @@ export async function getAdminStats() {
                 type: 'New Class',
                 message: `Class "${c.name}" was created`,
                 time: c.created_at
+            })),
+            ...(recentAchievements || []).map((a: any) => ({
+                type: 'Achievement',
+                message: `${a.student?.full_name} awarded "${a.title}"`,
+                time: a.created_at
             }))
         ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 20)
 

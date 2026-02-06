@@ -38,11 +38,14 @@ export async function Sidebar({ className, domain }: { className?: string, domai
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _slug = domain // Keeping domain prop usage for linting but ignoring it for links
 
-    const { data: tenant } = await supabase
-        .from('tenants')
-        .select('name, logo_url, theme_config, motto')
-        .eq('slug', slug)
-        .single()
+    // Parallelize Tenant and Auth Fetches to avoid waterfalls
+    const [tenantRes, authRes] = await Promise.all([
+        supabase.from('tenants').select('name, logo_url, theme_config, motto').eq('slug', slug).single(),
+        supabase.auth.getUser()
+    ])
+
+    const tenant = tenantRes.data
+    const user = authRes.data.user
 
     let primaryColor = '#3b82f6' // Default Blue-500
     let tenantMotto = "Excellence in Everything" // Default Slogan
@@ -73,15 +76,9 @@ export async function Sidebar({ className, domain }: { className?: string, domai
 
     const accentRgb = hexToRgb(primaryColor)
 
-    console.log('[Sidebar] Theme Color Debug:', { primaryColor, accentRgb })
-
-    // Fetch User Role with Error Handling
-    try {
-        const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-        if (authError) throw authError
-
-        if (user) {
+    // Fetch User Profile if authenticated
+    if (user) {
+        try {
             const { data: profile, error: profileError } = await supabase
                 .from('profiles')
                 .select('role, full_name')
@@ -90,19 +87,16 @@ export async function Sidebar({ className, domain }: { className?: string, domai
 
             if (profileError) {
                 console.error("[Sidebar] Profile Fetch Error:", profileError)
-                // Fallback allowed (keeps default 'student' or we can promote to admin for debugging)
-                // userRole = 'admin' 
             }
 
             if (profile) {
                 if (profile.role) userRole = profile.role
                 if (profile.full_name) userName = profile.full_name
             }
+        } catch (error) {
+            console.error("[Sidebar] Profile Critical Error:", error)
+            userRole = 'admin' // Final fallback to allow dashboard visibility
         }
-    } catch (error) {
-        console.error("[Sidebar] Auth Critical Error:", error)
-        // CRITICAL: Fallback to Admin to visualize sidebar even if Auth is down/timing out
-        userRole = 'admin'
     }
 
     console.log('[Sidebar] Final render values:', { userRole, userName, categoriesAvailable: SIDEBAR_LINKS[userRole as any]?.length || 0 })

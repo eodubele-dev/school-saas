@@ -20,32 +20,42 @@ export async function getAssignedClass(): Promise<{ success: boolean; data?: { i
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return { success: false, error: "Not authenticated" }
 
-        // First check if they are a form teacher for a class
+        // 1. Get current day and time
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        const now = new Date()
+        const currentDay = days[now.getDay()]
+        const currentTime = now.toTimeString().split(' ')[0] // HH:mm:ss
+
+        // 2. Query timetables for the current active period
+        // Check for teacher assignment in the current time slot
+        const { data: currentPeriod, error: pError } = await supabase
+            .from('timetables')
+            .select('class:classes(id, name, grade_level)')
+            .eq('teacher_id', user.id)
+            .eq('day_of_week', currentDay)
+            .lte('start_time', currentTime)
+            .gte('end_time', currentTime)
+            .maybeSingle()
+
+        if (pError) throw pError
+
+        if (currentPeriod?.class) {
+            const cls = Array.isArray(currentPeriod.class) ? currentPeriod.class[0] : currentPeriod.class
+            return { success: true, data: cls as { id: string; name: string; grade_level: string } }
+        }
+
+        // Fallback: If no current period assignment, check if they are a form teacher
+        // (Optional: User requirement says "If not assigned to a period... displays No class found")
+        // Keeping form teacher as a logical fallback for the "Dashboard Vitals" context
         const { data: formClass } = await supabase
             .from('classes')
             .select('id, name, grade_level')
             .eq('form_teacher_id', user.id)
-            .single()
+            .maybeSingle()
 
         if (formClass) return { success: true, data: formClass }
 
-        // If not, getting the first class they teach a subject in (fallback)
-        // This logic might need refinement based on exact requirements
-        const { data: subjectClass } = await supabase
-            .from('subject_teachers')
-            .select('class:classes(id, name, grade_level)')
-            .eq('teacher_id', user.id)
-            .limit(1)
-            .single()
-
-        if (subjectClass?.class) {
-            // Supabase join queries return arrays or objects depending on cardinality. 
-            // With .single(), it should be an object. Casting to be safe.
-            const cls = Array.isArray(subjectClass.class) ? subjectClass.class[0] : subjectClass.class
-            return { success: true, data: cls as { id: string; name: string; grade_level: string } }
-        }
-
-        return { success: false, error: "No assigned class found" }
+        return { success: false, error: "No class assigned to you found" }
 
     } catch (error) {
         console.error("Error getting assigned class:", error)

@@ -4,13 +4,15 @@ import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Users, AlertTriangle, CheckCircle2 } from "lucide-react"
 
-export function ComplianceAnalytics() {
-    // Mock Data for MVP
-    const stats = {
-        submissionRate: 78,
-        laggingStaff: 3,
-        totalStaff: 24
+interface ComplianceAnalyticsProps {
+    stats: {
+        submissionRate: number
+        laggingStaff: number
+        totalStaff: number
     }
+}
+
+export function ComplianceAnalytics({ stats }: ComplianceAnalyticsProps) {
 
     return (
         <div className="flex gap-4">

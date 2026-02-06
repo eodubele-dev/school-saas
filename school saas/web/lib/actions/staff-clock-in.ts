@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { isWithinRadius } from '@/lib/utils/geolocation'
 import { revalidatePath } from 'next/cache'
+import { logActivity } from '@/lib/actions/audit'
 
 interface ClockInResult {
     success: boolean
@@ -97,6 +98,16 @@ export async function clockInStaff(
             console.error('Error recording clock-in:', error)
             return { success: false, error: error.message }
         }
+
+
+        // Forensic Recording in Audit Log
+        await logActivity(
+            'System',
+            'CLOCK_IN',
+            `Staff clocked in successfully. Distance: ${Math.round(distance)}m`,
+            'profiles',
+            user.id
+        )
 
         revalidatePath('/clock-in')
         return { success: true, verified: true, distance }

@@ -80,7 +80,7 @@ export function AffectiveDomainGrid({ students }: { students: any[] }) {
             if (res.success) {
                 toast.success("All ratings saved securely.")
             } else {
-                toast.error("Save failed.")
+                toast.error(`Save failed: ${res.error}`)
             }
         } catch (e) {
             toast.error("Error saving.")
@@ -107,14 +107,20 @@ export function AffectiveDomainGrid({ students }: { students: any[] }) {
                     <h3 className="text-white font-bold text-lg">Termly Affective Domain</h3>
                     <p className="text-slate-400 text-sm">End-of-term behavioral assessment (1-5 Scale).</p>
                 </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => applyToAll('neatness', 5)} className="border-cyan-500/20 text-cyan-400 hover:bg-cyan-950">
+                <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" onClick={() => applyToAll('neatness', 5)} className="border-cyan-500/20 text-cyan-400 hover:bg-cyan-950 hover:text-cyan-400">
                         All Neat: 5
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => applyToAll('politeness', 5)} className="border-cyan-500/20 text-cyan-400 hover:bg-cyan-950">
+                    <Button variant="outline" size="sm" onClick={() => applyToAll('politeness', 5)} className="border-cyan-500/20 text-cyan-400 hover:bg-cyan-950 hover:text-cyan-400">
                         All Polite: 5
                     </Button>
-                    <Button onClick={handleSaveAll} disabled={saving} className="bg-cyan-600 hover:bg-cyan-700 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                    <Button variant="outline" size="sm" onClick={() => applyToAll('leadership', 5)} className="border-cyan-500/20 text-cyan-400 hover:bg-cyan-950 hover:text-cyan-400">
+                        All Leaders: 5
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => applyToAll('attentiveness', 5)} className="border-cyan-500/20 text-cyan-400 hover:bg-cyan-950 hover:text-cyan-400">
+                        All Focused: 5
+                    </Button>
+                    <Button onClick={handleSaveAll} disabled={saving} className="bg-cyan-600 hover:bg-cyan-700 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)] min-w-[160px]">
                         {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                         Save All Ratings
                     </Button>
@@ -125,13 +131,15 @@ export function AffectiveDomainGrid({ students }: { students: any[] }) {
                 <Table>
                     <TableHeader className="bg-slate-950">
                         <TableRow className="border-white/5 hover:bg-transparent">
-                            <TableHead className="text-white w-[180px]">Student</TableHead>
-                            <TableHead className="text-center text-xs w-[100px] text-cyan-100/70">Punctuality</TableHead>
-                            <TableHead className="text-center text-xs w-[100px] text-cyan-100/70">Neatness</TableHead>
-                            <TableHead className="text-center text-xs w-[100px] text-cyan-100/70">Politeness</TableHead>
-                            <TableHead className="text-center text-xs w-[100px] text-cyan-100/70">Honesty</TableHead>
-                            <TableHead className="text-center text-xs w-[100px] text-cyan-100/70">Cooperation</TableHead>
-                            <TableHead className="text-center text-xs w-[100px] text-cyan-100/70">Peers</TableHead>
+                            <TableHead className="text-white w-[200px]">Student</TableHead>
+                            <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Punc.</TableHead>
+                            <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Neat.</TableHead>
+                            <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Polite.</TableHead>
+                            <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Honesty</TableHead>
+                            <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Coop.</TableHead>
+                            <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Lead.</TableHead>
+                            <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Focus</TableHead>
+                            <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Peers</TableHead>
                             <TableHead className="text-white">Auto-Remark (AI)</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -169,6 +177,18 @@ export function AffectiveDomainGrid({ students }: { students: any[] }) {
                                     <RatingInput
                                         value={ratings[student.id]?.cooperation || 3}
                                         onChange={(v) => updateRating(student.id, 'cooperation', v)}
+                                    />
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <RatingInput
+                                        value={ratings[student.id]?.leadership || 3}
+                                        onChange={(v) => updateRating(student.id, 'leadership', v)}
+                                    />
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <RatingInput
+                                        value={ratings[student.id]?.attentiveness || 3}
+                                        onChange={(v) => updateRating(student.id, 'attentiveness', v)}
                                     />
                                 </TableCell>
                                 <TableCell className="text-center">

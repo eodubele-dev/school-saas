@@ -128,6 +128,16 @@ export async function upsertGrade(entry: Partial<GradeEntry>) {
             updated_at: new Date()
         }
 
+        // 5. Forensic Logging: Track the change
+        const { data: oldGrade } = await supabase
+            .from('student_grades')
+            .select('ca1, ca2, exam, total, remarks')
+            .eq('student_id', entry.student_id)
+            .eq('subject_id', entry.subject_id)
+            .eq('term', entry.term)
+            .eq('session', entry.session)
+            .maybeSingle()
+
         // If ID exists, update. If not, insert (upsert based on unique constraint)
         const { data, error } = await supabase
             .from('student_grades')
@@ -136,6 +146,20 @@ export async function upsertGrade(entry: Partial<GradeEntry>) {
             .single()
 
         if (error) throw error
+
+        // Insert Audit Log
+        if (data) {
+            await supabase.from('system_audit_logs').insert({
+                tenant_id: profile?.tenant_id,
+                actor_id: user.id,
+                entity_type: 'gradebook',
+                entity_id: data.id,
+                action: 'SCORE_CHANGE',
+                old_value: oldGrade || {},
+                new_value: { ca1: data.ca1, ca2: data.ca2, exam: data.exam, total: data.total, remarks: data.remarks },
+                metadata: { student_name: entry.student_name, field_updated: entry.ca1 !== undefined ? 'ca1' : entry.ca2 !== undefined ? 'ca2' : entry.exam !== undefined ? 'exam' : 'remarks' }
+            })
+        }
 
         revalidatePath('/dashboard/teacher/gradebook')
         return { success: true, data }
@@ -146,30 +170,53 @@ export async function upsertGrade(entry: Partial<GradeEntry>) {
     }
 }
 
+import { model } from '@/lib/gemini'
+
 /**
- * 3. Generate Remark (Gemini AI Stub)
+ * 3. Generate Remark (Gemini AI)
  */
 export async function generateRemarkAI(studentName: string, scores: { ca1: number, ca2: number, exam: number, total: number }) {
-    // Stub for Gemini 1.5 Flash
-    // In real app: call Google Generative AI SDK
+    try {
+        const { total, ca1, ca2, exam } = scores
 
-    const { total } = scores
-    let performance = ""
-    if (total >= 80) performance = "an outstanding performance"
-    else if (total >= 70) performance = "an excellent performance"
-    else if (total >= 60) performance = "a good performance"
-    else if (total >= 50) performance = "an average performance"
-    else performance = "a below average performance"
+        const prompt = `
+            Act as a Senior Principal of a prestigious school.
+            Generate a formal, constructive report card remark for ${studentName}.
+            
+            Context:
+            - CA 1: ${ca1}/20
+            - CA 2: ${ca2}/20
+            - Exam: ${exam}/60
+            - Total Score: ${total}/100
+            
+            Rules:
+            1. Use British English.
+            2. High scores (>80) should be highly commendatory.
+            3. Average scores (40-60) should encourage improvement in specific areas.
+            4. Failing scores (<40) should be firm but supportive, suggesting a meeting or extra focus.
+            5. Keep it to 2-3 concise sentences. No slang.
+            6. Do not use generic templates. Make it feel personalized to the score balance.
+        `
 
-    const remark = `Professional Remark for ${studentName}: ${studentName} demonstrated ${performance} this term. Keep up the consistent effort to maintain these standards.`
+        const result = await model.generateContent(prompt)
+        const response = await result.response
+        const remark = response.text().trim()
 
-    return { success: true, remark }
+        return { success: true, remark }
+    } catch (error) {
+        console.error("AI Remark Error:", error)
+        // Fallback to basic logic if AI fails
+        const { total } = scores
+        let performance = total >= 80 ? "outstanding" : total >= 60 ? "good" : total >= 40 ? "average" : "challenging"
+        const fallback = `${studentName} had a ${performance} term. Continued effort is encouraged for better results.`
+        return { success: true, remark: fallback }
+    }
 }
 
 /**
  * 4. Lock Grades
  */
-export async function lockClassGrades(classId: string, subjectId: string, term: string, session: string) {
+export async function lockClassGrades(domain: string, classId: string, subjectId: string, term: string, session: string) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user?.id).single()
@@ -185,6 +232,84 @@ export async function lockClassGrades(classId: string, subjectId: string, term: 
 
     if (error) return { success: false, error: "Failed to lock" }
 
-    revalidatePath('/dashboard/teacher/gradebook')
+    revalidatePath(`/${domain}/dashboard/teacher/assessments`)
+    return { success: true }
+}
+
+/**
+ * 5. Unlock Grades (Admin Only)
+ */
+export async function unlockClassGrades(domain: string, classId: string, subjectId: string, term: string, session: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user?.id).single()
+
+    if (profile?.role !== 'admin') {
+        return { success: false, error: "Unauthorized: Admin access required" }
+    }
+
+    const { error } = await supabase
+        .from('student_grades')
+        .update({ is_locked: false })
+        .eq('class_id', classId)
+        .eq('subject_id', subjectId)
+        .eq('term', term)
+        .eq('session', session)
+        .eq('tenant_id', profile?.tenant_id)
+
+    if (error) return { success: false, error: "Failed to unlock" }
+
+    revalidatePath(`/${domain}/dashboard/teacher/assessments`)
+    return { success: true }
+}
+/**
+ * 6. Reject Grades (Principal/Admin Only)
+ */
+export async function rejectClassGrades(domain: string, classId: string, subjectId: string, term: string, session: string, reason: string = "Correction required") {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user?.id).single()
+
+    if (!['admin', 'owner', 'manager'].includes(profile?.role || '')) {
+        return { success: false, error: "Unauthorized: Admin access required" }
+    }
+
+    // 1. Get first record to log
+    const { data: target } = await supabase
+        .from('student_grades')
+        .select('id')
+        .eq('class_id', classId)
+        .eq('subject_id', subjectId)
+        .eq('term', term)
+        .eq('session', session)
+        .limit(1)
+        .single()
+
+    const { error } = await supabase
+        .from('student_grades')
+        .update({ is_locked: false })
+        .eq('class_id', classId)
+        .eq('subject_id', subjectId)
+        .eq('term', term)
+        .eq('session', session)
+        .eq('tenant_id', profile?.tenant_id)
+
+    if (error) return { success: false, error: "Failed to reject" }
+
+    // Log Rejection
+    if (target) {
+        await supabase.from('system_audit_logs').insert({
+            tenant_id: profile?.tenant_id,
+            actor_id: user?.id,
+            entity_type: 'gradebook',
+            entity_id: target.id,
+            action: 'REJECT',
+            new_value: { status: 'UNLOCKED', reason },
+            metadata: { classId, subjectId, term, session }
+        })
+    }
+
+    revalidatePath(`/${domain}/dashboard/teacher/assessments`)
+    revalidatePath('/dashboard/admin/approvals')
     return { success: true }
 }

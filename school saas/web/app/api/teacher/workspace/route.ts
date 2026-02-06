@@ -44,15 +44,21 @@ export async function GET() {
             .eq('tenant_id', profile?.tenant_id)
             .limit(5)
 
-        // 4. Attendance Vitals (Present/Absent counts for today)
+        // 4. Attendance Vitals (Present/Absent counts for today, filtered by Active Class)
+        // We first resolve the activeClass to use its ID for filtering
+        // @ts-ignore
+        const resolvedActiveClass = activeSession?.classes || classes?.[0]
+
         const { data: attendanceData } = await supabase
             .from('student_attendance')
             .select('status')
             .eq('date', today)
             .eq('tenant_id', profile?.tenant_id)
+            .eq('register:attendance_registers!inner(class_id)', resolvedActiveClass?.id)
 
         const presentCount = attendanceData?.filter(a => a.status === 'present').length || 0
         const absentCount = attendanceData?.filter(a => a.status === 'absent').length || 0
+        const lateCount = attendanceData?.filter(a => a.status === 'late').length || 0
 
         // 5. Upcoming Lessons
         const { data: upcomingLessons } = await supabase
