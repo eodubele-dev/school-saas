@@ -4,30 +4,38 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { PendingItem } from "@/lib/actions/approvals"
-import { formatDate } from "@/lib/utils"
+import { cn, formatDate } from "@/lib/utils"
 import { useState } from "react"
 import { ReviewModal } from "./review-modal"
-import { FileText, Calculator, Clock, ChevronRight } from "lucide-react"
+import { FileText, Calculator, Clock, ChevronRight, MapPin } from "lucide-react"
 
 export function ApprovalQueue({ initialItems, domain }: { initialItems: PendingItem[], domain: string }) {
     const [selectedItem, setSelectedItem] = useState<PendingItem | null>(null)
 
     const lessonPlans = initialItems.filter(i => i.type === 'lesson_plan')
     const gradebooks = initialItems.filter(i => i.type === 'gradebook')
+    const disputes = initialItems.filter(i => i.type === 'attendance_dispute')
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
             <QueueList
-                title="Lesson Plans for Review"
+                title="Lesson Plans"
                 icon={FileText}
                 items={lessonPlans}
                 onSelect={setSelectedItem}
             />
             <QueueList
-                title="Result Sheets & Gradebooks"
+                title="Gradebooks"
                 icon={Calculator}
                 items={gradebooks}
                 onSelect={setSelectedItem}
+            />
+            <QueueList
+                title="Attendance Disputes"
+                icon={MapPin}
+                items={disputes}
+                onSelect={setSelectedItem}
+                accent="text-red-400"
             />
 
             <ReviewModal
@@ -40,13 +48,13 @@ export function ApprovalQueue({ initialItems, domain }: { initialItems: PendingI
     )
 }
 
-function QueueList({ title, icon: Icon, items, onSelect }: { title: string, icon: any, items: PendingItem[], onSelect: (i: PendingItem) => void }) {
+function QueueList({ title, icon: Icon, items, onSelect, accent }: { title: string, icon: any, items: PendingItem[], onSelect: (i: PendingItem) => void, accent?: string }) {
     return (
         <Card className="bg-slate-900/50 border-white/10 flex flex-col h-full overflow-hidden">
             <div className="p-4 border-b border-white/10 bg-slate-900 flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                    <Icon className="h-5 w-5 text-[var(--school-accent)]" />
-                    <h3 className="font-bold text-white">{title}</h3>
+                    <Icon className={cn("h-5 w-5", accent || "text-[var(--school-accent)]")} />
+                    <h3 className="font-bold text-white uppercase tracking-tight text-xs">{title}</h3>
                 </div>
                 <Badge variant="secondary" className="bg-slate-800 text-slate-300">
                     {items.length} Pending

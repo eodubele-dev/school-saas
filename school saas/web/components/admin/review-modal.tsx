@@ -10,6 +10,7 @@ import { CheckCircle, XCircle, Stamp, UserCheck, AlertCircle } from "lucide-reac
 import { toast } from "sonner"
 import { cn, formatDate } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+import { AttendanceDisputeNotification } from "../attendance/attendance-dispute-notification"
 
 interface ReviewModalProps {
     item: PendingItem | null
@@ -104,6 +105,19 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                         {/* Content */}
                         {item.type === 'lesson_plan' ? (
                             <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: item.details?.content || "<p>No content</p>" }} />
+                        ) : item.type === 'attendance_dispute' ? (
+                            <div className="-m-8">
+                                <AttendanceDisputeNotification
+                                    teacherName={item.submitted_by}
+                                    photoUrl={item.details?.proof_url}
+                                    distance={item.details?.distance}
+                                    reason={item.details?.reason}
+                                    submittedAt={item.submitted_at}
+                                    onApprove={handleApprove}
+                                    onDecline={handleReject}
+                                    isProcessing={isProcessing}
+                                />
+                            </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                                 <AlertCircle className="h-16 w-16 text-slate-300" />
@@ -118,22 +132,25 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                     </div>
                 </ScrollArea>
 
-                <DialogFooter className="p-6 border-t border-white/10 bg-slate-900 flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-                    <Textarea
-                        placeholder="Add comments for rejection or notes..."
-                        className="flex-1 bg-slate-950 border-white/10 text-white min-h-[60px]"
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                    />
-                    <div className="flex gap-2">
-                        <Button variant="destructive" onClick={handleReject} disabled={isProcessing || isStamped}>
-                            <XCircle className="h-4 w-4 mr-2" /> Needs Correction
-                        </Button>
-                        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleApprove} disabled={isProcessing || isStamped}>
-                            <CheckCircle className="h-4 w-4 mr-2" /> Approve & Stamp
-                        </Button>
-                    </div>
-                </DialogFooter>
+                {/* Hide default footer for attendance disputes as it has its own action bar inside the notification view */}
+                {item.type !== 'attendance_dispute' && (
+                    <DialogFooter className="p-6 border-t border-white/10 bg-slate-900 flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+                        <Textarea
+                            placeholder="Add comments for rejection or notes..."
+                            className="flex-1 bg-slate-950 border-white/10 text-white min-h-[60px]"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                        />
+                        <div className="flex gap-2">
+                            <Button variant="destructive" onClick={handleReject} disabled={isProcessing || isStamped}>
+                                <XCircle className="h-4 w-4 mr-2" /> Needs Correction
+                            </Button>
+                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleApprove} disabled={isProcessing || isStamped}>
+                                <CheckCircle className="h-4 w-4 mr-2" /> Approve & Stamp
+                            </Button>
+                        </div>
+                    </DialogFooter>
+                )}
             </DialogContent>
         </Dialog>
     )

@@ -105,7 +105,7 @@ export async function logActivity(
         const ip = headersList.get('x-forwarded-for') || 'Unknown IP'
         const userAgent = headersList.get('user-agent') || 'Unknown Device'
 
-        await supabase.from('audit_logs').insert({
+        return await supabase.from('audit_logs').insert({
             tenant_id: profile.tenant_id,
             actor_id: user.id,
             actor_name: profile.full_name,
@@ -121,7 +121,7 @@ export async function logActivity(
                 ip,
                 user_agent: userAgent
             }
-        })
+        }).select().single()
     } catch (error) {
         console.error("Audit Log Error:", error)
         // We generally don't want to crash the main app if logging fails, 

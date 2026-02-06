@@ -10,6 +10,7 @@ interface ClockInResult {
     verified?: boolean
     distance?: number
     error?: string
+    auditLogId?: string
 }
 
 interface SchoolLocation {
@@ -65,10 +66,22 @@ export async function clockInStaff(
         )
 
         if (!verified) {
+            // Forensic Flagging of failed verification
+            const { data: logEntry } = await logActivity(
+                'Security',
+                'FAILED_LOCATION_VERIFICATION',
+                `Institutional breach blocked. Staff attempted clock-in from ${Math.round(distance)}m away.`,
+                'profiles',
+                user.id,
+                null,
+                { latitude, longitude, distance, radius: schoolLocation.radius_meters }
+            )
+
             return {
                 success: false,
                 verified: false,
                 distance,
+                auditLogId: logEntry?.id,
                 error: `You are ${Math.round(distance)}m away from school. You must be within ${schoolLocation.radius_meters}m to clock in.`
             }
         }
@@ -101,7 +114,7 @@ export async function clockInStaff(
 
 
         // Forensic Recording in Audit Log
-        await logActivity(
+        const { data: logEntry } = await logActivity(
             'System',
             'CLOCK_IN',
             `Staff clocked in successfully. Distance: ${Math.round(distance)}m`,
@@ -110,7 +123,7 @@ export async function clockInStaff(
         )
 
         revalidatePath('/clock-in')
-        return { success: true, verified: true, distance }
+        return { success: true, verified: true, distance, auditLogId: logEntry?.id }
 
     } catch (error) {
         console.error('Error in clockInStaff:', error)

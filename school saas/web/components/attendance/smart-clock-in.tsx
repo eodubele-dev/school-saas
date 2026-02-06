@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MapPin, Clock, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react"
 import { toast } from "sonner"
-import { clockInStaff, clockOutStaff, getClockInStatus } from "@/lib/actions/staff-clock-in"
+import { clockInStaff, clockOutStaff, getClockInStatus, getSchoolCoordinates } from "@/lib/actions/staff-clock-in"
+import { GeofenceFailureAlert } from "./geofence-failure-alert"
+import { AttendanceDisputeView } from "./attendance-dispute-view"
+import { isWithinRadius } from "@/lib/utils/geolocation"
+import { createClient } from "@/lib/supabase/client"
 
 export function SmartClockIn() {
     const [loading, setLoading] = useState(false)
@@ -14,10 +18,49 @@ export function SmartClockIn() {
         clockInTime: string | null
         isLate: boolean
     }>({ clockedIn: false, clockInTime: null, isLate: false })
+    const [isWithinRange, setIsWithinRange] = useState<boolean | null>(null)
+    const [showFailureAlert, setShowFailureAlert] = useState(false)
+    const [showDisputeView, setShowDisputeView] = useState(false)
+    const [failedDistance, setFailedDistance] = useState(0)
+    const [failedAttemptId, setFailedAttemptId] = useState('')
+    const [schoolLocation, setSchoolLocation] = useState<{ latitude: number, longitude: number, radius_meters: number } | null>(null)
 
     useEffect(() => {
         loadStatus()
+        initGeofencing()
     }, [])
+
+    const initGeofencing = async () => {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+        if (profile) {
+            const coords = await getSchoolCoordinates(profile.tenant_id)
+            setSchoolLocation(coords)
+
+            // Continuous Proximity Monitoring
+            if ("geolocation" in navigator) {
+                const watchId = navigator.geolocation.watchPosition((pos) => {
+                    if (coords) {
+                        const { verified } = isWithinRadius(
+                            pos.coords.latitude,
+                            pos.coords.longitude,
+                            coords.latitude,
+                            coords.longitude,
+                            coords.radius_meters
+                        )
+                        setIsWithinRange(verified)
+                    }
+                }, () => {
+                    setIsWithinRange(null)
+                }, { enableHighAccuracy: true })
+
+                return () => navigator.geolocation.clearWatch(watchId)
+            }
+        }
+    }
 
     const loadStatus = async () => {
         const res = await getClockInStatus()
@@ -54,7 +97,13 @@ export function SmartClockIn() {
                     toast.success("Clocked in successfully!")
                     loadStatus()
                 } else {
-                    toast.error(res.error || "Failed to clock in")
+                    if (res.verified === false) {
+                        setFailedDistance(Math.round(res.distance || 0))
+                        setFailedAttemptId(res.auditLogId || '') // I'll need to update the server action result type
+                        setShowFailureAlert(true)
+                    } else {
+                        toast.error(res.error || "Failed to clock in")
+                    }
                 }
                 setLoading(false)
             }, () => {
@@ -96,7 +145,12 @@ export function SmartClockIn() {
                 {!status.clockedIn ? (
                     <Button
                         size="lg"
-                        className="h-32 w-32 rounded-full border-4 border-blue-500/20 hover:border-blue-500 hover:scale-105 transition-all duration-300 bg-blue-600 hover:bg-blue-500 shadow-[0_0_40px_-10px_rgba(37,99,235,0.5)] flex flex-col gap-1"
+                        className={`h-32 w-32 rounded-full border-4 transition-all duration-300 flex flex-col gap-1 active:scale-95 shadow-[0_0_40px_-10px_rgba(37,99,235,0.5)]
+                            ${isWithinRange === false
+                                ? 'border-red-500/40 bg-red-600 hover:bg-red-500 animate-pulse shadow-red-500/40'
+                                : 'border-blue-500/20 bg-blue-600 hover:bg-blue-500 hover:scale-105'
+                            }
+                        `}
                         onClick={handleClockIn}
                         disabled={loading}
                     >
@@ -129,13 +183,41 @@ export function SmartClockIn() {
                     </div>
                 )}
 
-                <p className="text-xs text-slate-500 max-w-[200px]">
+                <p className={`text-xs max-w-[200px] font-medium transition-colors ${isWithinRange === false ? 'text-red-400 animate-pulse' : 'text-slate-500'}`}>
                     {status.clockedIn
                         ? "You are currently active. Don't forget to clock out."
-                        : "Ensure you are within the school premises (100m radius)."
+                        : isWithinRange === false
+                            ? "CRITICAL: OUT OF BOUNDS DETECTED. You must be within school premises."
+                            : "Ensure you are within the school premises (100m radius)."
                     }
                 </p>
             </div>
+
+            {showFailureAlert && (
+                <GeofenceFailureAlert
+                    distance={failedDistance}
+                    onRetry={() => {
+                        setShowFailureAlert(false)
+                        handleClockIn()
+                    }}
+                    onDispute={() => {
+                        setShowFailureAlert(false)
+                        setShowDisputeView(true)
+                    }}
+                />
+            )}
+
+            {showDisputeView && (
+                <AttendanceDisputeView
+                    failedAttemptId={failedAttemptId}
+                    distanceDetected={failedDistance}
+                    onSuccess={() => {
+                        setShowDisputeView(false)
+                        loadStatus()
+                    }}
+                    onCancel={() => setShowDisputeView(false)}
+                />
+            )}
         </Card>
     )
 }

@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 
 export interface PendingItem {
     id: string
-    type: 'lesson_plan' | 'gradebook'
+    type: 'lesson_plan' | 'gradebook' | 'attendance_dispute'
     title: string
     submitted_by: string
     submitted_at: string
@@ -121,6 +121,35 @@ export async function getPendingApprovals() {
         })
     }
 
+    // 4. Fetch Pending Attendance Disputes
+    const { data: disputes } = await supabase
+        .from('staff_attendance_disputes')
+        .select(`
+            id, reason, distance_detected, created_at,
+            staff:profiles!staff_id(full_name)
+        `)
+        .eq('tenant_id', profile?.tenant_id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+
+    if (disputes) {
+        disputes.forEach((d: any) => {
+            pendingItems.push({
+                id: d.id,
+                type: 'attendance_dispute',
+                title: `Attendance Dispute: ${Math.round(d.distance_detected)}m Failure`,
+                submitted_by: d.staff?.full_name || 'Unknown Staff',
+                submitted_at: d.created_at,
+                status: 'pending',
+                details: {
+                    reason: d.reason,
+                    distance: d.distance_detected,
+                    id: d.id
+                }
+            })
+        })
+    }
+
     return { success: true, data: pendingItems }
 }
 
@@ -155,6 +184,39 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
             .update({ status: 'approved' })
             .eq('id', id)
         if (error) return { success: false, error: error.message }
+    } else if (type === 'attendance_dispute') {
+        // 1. Mark Dispute as Approved
+        const { data: dispute, error: dError } = await supabase
+            .from('staff_attendance_disputes')
+            .update({
+                status: 'approved',
+                resolved_by: user.id,
+                resolved_at: new Date().toISOString()
+            })
+            .eq('id', id)
+            .select('*')
+            .single()
+
+        if (dError) return { success: false, error: dError.message }
+
+        // 2. Perform Manual Override Clock-In
+        const { error: aError } = await supabase
+            .from('staff_attendance')
+            .insert({
+                tenant_id: profile?.tenant_id,
+                staff_id: dispute.staff_id,
+                date: new Date().toISOString().split('T')[0],
+                check_in_time: new Date().toTimeString().split(' ')[0],
+                check_in_verified: true,
+                verification_method: 'manual_override',
+                metadata: {
+                    approved_by: user.id,
+                    dispute_id: id,
+                    original_distance: dispute.distance_detected
+                }
+            })
+
+        if (aError) return { success: false, error: aError.message }
     }
 
     // Audit Log
@@ -168,7 +230,8 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
     })
 
     revalidatePath('/dashboard/admin/approvals')
-    revalidatePath(`/${domain}/dashboard/teacher/assessments`)
+    revalidatePath(`/${domain}/dashboard/teacher/attendance`)
+    revalidatePath('/dashboard/attendance')
     return { success: true }
 }
 
@@ -199,6 +262,16 @@ export async function rejectItem(domain: string, id: string, type: 'lesson_plan'
             .update({ status: 'rejected' })
             .eq('id', id)
         if (error) return { success: false, error: error.message }
+    } else if (type === 'attendance_dispute') {
+        const { error } = await supabase
+            .from('staff_attendance_disputes')
+            .update({
+                status: 'declined',
+                resolved_by: user.id,
+                resolved_at: new Date().toISOString()
+            })
+            .eq('id', id)
+        if (error) return { success: false, error: error.message }
     }
 
     // Audit Log
@@ -212,7 +285,8 @@ export async function rejectItem(domain: string, id: string, type: 'lesson_plan'
     })
 
     revalidatePath('/dashboard/admin/approvals')
-    revalidatePath(`/${domain}/dashboard/teacher/assessments`)
+    revalidatePath(`/${domain}/dashboard/teacher/attendance`)
+    revalidatePath('/dashboard/attendance')
     return { success: true }
 }
 
