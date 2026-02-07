@@ -116,9 +116,9 @@ export async function getChatThreads() {
         .select(`
             id,
             last_message_at,
-            parent:profiles!parent_id(full_name, photo_url),
-            staff:profiles!staff_id(full_name, photo_url),
-            messages:chat_messages(content, is_read, created_at)
+            parent:profiles!parent_id(id, full_name, photo_url),
+            staff:profiles!staff_id(id, full_name, photo_url),
+            messages:chat_messages(content, is_read, sender_id, created_at)
         `)
         .or(`staff_id.eq.${user.id},parent_id.eq.${user.id}`)
         .order('last_message_at', { ascending: false })
@@ -129,12 +129,21 @@ export async function getChatThreads() {
     }
 
     // Process to get last message preview
-    const processed = threads.map(t => ({
-        id: t.id,
-        partner: t.staff.id === user.id ? t.parent : t.staff,
-        lastMessage: t.messages?.[0], // Assuming we limit or sort. Best to use a separate query or limit in real app.
-        unreadCount: t.messages?.filter((m: any) => !m.is_read && m.sender_id !== user.id).length || 0
-    }))
+    const processed = (threads || []).map(t => {
+        // Handle potential array results from joins
+        const staff = Array.isArray(t.staff) ? t.staff[0] : t.staff
+        const parent = Array.isArray(t.parent) ? t.parent[0] : t.parent
+
+        const isStaff = (staff as any)?.id === user.id
+        const partner = isStaff ? parent : staff
+
+        return {
+            id: t.id,
+            partner: partner,
+            lastMessage: t.messages?.[0],
+            unreadCount: t.messages?.filter((m: any) => !m.is_read && m.sender_id !== user.id).length || 0
+        }
+    })
 
     return { success: true, data: processed }
 }
@@ -162,4 +171,156 @@ export async function sendChatMessage(channelId: string, content: string, attach
 
     revalidatePath('/dashboard/messages')
     return { success: true }
+}
+
+/**
+ * 6. Get Chat Recipients
+ * Fetches a list of parents that a staff member can start a chat with.
+ * For MVP, we'll fetch all parents in the tenant.
+ */
+export async function getChatRecipients() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Unauthorized" }
+
+    const { data: parents, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, photo_url')
+        .eq('tenant_id', profile.tenant_id)
+        .eq('role', 'parent')
+        .order('full_name')
+
+    if (error) return { success: false, error: "Failed to load recipients" }
+    return { success: true, data: parents }
+}
+
+/**
+ * 7. Get or Create Chat Channel
+ */
+export async function getOrCreateChannel(parentId: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Unauthorized" }
+
+    // Check if exists
+    const { data: existing } = await supabase
+        .from('chat_channels')
+        .select('id')
+        .eq('staff_id', user.id)
+        .eq('parent_id', parentId)
+        .maybeSingle()
+
+    if (existing) return { success: true, channelId: existing.id }
+
+    // Create new
+    const { data: created, error } = await supabase
+        .from('chat_channels')
+        .insert({
+            tenant_id: profile.tenant_id,
+            staff_id: user.id,
+            parent_id: parentId
+        })
+        .select('id')
+        .single()
+
+    if (error) return { success: false, error: "Failed to initiate chat" }
+
+    revalidatePath('/dashboard/messages')
+    return { success: true, channelId: created.id }
+}
+
+/**
+ * 8. Get Communication Settings
+ */
+export async function getCommunicationSettings() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Unauthorized" }
+
+    const { data: settings, error } = await supabase
+        .from('communication_settings')
+        .select('*')
+        .eq('tenant_id', profile.tenant_id)
+        .maybeSingle()
+
+    if (error) return { success: false, error: "Failed to load settings" }
+
+    // If no settings exist, create defaults
+    if (!settings) {
+        const { data: defaults, error: createError } = await supabase
+            .from('communication_settings')
+            .insert({ tenant_id: profile.tenant_id })
+            .select('*')
+            .single()
+
+        if (createError) return { success: false, error: "Failed to initialize settings" }
+        return { success: true, data: defaults, role: profile.role }
+    }
+
+    return { success: true, data: settings, role: profile.role }
+}
+
+/**
+ * 9. Update Communication Settings
+ */
+export async function updateCommunicationSettings(payload: any) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Unauthorized" }
+
+    const { error } = await supabase
+        .from('communication_settings')
+        .update(payload)
+        .eq('tenant_id', profile.tenant_id)
+
+    if (error) return { success: false, error: "Failed to update settings" }
+
+    revalidatePath('/dashboard/communication')
+    return { success: true }
+}
+
+/**
+ * 10. Get Wallet Balance
+ */
+export async function getWalletBalance() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Unauthorized" }
+
+    const { data: tenant, error } = await supabase
+        .from('tenants')
+        .select('sms_balance')
+        .eq('id', profile.tenant_id)
+        .single()
+
+    if (error) return { success: false, error: "Failed to load wallet" }
+    return { success: true, balance: tenant.sms_balance || 0 }
+}
+/**
+ * 11. Get Current User Role
+ */
+export async function getUserRole() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Unauthorized" }
+
+    return { success: true, role: profile.role }
 }

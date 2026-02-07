@@ -3,6 +3,29 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 
+export async function getActiveAcademicSession() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Profile not found" }
+
+    const { data, error } = await supabase
+        .from('academic_sessions')
+        .select('*')
+        .eq('tenant_id', profile.tenant_id)
+        .eq('is_active', true)
+        .maybeSingle()
+
+    if (error) {
+        console.error("Error fetching active session:", error)
+        return { success: false, error: error.message }
+    }
+
+    return { success: true, session: data }
+}
+
 export async function updateGlobalSession(domain: string, sessionData: any) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()

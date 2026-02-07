@@ -7,6 +7,7 @@ import { getSMSTransactions } from "@/lib/actions/sms"
 import { UserRole } from "@/config/sidebar"
 import { Zap } from "lucide-react"
 import { SMSWalletAlert } from "./sms-wallet-alert"
+import { DashboardHeader } from "./dashboard-header"
 
 interface BentoDashboardLoaderProps {
     user: any // Supabase User
@@ -82,22 +83,12 @@ export async function BentoDashboardLoader({
             )}
 
             <div className="p-4 md:p-8">
-                {/* Dynamic Header - Simplified */}
-                <header className="mb-8 md:mb-12 border-b border-white/5 pb-6 relative z-10">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                        <div>
-                            <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
-                                {schoolName} <span className="text-white font-light">Command Center</span>
-                            </h1>
-                            <p className="mt-2 font-mono text-xs tracking-widest uppercase text-slate-500">
-                                Role: <span className="text-cyan-400 font-bold">{role.toUpperCase()}</span> <span className="text-slate-700">//</span> ID: <span className="text-slate-400">{user.id.slice(0, 8)}</span>
-                            </p>
-                            <p className="mt-1 text-sm text-slate-500 font-medium tracking-wide">
-                                Real-time school performance and financial analysis
-                            </p>
-                        </div>
-                    </div>
-                </header>
+                {/* Dynamic Header */}
+                <DashboardHeader
+                    user={user}
+                    role={role}
+                    schoolName={schoolName}
+                />
 
                 {/* The Bento Grid / Main Content Area */}
                 {/* Currently leveraging the layouts defined inside each Dashboard, wrapped here. 

@@ -12,6 +12,9 @@ import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
 import confetti from "canvas-confetti"
+import { useEffect } from "react"
+import { getWalletBalance } from "@/lib/actions/communication"
+import { NotificationPreviewModal } from "@/components/communication/notification-preview-modal"
 
 const BADGES = [
     { id: 'leadership', title: 'Leadership', icon: Crown, category: 'Leadership', color: 'text-purple-400', glow: 'shadow-[0_0_20px_rgba(168,85,247,0.3)]', activeGlow: 'shadow-[0_0_40px_rgba(168,85,247,0.5)]', bg: 'bg-purple-500/5', border: 'border-purple-500/20' },
@@ -27,10 +30,24 @@ export function AwardConsole({ students }: { students: any[] }) {
     const [selectedBadge, setSelectedBadge] = useState<any>(null)
     const [comment, setComment] = useState("")
     const [loading, setLoading] = useState(false)
+    const [showPreview, setShowPreview] = useState(false)
+    const [walletBalance, setWalletBalance] = useState(0)
 
-    const handleAward = async () => {
+    useEffect(() => {
+        const fetchBalance = async () => {
+            const res = await getWalletBalance()
+            if (res.success) setWalletBalance(res.balance)
+        }
+        fetchBalance()
+    }, [])
+
+    const handleAward = () => {
         if (!selectedStudent || !selectedBadge) return
+        setShowPreview(true)
+    }
 
+    const confirmAward = async () => {
+        setShowPreview(false)
         setLoading(true)
         try {
             const res = await awardBadge(selectedStudent.id, {
@@ -242,6 +259,17 @@ export function AwardConsole({ students }: { students: any[] }) {
                     </div>
                 </SheetContent>
             </Sheet>
+
+            {showPreview && (
+                <NotificationPreviewModal
+                    studentName={selectedStudent?.full_name}
+                    badgeTitle={selectedBadge?.title}
+                    teacherNote={comment}
+                    creditStatus={walletBalance >= 5 ? 'Sufficient' : 'Low'}
+                    onConfirm={confirmAward}
+                    onCancel={() => setShowPreview(false)}
+                />
+            )}
         </div>
     )
 }

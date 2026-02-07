@@ -18,9 +18,11 @@ CREATE TABLE IF NOT EXISTS public.school_events (
 ALTER TABLE public.school_events ENABLE ROW LEVEL SECURITY;
 
 -- Policies
+DROP POLICY IF EXISTS "Events viewable by tenant" ON public.school_events;
 CREATE POLICY "Events viewable by tenant" ON public.school_events
   FOR SELECT USING (tenant_id = get_auth_tenant_id());
 
+DROP POLICY IF EXISTS "Admins can manage events" ON public.school_events;
 CREATE POLICY "Admins can manage events" ON public.school_events
   FOR ALL USING (tenant_id = get_auth_tenant_id());
 

@@ -12,6 +12,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
+import { getActiveAcademicSession } from "@/lib/actions/academic"
 import { getSchoolEvents, SchoolEvent } from "@/lib/actions/calendar"
 import { AddToCalendarButton } from "./add-to-calendar"
 
@@ -21,15 +22,34 @@ export default async function CalendarPage({ params }: { params: { domain: strin
 
     if (!user) redirect(`/${params.domain}/login`)
 
-    // Fetch Events
-    const events = await getSchoolEvents()
+    // Fetch Events & Active Session
+    const [events, activeSessionRes] = await Promise.all([
+        getSchoolEvents(),
+        getActiveAcademicSession()
+    ])
 
-    // Calculate Term Progress (Mock logic: Assuming 13 weeks term)
-    // In real app, fetch term start/end from settings
-    const termStartDate = new Date()
-    termStartDate.setDate(termStartDate.getDate() - 20) // Started 20 days ago
-    const termEndDate = new Date()
-    termEndDate.setDate(termEndDate.getDate() + 70) // Ends in 70 days
+    const activeSession = activeSessionRes.success ? activeSessionRes.session : null
+
+    // Determine Term Bounds (Live Data vs Fallback Mock)
+    let termStartDate: Date
+    let termEndDate: Date
+    let sessionName = "Current Term"
+    let termName = "Academic Year"
+
+    if (activeSession?.start_date && activeSession?.end_date) {
+        termStartDate = new Date(activeSession.start_date)
+        termEndDate = new Date(activeSession.end_date)
+        sessionName = activeSession.session
+        termName = activeSession.term
+    } else {
+        // Fallback Mock logic (Assuming 13 weeks term) if no active session is found
+        termStartDate = new Date()
+        termStartDate.setDate(termStartDate.getDate() - 20)
+        termEndDate = new Date()
+        termEndDate.setDate(termEndDate.getDate() + 70)
+        sessionName = "2023/2024 Session"
+        termName = "2nd Term"
+    }
 
     const totalDays = (termEndDate.getTime() - termStartDate.getTime()) / (1000 * 3600 * 24)
     const daysPassed = (new Date().getTime() - termStartDate.getTime()) / (1000 * 3600 * 24)
@@ -51,10 +71,12 @@ export default async function CalendarPage({ params }: { params: { domain: strin
                     <div className="flex justify-between items-end mb-4">
                         <div>
                             <h3 className="text-lg font-bold text-white">Current Term Progress</h3>
-                            <p className="text-sm text-slate-400">2nd Term, 2023/2024 Session</p>
+                            <p className="text-sm text-slate-400">{termName}, {sessionName}</p>
                         </div>
                         <div className="text-right">
-                            <span className="text-3xl font-bold text-cyan-400">{weeksLeft}</span>
+                            <span className="text-3xl font-bold text-cyan-400">
+                                {weeksLeft > 0 ? weeksLeft : 0}
+                            </span>
                             <span className="text-sm text-slate-500 ml-1">weeks left</span>
                         </div>
                     </div>

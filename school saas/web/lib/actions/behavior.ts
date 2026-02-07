@@ -19,17 +19,41 @@ export type BehavioralRating = {
 
 // --- Actions ---
 
+// --- Templates ---
+const COMMUNICATION_TEMPLATES = {
+    POSITIVE_BEHAVIOR: (studentName: string, badgeTitle: string, comment: string) =>
+        `EduFlow Platinum: ${studentName} was awarded the ${badgeTitle} Badge! Recognition: "${comment}". View details: https://eduflow.app/portal`,
+}
+
 export async function awardBadge(studentId: string, badge: { title: string, icon_key: string, category: string, comment: string }) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) return { success: false, error: "Unauthorized" }
 
-    // Get current tenant from user profile (assuming simple flow)
+    // Get current tenant from user profile
     const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
     if (!profile) return { success: false, error: "Profile not found" }
 
-    const { error } = await supabase.from('achievements').insert({
+    // 1. Fetch Student and Parent Data
+    const { data: student, error: studentError } = await supabase
+        .from('students')
+        .select(`
+            full_name,
+            parent:profiles!parent_id(id, full_name, phone)
+        `)
+        .eq('id', studentId)
+        .single()
+
+    if (studentError || !student) {
+        console.error("Student/Parent not found:", studentError)
+        return { success: false, error: "Student or Parent data records missing" }
+    }
+
+    const parent = student.parent as any;
+
+    // 2. Persist Achievement (Forensic Audit Log)
+    const { error: achievementError } = await supabase.from('achievements').insert({
         tenant_id: profile.tenant_id,
         student_id: studentId,
         awarded_by: user.id,
@@ -40,7 +64,12 @@ export async function awardBadge(studentId: string, badge: { title: string, icon
         awarded_at: new Date().toISOString()
     })
 
-    // 2. Parent Engagement: Trigger SMS Nudge
+    if (achievementError) {
+        console.error("Achievement insert error:", achievementError)
+        return { success: false, error: "Failed to record achievement" }
+    }
+
+    // 3. Automated Notification Routing & Wallet Verification
     try {
         const { data: tenant } = await supabase
             .from('tenants')
@@ -50,31 +79,43 @@ export async function awardBadge(studentId: string, badge: { title: string, icon
 
         const settings = tenant?.notification_settings as any
         const walletBalance = Number(tenant?.sms_balance) || 0
+        const SMS_COST = 5;
 
-        if (settings?.positive_behavior_sms && walletBalance >= 5) { // Assuming 5 units per SMS Nudge
-            // Deduct 5 units
+        if (settings?.positive_behavior_sms && walletBalance >= SMS_COST && parent?.phone) {
+            // Deduct from wallet
             await supabase
                 .from('tenants')
-                .update({ sms_balance: walletBalance - 5 })
+                .update({ sms_balance: walletBalance - SMS_COST })
                 .eq('id', profile.tenant_id)
 
-            // Log the message
+            // Compose Personalized Content
+            const messageContent = COMMUNICATION_TEMPLATES.POSITIVE_BEHAVIOR(
+                student.full_name,
+                badge.title,
+                badge.comment
+            )
+
+            // Log Multi-Channel Sync Event
             await supabase.from('message_logs').insert({
                 tenant_id: profile.tenant_id,
                 sender_id: user.id,
-                recipient_name: 'Parent', // In real app, fetch parent name
-                message_content: `EduFlow: ${badge.title} badge awarded to your child!`,
+                recipient_name: parent.full_name,
+                recipient_phone: parent.phone,
+                message_content: messageContent,
                 channel: 'sms',
                 status: 'sent',
-                cost: 5
+                cost: SMS_COST,
+                provider_ref: `PLATINUM_NUDGE_${Date.now()}`
             })
 
-            console.log(`[SMS NUDGE] Sent to parent for student ${studentId}. Cost: 5 units.`)
+            console.log(`[PLATINUM SMS] Sent to ${parent.full_name} (${parent.phone}) for ${student.full_name}.`)
+        } else if (settings?.positive_behavior_sms && !parent?.phone) {
+            console.warn(`[SMS SKIPPED] No phone number on file for parent of ${student.full_name}`)
         }
     } catch (e) {
-        console.error("Failed to trigger SMS Nudge:", e)
-        // We don't fail the whole award if SMS fails
+        console.error("Communication Hub Failure:", e)
     }
+
 
     revalidatePath('/dashboard/student/profile')
     return { success: true }

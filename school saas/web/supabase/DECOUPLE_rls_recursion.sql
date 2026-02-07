@@ -38,19 +38,71 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 3. Global RLS Decoupling Loop (The "Nuclear Regex Sweep")
--- We use regex to find and replace variations of the profiles subquery.
+-- 2.2 Balanced Expression Parser (The "Master Refactorer")
+-- This function identifies a subquery and finds its balancing closing parenthesis.
+CREATE OR REPLACE FUNCTION public.fix_recursive_rls(expr text)
+RETURNS text AS $$
+DECLARE
+    start_pos int;
+    current_pos int;
+    paren_count int;
+    sub_expr text;
+    work_expr text;
+BEGIN
+    work_expr := expr;
+    <<target_finder>>
+    LOOP
+        -- Find the next subquery start
+        start_pos := strpos(lower(work_expr), '(select');
+        IF start_pos = 0 THEN EXIT; END IF;
+        
+        -- Iterate to find matching paren
+        paren_count := 0;
+        FOR current_pos IN start_pos..length(work_expr) LOOP
+            IF substr(work_expr, current_pos, 1) = '(' THEN
+                paren_count := paren_count + 1;
+            ELSIF substr(work_expr, current_pos, 1) = ')' THEN
+                paren_count := paren_count - 1;
+            END IF;
+            
+            IF paren_count = 0 THEN
+                -- Found the balancing paren
+                sub_expr := substr(work_expr, start_pos, current_pos - start_pos + 1);
+                
+                -- Check if this subquery is recursive on 'profiles'
+                IF lower(sub_expr) LIKE '%profiles%' AND lower(sub_expr) LIKE '%auth.uid()%' THEN
+                    IF lower(sub_expr) LIKE '%tenant_id%' THEN
+                        work_expr := overlay(work_expr PLACING '(get_auth_tenant_id())' FROM start_pos FOR (current_pos - start_pos + 1));
+                    ELSIF lower(sub_expr) LIKE '%role%' THEN
+                        work_expr := overlay(work_expr PLACING '(get_auth_role())' FROM start_pos FOR (current_pos - start_pos + 1));
+                    ELSE
+                        -- Prevent potential infinite loops if unknown subquery type
+                        EXIT target_finder;
+                    END IF;
+                    -- Restart to check for more subqueries in the modified string
+                    CONTINUE target_finder;
+                END IF;
+                -- If it was a (SELECT...) but not recursive on profiles, skip past it to find the next one
+                work_expr := overlay(work_expr PLACING '/*SKIP*/' FROM start_pos FOR 8);
+                CONTINUE target_finder;
+            END IF;
+        END LOOP;
+        EXIT;
+    END LOOP;
+    
+    -- Cleanup skip markers
+    RETURN replace(work_expr, '/*SKIP*/', '(SELECT');
+END;
+$$ LANGUAGE plpgsql;
+
+-- 3. Global RLS Decoupling Loop (The "Platinum Sweep")
+-- We replace subqueries with surgical precision.
 DO $$
 DECLARE
     r RECORD;
     _sql TEXT;
     _new_qual TEXT;
     _new_check TEXT;
-    -- Super-Permissive patterns to handle whitespace, case, and quotes in database expressions
-    _pattern_tenant TEXT := '\(\s*SELECT\s+"?profiles"?\."?tenant_id"?\s+FROM\s+(public\.)?"?profiles"?\s+WHERE\s+\(?("?profiles"?\.)?"?id"?\s*=\s*auth\.uid\(\)\)?\s*\)';
-    _pattern_role TEXT := '\(\s*SELECT\s+"?profiles"?\."?role"?\s+FROM\s+(public\.)?"?profiles"?\s+WHERE\s+\(?("?profiles"?\.)?"?id"?\s*=\s*auth\.uid\(\)\)?\s*\)';
-    _pattern_simple_tenant TEXT := '\(\s*SELECT\s+"?tenant_id"?\s+FROM\s+(public\.)?"?profiles"?\s+WHERE\s+"?id"?\s*=\s*auth\.uid\(\)\s*\)';
-    _pattern_simple_role TEXT := '\(\s*SELECT\s+"?role"?\s+FROM\s+(public\.)?"?profiles"?\s+WHERE\s+"?id"?\s*=\s*auth\.uid\(\)\s*\)';
 BEGIN
     FOR r IN 
         SELECT 
@@ -65,47 +117,34 @@ BEGIN
         WHERE schemaname = 'public'
           AND (qual ILIKE '%SELECT%profiles%' OR with_check ILIKE '%SELECT%profiles%')
     LOOP
-        _new_qual := r.qual;
-        _new_check := r.with_check;
+        BEGIN
+            -- Use the Balanced Parser to refactor the expressions
+            _new_qual := fix_recursive_rls(r.qual);
+            _new_check := fix_recursive_rls(r.with_check);
 
-        -- Regex Replace Tenant ID subqueries
-        -- Wrap in parentheses (get_auth_tenant_id()) to ensure compatibility with 'IN' and '=' operators
-        _new_qual := regexp_replace(_new_qual, _pattern_tenant, '(get_auth_tenant_id())', 'gi');
-        _new_qual := regexp_replace(_new_qual, _pattern_simple_tenant, '(get_auth_tenant_id())', 'gi');
-        
-        -- Regex Replace Role subqueries
-        _new_qual := regexp_replace(_new_qual, _pattern_role, '(get_auth_role())', 'gi');
-        _new_qual := regexp_replace(_new_qual, _pattern_simple_role, '(get_auth_role())', 'gi');
+            -- Skip if no changes made
+            IF (_new_qual = r.qual AND (_new_check IS NULL OR _new_check = r.with_check)) THEN
+                CONTINUE;
+            END IF;
 
-        -- Repeat for with_check
-        IF _new_check IS NOT NULL THEN
-            _new_check := regexp_replace(_new_check, _pattern_tenant, '(get_auth_tenant_id())', 'gi');
-            _new_check := regexp_replace(_new_check, _pattern_simple_tenant, '(get_auth_tenant_id())', 'gi');
-            _new_check := regexp_replace(_new_check, _pattern_role, '(get_auth_role())', 'gi');
-            _new_check := regexp_replace(_new_check, _pattern_simple_role, '(get_auth_role())', 'gi');
-        END IF;
+            RAISE NOTICE 'REFORMING POLICY: %.% (%)', r.tablename, r.policyname, r.cmd;
 
-        -- Skip if no changes made
-        IF _new_qual IS NOT NULL AND _new_qual = r.qual AND (_new_check IS NULL OR _new_check = r.with_check) THEN
-             CONTINUE;
-        END IF;
+            EXECUTE format('DROP POLICY %I ON %I.%I', r.policyname, r.schemaname, r.tablename);
+            
+            _sql := format('CREATE POLICY %I ON %I.%I FOR %s TO %s', r.policyname, r.schemaname, r.tablename, r.cmd, array_to_string(r.roles, ', '));
+            
+            IF _new_qual IS NOT NULL THEN
+                _sql := _sql || ' USING (' || _new_qual || ')';
+            END IF;
+            
+            IF _new_check IS NOT NULL THEN
+                _sql := _sql || ' WITH CHECK (' || _new_check || ')';
+            END IF;
 
-        RAISE NOTICE 'DECOUPLING POLICY: %.% (Cmd: %)', r.tablename, r.policyname, r.cmd;
-
-        -- We must drop and recreate
-        EXECUTE format('DROP POLICY %I ON %I.%I', r.policyname, r.schemaname, r.tablename);
-        
-        _sql := format('CREATE POLICY %I ON %I.%I FOR %s TO %s', r.policyname, r.schemaname, r.tablename, r.cmd, array_to_string(r.roles, ', '));
-        
-        IF _new_qual IS NOT NULL THEN
-            _sql := _sql || ' USING (' || _new_qual || ')';
-        END IF;
-        
-        IF _new_check IS NOT NULL THEN
-            _sql := _sql || ' WITH CHECK (' || _new_check || ')';
-        END IF;
-
-        EXECUTE _sql;
+            EXECUTE _sql;
+        EXCEPTION WHEN OTHERS THEN
+            RAISE NOTICE 'SKIPPED %.%: %', r.tablename, r.policyname, SQLERRM;
+        END;
     END LOOP;
 END $$;
 

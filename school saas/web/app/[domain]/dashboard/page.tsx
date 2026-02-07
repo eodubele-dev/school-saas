@@ -18,28 +18,28 @@ export default async function DashboardPage({
         return <div className="p-8 text-white">Access Denied: Please log in.</div>
     }
 
-    // Platinum Optimization: Try to read from JWT app_metadata first
+    // Platinum Optimization: Prioritize DB for Critical Data (Freshness), Fallback to JWT
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, tenant_id, tenants(name)')
+        .eq('id', user.id)
+        .single()
+
     const appMeta = user.app_metadata || {}
-    let role = appMeta.role || searchParams.role
-    let schoolName = appMeta.schoolName
+
+    // Role: DB > JWT > URL Param
+    let role = profile?.role || appMeta.role || searchParams.role
+
+    // School Name: DB > JWT > Header
+    // @ts-ignore - Supabase types for joins can be tricky
+    let schoolName = profile?.tenants?.name || appMeta.schoolName || headers().get('x-school-name')
+
     let primaryColor = appMeta.primaryColor
     let tier = appMeta.subscriptionTier || 'starter'
     let isPilot = appMeta.isPilot || false
     let smsBalance = appMeta.smsBalance || 0
 
-    // Middleware might have injected headers if DB lookup happened there
-    const headerList = headers()
-    if (!schoolName) schoolName = headerList.get('x-school-name')
-
-    // Fallback: If metadata missing (legacy session), fetch from DB
-    if (!role) {
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single()
-        role = profile?.role
-    }
+    // Redundant fallback block removed since we fetched DB above
 
     if (!schoolName) {
         // Fallback branding (or if middleware skipped it?)
@@ -55,6 +55,7 @@ export default async function DashboardPage({
             tier={tier}
             isPilot={isPilot}
             smsBalance={smsBalance}
+            subdomain={domain}
         />
     )
 }

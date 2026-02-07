@@ -105,7 +105,7 @@ export function BroadcastComposer() {
                 </div>
 
                 <div className="flex items-center justify-between pt-2">
-                    <Button type="button" variant="ghost" className="text-slate-400 hover:text-white">
+                    <Button type="button" variant="ghost" className="text-slate-400 hover:text-white hover:bg-white/10">
                         <Paperclip className="h-4 w-4 mr-2" /> Attach File
                     </Button>
                     <Button type="submit" disabled={sending} className="bg-[var(--school-accent)] text-white w-32">

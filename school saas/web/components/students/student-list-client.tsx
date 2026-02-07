@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import { TransferModal } from '@/components/students/transfer-modal'
 import { BulkTransferModal } from '@/components/students/bulk-transfer-modal'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -8,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
-import { ArrowLeftRight, Search, GraduationCap, Users } from 'lucide-react'
+import { ArrowLeftRight, Search, GraduationCap, Users, UserPlus } from 'lucide-react'
 
 interface Student {
     id: string
@@ -32,6 +33,10 @@ export default function StudentListClient({
     initialStudents: Student[],
     classes: ClassOption[]
 }) {
+    const params = useParams()
+    const router = useRouter()
+    const domain = params.domain as string
+
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
     const [isTransferOpen, setIsTransferOpen] = useState(false)
@@ -79,7 +84,7 @@ export default function StudentListClient({
                     />
                 </div>
 
-                {selectedIds.length > 0 && (
+                {selectedIds.length > 0 ? (
                     <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-10 duration-300">
                         <span className="text-sm text-slate-400 font-medium mr-2">{selectedIds.length} selected</span>
                         <Button
@@ -90,6 +95,14 @@ export default function StudentListClient({
                             Bulk Promote
                         </Button>
                     </div>
+                ) : (
+                    <Button
+                        onClick={() => router.push(`/${domain}/dashboard/admin/admissions`)}
+                        className="bg-[var(--school-accent)] hover:brightness-110 text-white shadow-[0_0_15px_rgba(var(--school-accent-rgb),0.4)]"
+                    >
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        New Enrollment
+                    </Button>
                 )}
             </div>
 
