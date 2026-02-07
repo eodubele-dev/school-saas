@@ -93,10 +93,10 @@ export async function saveLessonPlan(data: Partial<LessonPlan>) {
 
     if (error) {
         console.error(error)
-        return { success: false, error: "Failed to save" }
+        throw new Error(error.message || "Failed to save")
     }
 
-    revalidatePath('/dashboard/teacher/lesson-plans')
+    revalidatePath('/', 'layout')
     return { success: true }
 }
 

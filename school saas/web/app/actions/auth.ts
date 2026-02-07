@@ -45,14 +45,18 @@ export async function login(formData: FormData) {
             }
 
             // B. Verify User Profile is linked to this School
+            console.log(`[Auth Action] Querying profile for user: ${authData.user.id}`)
             const { data: profile, error: profileError } = await supabase
                 .from('profiles')
                 .select('tenant_id, role')
                 .eq('id', authData.user.id)
                 .single()
 
+            console.log(`[Auth Action] Profile query result:`, { profile, profileError })
+
             if (profileError || !profile) {
-                throw new Error("Profile not found")
+                console.error(`[Auth Action] Profile error:`, profileError)
+                throw new Error(profileError?.message || "Profile not found")
             }
 
             if (profile.tenant_id !== tenant.id) {

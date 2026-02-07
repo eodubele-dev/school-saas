@@ -18,7 +18,7 @@ create table public.profiles (
   id uuid references auth.users on delete cascade primary key,
   tenant_id uuid references public.tenants(id),
   full_name text,
-  role text check (role in ('admin', 'teacher', 'parent', 'student')) default 'parent',
+  role text check (role in ('admin', 'teacher', 'parent', 'student', 'bursar', 'registrar', 'owner', 'manager')) default 'parent',
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 

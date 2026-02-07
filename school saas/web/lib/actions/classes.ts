@@ -20,6 +20,8 @@ export interface StudentRosterItem {
     medical_info: { conditions?: string[], notes?: string }
     financial_status: string
     performance_trend?: 'up' | 'down' | 'stable'
+    parent_name?: string
+    parent_phone?: string
 }
 
 /**
@@ -91,22 +93,33 @@ export async function getClassRoster(classId: string) {
     const supabase = createClient()
     const { data: students } = await supabase
         .from('students')
-        .select('*')
+        .select(`
+            *,
+            parent:profiles!parent_id(
+                full_name,
+                phone_number
+            )
+        `)
         .eq('class_id', classId)
         .order('full_name')
 
     if (!students) return { success: false, data: [] }
 
-    const roster: StudentRosterItem[] = students.map(s => ({
-        id: s.id,
-        full_name: s.full_name,
-        admission_number: s.admission_number || 'N/A',
-        status: s.status || 'active',
-        avatar_url: s.avatar_url,
-        medical_info: s.medical_info || {},
-        financial_status: s.financial_status || 'paid',
-        performance_trend: 'stable' // Can be computed later
-    }))
+    const roster: StudentRosterItem[] = students.map(s => {
+        const parent = (s as any).parent
+        return {
+            id: s.id,
+            full_name: s.full_name,
+            admission_number: s.admission_number || 'N/A',
+            status: s.status || 'active',
+            avatar_url: s.avatar_url,
+            medical_info: s.medical_info || {},
+            financial_status: s.financial_status || 'paid',
+            performance_trend: 'stable',
+            parent_name: parent?.full_name,
+            parent_phone: parent?.phone_number
+        }
+    })
 
     return { success: true, data: roster }
 }

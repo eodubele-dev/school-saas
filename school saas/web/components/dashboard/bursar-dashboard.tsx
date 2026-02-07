@@ -13,7 +13,8 @@ import {
     Download,
     PlusCircle,
     MoreHorizontal,
-    Zap
+    Zap,
+    ShieldAlert
 } from "lucide-react"
 import { NairaIcon } from "@/components/ui/naira-icon"
 import {
@@ -243,10 +244,18 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                                     <span className="text-[10px] text-slate-400">Debtors List</span>
                                 </Button>
                             </Link>
-                            <Button variant="ghost" className="h-16 flex flex-col items-center justify-center gap-1 bg-white/5 border border-white/5 hover:border-[var(--school-accent)]/50">
-                                <PieChart className="h-4 w-4 text-blue-400" />
-                                <span className="text-[10px] text-slate-400">Class Analysis</span>
-                            </Button>
+                            <Link href="/dashboard/bursar/status/finance/reconciliation" className="w-full">
+                                <Button variant="ghost" className="h-16 w-full flex flex-col items-center justify-center gap-1 bg-amber-500/5 border border-amber-500/10 hover:border-amber-500/50 group">
+                                    <Zap className="h-4 w-4 text-amber-500 group-hover:animate-bounce" />
+                                    <span className="text-[10px] text-amber-200/50 uppercase font-black tracking-widest">Live Oversight</span>
+                                </Button>
+                            </Link>
+                            <Link href="/dashboard/bursar/status/finance/audit" className="w-full">
+                                <Button variant="ghost" className="h-16 w-full flex flex-col items-center justify-center gap-1 bg-cyan-500/5 border border-cyan-500/10 hover:border-cyan-500/50 group">
+                                    <ShieldAlert className="h-4 w-4 text-cyan-500 group-hover:animate-pulse" />
+                                    <span className="text-[10px] text-cyan-200/50 uppercase font-black tracking-widest">Audit Transcript</span>
+                                </Button>
+                            </Link>
                         </CardContent>
                     </Card>
                 </div>

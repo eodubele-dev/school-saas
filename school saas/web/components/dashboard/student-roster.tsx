@@ -164,13 +164,64 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
                                     </div>
                                 </td>
                                 <td className="p-4 text-right">
-                                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-[var(--school-accent)]">
+                                    <div className="flex items-center justify-end gap-1">
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                                            onClick={() => {
+                                                if (student.parent_phone) {
+                                                    toast.info(`Contact Parent: ${student.parent_name || 'Guardian'}`, {
+                                                        description: `Phone: ${student.parent_phone}`,
+                                                        action: {
+                                                            label: "Copy",
+                                                            onClick: () => {
+                                                                navigator.clipboard.writeText(student.parent_phone!)
+                                                                toast.success("Phone number copied!")
+                                                            }
+                                                        }
+                                                    })
+                                                } else {
+                                                    toast.error("No contact info available for this student.")
+                                                }
+                                            }}
+                                        >
                                             <Phone className="h-4 w-4" />
                                         </Button>
-                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-white">
-                                            <MoreHorizontal className="h-4 w-4" />
-                                        </Button>
+
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="bg-slate-900 border-white/10 text-slate-300 w-48">
+                                                <DropdownMenuItem
+                                                    onClick={() => window.location.href = `/dashboard/teacher/behavior?studentId=${student.id}`}
+                                                    className="cursor-pointer"
+                                                >
+                                                    <Activity className="h-4 w-4 mr-2 text-rose-500" />
+                                                    Log Behavior
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={() => {
+                                                        const notes = student.medical_info?.notes || "No medical notes on file."
+                                                        toast("Medical Records", { description: notes })
+                                                    }}
+                                                    className="cursor-pointer"
+                                                >
+                                                    <AlertTriangle className="h-4 w-4 mr-2 text-amber-500" />
+                                                    Medical Notes
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={() => window.location.href = `/dashboard/teacher/gradebook`}
+                                                    className="cursor-pointer"
+                                                >
+                                                    <div className="h-4 w-4 mr-2 border border-blue-500 text-blue-500 rounded flex items-center justify-center text-[10px] font-bold">G</div>
+                                                    Enter Grades
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </div>
                                 </td>
                             </tr>
