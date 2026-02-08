@@ -3,6 +3,14 @@ import { Trophy, Clock, CheckCircle2, AlertCircle, BookOpen } from "lucide-react
 import { getParentStats } from "@/lib/actions/dashboard"
 import { getParentFeed } from "@/lib/actions/class-feed"
 import { ParentFeedView } from "@/components/class-feed/parent-feed-view"
+import { PickupAuthorization } from "@/components/security/pickup-authorization"
+import { GatePassGenerator } from "@/components/security/gate-pass-generator"
+import { MedicalIncidentLog } from "@/components/health/medical-incident-log"
+import { AllergyAlertManager } from "@/components/health/allergy-alert-manager"
+import { PTAScheduler } from "@/components/feedback/pta-scheduler"
+import { FeedbackHub } from "@/components/feedback/feedback-hub"
+import { CurriculumRoadmap } from "@/components/learning/curriculum-roadmap"
+import { HomeworkTracker } from "@/components/learning/homework-tracker"
 
 // Simple circular progress component
 function CircularProgress({ percentage, size = 80, color = "#3B82F6" }: { percentage: number; size?: number; color?: string }) {
@@ -56,6 +64,17 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
 
     const [stats, feedResult] = await Promise.all([statsPromise, feedPromise])
     const feedPosts = feedResult.success ? (feedResult.data || []) : []
+
+    // 💎 Platinum Data Fetching
+    // We fetch these in parallel to minimize waterfall
+    const [medicalLogs, healthAlerts, pickupAuth, assignments, curriculum, ptaSlots] = await Promise.all([
+        import("@/lib/actions/platinum").then(m => m.getMedicalLogs(studentId || '')),
+        import("@/lib/actions/platinum").then(m => m.getHealthAlerts(studentId || '')),
+        import("@/lib/actions/platinum").then(m => m.getPickupAuthorization(studentId || '')),
+        import("@/lib/actions/platinum").then(m => m.getAssignments(studentId || '')),
+        import("@/lib/actions/platinum").then(m => m.getCurriculumProgress(studentId || '')),
+        import("@/lib/actions/platinum").then(m => m.getPTASlots('teacher-id-placeholder'))
+    ])
 
     if (!stats) {
         return (
@@ -273,6 +292,51 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
                 {/* Note: ParentFeedView might need internal styling updates to match dark mode, 
                      but since it's a separate component we assume it inherits globals or will require separate pass if distinct */}
                 <ParentFeedView posts={feedPosts} />
+            </div>
+
+            {/* 💎 Platinum Concierge & Duty of Care Suite */}
+            <div className="space-y-6 pt-8 border-t border-white/10">
+                <div className="flex items-center gap-4 mb-2">
+                    <div className="bg-cyan-500/10 p-3 rounded-2xl border border-cyan-500/20 shadow-[0_0_20px_rgba(8,145,178,0.2)]">
+                        <Trophy className="text-cyan-400" size={24} />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-black tracking-tight text-white glow-blue uppercase italic">Platinum Concierge</h2>
+                        <p className="text-slate-400 text-sm">Duty of Care • Voice • Academics</p>
+                    </div>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2">
+                    {/* 🛡️ Security & Logistics */}
+                    <div className="space-y-6">
+                        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest pl-1">Security & Logistics</h3>
+                        <PickupAuthorization data={pickupAuth} />
+                        <GatePassGenerator studentId={studentId} />
+                    </div>
+
+                    {/* 🏥 Health & Vitals */}
+                    <div className="space-y-6">
+                        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest pl-1">Health & Vitals</h3>
+                        <MedicalIncidentLog outcomes={medicalLogs} />
+                        <AllergyAlertManager alerts={healthAlerts} />
+                    </div>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2">
+                    {/* 📚 Academic Resources */}
+                    <div className="space-y-6">
+                        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest pl-1">Academic Proficiency</h3>
+                        <CurriculumRoadmap milestones={curriculum} />
+                        <HomeworkTracker tasks={assignments} />
+                    </div>
+
+                    {/* 🗣️ Student Voice */}
+                    <div className="space-y-6">
+                        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest pl-1">Voice & Feedback</h3>
+                        <PTAScheduler slots={ptaSlots} studentId={studentId} />
+                        <FeedbackHub studentId={studentId} />
+                    </div>
+                </div>
             </div>
         </div>
     )
