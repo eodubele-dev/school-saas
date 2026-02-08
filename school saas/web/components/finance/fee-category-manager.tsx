@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation"
 
 export function FeeCategoryManager({ categories, domain }: { categories: any[], domain: string }) {
     const router = useRouter()
-    const { register, handleSubmit, reset } = useForm()
+    const { register, handleSubmit, reset, formState: { isValid, isSubmitting } } = useForm({ mode: "onChange" })
     const [loading, setLoading] = useState(false)
 
     const onSubmit = async (data: any) => {
@@ -54,17 +54,17 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2 items-end border-b border-white/5 pb-6">
                     <div className="flex-1 space-y-2">
                         <label className="text-xs font-medium text-slate-300">Category Name</label>
-                        <Input {...register("name", { required: true })} placeholder="e.g. Technology Fee" className="bg-slate-950 border-white/10" />
+                        <Input {...register("name", { required: true, minLength: 2 })} placeholder="e.g. Technology Fee" className="bg-slate-950 border-white/10 text-white" />
                     </div>
                     {/* Switch handling can be tricky with simple register in some UI libraries, assuming standard checkbox behavior works or controlled needed. 
                         For shadcn Switch, it's controlled. Let's use a standard checkbox with custom style or Controlled Switch.
                         For simplicity here, using standard checkbox visibly hidden or just a simple checkbox styled.
                     */}
                     <div className="flex items-center space-x-2 pb-2.5">
-                        <input type="checkbox" {...register("is_mandatory")} className="h-4 w-4 rounded border-gray-300 bg-slate-950" id="mandatory" />
+                        <input type="checkbox" {...register("is_mandatory")} className="h-4 w-4 rounded border-gray-300 bg-slate-950 accent-[var(--school-accent)]" id="mandatory" />
                         <label htmlFor="mandatory" className="text-sm font-medium text-slate-300">Mandatory?</label>
                     </div>
-                    <Button type="submit" disabled={loading} size="sm" className="mb-0.5 bg-[var(--school-accent)]">
+                    <Button type="submit" disabled={!isValid || loading || isSubmitting} size="sm" className="mb-0.5 bg-[var(--school-accent)] text-white">
                         <Plus className="h-4 w-4" /> Add
                     </Button>
                 </form>

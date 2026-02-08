@@ -148,13 +148,13 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
         {
             category: "Financial Suite",
             items: [
-                { icon: LayoutDashboard, label: "Bursar Hub", href: "/dashboard/bursar" },
+                { icon: LayoutDashboard, label: "Overview", href: "/dashboard/bursar" },
                 { icon: CreditCard, label: "Revenue & Collections", href: "/dashboard/bursar/finance/collections" },
                 { icon: Banknote, label: "Payroll", href: "/dashboard/bursar/finance/payroll" },
                 { icon: Wallet, label: "Expenses & P&L", href: "/dashboard/bursar/finance/expenses" },
-                { icon: NairaIcon, label: "Financial Config", href: "/dashboard/admin/finance/config" },
-                { icon: FileText, label: "Invoices", href: "/dashboard/admin/finance/invoices" },
-                { icon: CreditCard, label: "Transactions", href: "/dashboard/admin/finance/transactions" },
+                { icon: NairaIcon, label: "Financial Config", href: "/dashboard/bursar/finance/config" },
+                { icon: FileText, label: "Invoices", href: "/dashboard/bursar/finance/invoices" },
+                { icon: CreditCard, label: "Transactions", href: "/dashboard/bursar/finance/transactions" },
             ]
         },
         {

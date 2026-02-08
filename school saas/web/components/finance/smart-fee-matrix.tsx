@@ -12,7 +12,9 @@ import { useRouter } from "next/navigation"
 
 export function SmartFeeMatrix({ classes, categories, schedule, domain }: { classes: any[], categories: any[], schedule: any[], domain: string }) {
     const router = useRouter()
-    const [matrix, setMatrix] = useState<Record<string, number>>({}) // key: classId_catId, value: amount
+    const [initialMatrix, setInitialMatrix] = useState<Record<string, number>>({})
+    const [hasChanges, setHasChanges] = useState(false)
+    const [matrix, setMatrix] = useState<Record<string, number>>({})
     const [loading, setLoading] = useState(false)
 
     // Initialize matrix from schedule
@@ -22,13 +24,43 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
             initial[`${item.class_id}_${item.category_id}`] = item.amount
         })
         setMatrix(initial)
+        setInitialMatrix(initial)
+        setHasChanges(false)
     }, [schedule])
 
+    const checkForChanges = (current: Record<string, number>) => {
+        // Simple JSON stringify comparison for now, or key-by-key
+        // Optimization: only compare keys that exist in current
+        let changed = false
+        // Check for any key in current that differs from initial
+        for (const key in current) {
+            if (current[key] !== (initialMatrix[key] || 0)) {
+                changed = true
+                break
+            }
+        }
+        // Also check if initial had keys that current doesn't (unlikely with this logic but good practice)
+        if (!changed) {
+            for (const key in initialMatrix) {
+                if ((current[key] || 0) !== initialMatrix[key]) {
+                    changed = true
+                    break
+                }
+            }
+        }
+        setHasChanges(changed)
+    }
+
     const handleAmountChange = (classId: string, catId: string, val: string) => {
-        setMatrix(prev => ({
-            ...prev,
-            [`${classId}_${catId}`]: Number(val)
-        }))
+        const newVal = Number(val)
+        setMatrix(prev => {
+            const next = {
+                ...prev,
+                [`${classId}_${catId}`]: newVal
+            }
+            checkForChanges(next)
+            return next
+        })
     }
 
     const saveChanges = async () => {
@@ -36,6 +68,9 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
         const updates = []
         for (const key in matrix) {
             const [classId, categoryId] = key.split('_')
+            // Only send if different? Or send all? sending all is safer for upsert but more bandwith.
+            // Let's send only diffs if we want to be fancy, but bulk upsert usually handles all.
+            // For efficient save, let's send everything in matrix.
             updates.push({
                 class_id: classId,
                 category_id: categoryId,
@@ -47,6 +82,9 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
         if (res.success) {
             toast.success("Fee schedule updated")
             router.refresh()
+            // Update initial matrix to current
+            setInitialMatrix({ ...matrix })
+            setHasChanges(false)
         } else {
             toast.error(res.error)
         }
@@ -67,6 +105,7 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
             classes.forEach(cls => {
                 next[`${cls.id}_${catId}`] = amount
             })
+            checkForChanges(next)
             return next
         })
     }
@@ -78,7 +117,7 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
                     <CardTitle className="text-white">Fee Structure Matrix</CardTitle>
                     <CardDescription className="text-slate-400">Set amounts for each fee type per class.</CardDescription>
                 </div>
-                <Button onClick={saveChanges} disabled={loading} className="bg-[var(--school-accent)] text-white">
+                <Button onClick={saveChanges} disabled={loading || !hasChanges} className="bg-[var(--school-accent)] text-white">
                     {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                     Save Changes
                 </Button>
@@ -121,7 +160,7 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
                                                     type="number"
                                                     value={matrix[`${cls.id}_${cat.id}`] || 0}
                                                     onChange={(e) => handleAmountChange(cls.id, cat.id, e.target.value)}
-                                                    className="h-8 pl-6 bg-slate-950 border-white/10 text-right focus:border-[var(--school-accent)]"
+                                                    className="h-8 pl-6 bg-slate-950 border-white/10 text-right text-white focus:border-[var(--school-accent)]"
                                                 />
                                             </div>
                                         </TableCell>

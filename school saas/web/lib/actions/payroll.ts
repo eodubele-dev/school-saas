@@ -273,3 +273,55 @@ export async function getPayrollReconciliationReport(month: string, year: number
 
     return { success: true, data: report }
 }
+
+/**
+ * Get Reconciled Ledger for specific run
+ */
+export async function getReconciledLedger(runId: string) {
+    const supabase = createClient()
+
+    // Fetch items with staff details and salary structure
+    const { data: items, error } = await supabase
+        .from('payroll_items')
+        .select(`
+            id,
+            net_pay,
+            staff:profiles(
+                first_name, 
+                last_name,
+                salary_struct:salary_structures(
+                    bank_name,
+                    account_number,
+                    account_name
+                )
+            )
+        `)
+        .eq('payroll_run_id', runId)
+
+    if (error) {
+        console.error("Error fetching ledger:", error)
+        return { success: false, error: "Failed to fetch ledger" }
+    }
+
+    // Transform into LedgerEntry format
+    const ledger = items.map((item: any) => {
+        const staffName = `${item.staff?.first_name || ''} ${item.staff?.last_name || ''}`.trim()
+
+        // Handle array or single object for structure (one-to-one usually, but supabase returns array for reverse relation sometimes unless single() used on join which is hard here)
+        const struct = Array.isArray(item.staff?.salary_struct)
+            ? item.staff.salary_struct[0]
+            : item.staff?.salary_struct
+
+        return {
+            id: item.id,
+            staffName: staffName || "Unknown Staff",
+            bankName: struct?.bank_name || "N/A",
+            accountNo: struct?.account_number || "N/A",
+            accountName: struct?.account_name || staffName, // Fallback to staff name if account name missing
+            amount: item.net_pay,
+            status: 'Pending'
+        }
+    })
+
+    return { success: true, data: ledger }
+}

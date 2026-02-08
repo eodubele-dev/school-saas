@@ -135,7 +135,7 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                             <span className="text-[10px] font-bold uppercase tracking-tight">Wallet: ₦{stats.smsBalance.toLocaleString()}</span>
                         </div>
                     )}
-                    <Button variant="outline" size="sm" className="bg-slate-900 border-white/10 text-slate-300 hover:text-white">
+                    <Button variant="outline" size="sm" className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white">
                         <Download className="h-4 w-4 mr-2" /> Export Monthly
                     </Button>
                     <ManualPaymentModal onSuccess={() => window.location.reload()} />
@@ -261,13 +261,13 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                                     <span className="text-[10px] text-slate-400">Debtors List</span>
                                 </Button>
                             </Link>
-                            <Link href="/dashboard/bursar/status/finance/reconciliation" className="w-full">
+                            <Link href="/dashboard/bursar/finance/reconciliation" className="w-full">
                                 <Button variant="ghost" className="h-16 w-full flex flex-col items-center justify-center gap-1 bg-amber-500/5 border border-amber-500/10 hover:border-amber-500/50 group">
                                     <Zap className="h-4 w-4 text-amber-500 group-hover:animate-bounce" />
                                     <span className="text-[10px] text-amber-200/50 uppercase font-black tracking-widest">Live Oversight</span>
                                 </Button>
                             </Link>
-                            <Link href="/dashboard/bursar/status/finance/audit" className="w-full">
+                            <Link href="/dashboard/bursar/finance/audit" className="w-full">
                                 <Button variant="ghost" className="h-16 w-full flex flex-col items-center justify-center gap-1 bg-cyan-500/5 border border-cyan-500/10 hover:border-cyan-500/50 group">
                                     <ShieldAlert className="h-4 w-4 text-cyan-500 group-hover:animate-pulse" />
                                     <span className="text-[10px] text-cyan-200/50 uppercase font-black tracking-widest">Audit Transcript</span>

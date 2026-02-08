@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { Loader2, Download, RefreshCw, FileText, CheckCircle } from "lucide-react"
+import { Loader2, Download, RefreshCw, FileText, CheckCircle, DatabaseZap } from "lucide-react"
 import { generatePayrollRun, getPayrollRuns, getPayrollRunDetails, getPayrollReconciliationReport, getReconciledLedger } from "@/lib/actions/payroll"
 import { generatePayslip } from "./payslip-generator"
 import { SalaryStructureModal } from "./salary-structure-modal"
@@ -229,7 +229,7 @@ export function PayrollDashboard() {
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-white/5 text-slate-300">
-                                                {activeRunDetails.items.map((item: any) => (
+                                                {(activeRunDetails.items || []).map((item: any) => (
                                                     <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
                                                         <td className="px-6 py-5 font-medium text-white">
                                                             {item.staff.first_name} {item.staff.last_name}

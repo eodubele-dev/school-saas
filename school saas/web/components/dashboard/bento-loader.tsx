@@ -1,6 +1,7 @@
 import { AdminDashboard } from "@/components/dashboard/admin-dashboard"
 import { TeacherDashboard } from "@/components/dashboard/teacher-dashboard"
 import { ParentDashboard } from "@/components/dashboard/parent-dashboard"
+import { StudentDashboard } from "@/components/dashboard/student-dashboard"
 import { BursarDashboard } from "@/components/dashboard/bursar-dashboard"
 import { getBursarStats } from "@/lib/actions/finance"
 import { getSMSTransactions } from "@/lib/actions/sms"
@@ -60,6 +61,9 @@ export async function BentoDashboardLoader({
             break
         case 'teacher':
             ContentComponent = <TeacherDashboard tier={normalizedTier} />
+            break
+        case 'student':
+            ContentComponent = <StudentDashboard />
             break
         case 'parent':
             ContentComponent = <ParentDashboard tier={normalizedTier} studentId={studentId} />
