@@ -85,12 +85,8 @@ export async function BentoDashboardLoader({
             )}
 
             <div className="p-4 md:p-8">
-                {/* Dynamic Header */}
-                <DashboardHeader
-                    user={user}
-                    role={role}
-                    schoolName={schoolName}
-                />
+                {/* Dynamic Header removed to prevent duplication with inner dashboards */}
+                {/* Each Dashboard component (Admin, Teacher, etc.) now handles its own header */}
 
                 {/* The Bento Grid / Main Content Area */}
                 {/* Currently leveraging the layouts defined inside each Dashboard, wrapped here. 
