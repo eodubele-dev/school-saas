@@ -83,7 +83,7 @@ export async function getAdminStats() {
     }
 }
 
-export async function getParentStats() {
+export async function getParentStats(studentId?: string) {
     const supabase = createClient()
 
     try {
@@ -93,11 +93,16 @@ export async function getParentStats() {
 
         if (user) {
             // If user is authenticated, find their linked student
-            const { data: students } = await supabase
+            let query = supabase
                 .from('students')
                 .select('id, full_name, class_id, classes!inner(name)')
                 .eq('parent_id', user.id)
-                .limit(1)
+
+            if (studentId) {
+                query = query.eq('id', studentId)
+            }
+
+            const { data: students } = await query.limit(1)
 
             student = students?.[0] || null
         }

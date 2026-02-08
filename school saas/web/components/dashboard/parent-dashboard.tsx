@@ -50,8 +50,8 @@ function formatTime(minutes: number): string {
     return `${hours}h ${mins}m`
 }
 
-export async function ParentDashboard({ tier = 'starter' }: { tier?: string }) {
-    const statsPromise = getParentStats()
+export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: string, studentId?: string }) {
+    const statsPromise = getParentStats(studentId)
     const feedPromise = getParentFeed(5)
 
     const [stats, feedResult] = await Promise.all([statsPromise, feedPromise])

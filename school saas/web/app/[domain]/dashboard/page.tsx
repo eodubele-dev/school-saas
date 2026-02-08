@@ -7,7 +7,7 @@ export default async function DashboardPage({
     searchParams
 }: {
     params: { domain: string }
-    searchParams: { role?: string }
+    searchParams: { role?: string, studentId?: string }
 }) {
     const { domain } = params
     const supabase = createClient()
@@ -56,6 +56,7 @@ export default async function DashboardPage({
             isPilot={isPilot}
             smsBalance={smsBalance}
             subdomain={domain}
+            studentId={searchParams.studentId}
         />
     )
 }

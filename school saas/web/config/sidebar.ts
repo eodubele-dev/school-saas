@@ -36,6 +36,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
                 { icon: Users, label: "Student Enrollment", href: "/dashboard/admin/admissions" },
                 { icon: Users, label: "Faculty Directory", href: "/dashboard/admin/staff" },
                 { icon: ClipboardCheck, label: "Staff Attendance", href: "/dashboard/admin/attendance/staff" },
+                { icon: ShieldCheck, label: "Student Attendance Audit", href: "/dashboard/attendance/audit", badge: "New" },
             ]
         },
         {
@@ -123,9 +124,11 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
     parent: [
         {
             category: "General", items: [
+                { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
+                { icon: ShieldCheck, label: "Attendance Audit", href: "/dashboard/attendance/audit", badge: "New" },
                 { icon: UserCircle, label: "Child Profile", href: "/dashboard/profile" },
                 { icon: FileText, label: "Result Checker", href: "/dashboard/results" },
-                { icon: CreditCard, label: "School Fees", href: "/dashboard/billing" },
+                { icon: CreditCard, label: "School Fees", href: "/dashboard/billing/family" },
                 { icon: CalendarDays, label: "School Calendar", href: "/dashboard/calendar" },
                 { icon: MapPin, label: "Bus Tracker", href: "/dashboard/bus-tracker", disabled: true, badge: "Premium" },
             ]

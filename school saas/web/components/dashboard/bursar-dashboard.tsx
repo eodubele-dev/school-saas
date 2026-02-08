@@ -34,6 +34,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ManualPaymentModal } from "@/components/finance/manual-payment-modal"
 import { SMSTransactionWidget } from "@/components/dashboard/sms-transaction-widget"
+import { BursarPaymentAlert } from "@/components/bursar/payment-alert"
 
 function MetricCard({ title, amount, subtitle, icon: Icon, trend, colorClass }: any) {
     return (
@@ -104,6 +105,22 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-700">
+            {/* 🔔 Real-Time Payment Alert (Demo Injection for Platinum Showcase) */}
+            {stats.recentTransactions.length > 0 && (
+                <div className="mb-6">
+                    <BursarPaymentAlert
+                        transaction={{
+                            timestamp: "Now",
+                            total: stats.recentTransactions[0].amount,
+                            familyName: stats.recentTransactions[0].students.full_name.split(' ').pop() || 'Parent',
+                            items: [
+                                { student: stats.recentTransactions[0].students.full_name, category: "Tuition & Fees", amount: stats.recentTransactions[0].amount }
+                            ]
+                        }}
+                    />
+                </div>
+            )}
+
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>

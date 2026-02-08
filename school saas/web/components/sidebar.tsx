@@ -8,6 +8,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/server"
+import { getParentChildren } from "@/lib/actions/parent-portal"
 import { LogoutButton } from "./logout-button"
 import { SidebarClient } from "./sidebar-client"
 import { SIDEBAR_LINKS } from "@/config/sidebar"
@@ -90,7 +91,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
             }
 
             if (profile) {
-                if (profile.role) userRole = profile.role
+                if (profile.role) userRole = profile.role.toLowerCase().trim()
                 if (profile.full_name) userName = profile.full_name
             }
         } catch (error) {
@@ -99,7 +100,12 @@ export async function Sidebar({ className, domain }: { className?: string, domai
         }
     }
 
-    console.log('[Sidebar] Final render values:', { userRole, userName, categoriesAvailable: SIDEBAR_LINKS[userRole as any]?.length || 0 })
+    // Fetch Linked Students if Parent
+    let linkedStudents: any[] = []
+    if (userRole === 'parent') {
+        linkedStudents = await getParentChildren()
+    }
+
 
     return (
         <div
@@ -117,6 +123,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
                 tenantName={tenantName}
                 tier="platinum"
                 tenantLogo={tenantLogo}
+                linkedStudents={linkedStudents}
             />
         </div>
     )

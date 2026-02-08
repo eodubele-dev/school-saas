@@ -31,7 +31,13 @@ import { PaymentButton } from "./payment-button"
 import { DownloadReceiptButton } from "./download-receipt-button"
 import { DownloadInvoiceButton } from "./download-invoice-button"
 
-export default async function BillingPage({ params }: { params: { domain: string } }) {
+export default async function BillingPage({
+    params,
+    searchParams
+}: {
+    params: { domain: string },
+    searchParams: { studentId?: string }
+}) {
     const supabase = createClient()
 
     // Auth Check
@@ -40,12 +46,20 @@ export default async function BillingPage({ params }: { params: { domain: string
 
     // Identify Student
     const { data: tenant } = await supabase.from('tenants').select('id').eq('slug', params.domain).single()
-    const { data: student } = await supabase
+
+    // Fetch all students for this parent (to support switching)
+    const { data: students } = await supabase
         .from('students')
         .select('*')
         .eq('parent_id', user.id)
         .eq('tenant_id', tenant?.id)
-        .single()
+
+    if (!students || students.length === 0) return <div className="p-8 text-center text-slate-400">No student linked to this account.</div>
+
+    // Determine target student: URL param > First student
+    const student = searchParams.studentId
+        ? students.find(s => s.id === searchParams.studentId) || students[0]
+        : students[0]
 
     if (!student) return <div className="p-8 text-center text-slate-400">No student linked to this account.</div>
 

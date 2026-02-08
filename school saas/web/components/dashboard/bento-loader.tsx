@@ -18,6 +18,7 @@ interface BentoDashboardLoaderProps {
     isPilot?: boolean
     smsBalance?: number
     subdomain: string
+    studentId?: string
 }
 
 export async function BentoDashboardLoader({
@@ -28,7 +29,8 @@ export async function BentoDashboardLoader({
     tier,
     isPilot = false,
     smsBalance = 0,
-    subdomain
+    subdomain,
+    studentId
 }: BentoDashboardLoaderProps) {
     const normalizedRole = role.toLowerCase()
     const normalizedTier = tier?.toLowerCase() || 'starter'
@@ -60,7 +62,7 @@ export async function BentoDashboardLoader({
             ContentComponent = <TeacherDashboard tier={normalizedTier} />
             break
         case 'parent':
-            ContentComponent = <ParentDashboard tier={normalizedTier} />
+            ContentComponent = <ParentDashboard tier={normalizedTier} studentId={studentId} />
             break
         case 'bursar':
             const stats = await getBursarStats()
