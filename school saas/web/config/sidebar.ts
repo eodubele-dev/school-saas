@@ -1,7 +1,7 @@
 import { LayoutDashboard, CalendarDays, BookOpen, Activity, FileText, MapPin, Users, Settings, GraduationCap, ClipboardCheck, CreditCard, UserCircle, BrainCircuit, MessageSquare, BookCheck as BookOpenCheck, Banknote, Wallet, ShieldCheck, Smartphone, Sparkles, Crown, Bus, Bed, Package, Search, Building2, Landmark, Truck, Shield } from "lucide-react"
 import { NairaIcon } from "@/components/ui/naira-icon"
 
-export type UserRole = 'admin' | 'teacher' | 'parent' | 'student' | 'bursar'
+export type UserRole = 'admin' | 'teacher' | 'parent' | 'student' | 'bursar' | 'owner'
 
 export type SidebarItem = {
     icon: any
@@ -26,6 +26,67 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             icon: LayoutDashboard,
             items: [
                 { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
+                { icon: Crown, label: "Executive View", href: "/dashboard/admin/executive/mobile" },
+            ]
+        },
+        {
+            category: "People & Records",
+            icon: Users,
+            items: [
+                { icon: Users, label: "Student Enrollment", href: "/dashboard/admin/admissions" },
+                { icon: Users, label: "Faculty Directory", href: "/dashboard/admin/staff" },
+                { icon: ClipboardCheck, label: "Staff Attendance", href: "/dashboard/admin/attendance/staff" },
+                { icon: ShieldCheck, label: "Student Attendance Audit", href: "/dashboard/attendance/audit", badge: "New" },
+            ]
+        },
+        {
+            category: "Academic Oversight",
+            icon: GraduationCap,
+            items: [
+                { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup/academic" },
+                { icon: GraduationCap, label: "Result Processor", href: "/dashboard/admin/results/generate" },
+                { icon: ShieldCheck, label: "Approvals Hub", href: "/dashboard/admin/approvals" },
+            ]
+        },
+        {
+            category: "Financial Suite",
+            icon: Landmark,
+            items: [
+                { icon: NairaIcon, label: "Bursar Hub", href: "/dashboard/bursar" },
+                { icon: CreditCard, label: "Revenue & Collections", href: "/dashboard/bursar/finance/collections" },
+                { icon: NairaIcon, label: "Financial Config", href: "/dashboard/admin/finance/config" },
+                { icon: Package, label: "Inventory Hub", href: "/dashboard/admin/inventory" },
+            ]
+        },
+        {
+            category: "Campus Logistics",
+            icon: Truck,
+            items: [
+                { icon: Bus, label: "Transport Hub", href: "/dashboard/admin/logistics" },
+                { icon: Bed, label: "Hostel Management", href: "/dashboard/admin/hostels" },
+            ]
+        },
+        {
+            category: "Security & Health",
+            icon: Shield,
+            items: [
+                { icon: Activity, label: "System Security", href: "/dashboard/admin/security/audit" },
+            ]
+        },
+        {
+            category: "System",
+            items: [
+                { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
+                { icon: MessageSquare, label: "SMS Notifications", href: "/dashboard/settings/notifications" },
+            ]
+        }
+    ],
+    owner: [ // Owner sees Admin View but with Global Switcher enabled
+        {
+            category: "Global Operations",
+            icon: LayoutDashboard,
+            items: [
+                { icon: LayoutDashboard, label: "Global Overview", href: "/dashboard" },
                 { icon: Crown, label: "Executive View", href: "/dashboard/admin/executive/mobile" },
             ]
         },
@@ -131,6 +192,8 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
                 { icon: CreditCard, label: "School Fees", href: "/dashboard/billing/family" },
                 { icon: CalendarDays, label: "School Calendar", href: "/dashboard/calendar" },
                 { icon: MapPin, label: "Bus Tracker", href: "/dashboard/bus-tracker", disabled: true, badge: "Premium" },
+                { icon: BookOpen, label: "Academics", href: "/dashboard/academics" },
+                { icon: Crown, label: "Platinum Concierge", href: "/dashboard/platinum", badge: "New" },
             ]
         }
     ],
@@ -150,7 +213,8 @@ export const ROLE_LABELS: Record<UserRole, string> = {
     teacher: "Teacher",
     parent: "Parent",
     student: "Student",
-    bursar: "Bursar"
+    bursar: "Bursar",
+    owner: "Proprietor"
 }
 
 export const ROLE_BADGES: Record<UserRole, string> = {
@@ -158,5 +222,6 @@ export const ROLE_BADGES: Record<UserRole, string> = {
     teacher: "🎓",
     parent: "👨‍👩‍👧",
     student: "🎒",
-    bursar: "💰"
+    bursar: "💰",
+    owner: "👑"
 }

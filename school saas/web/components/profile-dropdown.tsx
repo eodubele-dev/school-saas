@@ -60,9 +60,9 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl }
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <div className="flex items-center gap-3 pl-4 border-l border-white/10 cursor-pointer group select-none">
-                        <div className="text-right hidden sm:block">
-                            <div className="text-sm font-medium text-slate-200 leading-none group-hover:text-white transition-colors">{userName}</div>
-                            <div className="text-[10px] text-blue-400 font-semibold mt-1 uppercase tracking-wider">{userRole}</div>
+                        <div className="text-right hidden md:block">
+                            <div className="text-sm font-bold text-slate-200 leading-tight group-hover:text-white transition-colors max-w-[150px] truncate">{userName}</div>
+                            <div className="text-[10px] text-blue-400 font-bold mt-0.5 uppercase tracking-widest">{userRole}</div>
                         </div>
                         <Avatar className="h-9 w-9 border border-white/10 shadow-inner group-hover:ring-2 group-hover:ring-blue-500/50 transition-all">
                             <AvatarImage src={userAvatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${userName}`} className="object-cover" />

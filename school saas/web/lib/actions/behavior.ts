@@ -1,4 +1,5 @@
 'use server'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
@@ -240,4 +241,20 @@ export async function getStudentAchievementSummary(studentId: string) {
     }
 
     return summary
+}
+
+export async function getStudentAchievements(studentId: string) {
+    const supabase = createClient()
+    const { data: achievements, error } = await supabase
+        .from('achievements')
+        .select('*')
+        .eq('student_id', studentId)
+        .order('awarded_at', { ascending: false })
+
+    if (error) {
+        console.error("Error fetching achievements:", error)
+        return []
+    }
+
+    return achievements
 }

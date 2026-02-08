@@ -79,6 +79,7 @@ export async function Navbar({ domain }: { domain?: string }) {
                 <NavbarLinks
                     domain={domain || 'school'}
                     scheduleData={scheduleData}
+                    userRole={userRole}
                 />
             </div>
 

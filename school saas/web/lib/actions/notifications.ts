@@ -46,7 +46,7 @@ export async function getNotificationSettings() {
             .eq('id', user.id)
             .single()
 
-        if (!profile || !['admin', 'proprietor', 'bursar'].includes(profile.role)) {
+        if (!profile || !['admin', 'proprietor', 'bursar', 'owner'].includes(profile.role)) {
             return { success: false, error: 'Insufficient permissions', settings: null }
         }
 
@@ -56,7 +56,19 @@ export async function getNotificationSettings() {
             .eq('tenant_id', profile.tenant_id)
             .single()
 
-        if (error) throw error
+        if (error && error.code !== 'PGRST116') throw error
+
+        if (!settings) {
+            // Initialize defaults
+            const { data: newSettings, error: createError } = await supabase
+                .from('notification_settings')
+                .insert({ tenant_id: profile.tenant_id })
+                .select()
+                .single()
+
+            if (createError) throw createError
+            return { success: true, settings: newSettings }
+        }
 
         return { success: true, settings }
     } catch (error: any) {
@@ -82,7 +94,7 @@ export async function updateNotificationSettings(updates: Partial<NotificationSe
             .eq('id', user.id)
             .single()
 
-        if (!profile || !['admin', 'proprietor'].includes(profile.role)) {
+        if (!profile || !['admin', 'proprietor', 'owner'].includes(profile.role)) {
             return { success: false, error: 'Only admins can modify notification settings' }
         }
 

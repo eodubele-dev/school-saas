@@ -17,10 +17,12 @@ import {
 interface NavbarLinksProps {
     domain: string
     scheduleData: any
+    userRole?: string
 }
 
-export function NavbarLinks({ domain, scheduleData }: NavbarLinksProps) {
+export function NavbarLinks({ domain, scheduleData, userRole = 'User' }: NavbarLinksProps) {
     const [nextClass, setNextClass] = useState<{ name: string, time: string } | null>(null)
+    const isParent = userRole.toLowerCase() === 'parent'
 
     useEffect(() => {
         if (scheduleData?.schedule) {
@@ -58,18 +60,20 @@ export function NavbarLinks({ domain, scheduleData }: NavbarLinksProps) {
 
     const DesktopView = () => (
         <div className="hidden lg:flex items-center gap-6">
-            <Link
-                href="/dashboard/schedule"
-                className="text-sm font-medium text-slate-400 hover:text-white hover:underline decoration-blue-500 underline-offset-4 transition-all flex items-center gap-2 group"
-            >
-                <Calendar className="h-3.5 w-3.5 group-hover:text-blue-400" />
-                <span>My Schedule</span>
-                {nextClass && (
-                    <span className="ml-1 text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1.5 py-0.5 rounded-full animate-pulse">
-                        Next: {nextClass.name} ({nextClass.time})
-                    </span>
-                )}
-            </Link>
+            {!isParent && (
+                <Link
+                    href="/dashboard/schedule"
+                    className="text-sm font-medium text-slate-400 hover:text-white hover:underline decoration-blue-500 underline-offset-4 transition-all flex items-center gap-2 group"
+                >
+                    <Calendar className="h-3.5 w-3.5 group-hover:text-blue-400" />
+                    <span>My Schedule</span>
+                    {nextClass && (
+                        <span className="ml-1 text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1.5 py-0.5 rounded-full animate-pulse">
+                            Next: {nextClass.name} ({nextClass.time})
+                        </span>
+                    )}
+                </Link>
+            )}
 
             <button
                 onClick={triggerSearch}
@@ -97,11 +101,13 @@ export function NavbarLinks({ domain, scheduleData }: NavbarLinksProps) {
                     Utilities <ChevronDown className="h-3 w-3" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48 bg-slate-900 border-slate-800 text-slate-300">
-                    <DropdownMenuItem asChild>
-                        <Link href="/dashboard/schedule" className="flex items-center gap-2 cursor-pointer focus:bg-slate-800 focus:text-white">
-                            <Calendar className="h-4 w-4" /> My Schedule
-                        </Link>
-                    </DropdownMenuItem>
+                    {!isParent && (
+                        <DropdownMenuItem asChild>
+                            <Link href="/dashboard/schedule" className="flex items-center gap-2 cursor-pointer focus:bg-slate-800 focus:text-white">
+                                <Calendar className="h-4 w-4" /> My Schedule
+                            </Link>
+                        </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={triggerSearch} className="flex items-center gap-2 cursor-pointer focus:bg-slate-800 focus:text-white">
                         <Book className="h-4 w-4" /> Directory
                     </DropdownMenuItem>

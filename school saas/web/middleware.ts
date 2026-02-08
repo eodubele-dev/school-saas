@@ -144,7 +144,8 @@ export default async function middleware(req: NextRequest) {
     // c. Tenant Isolation Guard
     // Prevent teacher from School A logging into School B
     // 2. Cross-reference user's authorized tenant with the request subdomain
-    if (userTenantId !== tenant.id) {
+    // EXCEPTION: 'owner' role can access any tenant (Global View)
+    if (userTenantId !== tenant.id && userRole !== 'owner') {
       // This is a "Forensic" security violation attempt
       console.warn(`SECURITY ALERT: User ${user.email} attempted to access cross-tenant data at ${currentHost} (Tenant ID Mismatch)`)
       return NextResponse.rewrite(new URL('/403', req.url))
