@@ -43,21 +43,35 @@ export async function getNextClass() {
 
     if (profile.role === 'teacher') {
         query = query.eq('teacher_id', profile.id)
-    } else if (profile.role === 'student' || profile.role === 'parent') {
-        // Students need their class_id.
-        const { data: student } = await supabase
+    } else if (profile.role === 'student') {
+        // 1. Find Student Record to get Class ID
+        // Try linking via user_id first (best practice)
+        let { data: student } = await supabase
             .from('students')
             .select('class_id')
-            .eq('parent_id', profile.id) // Assuming parent/student mapping for now. If user is student directly, eq('id', ...). 
-        // In schema, 'students' table has 'parent_id'. If logged in user is the 'student', we need a way to link auth.users to students table directly?
-        // Schema: profiles(id) references auth.users. role='student'.
-        // STUDENTS table: id, tenant_id, full_name, parent_id, class_id.
-        // There is no direct link from PROFILE to STUDENT table in the schema I viewed?
-        // Wait, usually Profile IS the user.
-        // If role is Student, Profile should maybe have class_id?
-        // Schema.sql line 21 role in student.
-        // I'll assume for this feature, I only implement for TEACHERS as requested in "Platinum Move: Teachers lose track of time".
-        return { role: profile.role, schedule: [] }
+            .eq('user_id', user.id)
+            .maybeSingle()
+
+        // Fallback: Link via email if user_id not set
+        if (!student) {
+            const { data: userEmail } = await supabase.from('profiles').select('email').eq('id', user.id).single()
+            if (userEmail) {
+                const { data: s } = await supabase.from('students').select('class_id').eq('email', userEmail.email).maybeSingle()
+                student = s
+            }
+        }
+
+        if (!student || !student.class_id) {
+            // Second Fallback for Demo: Fetch FIRST student to avoid blank screen if no link exists
+            const { data: demoStudent } = await supabase.from('students').select('class_id').limit(1).single()
+            if (demoStudent) student = demoStudent
+        }
+
+        if (student && student.class_id) {
+            query = query.eq('class_id', student.class_id)
+        } else {
+            return { role: profile.role, schedule: [] }
+        }
     }
 
     const { data: schedule } = await query

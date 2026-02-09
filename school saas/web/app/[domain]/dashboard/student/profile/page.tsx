@@ -1,11 +1,13 @@
 import { AffectiveStars } from "@/components/student/profile/affective-stars"
 import { CharacterRadar } from "@/components/student/profile/character-radar"
 import { IncidentLog } from "@/components/student/profile/incident-log"
-import { Button } from "@/components/ui/button"
-import { Printer, Shield, Tent, Swords } from "lucide-react"
+import { TrophyCase } from "@/components/student/profile/trophy-case"
+import { getStudentProfileData } from "@/lib/actions/student-profile"
+import { ProfileActions } from "@/components/student/profile/profile-actions"
+import { Shield, Tent, Swords } from "lucide-react"
 
 export default async function StudentProfilePage() {
-    const { success, student, achievements, behavior, incidents } = await getStudentProfileData()
+    const { success, student, tenant, achievements, behavior, incidents } = await getStudentProfileData()
 
     if (!success || !student) {
         return <div className="p-8 text-white">Profile Loading... or Student Not Found</div>
@@ -19,8 +21,12 @@ export default async function StudentProfilePage() {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--school-accent)]/5 rounded-full blur-[100px] pointer-events-none" />
 
                 <div className="flex items-center gap-6 relative z-10">
-                    <div className="h-24 w-24 rounded-full bg-gradient-to-br from-[var(--school-accent)] to-blue-600 border-4 border-slate-950 shadow-2xl flex items-center justify-center text-3xl font-bold text-white">
-                        {student.full_name?.substring(0, 2)}
+                    <div className="h-24 w-24 rounded-full bg-gradient-to-br from-[var(--school-accent)] to-blue-600 border-4 border-slate-950 shadow-2xl flex items-center justify-center text-3xl font-bold text-white overflow-hidden">
+                        {student.avatar_url ? (
+                            <img src={student.avatar_url} alt={student.full_name} className="w-full h-full object-cover" />
+                        ) : (
+                            student.full_name?.substring(0, 2)
+                        )}
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold text-white">{student.full_name}</h1>
@@ -37,9 +43,7 @@ export default async function StudentProfilePage() {
                     </div>
                 </div>
 
-                <Button variant="outline" className="border-white/10 text-slate-300 hover:text-white hover:bg-white/5 z-10">
-                    <Printer className="h-4 w-4 mr-2" /> Print ID Card
-                </Button>
+                <ProfileActions student={student} tenant={tenant} />
             </div>
 
             {/* Content Grid */}
@@ -63,7 +67,7 @@ export default async function StudentProfilePage() {
                     <AffectiveStars behavior={behavior} />
 
                     {/* Radar (Secondary/Visual) */}
-                    <div className="h-[300px] opacity-75 grayscale hover:grayscale-0 transition-all">
+                    <div className="opacity-75 grayscale hover:grayscale-0 transition-all">
                         <CharacterRadar behavior={behavior} />
                     </div>
 

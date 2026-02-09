@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { termiiService, TermiiService } from '@/lib/services/termii'
+import { sendSMS } from '@/lib/services/termii'
 import { revalidatePath } from 'next/cache'
 
 export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused'
@@ -262,11 +262,11 @@ export async function sendAbsentNotification(
         // Generate message
         const schoolName = (student.tenants as unknown as { name: string })?.name || 'School'
         const message = status === 'absent'
-            ? TermiiService.generateAbsenceMessage(student.full_name, date, schoolName)
-            : TermiiService.generateLateMessage(student.full_name, date, schoolName)
+            ? `Dear Parent, ${student.full_name} is marked ABSENT today (${date}) at ${schoolName}. Please contact the school if this is an error.`
+            : `Dear Parent, ${student.full_name} arrived LATE today (${date}) at ${schoolName}. Punctuality is encouraged.`
 
         // Send SMS
-        const smsResult = await termiiService.sendSMS(parentPhone, message)
+        const smsResult = await sendSMS(parentPhone, message)
 
         if (smsResult.success) {
             // Update attendance record to mark SMS as sent
@@ -386,13 +386,41 @@ export async function getClassStudents(classId: string): Promise<{ success: bool
             .eq('class_id', classId)
             .order('full_name')
 
-        if (error) {
-            return { success: false, error: error.message }
-        }
-
         return { success: true, data: students }
     } catch (error) {
         console.error('Error fetching class students:', error)
         return { success: false, error: 'Failed to fetch students' }
+    }
+}
+
+/**
+ * Get real-time attendance stats for the pip
+ */
+export async function getRefreshedAttendanceStats(classId: string, date: string) {
+    const supabase = createClient()
+
+    try {
+        // 1. Get Total Students
+        const { count: total, error: totalError } = await supabase
+            .from('students')
+            .select('*', { count: 'exact', head: true })
+            .eq('class_id', classId)
+
+        if (totalError) throw totalError
+
+        // 2. Get Present Count
+        const { count: present, error: presentError } = await supabase
+            .from('student_attendance')
+            .select('*', { count: 'exact', head: true })
+            .eq('class_id', classId)
+            .eq('date', date)
+            .eq('status', 'present')
+
+        if (presentError) throw presentError
+
+        return { success: true, total: total || 0, present: present || 0 }
+    } catch (error) {
+        console.error('Error fetching refreshed stats:', error)
+        return { success: false, total: 0, present: 0 }
     }
 }

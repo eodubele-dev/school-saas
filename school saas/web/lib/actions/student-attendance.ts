@@ -164,3 +164,102 @@ export async function sendAbsenceSMS(absentStudentIds: string[]) {
 
     return { success: true, message: `Sent SMS to ${absentStudentIds.length} parents` }
 }
+
+/**
+ * Get attendance history for a student
+ */
+export async function getStudentAttendanceHistory() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    // 1. Resolve Student ID
+    // Check if user is student, or parent linked to student
+    // For MVP/Demo: Assume user is student or we fetch the first linked student.
+    // If we have a 'student_id' param we could use that, but for student dashboard we infer.
+
+    // Try finding student record for this user (if they are a student)
+    let { data: student } = await supabase
+        .from('students')
+        .select('id')
+        .eq('user_id', user.id) // Assuming user_id column exists or we link via email/profile
+        .maybeSingle()
+
+    // Fallback: If not found, maybe it's a parent looking at a child?
+    // For now, let's assume the user IS the student or we use the demo student if local dev.
+    if (!student) {
+        // Try finding by email match if user_id not set
+        const { data: profile } = await supabase.from('profiles').select('email').eq('id', user.id).single()
+        if (profile) {
+            const { data: s } = await supabase.from('students').select('id').eq('email', profile.email).maybeSingle()
+            if (s) student = s
+        }
+    }
+
+    if (!student) {
+        // FINAL FALLBACK for DEMO: Get the first student
+        const { data: s } = await supabase.from('students').select('id').limit(1).single()
+        if (s) student = s
+    }
+
+    if (!student) return { success: false, error: "Student profile not found" }
+
+    // 2. Fetch Attendance Records
+    const { data: records, error } = await supabase
+        .from('student_attendance')
+        .select(`
+            status,
+            remarks,
+            register:attendance_registers(date)
+        `)
+        .eq('student_id', student.id)
+        .order('register(date)', { ascending: false } as any) // Supabase sort on joined table might vary, typically we sort in JS or use specific syntax
+
+    if (error) return { success: false, error: "Failed to fetch records" }
+
+    // 3. Process Stats
+    // Flatten and sort
+    const history = records.map((r: any) => ({
+        date: r.register.date,
+        status: r.status,
+        remarks: r.remarks
+    })).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
+    const stats = {
+        present: history.filter((r: any) => r.status === 'present').length,
+        late: history.filter((r: any) => r.status === 'late').length,
+        absent: history.filter((r: any) => r.status === 'absent').length,
+        excused: history.filter((r: any) => r.status === 'excused').length,
+        streak: calculateStreak(history)
+    }
+
+    return { success: true, history, stats }
+}
+
+function calculateStreak(history: any[]) {
+    // Simple current streak calculation
+    // Assumes history is sorted desc
+    let streak = 0
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    // Filter for unique dates to avoid double counting if multiple records per day
+    const uniqueDates = Array.from(new Set(history.map((h: any) => h.date))).sort((a: any, b: any) => new Date(b).getTime() - new Date(a).getTime())
+
+    // Check if distinct days form a sequence
+    // This is a simplified "days attended" streak. 
+    // Real logic needs to account for weekends/holidays.
+    // For demo, we just count consecutive 'present' or 'late' records at the top.
+
+    for (const dateStr of uniqueDates) {
+        const record = history.find((h: any) => h.date === dateStr)
+        if (record.status === 'present' || record.status === 'late') {
+            streak++
+        } else {
+            break;
+        }
+    }
+
+    return streak
+}

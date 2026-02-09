@@ -1,4 +1,4 @@
-import { LayoutDashboard, CalendarDays, BookOpen, Activity, FileText, MapPin, Users, Settings, GraduationCap, ClipboardCheck, CreditCard, UserCircle, BrainCircuit, MessageSquare, BookCheck as BookOpenCheck, Banknote, Wallet, ShieldCheck, Smartphone, Sparkles, Crown, Bus, Bed, Package, Search, Building2, Landmark, Truck, Shield } from "lucide-react"
+import { LayoutDashboard, CalendarDays, BookOpen, Activity, FileText, MapPin, Users, Settings, GraduationCap, ClipboardCheck, CreditCard, UserCircle, BrainCircuit, MessageSquare, BookCheck as BookOpenCheck, Banknote, Wallet, ShieldCheck, Smartphone, Sparkles, Crown, Bus, Bed, Package, Search, Building2, Landmark, Truck, Shield, Award } from "lucide-react"
 import { NairaIcon } from "@/components/ui/naira-icon"
 
 export type UserRole = 'admin' | 'teacher' | 'parent' | 'student' | 'bursar' | 'owner'
@@ -87,7 +87,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             icon: LayoutDashboard,
             items: [
                 { icon: LayoutDashboard, label: "Global Overview", href: "/dashboard" },
-                { icon: Crown, label: "Executive View", href: "/dashboard/admin/executive/mobile" },
+                { icon: Crown, label: "Executive View", href: "/dashboard/owner/executive" },
             ]
         },
         {
@@ -199,10 +199,22 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
     ],
     student: [
         {
-            category: "General", items: [
-                { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
-                { icon: FileText, label: "My Results", href: "/dashboard/results" },
-                { icon: BookOpen, label: "Assignments", href: "/dashboard/assignments" },
+            category: "Academic & Growth",
+            items: [
+                { icon: LayoutDashboard, label: "Overview", href: "/dashboard" }, // Command Center
+                { icon: Award, label: "Growth Portfolio", href: "/dashboard/student/portfolio", badge: "New" }, // Behavioral & Badges
+                { icon: BookOpen, label: "My Results", href: "/dashboard/student/results" }, // Academic Performance
+                { icon: FileText, label: "Assignments", href: "/dashboard/student/assignments" }, // Tasks
+            ]
+        },
+        {
+            category: "Campus Life",
+            items: [
+                { icon: ShieldCheck, label: "Attendance Status", href: "/dashboard/student/attendance" }, // Geofence & Presence
+                { icon: CalendarDays, label: "School Calendar", href: "/dashboard/student/calendar" }, // Events & Exams
+                { icon: BookOpen, label: "Learning Resources", href: "/dashboard/student/learning" }, // Notes & Materials
+                { icon: CalendarDays, label: "Timetable", href: "/dashboard/student/timetable" },
+                { icon: UserCircle, label: "My Profile", href: "/dashboard/student/profile" },
             ]
         }
     ]

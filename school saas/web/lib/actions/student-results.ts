@@ -84,18 +84,22 @@ export async function getCognitiveStats(term: string, session: string) {
     const { grades } = await getTermResults(term, session)
     if (!grades) return { success: false, stats: [] }
 
-    // Mock mapping logic
-    // const stats = [
-    //     { subject: 'Mathematics', A: 0, fullMark: 100 },
-    //     { subject: 'English', A: 0, fullMark: 100 },
-    //     { subject: 'Science', A: 0, fullMark: 100 },
-    //     { subject: 'Arts', A: 0, fullMark: 100 },
-    //     { subject: 'Social', A: 0, fullMark: 100 },
-    // ]
+    // Aggregate grades for Radar Chart
+    // We Map typical subjects to cognitive domains or just show Subject Performance
+    // Let's assume the Radar Chart shows "Academic Performance by Subject"
 
-    // Fill with real data if available, else random/mock for visualization if grades empty
-    // ... logic ...
+    if (!grades || grades.length === 0) {
+        // Return empty stats structure to avoid crashing UI
+        return { success: true, stats: [] }
+    }
 
-    // Simplified return for the component to handle
-    return { success: true }
+    // Transform grades to Recharts format: { subject: 'Math', A: 80, fullMark: 100 }
+    // We take the 'total_score' or 'exam_score' + 'ca_score'
+    const stats = grades.map((g: any) => ({
+        subject: g.subject?.name?.substring(0, 10) || 'Subject', // Truncate for label
+        A: g.total_score || 0,
+        fullMark: 100
+    })).slice(0, 6) // Limit to 6 for clean radar
+
+    return { success: true, stats }
 }

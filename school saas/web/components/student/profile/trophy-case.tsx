@@ -30,7 +30,7 @@ export function TrophyCase({ achievements }: { achievements: any[] }) {
                     </h3>
                     <p className="text-sm text-slate-400">Digital Achievement Badges</p>
                 </div>
-                <Button variant="outline" size="sm" onClick={handleShare} className="border-white/10 text-slate-300 hover:text-white">
+                <Button variant="outline" size="sm" onClick={handleShare} className="border-white/10 text-slate-300 hover:text-white hover:bg-white/5 bg-slate-900/50">
                     <Share2 className="h-3 w-3 mr-2" /> Share
                 </Button>
             </div>

@@ -12,14 +12,25 @@ export async function getStudentProfileData() {
     // Assuming linked profile logic or user is a student:
     // For demo, we fetch the first student record associated with this user ID (if parent) or just the student ID if direct.
     // Let's assume we find the student record.
+    // 1. Get Base Student Info with Profile (Avatar)
     const { data: student } = await supabase
         .from('students')
         .select(`
             *,
             class:classes(name),
-            metadata:student_metadata(*)
+            metadata:student_metadata(*),
+            profile:profiles(avatar_url)
         `)
         .limit(1)
+        .single()
+
+    if (!student) return { success: false, error: "Student not found" }
+
+    // 1b. Get Tenant/School Details
+    const { data: tenant } = await supabase
+        .from('tenants')
+        .select('*')
+        .eq('id', student.tenant_id)
         .single()
 
     if (!student) return { success: false, error: "Student not found" }
@@ -74,8 +85,10 @@ export async function getStudentProfileData() {
         success: true,
         student: {
             ...student,
-            metadata: student.metadata || { admission_number: 'SCH/2023/001', house: 'Red House (Dragon)', clubs: ['Jet Club', 'Chess'] }
+            metadata: student.metadata || { admission_number: 'SCH/2023/001', house: 'Red House (Dragon)', clubs: ['Jet Club', 'Chess'] },
+            avatar_url: student.passport_photo_url || student.profile?.avatar_url
         },
+        tenant: tenant,
         achievements: mockedAchievements,
         behavior: mockedBehavior,
         incidents: mockedIncidents
