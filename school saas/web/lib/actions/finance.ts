@@ -346,11 +346,15 @@ export async function generatePaystackLink(userType: string, amount: number, ema
 // --- Bursar Utilities ---
 
 export async function getSMSWalletBalance() {
-    // In a real app, calls Termii API /api/get-balance
-    // For prototype, we mock a realistic low balance to show the UI state or a healthy one
-    // Let's return a random value between 500 and 5000 for effect
-    const mockBalance = 2450.00
-    return { success: true, balance: mockBalance }
+    const { getWalletBalance } = await import("@/lib/services/termii")
+    const result = await getWalletBalance()
+
+    if (result.success) {
+        return { success: true, balance: result.balance }
+    } else {
+        // Fallback or error state
+        return { success: false, balance: 0, error: result.error }
+    }
 }
 
 export async function getPendingReconciliations() {

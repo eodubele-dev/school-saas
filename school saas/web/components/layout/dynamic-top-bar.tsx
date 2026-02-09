@@ -41,10 +41,22 @@ interface DynamicTopBarProps {
     schoolName?: string
     mobileNav: React.ReactNode
     userProfile?: any
+    campuses?: any[]
+    teacherClasses?: any[]
+    pendingReconciliations?: number
     className?: string
 }
 
-export function DynamicTopBar({ user, role, schoolName = "EduFlow", mobileNav, userProfile }: DynamicTopBarProps) {
+export function DynamicTopBar({
+    user,
+    role,
+    schoolName = "EduFlow",
+    mobileNav,
+    userProfile,
+    campuses = [],
+    teacherClasses = [],
+    pendingReconciliations = 0
+}: DynamicTopBarProps) {
     const normalizedRole = role.toUpperCase()
 
     const renderRoleUtilities = () => {
@@ -58,21 +70,23 @@ export function DynamicTopBar({ user, role, schoolName = "EduFlow", mobileNav, u
                             <DropdownMenuTrigger asChild>
                                 <button className="flex items-center gap-2 bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-lg border border-amber-500/20 text-[10px] font-mono font-black hover:bg-amber-500/20 transition-colors">
                                     <MapPin size={14} />
-                                    <span className="hidden sm:inline">LEKKI_CAMPUS</span>
+                                    <span className="hidden sm:inline">
+                                        {campuses.length > 0 ? campuses[0].name.toUpperCase() : 'MAIN_CAMPUS'}
+                                    </span>
                                 </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-56 bg-slate-950 border-slate-800 text-slate-200">
                                 <DropdownMenuLabel>Switch Campus</DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-slate-800" />
-                                <DropdownMenuItem className="focus:bg-slate-900 focus:text-amber-500">
-                                    <MapPin className="mr-2 h-4 w-4" /> Lekki Campus (Active)
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="focus:bg-slate-900 focus:text-slate-200">
-                                    <MapPin className="mr-2 h-4 w-4" /> Ikeja Campus
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="focus:bg-slate-900 focus:text-slate-200">
-                                    <MapPin className="mr-2 h-4 w-4" /> Victoria Island
-                                </DropdownMenuItem>
+                                {campuses.length > 0 ? (
+                                    campuses.map((campus: any) => (
+                                        <DropdownMenuItem key={campus.id} className="focus:bg-slate-900 focus:text-amber-500">
+                                            <MapPin className="mr-2 h-4 w-4" /> {campus.name}
+                                        </DropdownMenuItem>
+                                    ))
+                                ) : (
+                                    <DropdownMenuItem disabled>No Campuses Found</DropdownMenuItem>
+                                )}
                             </DropdownMenuContent>
                         </DropdownMenu>
 
@@ -91,43 +105,59 @@ export function DynamicTopBar({ user, role, schoolName = "EduFlow", mobileNav, u
                             <DropdownMenuTrigger asChild>
                                 <button className="hidden md:flex items-center gap-2 bg-slate-800/50 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 text-[10px] font-bold hover:bg-slate-800 transition-colors">
                                     <MapPin size={14} />
-                                    <span>LEKKI</span>
+                                    <span>{campuses.length > 0 ? campuses[0].name.toUpperCase() : 'MAIN'}</span>
                                 </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-48 bg-slate-950 border-slate-800">
-                                <DropdownMenuItem>Lekki</DropdownMenuItem>
-                                <DropdownMenuItem>Ikeja</DropdownMenuItem>
-                                <DropdownMenuItem>V.I.</DropdownMenuItem>
+                                {campuses.length > 0 ? (
+                                    campuses.map((campus: any) => (
+                                        <DropdownMenuItem key={campus.id}>{campus.name}</DropdownMenuItem>
+                                    ))
+                                ) : (
+                                    <DropdownMenuItem disabled>No Campuses</DropdownMenuItem>
+                                )}
                             </DropdownMenuContent>
                         </DropdownMenu>
 
                         <SMSWalletMonitor />
 
-                        <ReconciliationAction />
+                        <ReconciliationAction pendingCount={pendingReconciliations} />
 
                         <div className="w-px h-6 bg-white/10 mx-2 hidden sm:block" />
                     </>
                 )
             case 'TEACHER':
+                // Determine active class (first one or default)
+                const activeClass = teacherClasses.length > 0 ? teacherClasses[0] : null
+
                 return (
                     <>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <button className="flex items-center gap-2 bg-purple-500/10 text-purple-500 px-3 py-1.5 rounded-lg border border-purple-500/20 text-[10px] font-black hover:bg-purple-500/20 transition-colors">
                                     <Users size={14} />
-                                    <span className="hidden sm:inline">JSS 1B (Active)</span>
+                                    <span className="hidden sm:inline">
+                                        {activeClass ? `${activeClass.name} (Active)` : 'NO CLASSES'}
+                                    </span>
                                 </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-56 bg-slate-950 border-slate-800 text-slate-200">
                                 <DropdownMenuLabel>Select Classroom</DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-slate-800" />
-                                <DropdownMenuItem>JSS 1B (Form Teacher)</DropdownMenuItem>
-                                <DropdownMenuItem>SSS 2A (Mathematics)</DropdownMenuItem>
-                                <DropdownMenuItem>JSS 3C (Civic Ed)</DropdownMenuItem>
+                                {teacherClasses.length > 0 ? (
+                                    teacherClasses.map((ac: any) => (
+                                        <DropdownMenuItem key={ac.id}>
+                                            {ac.name} <span className="text-slate-500 ml-1 text-xs">({ac.subject})</span>
+                                        </DropdownMenuItem>
+                                    ))
+                                ) : (
+                                    <DropdownMenuItem disabled>No classes assigned</DropdownMenuItem>
+                                )}
                             </DropdownMenuContent>
                         </DropdownMenu>
 
-                        <AttendancePip />
+                        {/* Pass active class ID if available, else null to disable */}
+                        <AttendancePip classId={activeClass?.id} />
 
                         <Button size="sm" className="hidden sm:flex bg-cyan-600 hover:bg-cyan-500 text-black text-[10px] font-black uppercase items-center gap-2 h-8">
                             <Plus size={14} /> Assess
@@ -139,7 +169,7 @@ export function DynamicTopBar({ user, role, schoolName = "EduFlow", mobileNav, u
                     <>
                         <button className="flex items-center gap-2 bg-emerald-500/10 text-emerald-500 px-3 py-1.5 rounded-lg border border-emerald-500/20 text-[10px] font-bold">
                             <Users size={14} />
-                            <span className="hidden sm:inline">FAMILY_ID: {user.id.slice(0, 6)}</span>
+                            <span className="hidden sm:inline">FAMILY_ID: {user.id.slice(0, 6).toUpperCase()}</span>
                         </button>
                         <Button size="sm" variant="outline" className="hidden sm:flex border-slate-800 text-slate-400 hover:text-white text-[10px] uppercase h-8">
                             <CreditCard size={14} className="mr-2" /> Pay Fees
@@ -151,7 +181,7 @@ export function DynamicTopBar({ user, role, schoolName = "EduFlow", mobileNav, u
                     <>
                         <div className="flex items-center gap-2 bg-indigo-500/10 text-indigo-400 px-3 py-1.5 rounded-lg border border-indigo-500/20 text-[10px] font-bold">
                             <GraduationCap size={14} />
-                            <span className="hidden sm:inline">GRADE 10 (SSS 1)</span>
+                            <span className="hidden sm:inline">STUDENT PORTAL</span>
                         </div>
                         <Button size="sm" variant="ghost" className="hidden sm:flex text-slate-400 hover:text-white text-[10px] uppercase h-8">
                             <BookOpen size={14} className="mr-2" /> Portfolio

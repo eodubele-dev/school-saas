@@ -4,14 +4,19 @@ import { useEffect, useState } from "react"
 import { getRefreshedAttendanceStats, getTeacherClasses } from "@/lib/actions/attendance"
 import { createClient } from "@/lib/supabase/client"
 
-export function AttendancePip() {
+export function AttendancePip({ classId: propClassId }: { classId?: string }) {
     const [stats, setStats] = useState({ present: 0, total: 0 })
-    const [classId, setClassId] = useState<string | null>(null)
+    const [classId, setClassId] = useState<string | null>(propClassId || null)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
+        if (propClassId) {
+            setClassId(propClassId)
+            return
+        }
+
         const init = async () => {
-            // 1. Get Teacher's Class
+            // 1. Get Teacher's Class (Fallback if no prop)
             const { success, data } = await getTeacherClasses()
             if (success && data && data.length > 0) {
                 setClassId(data[0].id)
@@ -20,7 +25,7 @@ export function AttendancePip() {
             }
         }
         init()
-    }, [])
+    }, [propClassId])
 
     useEffect(() => {
         if (!classId) return
