@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Bus, MapPin, Wrench, Users, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { CreateRouteModal } from "@/components/logistics/create-route-modal"
+import { AssignStudentModal } from "@/components/logistics/assign-student-modal"
 
 export default async function LogisticsPage({ params }: { params: { domain: string } }) {
     const routes = await getRoutes() || []
@@ -49,11 +50,14 @@ export default async function LogisticsPage({ params }: { params: { domain: stri
                         <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-2xl -mr-12 -mt-12 group-hover:bg-cyan-500/10 transition-colors" />
 
                         <CardHeader>
-                            <CardTitle className="flex justify-between items-start">
-                                <span className="text-white text-lg">{route.name}</span>
-                                <span className="text-xs bg-slate-800 px-2 py-1 rounded border border-white/10 font-mono text-cyan-300">
-                                    {route.vehicle_number}
-                                </span>
+                            <CardTitle className="flex justify-between items-center gap-4">
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-white text-lg">{route.name}</span>
+                                    <span className="text-[10px] w-fit bg-slate-800 px-2 py-0.5 rounded border border-white/10 font-mono text-cyan-300">
+                                        {route.vehicle_number}
+                                    </span>
+                                </div>
+                                <AssignStudentModal routeId={route.id} routeName={route.name} />
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">

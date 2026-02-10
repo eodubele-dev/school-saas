@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,6 +13,7 @@ import { Bus, Plus } from "lucide-react"
 export function CreateRouteModal() {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
+    const router = useRouter()
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -21,11 +23,13 @@ export function CreateRouteModal() {
         const name = formData.get('name') as string
         const vehicle = formData.get('vehicle') as string
         const driver = formData.get('driver') as string
+        const attendant = formData.get('attendant') as string
 
-        const res = await createRoute({ name, vehicle, driver })
+        const res = await createRoute({ name, vehicle, driver, attendant })
 
         if (res.success) {
             toast.success("Route Created Successfully")
+            router.refresh()
             setOpen(false)
         } else {
             toast.error(res.error || "Failed to create route")
@@ -59,6 +63,10 @@ export function CreateRouteModal() {
                     <div className="space-y-2">
                         <Label>Driver Name</Label>
                         <Input name="driver" placeholder="e.g. Mr. Sunday" required className="bg-slate-900 border-white/10" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Attendant Name</Label>
+                        <Input name="attendant" placeholder="e.g. Ms. Sarah" className="bg-slate-900 border-white/10" />
                     </div>
                     <Button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-500" disabled={loading}>
                         {loading ? "Creating..." : "Create Route"}

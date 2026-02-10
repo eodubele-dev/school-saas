@@ -1,0 +1,68 @@
+{
+  "tenants": [
+    {
+      "id": "1a68c9ce-4f41-440c-bc32-5c48899db7f6",
+      "created_at": "2026-02-01T23:06:51.238755+00:00",
+      "name": "Demo School",
+      "slug": "demo-school",
+      "domain": "demo-school.localhost",
+      "logo_url": null,
+      "theme_config": {
+        "accent": "#0ea5e9",
+        "primary": "#2563eb"
+      },
+      "motto": null,
+      "address": null,
+      "academic_config": {
+        "ca_weight": 40,
+        "exam_weight": 60
+      },
+      "subscription_tier": "Starter",
+      "is_active": true,
+      "sms_balance": 0,
+      "pilot_ends_at": null,
+      "tier": "Free"
+    },
+    {
+      "id": "e18076ff-0404-41aa-a97d-c2b884753ddc",
+      "created_at": "2026-01-28T14:23:42.048699+00:00",
+      "name": "Achieving Minds School",
+      "slug": "school1",
+      "domain": "school1.localhost",
+      "logo_url": "https://jggcixrapxccbxckuofw.supabase.co/storage/v1/object/public/school-assets/e18076ff-0404-41aa-a97d-c2b884753ddc/logo-1769884642773.png",
+      "theme_config": {
+        "accent": "#0ea5e9",
+        "primary": "#0951ec"
+      },
+      "motto": "Excellence and Growth",
+      "address": "ikorodu",
+      "academic_config": {
+        "ca_weight": 40,
+        "exam_weight": 60
+      },
+      "subscription_tier": "platinum",
+      "is_active": true,
+      "sms_balance": 0,
+      "pilot_ends_at": null,
+      "tier": "Free"
+    }
+  ],
+  "profilesWithAvatars": [
+    {
+      "id": "e6f2ac23-6272-4e13-a936-e853a94cb5db",
+      "tenant_id": "e18076ff-0404-41aa-a97d-c2b884753ddc",
+      "full_name": "Principal",
+      "role": "admin",
+      "created_at": "2026-01-31T08:24:48.205098+00:00",
+      "department": null,
+      "status": "active",
+      "title": null,
+      "phone_number": null,
+      "biometric_id": null,
+      "first_login": false,
+      "phone": "08130029819",
+      "avatar_url": "https://jggcixrapxccbxckuofw.supabase.co/storage/v1/object/public/avatars/e6f2ac23-6272-4e13-a936-e853a94cb5db-0.28469388793984984.jpeg",
+      "updated_at": "2026-02-05T17:29:25.614+00:00"
+    }
+  ]
+}

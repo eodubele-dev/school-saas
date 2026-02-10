@@ -25,3 +25,18 @@ export function formatCurrency(amount: number) {
     minimumFractionDigits: 0
   }).format(amount)
 }
+
+/**
+ * Safely parse JSON from a fetch Response object.
+ * Prevents "Unexpected end of JSON input" errors during stream failures.
+ */
+export async function safeParseJSON(response: Response) {
+  const text = await response.text()
+  if (!text) return { message: 'Empty response body' }
+  try {
+    return JSON.parse(text)
+  } catch (e) {
+    console.error('[safeParseJSON] Failed to parse:', text.substring(0, 100))
+    return { message: 'Invalid JSON response', raw: text }
+  }
+}

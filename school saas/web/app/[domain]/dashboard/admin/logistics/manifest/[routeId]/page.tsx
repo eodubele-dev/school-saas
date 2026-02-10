@@ -1,6 +1,8 @@
-import { getDailyManifest, startTrip } from "@/lib/actions/logistics"
+import { getDailyManifest } from "@/lib/actions/logistics"
 import { ManifestClient } from "@/components/logistics/manifest-client"
 import { notFound } from "next/navigation"
+import { ChevronLeft } from "lucide-react"
+import Link from "next/link"
 
 export default async function ManifestPage({
     params,
@@ -21,9 +23,14 @@ export default async function ManifestPage({
             {/* Header */}
             <div className="bg-slate-900 border-b border-white/10 p-4 sticky top-0 z-10 glass-header">
                 <div className="flex justify-between items-center">
-                    <div>
-                        <h2 className="font-bold text-lg">Route Manifest</h2>
-                        <p className="text-xs text-slate-400 capitalize">{direction} • {new Date().toLocaleDateString()}</p>
+                    <div className="flex items-center gap-3">
+                        <Link href={`/dashboard/admin/logistics`} className="p-2 hover:bg-white/5 rounded-full transition-colors">
+                            <ChevronLeft className="h-5 w-5 text-slate-400" />
+                        </Link>
+                        <div>
+                            <h2 className="font-bold text-lg">Route Manifest</h2>
+                            <p className="text-xs text-slate-400 capitalize">{direction} • {new Date().toLocaleDateString()}</p>
+                        </div>
                     </div>
                     <div className="px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs font-bold rounded">
                         {manifest.status.toUpperCase()}

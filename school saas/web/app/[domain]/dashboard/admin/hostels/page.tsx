@@ -1,13 +1,58 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Activity, BedDouble, AlertTriangle, UserCheck } from "lucide-react"
+import { getHostelsWithStats, getMaintenanceTickets } from "@/lib/actions/hostel"
 
-export default function HostelDashboard() {
-    // Mock Stats
+export default async function HostelDashboard() {
+    const { data: buildings = [] } = await getHostelsWithStats()
+    const { data: tickets = [] } = await getMaintenanceTickets()
+
+    // Real-time stats calculation
+    const totalRooms = buildings.reduce((acc: number, b: any) => acc + (b.rooms?.length || 0), 0)
+    const totalCapacity = buildings.reduce((acc: number, b: any) => {
+        return acc + (b.rooms?.reduce((rAcc: number, r: any) => rAcc + (r.capacity || 0), 0) || 0)
+    }, 0)
+
+    // We'll need a better way to count actual allocations in the future, 
+    // for now we'll sum room capacities as a baseline.
+    const occupiedBeds = buildings.reduce((acc: number, b: any) => {
+        return acc + (b.rooms?.reduce((rAcc: number, r: any) => {
+            return rAcc + (r.bunks?.filter((bk: any) => bk.student_id).length || 0)
+        }, 0) || 0)
+    }, 0)
+
+    const occupancyRate = totalCapacity > 0 ? Math.round((occupiedBeds / totalCapacity) * 100) : 0
+    const maintenanceCount = tickets.filter((t: any) => t.status !== 'resolved').length
+    const criticalIssues = tickets.filter((t: any) => t.priority === 'critical' && t.status !== 'resolved').length
+
     const stats = [
-        { title: "Total Occupancy", value: "85%", icon: BedDouble, desc: "450/520 Beds Filled", color: "text-blue-400" },
-        { title: "Present Tonight", value: "442", icon: UserCheck, desc: "8 students away/exeat", color: "text-green-400" },
-        { title: "Maintenance", value: "12", icon: AlertTriangle, desc: "3 Critical Issues", color: "text-amber-400" },
-        { title: "Daily Activity", value: "Active", icon: Activity, desc: "All systems normal", color: "text-purple-400" },
+        {
+            title: "Total Occupancy",
+            value: `${occupancyRate}%`,
+            icon: BedDouble,
+            desc: `${occupiedBeds}/${totalCapacity} Beds Filled`,
+            color: "text-blue-400"
+        },
+        {
+            title: "Present Tonight",
+            value: `${occupiedBeds}`,
+            icon: UserCheck,
+            desc: "Based on active allocations",
+            color: "text-green-400"
+        },
+        {
+            title: "Maintenance",
+            value: `${maintenanceCount}`,
+            icon: AlertTriangle,
+            desc: `${criticalIssues} Critical Issues`,
+            color: maintenanceCount > 0 ? "text-amber-400" : "text-slate-500"
+        },
+        {
+            title: "Hostel Units",
+            value: `${buildings.length}`,
+            icon: Activity,
+            desc: `${totalRooms} Total Rooms`,
+            color: "text-purple-400"
+        },
     ]
 
     return (
@@ -37,31 +82,73 @@ export default function HostelDashboard() {
                     <CardHeader>
                         <CardTitle className="text-white">Occupancy by Hall</CardTitle>
                     </CardHeader>
-                    <CardContent className="h-[300px] flex items-center justify-center text-slate-500">
-                        {/* Placeholder for Bar Chart */}
-                        <p>Occupancy Visualization Loading...</p>
+                    <CardContent className="h-[300px] flex flex-col items-center justify-center text-slate-400">
+                        {buildings.length > 0 ? (
+                            <div className="w-full space-y-4 px-4">
+                                {buildings.slice(0, 5).map((b: any) => {
+                                    const bCap = b.rooms?.reduce((acc: number, r: any) => acc + (r.capacity || 0), 0) || 0
+                                    const bOcc = b.rooms?.reduce((acc: number, r: any) => {
+                                        return acc + (r.bunks?.filter((bk: any) => bk.student_id).length || 0)
+                                    }, 0) || 0
+                                    const bRate = bCap > 0 ? (bOcc / bCap) * 100 : 0
+                                    return (
+                                        <div key={b.id} className="space-y-1">
+                                            <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
+                                                <span>{b.name}</span>
+                                                <span>{bOcc} / {bCap}</span>
+                                            </div>
+                                            <div className="h-2 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                                                <div
+                                                    className="h-full bg-blue-500/50 shadow-[0_0_10px_rgba(59,130,246,0.3)] transition-all duration-1000"
+                                                    style={{ width: `${bRate}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        ) : (
+                            <p>No buildings found</p>
+                        )}
                     </CardContent>
                 </Card>
                 <Card className="col-span-3 bg-slate-900 border-white/5">
                     <CardHeader>
-                        <CardTitle className="text-white">Recent Alerts</CardTitle>
+                        <CardTitle className="text-white">Recent Maintenance</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {[1, 2, 3].map(i => (
-                                <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-black/20 border border-white/5">
-                                    <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-                                    <div>
-                                        <p className="text-sm font-medium text-white">Absent: John Doe (Grade 11)</p>
-                                        <p className="text-xs text-slate-400">Queen Amina Hall • 10 mins ago</p>
+                            {tickets.length > 0 ? (
+                                tickets.slice(0, 4).map((ticket: any) => (
+                                    <div key={ticket.id} className="flex items-center gap-4 p-3 rounded-lg bg-black/20 border border-white/5">
+                                        <div className={`h-2 w-2 rounded-full ${ticket.priority === 'critical' ? 'bg-red-500 animate-pulse' :
+                                                ticket.priority === 'high' ? 'bg-orange-500' : 'bg-blue-500'
+                                            }`} />
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-medium text-white truncate">{ticket.title}</p>
+                                            <p className="text-xs text-slate-400">{new Date(ticket.created_at).toLocaleDateString()}</p>
+                                        </div>
+                                        <Badge variant="outline" className="text-[10px] border-white/10 text-slate-400 capitalize">
+                                            {ticket.status}
+                                        </Badge>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                <p className="text-center text-slate-500 py-8">No tickets found</p>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
         </div>
+    )
+}
+
+function Badge({ children, className, variant }: any) {
+    return (
+        <span className={`px-2 py-0.5 rounded text-xs font-medium ${className}`}>
+            {children}
+        </span>
     )
 }

@@ -9,20 +9,36 @@ import { revalidatePath } from "next/cache"
  */
 export async function getRoutes() {
     const supabase = createClient()
-    const { data } = await supabase.from('transport_routes').select('*').order('name')
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user?.id).single()
+
+    if (!profile?.tenant_id) return []
+
+    const { data } = await supabase
+        .from('transport_routes')
+        .select('*')
+        .eq('tenant_id', profile.tenant_id)
+        .order('name')
     return data || []
 }
 
-export async function createRoute(data: { name: string, vehicle: string, driver: string }) {
+export async function createRoute(data: { name: string, vehicle: string, driver: string, attendant?: string }) {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user?.id).single()
+
+    if (!profile?.tenant_id) return { success: false, error: "Tenant not found" }
+
     const { error } = await supabase.from('transport_routes').insert({
+        tenant_id: profile.tenant_id,
         name: data.name,
         vehicle_number: data.vehicle,
-        driver_name: data.driver
+        driver_name: data.driver,
+        attendant_name: data.attendant
     })
 
     if (error) return { success: false, error: error.message }
-    revalidatePath('/dashboard/admin/logistics') // Fix: Correct revalidate path
+    revalidatePath('/dashboard/admin/logistics')
     return { success: true }
 }
 
@@ -32,6 +48,11 @@ export async function createRoute(data: { name: string, vehicle: string, driver:
  */
 export async function getDailyManifest(routeId: string, direction: 'pickup' | 'dropoff') {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user?.id).single()
+
+    if (!profile?.tenant_id) return null
+
     const today = new Date().toISOString().split('T')[0]
 
     // 1. Try to find existing manifest
@@ -41,10 +62,11 @@ export async function getDailyManifest(routeId: string, direction: 'pickup' | 'd
             *,
             items:transport_manifest_items(
                 *,
-                student:students(first_name, last_name, admission_number, parent_phone:phone)
+                student:students(first_name, last_name, admission_number, phone)
             )
         `)
         .eq('route_id', routeId)
+        .eq('tenant_id', profile.tenant_id)
         .eq('date', today)
         .eq('direction', direction)
         .single()
@@ -59,17 +81,19 @@ export async function getDailyManifest(routeId: string, direction: 'pickup' | 'd
         .from('transport_assignments')
         .select('student_id')
         .eq('route_id', routeId)
+        .eq('tenant_id', profile.tenant_id)
 
-    if (!assignments) return null // No students assignment
+    if (!assignments || assignments.length === 0) return null // No students assigned
 
     // Create Header
     const { data: newManifest, error: createError } = await supabase
         .from('transport_manifest')
         .insert({
+            tenant_id: profile.tenant_id,
             route_id: routeId,
             date: today,
             direction,
-            status: 'pending' // Trip hasn't started
+            status: 'pending'
         })
         .select()
         .single()
@@ -80,17 +104,15 @@ export async function getDailyManifest(routeId: string, direction: 'pickup' | 'd
     }
 
     // Populate Items
-    if (assignments.length > 0) {
-        const items = assignments.map(a => ({
-            manifest_id: newManifest.id,
-            student_id: a.student_id,
-            status: 'pending'
-        }))
+    const items = assignments.map(a => ({
+        manifest_id: newManifest.id,
+        student_id: a.student_id,
+        status: 'pending'
+    }))
 
-        await supabase.from('transport_manifest_items').insert(items)
-    }
+    await supabase.from('transport_manifest_items').insert(items)
 
-    // Return structure (reload to get students joined)
+    // Return with students joined
     return await getDailyManifest(routeId, direction)
 }
 
@@ -103,7 +125,7 @@ export async function startTrip(manifestId: string) {
         .update({ status: 'active', started_at: new Date().toISOString() })
         .eq('id', manifestId)
 
-    revalidatePath('/admin/logistics')
+    revalidatePath('/dashboard/admin/logistics')
 }
 
 /**
@@ -165,6 +187,67 @@ export async function updateManifestItemStatus(itemId: string, status: 'boarded'
         }
     }
 
-    revalidatePath('/admin/logistics')
+    revalidatePath('/dashboard/admin/logistics')
+    return { success: true }
+}
+/**
+ * Fetch students assigned to a specific route
+ */
+export async function getRouteAssignments(routeId: string) {
+    const supabase = createClient()
+    const { data } = await supabase
+        .from('transport_assignments')
+        .select(`
+            id,
+            student_id,
+            stop_location,
+            direction,
+            student:students(id, first_name, last_name, admission_number)
+        `)
+        .eq('route_id', routeId)
+
+    return data || []
+}
+
+/**
+ * Assign a student to a route
+ */
+export async function assignStudentToRoute(data: {
+    routeId: string,
+    studentId: string,
+    stopLocation?: string,
+    direction?: string
+}) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user?.id).single()
+
+    if (!profile?.tenant_id) return { success: false, error: "Tenant not found" }
+
+    const { error } = await supabase.from('transport_assignments').insert({
+        tenant_id: profile.tenant_id,
+        route_id: data.routeId,
+        student_id: data.studentId,
+        stop_location: data.stopLocation,
+        direction: data.direction || 'both'
+    })
+
+    if (error) return { success: false, error: error.message }
+
+    // Also revalidate the logistics page
+    revalidatePath('/dashboard/admin/logistics')
+    return { success: true }
+}
+
+/**
+ * Remove a student assignment
+ */
+export async function removeStudentAssignment(assignmentId: string) {
+    const supabase = createClient()
+    const { error } = await supabase.from('transport_assignments').delete().eq('id', assignmentId)
+
+    if (error) return { success: false, error: error.message }
+
+    revalidatePath('/dashboard/admin/logistics')
     return { success: true }
 }

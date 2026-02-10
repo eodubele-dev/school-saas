@@ -14,6 +14,7 @@ export async function Navbar({ domain }: { domain?: string }) {
     let userRole = "Visitor"
     let userAvatarUrl = null
     let schoolName = "EduFlow"
+    let schoolLogo = null
     let userId = user?.id
 
     // Dynamic Data Containers
@@ -35,10 +36,14 @@ export async function Navbar({ domain }: { domain?: string }) {
             userAvatarUrl = profile.avatar_url
             const tenantId = profile.tenant_id
 
-            // Fetch school name
+            // Fetch school name and logo
             if (tenantId) {
-                const { data: tenant } = await supabase.from('tenants').select('name').eq('id', tenantId).single()
-                if (tenant) schoolName = tenant.name
+                const { data: tenant } = await supabase.from('tenants').select('name, logo_url').eq('id', tenantId).single()
+                if (tenant) {
+                    schoolName = tenant.name
+                    // @ts-ignore - logo_url exists but types might be stale
+                    schoolLogo = tenant.logo_url
+                }
 
                 // 1. Fetch Campuses (School Locations) - For Admin/Bursar
                 if (['admin', 'bursar', 'owner', 'proprietor'].includes(userRole)) {
@@ -161,6 +166,7 @@ export async function Navbar({ domain }: { domain?: string }) {
             user={user}
             role={userRole}
             schoolName={schoolName}
+            schoolLogo={schoolLogo}
             mobileNav={MobileNavComponent}
             userProfile={userProfile}
             campuses={campuses}

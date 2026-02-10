@@ -166,6 +166,8 @@ export function SidebarClient({
     // Determine if tier is premium
     const isPremium = tier === 'platinum' || tier === 'pilot'
 
+    const [logoError, setLogoError] = useState(false)
+
     return (
         <TooltipProvider>
             <div className="flex flex-col h-full">
@@ -174,8 +176,13 @@ export function SidebarClient({
                     {/* Logo */}
                     <div className="flex items-center gap-3 mb-4">
                         <div className="h-12 w-12 rounded-xl bg-slate-900/50 border border-white/10 flex items-center justify-center overflow-hidden">
-                            {tenantLogo ? (
-                                <img src={tenantLogo} alt={tenantName} className="h-full w-full object-contain p-1" />
+                            {tenantLogo && !logoError ? (
+                                <img
+                                    src={tenantLogo}
+                                    alt={tenantName}
+                                    className="h-full w-full object-contain p-1"
+                                    onError={() => setLogoError(true)}
+                                />
                             ) : (
                                 <span className="text-2xl">🎓</span>
                             )}

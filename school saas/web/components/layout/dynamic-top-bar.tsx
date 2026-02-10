@@ -42,6 +42,7 @@ interface DynamicTopBarProps {
     user: any
     role: string
     schoolName?: string
+    schoolLogo?: string | null
     mobileNav: React.ReactNode
     userProfile?: any
     campuses?: any[]
@@ -55,6 +56,7 @@ export function DynamicTopBar({
     user,
     role,
     schoolName = "EduFlow",
+    schoolLogo,
     mobileNav,
     userProfile,
     campuses = [],

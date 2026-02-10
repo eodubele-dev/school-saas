@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { startTrip, updateManifestItemStatus } from "@/lib/actions/logistics"
 import { Button } from "@/components/ui/button"
 import { Bus, CheckCircle, MapPin, Navigation } from "lucide-react"
@@ -11,11 +12,13 @@ export function ManifestClient({ manifest }: { manifest: any }) {
     const [status, setStatus] = useState(manifest.status)
     // Optimistic UI could be added here, but for simplicity we rely on revalidatePath in action
     const [loading, setLoading] = useState<string | null>(null) // itemId being updated
+    const router = useRouter()
 
     const handleStart = async () => {
         setLoading('trip')
         await startTrip(manifest.id)
         setStatus('active')
+        router.refresh()
         setLoading(null)
         toast.success("Trip Started! Drive safely. 🚌")
     }
@@ -25,6 +28,7 @@ export function ManifestClient({ manifest }: { manifest: any }) {
         const res = await updateManifestItemStatus(itemId, action)
         if (res.success) {
             toast.success(action === 'boarded' ? "Student Boarded" : "Student Dropped")
+            router.refresh()
         } else {
             toast.error("Failed to update status")
         }

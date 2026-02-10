@@ -54,6 +54,9 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
         }
     }
 
+    const [imageError, setImageError] = useState(false)
+    const [headerImageError, setHeaderImageError] = useState(false)
+
     const config = getRoleConfig(userRole)
     const initials = userName.charAt(0).toUpperCase()
 
@@ -74,8 +77,13 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
 
                         {/* Avatar */}
                         <div className={`h-9 w-9 rounded-full ${config.bg} ${config.border} border flex items-center justify-center text-sm font-bold shadow-inner group-hover:ring-2 ring-white/10 transition-all overflow-hidden`}>
-                            {userAvatarUrl ? (
-                                <img src={userAvatarUrl} alt={userName} className="h-full w-full object-cover" />
+                            {userAvatarUrl && !imageError ? (
+                                <img
+                                    src={userAvatarUrl}
+                                    alt={userName}
+                                    className="h-full w-full object-cover"
+                                    onError={() => setImageError(true)}
+                                />
                             ) : (
                                 <span className={config.color}>{initials}</span>
                             )}
@@ -91,8 +99,13 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
 
                         <div className="flex items-center gap-4 mb-3 relative z-10">
                             <div className={`w-12 h-12 rounded-full ${config.bg} ${config.border} border flex items-center justify-center font-bold text-lg shadow-lg`}>
-                                {userAvatarUrl ? (
-                                    <img src={userAvatarUrl} alt={userName} className="h-full w-full object-cover rounded-full" />
+                                {userAvatarUrl && !headerImageError ? (
+                                    <img
+                                        src={userAvatarUrl}
+                                        alt={userName}
+                                        className="h-full w-full object-cover rounded-full"
+                                        onError={() => setHeaderImageError(true)}
+                                    />
                                 ) : (
                                     <span className={config.color}>{initials}</span>
                                 )}
