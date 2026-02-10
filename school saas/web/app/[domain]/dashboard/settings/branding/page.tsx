@@ -33,7 +33,7 @@ export default async function BrandingSettingsPage({ params }: { params: { domai
                         <ShieldCheck className="h-4 w-4" />
                         Administrator / Institutional Identity
                     </div>
-                    <h2 className="text-3xl font-black tracking-tight text-white font-serif uppercase">
+                    <h2 className="text-3xl font-bold tracking-tight text-white">
                         School Branding
                     </h2>
                     <p className="text-slate-400 max-w-lg text-sm">

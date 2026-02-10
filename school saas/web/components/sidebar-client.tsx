@@ -186,13 +186,7 @@ export function SidebarClient({
                         </div>
                     </div>
 
-                    {/* System Integrity */}
-                    <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-                        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-                            System_Integrity: Optimal
-                        </span>
-                    </div>
+
                 </div>
 
                 {/* 👨👩👧👦 Student Switcher (Parent Only) */}
@@ -202,22 +196,7 @@ export function SidebarClient({
                     </div>
                 )}
 
-                {/* 🔍 Global Search Trigger */}
-                <div className="px-4 pb-4">
-                    <button
-                        onClick={() => setOpenSearch(true)}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-slate-100 text-xs transition-colors group/search shadow-lg"
-                        style={{ ['--tw-border-opacity' as any]: 0.3 }}
-                        onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgb(var(--school-accent-rgb) / 0.3)'}
-                        onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgb(255 255 255 / 0.1)'}
-                    >
-                        <Search className="h-3 w-3 text-slate-400 transition-colors" strokeWidth={1.5} style={{ ['--hover-color' as any]: 'var(--school-accent)' }} />
-                        <span className="flex-1 text-left font-medium">Quick Find...</span>
-                        <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono border border-white/10 text-slate-400">
-                            <span className="text-xs">⌘</span>K
-                        </span>
-                    </button>
-                </div>
+
 
                 {/* Command Palette Dialog */}
                 <CommandDialog open={openSearch} onOpenChange={setOpenSearch}>
@@ -372,14 +351,18 @@ export function SidebarClient({
                     )}
 
                     {/* Tier Display */}
-                    {isPremium && (
-                        <div className="flex items-center justify-between px-2">
-                            <span className="text-[10px] font-mono text-slate-600 uppercase tracking-widest">
-                                Tier: {tier === 'pilot' ? 'Pilot' : 'Platinum'}
+                    <div className="flex items-center justify-between px-2">
+                        <span className="text-xs font-mono text-slate-600 uppercase tracking-widest">
+                            Tier: <span className={cn(isPremium ? "text-amber-500 font-bold" : "text-slate-500")}>
+                                {tier.charAt(0).toUpperCase() + tier.slice(1)}
                             </span>
+                        </span>
+                        {isPremium ? (
                             <ShieldCheck size={14} style={{ color: 'rgb(var(--school-accent-rgb) / 0.5)' }} />
-                        </div>
-                    )}
+                        ) : (
+                            <div className="h-1.5 w-1.5 rounded-full bg-slate-700" />
+                        )}
+                    </div>
 
                     {/* System Links */}
                     {categories.find(c => c.category === "System")?.items?.map(item => {

@@ -63,7 +63,7 @@ export function SettlementsTab({ initialData }: { initialData: any[] }) {
                                             <Clock className="h-3.5 w-3.5 text-amber-500" />
                                         )}
                                         <span className={`text-[10px] uppercase font-bold ${trx.settlementStatus === 'settled' ? 'text-emerald-500' : 'text-amber-500'}`}>
-                                            {trx.settlementStatus}
+                                            {trx.settlementStatus || 'Pending'}
                                         </span>
                                     </div>
                                 </TableCell>

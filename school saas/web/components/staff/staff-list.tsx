@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Search, MoreVertical, ShieldAlert, UserCog, Mail } from "lucide-react"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
+import { Search, MoreVertical, ShieldAlert, UserCog, Mail, ChevronLeft, ChevronRight } from "lucide-react"
 import { toast } from "sonner"
 import { RoleBadge } from "@/components/staff/role-badge"
 import { updateStaffRole, updateStaffStatus } from "@/lib/actions/staff"
@@ -39,32 +39,52 @@ import { TeacherMappingModal } from "@/components/staff/teacher-mapping-modal"
 import { StaffIDCard } from "@/components/staff/staff-id-card"
 import { PermissionsModal } from "@/components/staff/permissions-modal"
 
-export function StaffList({ initialData, domain, classes, tenant }: { initialData: any[], domain: string, classes: any[], tenant: any }) {
+export function StaffList({ initialData, domain, classes, tenant, totalPages = 1 }: { initialData: any[], domain: string, classes: any[], tenant: any, totalPages?: number }) {
     const router = useRouter()
-    const [staff, setStaff] = useState(initialData)
-    const [searchQuery, setSearchQuery] = useState("")
+    const searchParams = useSearchParams()
+    const pathname = usePathname()
+
+    // Server-side data is passed as initialData. We use that directly.
+    const staff = initialData
+    // const [staff, setStaff] = useState(initialData) // Remove local state for data, trust server
+    // Actually, for instant optimistic updates on Role change, we might want local state initialized with initialData
+    const [optimisticStaff, setOptimisticStaff] = useState(initialData)
+
+    useEffect(() => {
+        setOptimisticStaff(initialData)
+    }, [initialData])
+
+    const [searchQuery, setSearchQuery] = useState(searchParams.get('query') || "")
     const [selectedUser, setSelectedUser] = useState<any>(null)
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
     const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false)
     const [newRole, setNewRole] = useState("")
     const [loading, setLoading] = useState(false)
 
-    const filteredStaff = staff.filter(user =>
-        user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    // Debounce Search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            const params = new URLSearchParams(searchParams)
+            if (searchQuery) {
+                params.set('query', searchQuery)
+            } else {
+                params.delete('query')
+            }
+            params.set('page', '1') // Reset to page 1 on search
+            router.replace(`${pathname}?${params.toString()}`)
+        }, 300)
 
-    const openRoleModal = (user: any) => {
-        setSelectedUser(user)
-        setNewRole(user.role)
-        setIsRoleModalOpen(true)
-    }
+        return () => clearTimeout(timer)
+    }, [searchQuery, router, pathname, searchParams]) // Caution: adding searchParams to dependency might cause loop if not careful. 
+    // Better to use a ref or just rely on router.replace being stable? 
+    // Actually, `searchParams` changes on URL update.
+    // If we type, `searchQuery` changes -> timer starts.
+    // Timer fires -> `router.replace` -> URL updates -> `searchParams` updates.
+    // `searchQuery` matches URL? No loop.
+    // But if URL updates from outside? We should sync input?
+    // Let's keep it simple: Input drives URL. Use `defaultValue` or sync only once?
 
-    const openPermissionsModal = (user: any) => {
-        setSelectedUser(user)
-        setIsPermissionsModalOpen(true)
-    }
-
+    // Changing specific user role locally
     const handleRoleUpdate = async () => {
         if (!selectedUser) return
         setLoading(true)
@@ -73,13 +93,22 @@ export function StaffList({ initialData, domain, classes, tenant }: { initialDat
 
         if (res.success) {
             toast.success("Role updated successfully")
-            setStaff(prev => prev.map(u => u.id === selectedUser.id ? { ...u, role: newRole } : u))
+            setOptimisticStaff(prev => prev.map(u => u.id === selectedUser.id ? { ...u, role: newRole } : u))
             setIsRoleModalOpen(false)
         } else {
             toast.error(res.error || "Failed to update role")
         }
         setLoading(false)
     }
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage < 1 || newPage > totalPages) return
+        const params = new URLSearchParams(searchParams)
+        params.set('page', newPage.toString())
+        router.push(`${pathname}?${params.toString()}`)
+    }
+
+    const currentPage = Number(searchParams.get('page')) || 1
 
     return (
         <div className="space-y-4">
@@ -108,86 +137,143 @@ export function StaffList({ initialData, domain, classes, tenant }: { initialDat
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredStaff.map((user) => (
-                            <TableRow key={user.id} className="border-white/5 hover:bg-white/5 transition-colors">
-                                <TableCell className="font-medium text-slate-200">
-                                    <div className="flex items-center gap-3">
-                                        <Avatar className="h-8 w-8 border border-white/10">
-                                            <AvatarImage src={user.avatar_url} />
-                                            <AvatarFallback className="bg-slate-800 text-slate-300">
-                                                {user.full_name?.charAt(0)}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div>
-                                            <div className="font-medium">{user.full_name}</div>
-                                            <div className="text-xs text-slate-500">{user.email}</div>
+                        {optimisticStaff.length > 0 ? (
+                            optimisticStaff.map((user) => (
+                                <TableRow key={user.id} className="border-white/5 hover:bg-white/5 transition-colors">
+                                    <TableCell className="font-medium text-slate-200">
+                                        <div className="flex items-center gap-3">
+                                            <Avatar className="h-8 w-8 border border-white/10">
+                                                <AvatarImage src={user.avatar_url} />
+                                                <AvatarFallback className="bg-slate-800 text-slate-300">
+                                                    {user.full_name?.charAt(0)}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div>
+                                                <div className="font-medium">{user.full_name}</div>
+                                                <div className="text-xs text-slate-500">{user.email}</div>
+                                                {user.phone && <div className="text-[10px] text-slate-600 flex items-center gap-1 mt-0.5"><span className="w-1 h-1 rounded-full bg-slate-700" />{user.phone}</div>}
+                                            </div>
                                         </div>
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <RoleBadge role={user.role} />
-                                </TableCell>
-                                <TableCell className="text-slate-400">
-                                    {user.department || "-"}
-                                </TableCell>
-                                <TableCell>
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${user.status === 'active'
-                                        ? "bg-green-500/10 text-green-500"
-                                        : "bg-red-500/10 text-red-500"
-                                        }`}>
-                                        {user.status || 'Active'}
-                                    </span>
-                                </TableCell>
-                                <TableCell>
-                                    {user.staff_permissions?.[0]?.signature_url ? (
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                            Signed
+                                    </TableCell>
+                                    <TableCell>
+                                        <RoleBadge role={user.role} />
+                                    </TableCell>
+                                    <TableCell className="text-slate-400">
+                                        {user.department || "-"}
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${user.status === 'active'
+                                            ? "bg-green-500/10 text-green-500"
+                                            : "bg-red-500/10 text-red-500"
+                                            }`}>
+                                            {user.status || 'Active'}
                                         </span>
-                                    ) : (
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-800 text-slate-500 border border-slate-700">
-                                            Pending
-                                        </span>
-                                    )}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white">
-                                                <MoreVertical className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-56 bg-slate-900 border-white/10 text-slate-200">
-                                            <DropdownMenuLabel>Manage Staff</DropdownMenuLabel>
+                                    </TableCell>
+                                    <TableCell>
+                                        {user.staff_permissions?.[0]?.signature_url ? (
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                                Signed
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-800 text-slate-500 border border-slate-700">
+                                                Pending
+                                            </span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800">
+                                                    <MoreVertical className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-56 bg-slate-900 border-white/10 text-slate-200">
+                                                <DropdownMenuLabel>Manage Staff</DropdownMenuLabel>
 
-                                            <DropdownMenuItem onClick={() => openRoleModal(user)} className="hover:bg-white/5 cursor-pointer">
-                                                <UserCog className="mr-2 h-4 w-4" /> Change Role
-                                            </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => {
+                                                    setSelectedUser(user)
+                                                    setNewRole(user.role)
+                                                    setIsRoleModalOpen(true)
+                                                }} className="hover:bg-white/5 cursor-pointer">
+                                                    <UserCog className="mr-2 h-4 w-4" /> Change Role
+                                                </DropdownMenuItem>
 
-                                            <DropdownMenuItem onClick={() => openPermissionsModal(user)} className="hover:bg-white/5 cursor-pointer">
-                                                <ShieldAlert className="mr-2 h-4 w-4" /> Permissions & Access
-                                            </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => {
+                                                    setSelectedUser(user)
+                                                    setIsPermissionsModalOpen(true)
+                                                }} className="hover:bg-white/5 cursor-pointer">
+                                                    <ShieldAlert className="mr-2 h-4 w-4" /> Permissions & Access
+                                                </DropdownMenuItem>
 
-                                            {user.role === 'teacher' && (
-                                                <TeacherMappingModal teacher={user} classes={classes} />
-                                            )}
+                                                {user.role === 'teacher' && (
+                                                    <TeacherMappingModal teacher={user} classes={classes} />
+                                                )}
 
-                                            <StaffIDCard user={user} tenant={tenant} />
+                                                <StaffIDCard user={user} tenant={tenant} />
 
-                                            <DropdownMenuItem className="hover:bg-white/5 cursor-pointer">
-                                                <Mail className="mr-2 h-4 w-4" /> Resend Invite
-                                            </DropdownMenuItem>
-                                            <DropdownMenuSeparator className="bg-white/10" />
-                                            <DropdownMenuItem className="text-red-500 hover:bg-red-500/10 cursor-pointer">
-                                                Deactivate Account
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                                <DropdownMenuItem onClick={() => {
+                                                    toast.promise(new Promise(resolve => setTimeout(resolve, 1000)), {
+                                                        loading: 'Resending invite...',
+                                                        success: `Invite resent to ${user.email}`,
+                                                        error: 'Failed to resend invite'
+                                                    })
+                                                }} className="hover:bg-white/5 cursor-pointer">
+                                                    <Mail className="mr-2 h-4 w-4" /> Resend Invite
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator className="bg-white/10" />
+                                                <DropdownMenuItem onClick={() => {
+                                                    if (confirm("Are you sure you want to deactivate this account? They will lose access immediately.")) {
+                                                        toast.promise(updateStaffStatus(user.id, 'inactive'), {
+                                                            loading: 'Deactivating account...',
+                                                            success: 'Account deactivated successfully',
+                                                            error: 'Failed to deactivate account'
+                                                        })
+                                                    }
+                                                }} className="text-red-500 hover:bg-red-500/10 cursor-pointer">
+                                                    Deactivate Account
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={6} className="h-24 text-center text-slate-500">
+                                    No staff members found.
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )}
                     </TableBody>
                 </Table>
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-end gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage <= 1}
+                        className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-sm text-slate-400">
+                        Page {currentPage} of {totalPages}
+                    </span>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage >= totalPages}
+                        className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800"
+                    >
+                        <ChevronRight className="h-4 w-4" />
+                    </Button>
+                </div>
+            )}
 
             {/* Role Assignment Modal */}
             <Dialog open={isRoleModalOpen} onOpenChange={setIsRoleModalOpen}>

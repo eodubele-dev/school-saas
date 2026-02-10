@@ -6,7 +6,7 @@ import { AdmissionWizard } from "@/components/admissions/admission-wizard"
 import { BulkUploader } from "@/components/admissions/bulk-uploader"
 import { SuccessCard } from "@/components/admissions/success-card"
 import { Button } from "@/components/ui/button"
-import { UserPlus, UploadCloud, ArrowLeft } from "lucide-react"
+import { UserPlus, UploadCloud, ArrowLeft, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
@@ -77,6 +77,17 @@ export function AdmissionsClient({ domain, classes, houses, tenant }: Admissions
                         <UploadCloud className="h-4 w-4" />
                         Bulk Upload
                     </button>
+                </div>
+            </div>
+
+            {/* Pre-flight Check Hint */}
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 flex items-start gap-4">
+                <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
+                <div className="space-y-1">
+                    <h3 className="text-sm font-semibold text-amber-400">Pre-flight Check</h3>
+                    <p className="text-sm text-amber-500/80 leading-relaxed">
+                        Ensure you have an <span className="font-medium text-amber-400">Active Academic Session</span> set up in your database (e.g., "2023/2024 - 1st Term"). Enrollment requires an active session to generate invoices.
+                    </p>
                 </div>
             </div>
 

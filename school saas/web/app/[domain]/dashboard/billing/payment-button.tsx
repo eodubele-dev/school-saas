@@ -1,37 +1,36 @@
-"use client"
-
 import { Button } from "@/components/ui/button"
 import { CreditCard, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
-import { generatePaystackLink } from "@/lib/actions/finance"
+import { initiatePayment } from "@/lib/actions/paystack" // Updated import
 import confetti from 'canvas-confetti'
 
-export function PaymentButton({ amount, email }: { amount: number, email: string }) {
+export function PaymentButton({ amount, email, studentId }: { amount: number, email: string, studentId?: string }) {
     const [loading, setLoading] = useState(false)
 
     const handlePayment = async () => {
         setLoading(true)
         try {
-            const link = await generatePaystackLink("Student", amount, email)
-            // In a real app with integration, we would redirect or open modal
-            // For now, we simulate the link generation
-            toast.success("Payment Initiated", {
-                description: "Redirecting to Paystack secure checkout...",
+            toast.loading("Initializing secure channel...")
+            const res = await initiatePayment({
+                amount,
+                email,
+                studentId
             })
 
-            // Simulate Success Confetti (since we can't really pay in this demo environment)
-            setTimeout(() => {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
+            toast.dismiss()
+
+            if (res.success && res.url) {
+                toast.success("Redirecting to Paystack...", {
+                    description: "Please complete payment in the secure window.",
                 })
-                window.open(link, '_blank')
-                setLoading(false)
-            }, 1000)
+                window.location.href = res.url // Redirect to Paystack
+            } else {
+                toast.error("Payment Init Failed", { description: res.error || "Could not start transaction." })
+            }
+            setLoading(false)
         } catch {
-            toast.error("Payment Failed", { description: "Could not initialize transaction." })
+            toast.error("Connection Error", { description: "Please check your network." })
             setLoading(false)
         }
     }

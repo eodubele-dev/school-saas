@@ -59,34 +59,61 @@ export async function getPendingApprovals() {
     }
 
     // 2. Fetch Locked Gradebooks
-    // We query student_grades for classes that are locked
+    // We query student_grades for classes that are locked AND not approved
     const { data: lockedGrades } = await supabase
         .from('student_grades')
-        .select('class_id, subject_id, term, session, classes(name), subjects(name)')
+        .select('class_id, subject_id, term, session, total_score, ca1_score, exam_score, classes(name), subjects(name), approval_status')
         .eq('tenant_id', profile?.tenant_id)
         .eq('is_locked', true)
+        .neq('approval_status', 'approved') // Only fetch pending or rejected (if re-locked)
 
-    const seen = new Set()
+    const processedGradebooks = new Set()
     if (lockedGrades) {
+        // Group by class+subject+term+session to form a "gradebook" unit
+        const groups: Record<string, any[]> = {}
+
         lockedGrades.forEach((g: any) => {
             const key = `${g.class_id}|${g.subject_id}|${g.term}|${g.session}`
-            if (!seen.has(key)) {
-                seen.add(key)
-                pendingItems.push({
-                    id: key, // Use pipe as separator to avoid UUID conflict
-                    type: 'gradebook',
-                    title: `${g.classes?.name} - ${g.subjects?.name}`,
-                    submitted_by: 'Teacher Submitting...',
-                    submitted_at: new Date().toISOString(),
-                    status: 'pending',
-                    details: {
-                        class_id: g.class_id,
-                        subject_id: g.subject_id,
-                        term: g.term,
-                        session: g.session
+            if (!groups[key]) groups[key] = []
+            groups[key].push(g)
+        })
+
+        Object.entries(groups).forEach(([key, paramGrades]) => {
+            if (processedGradebooks.has(key)) return
+            processedGradebooks.add(key)
+
+            const first = paramGrades[0]
+            const totalStudents = paramGrades.length
+            const passedStudents = paramGrades.filter(g => (g.total_score || 0) >= 50).length
+            const totalScoreSum = paramGrades.reduce((sum, g) => sum + (g.total_score || 0), 0)
+
+            // Calculate Stats
+            const passRate = totalStudents > 0 ? Math.round((passedStudents / totalStudents) * 100) : 0
+            const classAverage = totalStudents > 0 ? (totalScoreSum / totalStudents).toFixed(1) : "0.0"
+            const missingCA1 = paramGrades.filter(g => g.ca1_score === null || g.ca1_score === undefined).length
+            const missingExam = paramGrades.filter(g => g.exam_score === null || g.exam_score === undefined).length
+
+            pendingItems.push({
+                id: key, // Use pipe as separator to avoid UUID conflict
+                type: 'gradebook',
+                title: `${first.classes?.name} - ${first.subjects?.name}`,
+                submitted_by: 'Teacher Submitting...', // In real app, we'd fetch the teacher assigned to this subject
+                submitted_at: new Date().toISOString(),
+                status: 'pending',
+                details: {
+                    class_id: first.class_id,
+                    subject_id: first.subject_id,
+                    term: first.term,
+                    session: first.session,
+                    stats: {
+                        passRate,
+                        classAverage,
+                        missingCA1,
+                        missingExam,
+                        studentCount: totalStudents
                     }
-                })
-            }
+                }
+            })
         })
     }
 
@@ -176,8 +203,23 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
 
         if (error) return { success: false, error: error.message }
     } else if (type === 'gradebook') {
-        // PERMIT: In real app, we would update specific report card objects or a submission record
-        // For demo, we just ensure it stays locked but marked as processed in audit
+        // PERMIT: Update approval status for all grades in this "batch"
+        const [classId, subjectId, term, session] = id.split('|')
+
+        const { error } = await supabase
+            .from('student_grades')
+            .update({
+                approval_status: 'approved',
+                approved_by: user.id,
+                approved_at: new Date().toISOString(),
+                rejection_reason: null
+            })
+            .eq('class_id', classId)
+            .eq('subject_id', subjectId)
+            .eq('term', term)
+            .eq('session', session)
+
+        if (error) return { success: false, error: error.message }
     } else if (type === ('incident_log' as any)) {
         const { error } = await supabase
             .from('incident_logs')
@@ -257,10 +299,22 @@ export async function rejectItem(domain: string, id: string, type: 'lesson_plan'
 
         if (error) return { success: false, error: error.message }
     } else if (type === 'gradebook') {
+        const [classId, subjectId, term, session] = id.split('|')
+
         const { error } = await supabase
-            .from('incident_logs')
-            .update({ status: 'rejected' })
-            .eq('id', id)
+            .from('student_grades')
+            .update({
+                approval_status: 'rejected',
+                rejection_reason: reason,
+                is_locked: false, // Unlock for teacher to fix
+                approved_by: null,
+                approved_at: null
+            })
+            .eq('class_id', classId)
+            .eq('subject_id', subjectId)
+            .eq('term', term)
+            .eq('session', session)
+
         if (error) return { success: false, error: error.message }
     } else if (type === 'attendance_dispute') {
         const { error } = await supabase

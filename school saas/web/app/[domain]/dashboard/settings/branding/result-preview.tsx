@@ -1,72 +1,159 @@
 "use client"
 
-import { Card } from "@/components/ui/card"
-import { School, ShieldCheck } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { ResultSheet } from "@/components/results/result-sheet"
+import { ResultData } from "@/types/results"
 
 export function ResultPreview({ data }: { data: any }) {
-    const primaryColor = data?.theme_config?.primary || "#06b6d4"
+    const containerRef = useRef<HTMLDivElement>(null)
+    const contentRef = useRef<HTMLDivElement>(null)
+    const [scale, setScale] = useState(0.4)
+    const [containerHeight, setContainerHeight] = useState(0)
+
+    useEffect(() => {
+        const container = containerRef.current
+        const content = contentRef.current
+        if (!container || !content) return
+
+        const updateDimensions = () => {
+            const containerWidth = container.offsetWidth
+            // 210mm is ~794px. We calculate scale to fit width exactly.
+            const newScale = containerWidth / 794
+            setScale(newScale)
+
+            // Calculate scaled height based on actual content height
+            const contentHeight = content.scrollHeight
+            const scaledHeight = contentHeight * newScale
+            setContainerHeight(scaledHeight)
+        }
+
+        // Observer for container width changes
+        const containerObserver = new ResizeObserver(() => {
+            window.requestAnimationFrame(updateDimensions)
+        })
+
+        // Observer for content height changes (e.g. data loading)
+        const contentObserver = new ResizeObserver(() => {
+            window.requestAnimationFrame(updateDimensions)
+        })
+
+        containerObserver.observe(container)
+        contentObserver.observe(content)
+
+        // Initial call
+        updateDimensions()
+
+        return () => {
+            containerObserver.disconnect()
+            contentObserver.disconnect()
+        }
+    }, [data]) // Re-run if data changes as it might affect height
+
+    // Construct real-time mock data for the preview
+    const mockResultData: ResultData = {
+        student: {
+            id: "preview-student-id",
+            full_name: "Adeboye Daniel",
+            admission_number: "AIC/2023/001",
+            class_name: "JSS 2A",
+            house: "Blue House",
+            passport_url: "", // Empty will show fallback
+        },
+        school_details: {
+            name: data?.name || "School Name",
+            address: data?.address || "123 School Address, State",
+            motto: data?.motto || "Excellence in Knowledge",
+            logo_url: data?.logo_url || "",
+            theme: {
+                primary_color: data?.theme_config?.primary || "#2563eb",
+                secondary_color: data?.theme_config?.secondary || "#1e293b",
+                accent_color: data?.theme_config?.accent || "#0ea5e9"
+            }
+        },
+        term_info: {
+            term: "2nd",
+            session: "2025/2026",
+            next_term_begins: "12th Jan, 2026",
+            date_issued: new Date().toLocaleDateString('en-GB')
+        },
+        attendance: {
+            total_days: 120,
+            present: 118,
+            absent: 2
+        },
+        academic: {
+            average: 84.5,
+            total_score: 324,
+            subjects: [
+                { name: "Mathematics", ca1: 18, ca2: 19, exam: 50, total: 87, grade: "A", position: "1st", remarks: "Excellent" },
+                { name: "English Language", ca1: 15, ca2: 16, exam: 45, total: 76, grade: "B", position: "5th", remarks: "Good result" },
+                { name: "Basic Science", ca1: 20, ca2: 20, exam: 55, total: 95, grade: "A+", position: "1st", remarks: "Outstanding" },
+                { name: "Civic Education", ca1: 12, ca2: 14, exam: 40, total: 66, grade: "B", position: "12th", remarks: "Satisfactory" },
+            ]
+        },
+        character: {
+            affective_domain: {
+                "Punctuality": 5,
+                "Neatness": 4,
+                "Politeness": 5,
+                "Honesty": 5,
+                "Leadership": 4
+            },
+            teacher_remark: "Daniel is a very brilliant and well-behaved student. He shows great leadership potential.",
+            principal_remark: "An excellent performance. Keep up the good work and maintain this standard."
+        }
+    }
 
     return (
         <div className="space-y-6 lg:sticky lg:top-24">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest px-1">Live Result Preview</h3>
 
-            <Card className="bg-slate-950 text-white overflow-hidden shadow-2xl border-white/10">
-                {/* Header of Result Sheet */}
-                <div className="p-8 border-b border-white/10 relative bg-slate-900/50">
-                    <div className="flex items-center gap-6">
-                        {data?.logo_url ? (
-                            <img src={data.logo_url} className="h-20 w-20 rounded-lg object-cover shadow-lg border border-white/10" />
-                        ) : (
-                            <div className="h-20 w-20 rounded-lg bg-slate-900 flex items-center justify-center text-slate-700">
-                                <School className="h-10 w-10" />
-                            </div>
-                        )}
-                        <div className="flex-1 space-y-1">
-                            <h2 className="text-2xl font-black uppercase tracking-tight leading-none" style={{ color: primaryColor }}>
-                                {data?.name || "School Name Placeholder"}
-                            </h2>
-                            <p className="text-sm font-medium text-slate-400 italic">
-                                "{data?.motto || "School motto goes here..."}"
-                            </p>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                                {data?.address || "123 School Road, City, State"}
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            {/* Preview Container - Scaled to fit content */}
+            <div
+                ref={containerRef}
+                className="relative w-full bg-slate-900/50 border border-white/10 rounded-xl shadow-2xl overflow-hidden group transition-all duration-300 ease-out"
+                style={{
+                    height: containerHeight > 0 ? `${containerHeight + 2}px` : 'auto', // +2 for border compensation
+                    minHeight: '200px'
+                }}
+            >
+                {/* Visual Overlay / Glare */}
+                <div className="absolute inset-0 pointer-events-none border-4 border-slate-900/10 rounded-xl ring-1 ring-white/5 z-20"></div>
 
-                {/* Body Content Placeholder */}
-                <div className="p-8 space-y-6 bg-slate-950">
-                    <div className="flex justify-between items-center bg-slate-900/50 p-4 rounded-lg border border-white/5">
-                        <div className="space-y-2">
-                            <div className="h-4 w-32 bg-slate-800 rounded animate-pulse" />
-                            <div className="h-3 w-48 bg-slate-800/50 rounded animate-pulse" />
-                        </div>
-                        <div className="h-10 w-10 rounded-full bg-slate-800 animate-pulse" />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="h-24 bg-slate-900/50 rounded-lg border border-white/5 flex items-center justify-center">
-                            <span className="text-3xl font-black opacity-20" style={{ color: primaryColor }}>A+</span>
-                        </div>
-                        <div className="h-24 bg-slate-900/50 rounded-lg border border-white/5" />
-                    </div>
+                {/* 
+                   The ResultSheet is absolutely positioned and scaled from top-left.
+                   The container height is kept in sync with the scaled content height via JS.
+                */}
+                <div
+                    ref={contentRef}
+                    className="absolute top-0 left-0 origin-top-left transition-transform duration-300 ease-out will-change-transform"
+                    style={{
+                        transform: `scale(${scale})`,
+                        width: '794px', // A4 Width in px at 96 DPI
+                        // Removed fixed height so it can grow
+                    }}
+                >
+                    <ResultSheet data={mockResultData} />
                 </div>
-
-                {/* Footer Branding */}
-                <div className="p-4 bg-slate-900 flex justify-between items-center border-t border-white/10">
-                    <div className="flex items-center gap-2 opacity-30 text-white">
-                        <ShieldCheck className="h-4 w-4" />
-                        <span className="text-[8px] font-bold uppercase tracking-widest">EduFlow Verified Result</span>
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-600 uppercase">Page 1 of 1</span>
-                </div>
-            </Card>
+            </div>
 
             <div className="p-6 bg-slate-900/50 border border-white/5 rounded-xl space-y-3">
-                <p className="text-xs font-bold uppercase tracking-widest" style={{ color: primaryColor }}>Design Principle</p>
-                <p className="text-sm text-slate-400 leading-relaxed">
-                    This preview shows how your branding accent (<span style={{ color: primaryColor }} className="font-bold underline">this color</span>) and logo will appear on student result sheets and formal documents.
+                <div className="flex gap-4 text-xs">
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: mockResultData.school_details.theme?.primary_color }}></div>
+                        <span className="text-slate-400">Primary</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: mockResultData.school_details.theme?.secondary_color }}></div>
+                        <span className="text-slate-400">Secondary</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: mockResultData.school_details.theme?.accent_color }}></div>
+                        <span className="text-slate-400">Accent</span>
+                    </div>
+                </div>
+                <p className="text-xs text-slate-500 pt-2">
+                    * The preview auto-scales to fit your screen. Actual output is standard A4.
                 </p>
             </div>
         </div>

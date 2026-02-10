@@ -16,6 +16,9 @@ import {
     BookOpen,
     Menu
 } from 'lucide-react'
+import Link from 'next/link'
+import { toast } from 'sonner'
+import { OmniSearch } from "@/components/omni-search"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -44,6 +47,7 @@ interface DynamicTopBarProps {
     campuses?: any[]
     teacherClasses?: any[]
     pendingReconciliations?: number
+    activeSession?: string
     className?: string
 }
 
@@ -55,7 +59,8 @@ export function DynamicTopBar({
     userProfile,
     campuses = [],
     teacherClasses = [],
-    pendingReconciliations = 0
+    pendingReconciliations = 0,
+    activeSession
 }: DynamicTopBarProps) {
     const normalizedRole = role.toUpperCase()
 
@@ -68,7 +73,7 @@ export function DynamicTopBar({
                     <>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <button className="flex items-center gap-2 bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-lg border border-amber-500/20 text-[10px] font-mono font-black hover:bg-amber-500/20 transition-colors">
+                                <button className="flex items-center gap-2 bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-lg border border-amber-500/20 text-[10px] font-mono font-black hover:bg-amber-500/20 transition-colors outline-none">
                                     <MapPin size={14} />
                                     <span className="hidden sm:inline">
                                         {campuses.length > 0 ? campuses[0].name.toUpperCase() : 'MAIN_CAMPUS'}
@@ -92,9 +97,14 @@ export function DynamicTopBar({
 
                         <SystemPulse />
 
-                        <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white hidden sm:flex">
-                            <Settings size={20} />
-                        </Button>
+                        <SMSWalletMonitor />
+
+                        {/* Settings Hidden as requested */}
+                        {/* <Link href="/dashboard/settings">
+                            <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white hidden sm:flex">
+                                <Settings size={20} />
+                            </Button>
+                        </Link> */}
                     </>
                 )
             case 'BURSAR':
@@ -103,7 +113,7 @@ export function DynamicTopBar({
                         {/* Campus Filter (Simplified for Bursar) */}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <button className="hidden md:flex items-center gap-2 bg-slate-800/50 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 text-[10px] font-bold hover:bg-slate-800 transition-colors">
+                                <button className="hidden md:flex items-center gap-2 bg-slate-800/50 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 text-[10px] font-bold hover:bg-slate-800 transition-colors outline-none">
                                     <MapPin size={14} />
                                     <span>{campuses.length > 0 ? campuses[0].name.toUpperCase() : 'MAIN'}</span>
                                 </button>
@@ -134,7 +144,7 @@ export function DynamicTopBar({
                     <>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <button className="flex items-center gap-2 bg-purple-500/10 text-purple-500 px-3 py-1.5 rounded-lg border border-purple-500/20 text-[10px] font-black hover:bg-purple-500/20 transition-colors">
+                                <button className="flex items-center gap-2 bg-purple-500/10 text-purple-500 px-3 py-1.5 rounded-lg border border-purple-500/20 text-[10px] font-black hover:bg-purple-500/20 transition-colors outline-none">
                                     <Users size={14} />
                                     <span className="hidden sm:inline">
                                         {activeClass ? `${activeClass.name} (Active)` : 'NO CLASSES'}
@@ -193,16 +203,6 @@ export function DynamicTopBar({
         }
     }
 
-    const getSearchPlaceholder = () => {
-        switch (normalizedRole) {
-            case 'ADMIN': return 'Search students, staff, or finance...'
-            case 'TEACHER': return 'Search student or lesson plan...'
-            case 'PARENT': return 'Search results or invoices...'
-            case 'STUDENT': return 'Search assignments or resources...'
-            default: return 'Search...'
-        }
-    }
-
     return (
         <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-[#0A0A0B]/80 backdrop-blur-md">
             <div className="flex h-16 items-center px-4 md:px-8 gap-4 justify-between">
@@ -212,30 +212,17 @@ export function DynamicTopBar({
                     <div className="lg:hidden">
                         {mobileNav}
                     </div>
-                    {/* Brand Logo - Visible on all screens, but maybe hidden on super small if search is active */}
-                    <div className="hidden md:flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-[0_0_15px_rgba(79,70,229,0.5)]">
-                            <span className="text-white font-black text-sm">Ed</span>
-                        </div>
-                        {/* <span className="font-bold text-white tracking-tight hidden lg:block">{schoolName}</span> */}
-                    </div>
                 </div>
 
                 {/* ZONE 2: SCOPED SEARCH (FLEX GROW) */}
-                <div className="flex-1 max-w-2xl px-2 md:px-8">
-                    <div className="relative group">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[var(--school-accent)] transition-colors" size={16} />
-                        <input
-                            type="text"
-                            placeholder={getSearchPlaceholder()}
-                            className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-xs text-slate-200 focus:bg-slate-900 focus:border-indigo-500/50 outline-none transition-all placeholder:text-slate-600"
-                        />
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                            <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-slate-800 bg-slate-950 px-1.5 font-mono text-[10px] font-medium text-slate-500 opacity-100">
-                                <span className="text-xs">⌘</span>K
-                            </kbd>
+                <div className="flex-1 max-w-2xl px-2 md:px-8 flex items-center gap-4">
+                    <OmniSearch />
+                    {activeSession && (
+                        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-slate-300 whitespace-nowrap">
+                            <Activity className="h-3 w-3 text-[var(--school-accent)]" />
+                            {activeSession}
                         </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* ZONE 3: DYNAMIC UTILITIES & PROFILE */}
@@ -248,13 +235,31 @@ export function DynamicTopBar({
                     <div className="h-6 w-px bg-white/10 hidden sm:block" />
 
                     {/* Notifications */}
-                    <button className="relative text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5">
-                        <Bell size={20} />
-                        <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 border border-[#0A0A0B]" />
-                    </button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <button className="relative text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5 outline-none">
+                                <Bell size={20} />
+                                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 border border-[#0A0A0B]" />
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-80 bg-[#0A0A0B] border-slate-800 text-slate-200">
+                            <DropdownMenuLabel>
+                                Notifications
+                                <span className="ml-2 text-xs text-slate-500 font-normal">(0 New)</span>
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator className="bg-slate-800" />
+                            <div className="p-8 text-center text-sm text-slate-500 flex flex-col items-center gap-2">
+                                <Bell className="h-8 w-8 opacity-20" />
+                                <p>You're all caught up!</p>
+                            </div>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
 
                     {/* Help */}
-                    <button className="text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5 hidden sm:block">
+                    <button
+                        onClick={() => toast.info("Help Center coming soon!")}
+                        className="text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5 hidden sm:block outline-none"
+                    >
                         <HelpCircle size={20} />
                     </button>
 

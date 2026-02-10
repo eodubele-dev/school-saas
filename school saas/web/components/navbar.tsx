@@ -68,9 +68,9 @@ export async function Navbar({ domain }: { domain?: string }) {
                         .select('class_id, subject, is_form_teacher, classes(name)')
                         .eq('teacher_id', user.id)
 
-                    teacherClasses = allocs?.map(a => ({
+                    teacherClasses = allocs?.map((a: any) => ({
                         id: a.class_id,
-                        name: a.classes?.name || 'Unknown Class',
+                        name: Array.isArray(a.classes) ? a.classes[0]?.name : a.classes?.name || 'Unknown Class',
                         subject: a.subject,
                         isFormTeacher: a.is_form_teacher
                     })) || []
@@ -86,10 +86,12 @@ export async function Navbar({ domain }: { domain?: string }) {
                         .maybeSingle()
 
                     if (studentData) {
+                        const sData = studentData as any
+                        const cls = Array.isArray(sData.classes) ? sData.classes[0] : sData.classes
                         studentClass = {
-                            id: studentData.class_id,
-                            name: studentData.classes?.name,
-                            grade: studentData.classes?.grade_level
+                            id: sData.class_id,
+                            name: cls?.name,
+                            grade: cls?.grade_level
                         }
                     }
                 }
@@ -131,6 +133,29 @@ export async function Navbar({ domain }: { domain?: string }) {
         userAvatarUrl
     }
 
+    // 5. Fetch Active Session
+    let activeSessionDisplay = ""
+    if (user) {
+        // We need tenant_id. We can re-use the profile fetch or just do it here if we refactor.
+        // But since we already have a profile fetch block above, let's just do a clean separate fetch 
+        // OR move this logic up.
+        // For simplicity and cleanest code given the structure:
+        const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+
+        if (profile?.tenant_id) {
+            const { data: sessionData } = await supabase
+                .from('academic_sessions')
+                .select('session, term')
+                .eq('tenant_id', profile.tenant_id)
+                .eq('is_active', true)
+                .maybeSingle()
+
+            if (sessionData) {
+                activeSessionDisplay = `${sessionData.session} - ${sessionData.term}`
+            }
+        }
+    }
+
     return (
         <DynamicTopBar
             user={user}
@@ -141,6 +166,7 @@ export async function Navbar({ domain }: { domain?: string }) {
             campuses={campuses}
             teacherClasses={teacherClasses}
             pendingReconciliations={pendingReconciliations}
+            activeSession={activeSessionDisplay}
         />
     )
 }

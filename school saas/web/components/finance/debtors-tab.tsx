@@ -23,6 +23,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { getDebtorsList, sendPaymentReminder } from "@/lib/actions/collections"
+import { exportDebtorsReport } from "@/lib/actions/export-debtors"
 import { ManualPaymentModal } from "@/components/finance/manual-payment-modal"
 import { toast } from "sonner"
 
@@ -37,6 +38,27 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
         const results = await getDebtorsList({ query: search, status: statusFilter === 'all' ? undefined : statusFilter })
         setData(results)
         setLoading(false)
+    }
+
+    const handleExport = async () => {
+        toast.loading("Generating debtors report...")
+        const result = await exportDebtorsReport()
+        toast.dismiss()
+
+        if (result.success && result.csv) {
+            const blob = new Blob([result.csv], { type: 'text/csv' })
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = result.filename || 'debtors_report.csv'
+            document.body.appendChild(a)
+            a.click()
+            window.URL.revokeObjectURL(url)
+            document.body.removeChild(a)
+            toast.success("List downloaded successfully")
+        } else {
+            toast.error(result.error || "Failed to download list")
+        }
     }
 
     const handleSendReminder = async (id: string, channel: 'sms' | 'whatsapp') => {
@@ -66,7 +88,7 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search"}
                     </Button>
                     <ManualPaymentModal onSuccess={refreshData} />
-                    <Button variant="outline" className="bg-slate-900 border-white/10 text-slate-300">
+                    <Button variant="outline" className="bg-slate-900 border-white/10 text-slate-300" onClick={handleExport}>
                         <Download className="h-4 w-4 mr-2" />
                         Export
                     </Button>

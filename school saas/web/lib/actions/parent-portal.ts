@@ -159,21 +159,29 @@ export async function getStudentAttendanceAudit(studentId: string) {
     // Ideally we re-verify parent_id match here.
 
     // 2. Fetch Attendance Logs
-    // We order by date desc, then created_at desc
     const { data: logs, error } = await supabase
         .from('student_attendance')
-        .select('*')
+        .select(`
+            *,
+            register:attendance_registers(date)
+        `)
         .eq('student_id', studentId)
-        .order('date', { ascending: false })
         .order('created_at', { ascending: false })
-        .limit(50) // Last 50 entries for the audit trail
+        .limit(50)
 
     if (error) {
         console.error('[ParentPortal] Attendance Audit Error:', error)
         return { success: false, error: 'Failed to fetch messages' }
     }
 
-    return { success: true, data: logs }
+    // Sort by date (descending) since we couldn't order by joined column easily
+    const sortedLogs = (logs || []).sort((a: any, b: any) => {
+        const dateA = new Date(a.register?.date || 0).getTime()
+        const dateB = new Date(b.register?.date || 0).getTime()
+        return dateB - dateA
+    })
+
+    return { success: true, data: sortedLogs }
 }
 
 export async function logInvoiceView(studentId: string) {

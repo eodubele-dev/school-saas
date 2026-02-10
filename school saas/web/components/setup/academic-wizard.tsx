@@ -7,14 +7,17 @@ import { GradingConfigStep } from "./steps/step-3-grading"
 import { TimetableManagerStep } from "./steps/step-4-timetables"
 import { cn } from "@/lib/utils"
 
+import { SessionManagerStep } from "./steps/step-0-session-manager"
+
 export function AcademicWizard({ domain }: { domain: string }) {
     const [step, setStep] = useState(1)
 
     const steps = [
-        { number: 1, title: "Class & Arm Manager", component: <ClassesArmsStep onNext={() => setStep(2)} /> },
-        { number: 2, title: "Subject Registry", component: <SubjectRegistryStep onNext={() => setStep(3)} onPrev={() => setStep(1)} /> },
-        { number: 3, title: "Grading Scale Config", component: <GradingConfigStep onNext={() => setStep(4)} onPrev={() => setStep(2)} /> },
-        { number: 4, title: "Timetable Hub", component: <TimetableManagerStep onPrev={() => setStep(3)} /> }
+        { number: 1, title: "Active Session", component: <SessionManagerStep onNext={() => setStep(2)} /> },
+        { number: 2, title: "Class & Arm Manager", component: <ClassesArmsStep onNext={() => setStep(3)} /> },
+        { number: 3, title: "Subject Registry", component: <SubjectRegistryStep onNext={() => setStep(4)} onPrev={() => setStep(2)} /> },
+        { number: 4, title: "Grading Scale Config", component: <GradingConfigStep onNext={() => setStep(5)} onPrev={() => setStep(3)} /> },
+        { number: 5, title: "Timetable Hub", component: <TimetableManagerStep onPrev={() => setStep(4)} /> }
     ]
 
     return (

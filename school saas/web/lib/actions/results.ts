@@ -3,21 +3,33 @@
 import { createClient } from '@/lib/supabase/server'
 import { ResultData } from '@/types/results'
 
-export async function getStudentResultData(studentId: string, term: string, session: string): Promise<ResultData | null> {
+export async function getStudentResultData(studentId: string, term: string, session: string, nextTermBegins: string = "TBD", dateIssued: string = new Date().toDateString()): Promise<ResultData | null> {
     const supabase = createClient()
 
     try {
-        // 1. Fetch Student Profile
+        // 1. Fetch Student Profile & Tenant ID
         const { data: student } = await supabase
             .from('students')
             .select(`
-                id, full_name, admission_number, passport_url, house,
+                id, full_name, admission_number, passport_url, house, tenant_id,
                 classes (name)
             `)
             .eq('id', studentId)
             .single()
 
         if (!student) return null
+
+        // Fix for student.classes potentially being an array
+        const className = Array.isArray(student.classes)
+            ? student.classes[0]?.name
+            : (student.classes as any)?.name || 'Unknown Class'
+
+        // 1b. Fetch Tenant Details
+        const { data: tenant } = await supabase
+            .from('tenants')
+            .select('name, address, motto, logo_url, theme_config')
+            .eq('id', student.tenant_id)
+            .single()
 
         // 2. Fetch Grades
         const { data: grades } = await supabase
@@ -43,7 +55,7 @@ export async function getStudentResultData(studentId: string, term: string, sess
             .select('status')
             .eq('student_id', studentId)
 
-        const totalDays = 60 // Mock standard term days
+        const totalDays = 60 // Should potentially be dynamic per term/tenant config
         const present = attendance?.filter(a => a.status === 'present').length || 0
         const absent = attendance?.filter(a => a.status === 'absent').length || 0
 
@@ -77,8 +89,19 @@ export async function getStudentResultData(studentId: string, term: string, sess
                 full_name: student.full_name,
                 admission_number: student.admission_number || 'N/A',
                 passport_url: student.passport_url,
-                class_name: student.classes?.name || 'Unknown Class',
+                class_name: className,
                 house: student.house
+            },
+            school_details: {
+                name: tenant?.name || 'School Name',
+                address: tenant?.address || 'School Address',
+                motto: tenant?.motto || 'Excellence',
+                logo_url: tenant?.logo_url || '/logo.png',
+                theme: {
+                    primary_color: tenant?.theme_config?.primary || '#2563eb', // Blue-600 default
+                    secondary_color: tenant?.theme_config?.secondary || '#1e293b', // Slate-800 default
+                    accent_color: tenant?.theme_config?.accent || '#0ea5e9' // Sky-500 default
+                }
             },
             attendance: {
                 total_days: totalDays,
@@ -98,7 +121,8 @@ export async function getStudentResultData(studentId: string, term: string, sess
             term_info: {
                 term,
                 session,
-                next_term_begins: "05 Sept, 2026"
+                next_term_begins: nextTermBegins,
+                date_issued: dateIssued
             }
         }
 

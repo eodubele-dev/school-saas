@@ -22,7 +22,7 @@ export async function getStaffAttendanceStats() {
         // Schema check: profiles usually has full_name, not first/last in this project version
         const { data: staff, error: staffError } = await supabase
             .from('profiles')
-            .select('id, full_name, role')
+            .select('id, full_name, role, avatar_url')
             .in('role', ['teacher', 'admin', 'principal'])
             .eq('tenant_id', profile.tenant_id)
         // .eq('status', 'active') // Status column not confirmed in schema
@@ -87,7 +87,7 @@ export async function getStaffAttendanceStats() {
                 first_name: firstName,
                 last_name: lastName,
                 role: s.role,
-                photo_url: null, // Schema doesn't have photo_url yet
+                photo_url: s.avatar_url, // Mapped from avatar_url
                 status,
                 checkInTime: checkIn,
                 isLate
@@ -119,7 +119,7 @@ export async function getPendingLeaveRequests() {
             .from('staff_leave_requests')
             .select(`
                 *,
-                staff:profiles(first_name, last_name, photo_url, role)
+                staff:profiles(first_name, last_name, avatar_url, role)
             `)
             .eq('status', 'pending')
             .order('created_at', { ascending: false })

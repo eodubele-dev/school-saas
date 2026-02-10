@@ -1,36 +1,47 @@
-"use client"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Lock, CreditCard, Loader2 } from "lucide-react"
 import { toast } from "sonner"
-import { generatePaystackLink } from "@/lib/actions/finance"
+import { initiatePayment } from "@/lib/actions/paystack"
 import confetti from "canvas-confetti"
 
-export function ResultGatekeeper({ isPaid, balance, email, children }: { isPaid: boolean, balance: number, email: string, children: React.ReactNode }) {
+export function ResultGatekeeper({ isPaid, balance, email, studentId, children }: { isPaid: boolean, balance: number, email?: string, studentId?: string, children: React.ReactNode }) {
     const [loading, setLoading] = useState(false)
 
     const handlePayment = async () => {
         setLoading(true)
         try {
-            const link = await generatePaystackLink("Student", balance, email)
+            toast.loading("Initializing secure channel...")
+            // Fallback email from context or prompt user? For now use dummy if missing since backend might fetch it.
+            // But initiatePayment expects email.
+            // We should ideally have email passed in props. 
+            // In results/page.tsx, email isn't passed.
+            // We can fetch it or just pass a placeholder if the backend fills it. 
+            // Our initiatePayment DOES NOT fill email if missing, it expects it in data.
+            // However, initializePaystackTransaction in backend fills it from DB if missing.
+            // But initiatePayment takes it as arg. Let's make it optional in initiatePayment or just pass a placeholder string that backend will ignore/overwrite?
+            // Actually, backend paystack.ts: initializePaystackTransaction uses: const email = trx.student?.email || 'bursar@school.com'
+            // So we can pass a dummy email if we don't have it on client.
 
-            toast.success("Payment Initiated", {
-                description: "Redirecting to Paystack secure checkout...",
+            const res = await initiatePayment({
+                amount: balance,
+                email: email || "student@schoolHelper.com",
+                studentId
             })
 
-            // Simulate Success Confetti (since we can't really pay in this demo environment)
-            setTimeout(() => {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
+            toast.dismiss()
+
+            if (res.success && res.url) {
+                toast.success("Redirecting to Paystack...", {
+                    description: "Please complete payment in the secure window.",
                 })
-                window.open(link, '_blank')
-                setLoading(false)
-            }, 1000)
+                window.location.href = res.url
+            } else {
+                toast.error("Payment Init Failed", { description: res.error || "Could not start transaction." })
+            }
+            setLoading(false)
         } catch {
-            toast.error("Payment Failed", { description: "Could not initialize transaction." })
+            toast.error("Connection Error", { description: "Please check your network." })
             setLoading(false)
         }
     }

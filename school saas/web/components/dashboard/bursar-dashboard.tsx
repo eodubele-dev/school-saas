@@ -35,6 +35,8 @@ import { useRouter } from "next/navigation"
 import { ManualPaymentModal } from "@/components/finance/manual-payment-modal"
 import { SMSTransactionWidget } from "@/components/dashboard/sms-transaction-widget"
 import { BursarPaymentAlert } from "@/components/bursar/payment-alert"
+import { exportMonthlyFinanceReport } from "@/lib/actions/export-finance"
+import { toast } from "sonner"
 
 function MetricCard({ title, amount, subtitle, icon: Icon, trend, colorClass }: any) {
     return (
@@ -103,6 +105,27 @@ function CircularRate({ percentage }: { percentage: number }) {
 export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?: string }) {
     const { metrics, recentTransactions, chartData, term } = stats
 
+    const handleExport = async () => {
+        toast.loading("Generating finance report...")
+        const result = await exportMonthlyFinanceReport()
+        toast.dismiss()
+
+        if (result.success && result.csv) {
+            const blob = new Blob([result.csv], { type: 'text/csv' })
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = result.filename || 'finance_report.csv'
+            document.body.appendChild(a)
+            a.click()
+            window.URL.revokeObjectURL(url)
+            document.body.removeChild(a)
+            toast.success("Report downloaded successfully")
+        } else {
+            toast.error(result.error || "Failed to generate report")
+        }
+    }
+
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-700">
             {/* 🔔 Real-Time Payment Alert (Demo Injection for Platinum Showcase) */}
@@ -135,7 +158,7 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                             <span className="text-[10px] font-bold uppercase tracking-tight">Wallet: ₦{stats.smsBalance.toLocaleString()}</span>
                         </div>
                     )}
-                    <Button variant="outline" size="sm" className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <Button variant="outline" size="sm" onClick={handleExport} className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white">
                         <Download className="h-4 w-4 mr-2" /> Export Monthly
                     </Button>
                     <ManualPaymentModal onSuccess={() => window.location.reload()} />
@@ -156,7 +179,7 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                     amount={metrics.totalCollected}
                     subtitle="Live Payments"
                     icon={TrendingUp}
-                    trend="+12%"
+                    trend={metrics.collectionTrend}
                     colorClass="bg-emerald-500"
                 />
                 <MetricCard

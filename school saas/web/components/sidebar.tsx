@@ -41,7 +41,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
 
     // Parallelize Tenant and Auth Fetches to avoid waterfalls
     const [tenantRes, authRes] = await Promise.all([
-        supabase.from('tenants').select('name, logo_url, theme_config, motto').eq('slug', slug).single(),
+        supabase.from('tenants').select('name, logo_url, theme_config, motto, tier').eq('slug', slug).single(),
         supabase.auth.getUser()
     ])
 
@@ -50,10 +50,13 @@ export async function Sidebar({ className, domain }: { className?: string, domai
 
     let primaryColor = '#3b82f6' // Default Blue-500
     let tenantMotto = "Excellence in Everything" // Default Slogan
+    let tenantTier = "Free"
 
     if (tenant) {
         tenantName = tenant.name || "EduFlow"
         tenantLogo = tenant.logo_url
+        // @ts-ignore
+        tenantTier = tenant.tier || "Free"
         if (tenant.motto) tenantMotto = tenant.motto
         if (tenant.theme_config && typeof tenant.theme_config === 'object') {
             // @ts-ignore
@@ -121,7 +124,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
                 userName={userName}
                 brandColor={primaryColor}
                 tenantName={tenantName}
-                tier="platinum"
+                tier={tenantTier}
                 tenantLogo={tenantLogo}
                 linkedStudents={linkedStudents}
             />

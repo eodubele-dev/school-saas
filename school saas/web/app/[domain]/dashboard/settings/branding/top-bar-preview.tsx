@@ -8,9 +8,10 @@ interface TopBarPreviewProps {
     logo: string | null
     motto: string
     accent: string
+    tier?: string
 }
 
-export function TopBarPreview({ name, logo, motto, accent }: TopBarPreviewProps) {
+export function TopBarPreview({ name, logo, motto, accent, tier = "Free" }: TopBarPreviewProps) {
     // We simulate the exact structure of the sidebar header
     // The user's input `accent` is a hex color. We need to handle the CSS variable simulation roughly.
     // For specific RGBA opacity classes, we'll try to use inline styles or existing tailwind processing if possible.
@@ -61,15 +62,25 @@ export function TopBarPreview({ name, logo, motto, accent }: TopBarPreviewProps)
 
                         {/* 2. Identity Stack */}
                         <div className="flex flex-col flex-1 min-w-0">
-                            <h2 className="text-white font-bold text-lg tracking-tight leading-tight truncate">
-                                {name || "EduFlow Platinum"}
+                            <h2 className="text-white font-bold text-lg tracking-tight leading-tight truncate flex items-center gap-2">
+                                {name || "School Name"}
+                                {tier === 'Platinum' && (
+                                    <span className="px-1.5 py-0.5 rounded-md bg-gradient-to-r from-slate-300 via-white to-slate-300 text-[9px] text-slate-900 font-extrabold tracking-wider uppercase shadow-lg shadow-white/20">
+                                        PRO
+                                    </span>
+                                )}
                             </h2>
-                            <p
-                                className="text-[10px] font-semibold mt-0.5 tracking-wide truncate"
-                                style={{ color: accent }}
-                            >
-                                {motto || "Excellence in Education"}
-                            </p>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
+                                    {tier}
+                                </span>
+                                <p
+                                    className="text-[10px] font-semibold mt-0.5 tracking-wide truncate"
+                                    style={{ color: accent }}
+                                >
+                                    {motto || "Excellence in Education"}
+                                </p>
+                            </div>
                         </div>
                     </div>
 

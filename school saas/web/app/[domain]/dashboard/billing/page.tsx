@@ -137,7 +137,7 @@ export default async function BillingPage({
                                     <span className="font-bold">Fees Cleared</span>
                                 </div>
                             ) : (
-                                <PaymentButton amount={balance} email={user.email || ""} />
+                                <PaymentButton amount={balance} email={user.email || ""} studentId={student.id} />
                             )}
 
                             {/* Download Invoice Button */}

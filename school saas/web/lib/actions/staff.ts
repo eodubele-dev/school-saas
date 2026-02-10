@@ -135,6 +135,7 @@ export async function createStaff(formData: any) {
         user_metadata: {
             full_name: `${formData.firstName} ${formData.lastName}`,
             tenant_id: adminProfile.tenant_id,
+            phone: formData.phone // Save to metadata
         }
     })
 
@@ -153,7 +154,8 @@ export async function createStaff(formData: any) {
             full_name: `${formData.firstName} ${formData.lastName}`,
             role: formData.role,
             department: formData.department,
-            email: formData.email
+            email: formData.email,
+            phone: formData.phone // Save to profiles
         })
         .select()
 

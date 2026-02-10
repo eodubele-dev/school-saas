@@ -67,9 +67,10 @@ export function LeaveRequestManager() {
                         <div key={r.id} className="p-4 rounded-xl bg-slate-950/50 border border-white/5 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2">
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-3">
+
                                     <Avatar>
-                                        <AvatarImage src={r.staff?.photo_url} />
-                                        <AvatarFallback>{r.staff?.first_name[0]}</AvatarFallback>
+                                        <AvatarImage src={r?.staff?.avatar_url} />
+                                        <AvatarFallback>{r?.staff?.first_name?.[0]}</AvatarFallback>
                                     </Avatar>
                                     <div>
                                         <p className="font-bold text-white">{r.staff?.first_name} {r.staff?.last_name}</p>
@@ -116,7 +117,8 @@ export function LeaveRequestManager() {
                         </div>
                     ))}
                 </div>
-            )}
-        </Card>
+            )
+            }
+        </Card >
     )
 }

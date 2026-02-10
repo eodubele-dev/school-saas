@@ -14,11 +14,14 @@ interface SMSWalletAlertProps {
  * Implements the "Auto-Nudge" logic for institutional SMS balance.
  * Neon Amber for low balance (< 2000), Pulse Red for critical (<= 0).
  */
-export function SMSWalletAlert({ balance }: SMSWalletAlertProps) {
-    const isLow = balance < 2000
-    const isCritical = balance <= 0
+const HALT_THRESHOLD = 0 // Threshold where communication stops
+const LOW_THRESHOLD = 2000 // Threshold for warning
 
-    if (balance >= 2000) return null
+export function SMSWalletAlert({ balance }: SMSWalletAlertProps) {
+    const isLow = balance < LOW_THRESHOLD
+    const isCritical = balance <= HALT_THRESHOLD
+
+    if (balance >= LOW_THRESHOLD) return null
 
     return (
         <AnimatePresence>

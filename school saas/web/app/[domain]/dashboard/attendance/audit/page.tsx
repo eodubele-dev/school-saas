@@ -1,5 +1,6 @@
 import { ParentAttendanceAudit } from "@/components/attendance/parent-attendance-audit-client"
-import { getParentChildren, getStudentAttendanceAudit } from "@/lib/actions/parent-portal"
+import { getStudentAttendanceAudit } from "@/lib/actions/parent-portal"
+import { getAuditStudents } from "@/lib/actions/admin-attendance-audit"
 import { redirect } from "next/navigation"
 
 export default async function AttendanceAuditPage({
@@ -7,8 +8,8 @@ export default async function AttendanceAuditPage({
 }: {
     searchParams: { studentId?: string }
 }) {
-    // 1. Get Linked Students
-    const students = await getParentChildren()
+    // 1. Get Accessible Students (Parents sees kids, Staff sees all)
+    const students = await getAuditStudents()
 
     if (!students || students.length === 0) {
         return (

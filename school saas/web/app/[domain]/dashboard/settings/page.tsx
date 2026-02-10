@@ -6,7 +6,7 @@ export default function SettingsPage({ params }: { params: { domain: string } })
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
             <div>
-                <h2 className="text-3xl font-bold tracking-tight text-white font-serif uppercase tracking-tight">School Settings</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-white">School Settings</h2>
                 <p className="text-slate-400">Manage your school's configuration and preferences.</p>
             </div>
 

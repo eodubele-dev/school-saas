@@ -137,7 +137,7 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                     <Button
                         variant="ghost"
                         onClick={() => onOpenChange(false)}
-                        className="text-slate-500 hover:text-white"
+                        className="text-slate-500 hover:text-white hover:bg-white/5"
                         disabled={loading}
                     >
                         Cancel

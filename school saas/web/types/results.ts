@@ -7,6 +7,18 @@ export interface ResultData {
         class_name: string
         house: string | null
     }
+    school_details: {
+        name: string
+        address: string
+        motto: string
+        logo_url: string
+        principal_signature_url?: string
+        theme?: {
+            primary_color: string
+            secondary_color: string
+            accent_color: string
+        }
+    }
     attendance: {
         total_days: number
         present: number
@@ -35,5 +47,6 @@ export interface ResultData {
         term: string
         session: string
         next_term_begins: string
+        date_issued: string
     }
 }

@@ -12,8 +12,13 @@ interface ResultSheetProps {
     schoolLogo: string
 }
 
-export function ResultSheet({ data, schoolName, schoolLogo }: ResultSheetProps) {
+export function ResultSheet({ data }: { data: ResultData }) {
     const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
+    const theme = data.school_details.theme || {
+        primary_color: '#2563eb',
+        secondary_color: '#1e293b',
+        accent_color: '#0ea5e9'
+    }
 
     useEffect(() => {
         // Generate QR Code acting as verification link
@@ -24,12 +29,14 @@ export function ResultSheet({ data, schoolName, schoolLogo }: ResultSheetProps) 
     }, [data.student.id])
 
     return (
-        <div className="w-[210mm] min-h-[297mm] mx-auto bg-white p-10 text-slate-900 relative overflow-hidden shadow-2xl printable-sheet">
+        <div className="w-[210mm] min-h-[297mm] mx-auto bg-white p-10 text-slate-900 relative overflow-hidden shadow-2xl printable-sheet"
+            style={{ '--primary': theme.primary_color, '--secondary': theme.secondary_color, '--accent': theme.accent_color } as React.CSSProperties}
+        >
             {/* Watermark */}
             <div className="absolute inset-0 z-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none">
                 <div className="relative w-[500px] h-[500px]">
                     <Image
-                        src={schoolLogo || "/placeholder-logo.png"}
+                        src={data.school_details.logo_url || "/placeholder-logo.png"}
                         alt="Watermark"
                         fill
                         className="object-contain rotate-[-30deg]"
@@ -37,22 +44,22 @@ export function ResultSheet({ data, schoolName, schoolLogo }: ResultSheetProps) 
                 </div>
             </div>
 
-            <div className="relative z-10 border-4 border-double border-slate-900 h-full p-8 flex flex-col">
+            <div className="relative z-10 border-4 border-double h-full p-8 flex flex-col" style={{ borderColor: theme.secondary_color }}>
 
                 {/* Header */}
-                <header className="flex justify-between items-center border-b-2 border-slate-900 pb-6 mb-6">
+                <header className="flex justify-between items-center border-b-2 pb-6 mb-6" style={{ borderColor: theme.secondary_color }}>
                     <div className="flex items-center gap-4">
                         <div className="relative w-20 h-20">
-                            {schoolLogo && <Image src={schoolLogo} alt="School Logo" fill className="object-contain" />}
+                            {data.school_details.logo_url && <Image src={data.school_details.logo_url} alt="School Logo" fill className="object-contain" />}
                         </div>
                         <div>
-                            <h1 className="text-3xl font-black uppercase tracking-wider">{schoolName}</h1>
-                            <p className="text-sm font-medium text-slate-600 tracking-widest uppercase">Excellence • Integirty • Service</p>
-                            <p className="text-xs text-slate-500 mt-1">123 Education Lane, Lagos, Nigeria | www.eduflow.ng</p>
+                            <h1 className="text-3xl font-black uppercase tracking-wider" style={{ color: theme.primary_color }}>{data.school_details.name}</h1>
+                            <p className="text-sm font-medium text-slate-600 tracking-widest uppercase">{data.school_details.motto}</p>
+                            <p className="text-xs text-slate-500 mt-1">{data.school_details.address}</p>
                         </div>
                     </div>
                     <div className="flex flex-col items-end text-right">
-                        <h2 className="text-2xl font-bold text-slate-800 uppercase">Student Report Sheet</h2>
+                        <h2 className="text-2xl font-bold uppercase" style={{ color: theme.secondary_color }}>Student Report Sheet</h2>
                         <p className="font-semibold text-lg">{data.term_info.term} Term, {data.term_info.session}</p>
                     </div>
                 </header>
@@ -102,8 +109,8 @@ export function ResultSheet({ data, schoolName, schoolLogo }: ResultSheetProps) 
 
                 {/* Attendance Tally */}
                 <section className="mb-8">
-                    <div className="border border-slate-900 rounded-none overflow-hidden flex">
-                        <div className="bg-slate-900 text-white px-4 py-2 text-xs font-bold uppercase w-32 flex items-center">
+                    <div className="rounded-none overflow-hidden flex border" style={{ borderColor: theme.secondary_color }}>
+                        <div className="text-white px-4 py-2 text-xs font-bold uppercase w-32 flex items-center" style={{ backgroundColor: theme.secondary_color }}>
                             Attendance Record
                         </div>
                         <div className="flex-1 flex divide-x divide-slate-200">
@@ -127,15 +134,15 @@ export function ResultSheet({ data, schoolName, schoolLogo }: ResultSheetProps) 
                 <section className="mb-8 flex-1">
                     <table className="w-full text-sm border-collapse border border-slate-300">
                         <thead>
-                            <tr className="bg-slate-100 text-slate-700 uppercase text-xs">
-                                <th className="border border-slate-300 px-3 py-2 text-left w-1/3">Subject</th>
-                                <th className="border border-slate-300 px-2 py-2 w-16 text-center">CA 1 (20)</th>
-                                <th className="border border-slate-300 px-2 py-2 w-16 text-center">CA 2 (20)</th>
-                                <th className="border border-slate-300 px-2 py-2 w-16 text-center">Exam (60)</th>
-                                <th className="border border-slate-300 px-2 py-2 w-16 text-center font-bold bg-slate-200">Total</th>
-                                <th className="border border-slate-300 px-2 py-2 w-16 text-center">Grade</th>
-                                <th className="border border-slate-300 px-2 py-2 w-16 text-center">Pos</th>
-                                <th className="border border-slate-300 px-3 py-2 text-left">Remarks</th>
+                            <tr className="text-white uppercase text-xs" style={{ backgroundColor: theme.primary_color }}>
+                                <th className="border border-white/20 px-3 py-2 text-left w-1/3">Subject</th>
+                                <th className="border border-white/20 px-2 py-2 w-16 text-center">CA 1 (20)</th>
+                                <th className="border border-white/20 px-2 py-2 w-16 text-center">CA 2 (20)</th>
+                                <th className="border border-white/20 px-2 py-2 w-16 text-center">Exam (60)</th>
+                                <th className="border border-white/20 px-2 py-2 w-16 text-center font-bold bg-white/10">Total</th>
+                                <th className="border border-white/20 px-2 py-2 w-16 text-center">Grade</th>
+                                <th className="border border-white/20 px-2 py-2 w-16 text-center">Pos</th>
+                                <th className="border border-white/20 px-3 py-2 text-left">Remarks</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -166,11 +173,11 @@ export function ResultSheet({ data, schoolName, schoolLogo }: ResultSheetProps) 
                             ))}
                         </tbody>
                         <tfoot>
-                            <tr className="bg-slate-900 text-white font-bold">
-                                <td className="border border-slate-900 px-3 py-2">OVERALL AVERAGE</td>
-                                <td colSpan={3} className="border border-slate-900"></td>
-                                <td className="border border-slate-900 px-2 py-2 text-center text-lg">{data.academic.average}%</td>
-                                <td colSpan={3} className="border border-slate-900"></td>
+                            <tr className="text-white font-bold" style={{ backgroundColor: theme.secondary_color }}>
+                                <td className="border border-white/20 px-3 py-2">OVERALL AVERAGE</td>
+                                <td colSpan={3} className="border border-white/20"></td>
+                                <td className="border border-white/20 px-2 py-2 text-center text-lg">{data.academic.average}%</td>
+                                <td colSpan={3} className="border border-white/20"></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -202,20 +209,20 @@ export function ResultSheet({ data, schoolName, schoolLogo }: ResultSheetProps) 
                         </div>
 
                         {/* Remarks */}
-                        <div className="bg-slate-50 p-4 border border-blue-100 rounded-lg relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-blue-500" />
-                            <h3 className="text-xs font-bold uppercase text-blue-900 mb-1 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                        <div className="bg-slate-50 p-4 border rounded-lg relative overflow-hidden" style={{ borderColor: `${theme.primary_color}30` }}>
+                            <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: theme.primary_color }} />
+                            <h3 className="text-xs font-bold uppercase mb-1 flex items-center gap-2" style={{ color: theme.secondary_color }}>
+                                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: theme.primary_color }}></span>
                                 Class Teacher's Remark
                             </h3>
-                            <p className="font-handwriting text-lg text-blue-900 leading-snug italic">"{data.character.teacher_remark}"</p>
+                            <p className="font-handwriting text-lg leading-snug italic" style={{ color: theme.secondary_color }}>"{data.character.teacher_remark}"</p>
                         </div>
-                        <div className="bg-slate-900 text-slate-200 p-5 rounded-lg border border-slate-800 relative shadow-md">
+                        <div className="text-slate-200 p-5 rounded-lg border relative shadow-md" style={{ backgroundColor: theme.secondary_color, borderColor: `${theme.secondary_color}CC` }}>
                             <div className="absolute top-4 right-4 text-slate-700 opacity-20">
                                 <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 13.1216 16 12.017 16H9.01703C7.91246 16 7.01703 16.8954 7.01703 18L7.01703 21H5.01703V18C5.01703 15.7909 6.79089 14 9.01703 14H12.017C14.2432 14 16.017 15.7909 16.017 18V21H14.017ZM21.017 6.00005C22.1216 6.00005 23.017 6.89548 23.017 8.00005V11C23.017 12.1046 22.1216 13 21.017 13H19.017V10H21.017V8.00005H19.017V13H17.017V11C17.017 9.89548 16.1216 9.00005 15.017 9.00005H12.017C10.9125 9.00005 10.017 9.89548 10.017 11V13H7.01703C5.91246 13 5.01703 12.1046 5.01703 11V8.00005C5.01703 6.89548 5.91246 6.00005 7.01703 6.00005H10.017C10.5693 6.00005 11.017 5.55233 11.017 5.00005C11.017 4.44776 10.5693 4.00005 10.017 4.00005H7.01703C4.80789 4.00005 3.01703 5.79091 3.01703 8.00005V11C3.01703 13.2092 4.80789 15 7.01703 15H17.017V17H19.017V15H21.017C23.2262 15 25.017 13.2092 25.017 11V8.00005C25.017 5.79091 23.2262 4.00005 21.017 4.00005H18.017C17.4647 4.00005 17.017 4.44776 17.017 5.00005C17.017 5.55233 17.4647 6.00005 18.017 6.00005H21.017Z" /></svg>
                             </div>
                             <h3 className="text-xs font-bold uppercase text-slate-400 mb-2 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                                <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: theme.accent_color }}></span>
                                 Principal's AI Summary
                             </h3>
                             <p className="font-sans text-sm text-slate-300 leading-relaxed">"{data.character.principal_remark}"</p>
@@ -231,7 +238,7 @@ export function ResultSheet({ data, schoolName, schoolLogo }: ResultSheetProps) 
                             </div>
                             <div className="w-40 text-center pt-1">
                                 <div className="h-12 w-full mb-1 flex items-end justify-center">
-                                    <span className="font-mono text-sm text-slate-600">24/02/2026</span>
+                                    <span className="font-mono text-sm text-slate-600">{data.term_info.date_issued}</span>
                                 </div>
                                 <div className="border-t border-slate-400 mx-auto w-32"></div>
                                 <p className="text-[10px] uppercase font-bold text-slate-500 mt-1">Date Issued</p>
@@ -243,7 +250,7 @@ export function ResultSheet({ data, schoolName, schoolLogo }: ResultSheetProps) 
                         {qrCodeUrl && (
                             <div className="relative p-2 bg-white border border-slate-200 shadow-sm rounded-lg">
                                 <img src={qrCodeUrl} alt="Verification QR" className="w-24 h-24 mix-blend-multiply" />
-                                <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow">
+                                <div className="absolute -bottom-2 -right-2 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow" style={{ backgroundColor: theme.primary_color }}>
                                     VERIFIED
                                 </div>
                             </div>
@@ -257,7 +264,7 @@ export function ResultSheet({ data, schoolName, schoolLogo }: ResultSheetProps) 
             </div>
 
             {/* Branding Footer */}
-            <div className="absolute bottom-0 inset-x-0 h-2 bg-gradient-to-r from-blue-600 via-sky-500 to-blue-600"></div>
+            <div className="absolute bottom-0 inset-x-0 h-2" style={{ background: `linear-gradient(to right, ${theme.primary_color}, ${theme.accent_color}, ${theme.primary_color})` }}></div>
         </div>
     )
 }

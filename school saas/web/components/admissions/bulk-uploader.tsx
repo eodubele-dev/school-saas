@@ -115,12 +115,29 @@ export function BulkUploader({ domain, classes }: { domain: string, classes: any
         }
     }
 
+    const handleDownloadTemplate = () => {
+        const headers = REQUIRED_FIELDS.map(f => f.label)
+        const csvContent = "data:text/csv;charset=utf-8," + headers.join(",")
+        const encodedUri = encodeURI(csvContent)
+        const link = document.createElement("a")
+        link.setAttribute("href", encodedUri)
+        link.setAttribute("download", "student_upload_template.csv")
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold text-white">Bulk Student Upload</h2>
                 {step === 'upload' && (
-                    <Button variant="outline" size="sm" className="text-[var(--school-accent)] border-[var(--school-accent)]/20 hover:bg-[var(--school-accent)]/10">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDownloadTemplate}
+                        className="text-[var(--school-accent)] border-[var(--school-accent)]/20 hover:bg-[var(--school-accent)]/10"
+                    >
                         <Download className="mr-2 h-4 w-4" /> Download Template
                     </Button>
                 )}

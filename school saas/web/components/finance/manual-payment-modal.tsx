@@ -77,7 +77,7 @@ export function ManualPaymentModal({ onSuccess }: { onSuccess: () => void }) {
         const evidenceUrl = await handleUpload()
 
         const res = await recordManualCollection({
-            studentId: selectedInvoice.studentId, // Note: backend expects UUID or admissions number? Let's check getDebtorsList map
+            studentId: selectedInvoice.studentUuid, // Uses UUID for Foreign Key consistency
             invoiceId: selectedInvoice.id,
             amount: Number(amount),
             method: method,
@@ -134,7 +134,7 @@ export function ManualPaymentModal({ onSuccess }: { onSuccess: () => void }) {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="bg-slate-950 border-white/10"
                                 />
-                                <Button size="icon" variant="outline" onClick={handleSearch} disabled={searching}>
+                                <Button size="icon" className="bg-slate-800 text-white border border-white/10 hover:bg-slate-700 shrink-0" onClick={handleSearch} disabled={searching}>
                                     {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                                 </Button>
                             </div>

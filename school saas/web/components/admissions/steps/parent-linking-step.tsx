@@ -1,19 +1,15 @@
-"use client"
-
 import { useAdmissionStore } from "@/lib/stores/admission-store"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, CheckCircle, Search, UserPlus } from "lucide-react"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
-// import Confetti from "react-confetti" // Ideally dynamically imported
+import { admitStudent } from "@/lib/actions/onboarding"
 
 export function ParentLinkingStep() {
     const isNewParent = useAdmissionStore(state => state.data.isNewParent)
     const parentSearchQuery = useAdmissionStore(state => state.data.parentSearchQuery)
-    const firstName = useAdmissionStore(state => state.data.firstName)
     const data = useAdmissionStore(state => state.data)
     const setData = useAdmissionStore(state => state.setData)
     const setStep = useAdmissionStore(state => state.setStep)
@@ -30,8 +26,9 @@ export function ParentLinkingStep() {
         setSearching(true)
 
         const { data: results, error } = await supabase
-            .from('parents')
+            .from('profiles') // Changed from 'parents' to 'profiles' assuming parents are in profiles table with role='parent'
             .select('id, full_name, phone')
+            .eq('role', 'parent')
             .ilike('phone', `%${data.parentSearchQuery}%`)
             .limit(5)
 
@@ -40,59 +37,40 @@ export function ParentLinkingStep() {
     }
 
     const handleSubmit = async () => {
+        if (!data.parentId && !data.parentData?.phone) {
+            toast.error("Please select an existing parent or fill in new parent details")
+            return
+        }
+
         setLoading(true)
         try {
-            // 1. Get Current User and Tenant ID
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) throw new Error("No authenticated user found")
+            const res = await admitStudent({
+                firstName: data.firstName,
+                lastName: data.lastName,
+                middleName: data.middleName,
+                gender: data.gender,
+                dob: data.dob || new Date().toISOString(),
+                classId: data.classId,
+                house: data.house,
+                admissionNumber: data.admissionNumber,
+                parentId: data.parentId || undefined,
+                parentPhone: data.parentData?.phone || "",
+                parentEmail: data.parentData?.email,
+                parentName: data.parentData?.firstName ? `${data.parentData.firstName} ${data.parentData.lastName}` : undefined,
+                bloodGroup: data.bloodGroup,
+                genotype: data.genotype,
+                passportUrl: data.passportUrl || undefined
+            })
 
-            const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('tenant_id')
-                .eq('id', user.id)
-                .single()
-
-            if (profileError || !profile?.tenant_id) {
-                throw new Error("Could not find your school/tenant ID. Please try logging in again.")
+            if (res.success) {
+                toast.success(res.message)
+                setSuccess(true)
+            } else {
+                toast.error("Admission Failed: " + res.error)
             }
-
-            // 2. Compute Full Name
-            const fullName = [data.firstName, data.middleName, data.lastName]
-                .filter(Boolean)
-                .join(' ')
-
-            // 3. Create Student
-            const { data: student, error: studentError } = await supabase
-                .from('students')
-                .insert({
-                    tenant_id: profile.tenant_id,
-                    full_name: fullName,
-                    first_name: data.firstName,
-                    last_name: data.lastName,
-                    middle_name: data.middleName,
-                    dob: data.dob,
-                    gender: data.gender,
-                    blood_group: data.bloodGroup,
-                    genotype: data.genotype,
-                    passport_url: data.passportUrl,
-                    class_id: data.classId,
-                    house: data.house,
-                    admission_number: data.admissionNumber,
-                    parent_id: data.parentId,
-                })
-                .select()
-                .single()
-
-            if (studentError) throw studentError
-
-            // 4. Link Parent (if existing or new - logic follows in next steps)
-            // ...
-
-            toast.success(`Student ${data.firstName} Admitted Successfully!`)
-            setSuccess(true)
         } catch (error: any) {
             console.error('[ParentLinkingStep] Submission Error:', error)
-            toast.error("Admission Failed: " + (error.message || "Unknown error"))
+            toast.error("System Error: " + (error.message || "Unknown error"))
         } finally {
             setLoading(false)
         }
@@ -125,7 +103,18 @@ export function ParentLinkingStep() {
                             <div
                                 key={p.id}
                                 className="flex items-center justify-between p-3 rounded bg-slate-900 border border-white/5 hover:border-[var(--school-accent)] cursor-pointer"
-                                onClick={() => setData({ parentId: p.id })}
+                                onClick={() => setData({
+                                    parentId: p.id,
+                                    // Store phone as well for the server action
+                                    parentData: {
+                                        ...data.parentData,
+                                        phone: p.phone,
+                                        firstName: p.full_name?.split(' ')[0] || '',
+                                        lastName: p.full_name?.split(' ').slice(1).join(' ') || '',
+                                        email: '',
+                                        address: ''
+                                    }
+                                })}
                             >
                                 <div>
                                     <p className="text-sm font-medium text-white">{p.full_name}</p>
@@ -146,13 +135,12 @@ export function ParentLinkingStep() {
                     </div>
                 </div>
 
-                {/* Create New Mode Toggle (Simplified for prototype) */}
+                {/* Create New Mode Toggle */}
                 <Button
                     type="button"
                     className="w-full border-2 border-dashed border-white/20 bg-slate-800 text-white hover:border-[var(--school-accent)] hover:bg-slate-700 transition-all duration-300 antialiased font-bold py-8 group shadow-lg"
                     onClick={() => {
-                        console.log('[ParentLinkingStep] Toggling isNewParent from', isNewParent);
-                        setData({ isNewParent: !isNewParent });
+                        setData({ isNewParent: !isNewParent, parentId: null }); // Clear parentId if creating new
                     }}
                 >
                     <UserPlus className="mr-3 h-5 w-5 group-hover:scale-110 transition-transform text-[var(--school-accent)]" />

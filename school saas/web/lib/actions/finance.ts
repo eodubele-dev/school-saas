@@ -164,6 +164,38 @@ export async function getBursarStats() {
     const outstanding = totalExpected - totalCollected
     const collectionRate = totalExpected > 0 ? Math.round((totalCollected / totalExpected) * 100) : 0
 
+    // 1b. Calculate Trend (Last 30 days vs Previous 30 days)
+    // 1b. Calculate Trend (Last 30 days vs Previous 30 days)
+    const today = new Date()
+    const trendThirtyDaysAgo = new Date(today)
+    trendThirtyDaysAgo.setDate(today.getDate() - 30)
+    const trendSixtyDaysAgo = new Date(today)
+    trendSixtyDaysAgo.setDate(today.getDate() - 60)
+
+    const { data: currentPeriod } = await supabase
+        .from('transactions')
+        .select('amount')
+        .eq('tenant_id', tenantId)
+        .gte('date', trendThirtyDaysAgo.toISOString())
+
+    const { data: previousPeriod } = await supabase
+        .from('transactions')
+        .select('amount')
+        .eq('tenant_id', tenantId)
+        .gte('date', trendSixtyDaysAgo.toISOString())
+        .lt('date', trendThirtyDaysAgo.toISOString())
+
+    const currentSum = (currentPeriod || []).reduce((sum, t) => sum + Number(t.amount), 0)
+    const previousSum = (previousPeriod || []).reduce((sum, t) => sum + Number(t.amount), 0)
+
+    let trendValue = 0
+    if (previousSum === 0) {
+        trendValue = currentSum > 0 ? 100 : 0
+    } else {
+        trendValue = Math.round(((currentSum - previousSum) / previousSum) * 100)
+    }
+    const trendLabel = trendValue > 0 ? `+${trendValue}%` : `${trendValue}%`
+
     // 2. Fetch Recent Transactions
     const { data: recentTransactions } = await supabase
         .from('transactions')
@@ -202,14 +234,45 @@ export async function getBursarStats() {
         amount
     })).slice(-30)
 
+    // 4. Fetch SMS Transactions (Forensic Ledger)
+    const { data: smsLogs } = await supabase
+        .from('sms_transactions')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .order('sent_at', { ascending: false })
+        .limit(50)
+
+    const smsTransactions = smsLogs?.map((log: any) => ({
+        id: log.id,
+        parentName: log.recipient_name,
+        phone: log.recipient_phone,
+        type: log.message_type,
+        status: (log.status.charAt(0).toUpperCase() + log.status.slice(1)) as 'Delivered' | 'Pending' | 'Failed',
+        cost: Number(log.cost),
+        timestamp: log.sent_at
+    })) || []
+
+    // 5. Get SMS Wallet Balance
+    let smsBalance = 0
+    try {
+        const { getWalletBalance } = await import("@/lib/services/termii")
+        const balRes = await getWalletBalance()
+        if (balRes.success) smsBalance = balRes.balance
+    } catch (e) {
+        console.error("Termii service not found, defaulting to 0")
+    }
+
     return {
         metrics: {
             totalExpected,
             totalCollected,
             outstanding,
-            collectionRate
+            collectionRate,
+            collectionTrend: trendLabel
         },
         recentTransactions: recentTransactions || [],
+        smsTransactions,
+        smsBalance,
         chartData,
         term: termLabel || "N/A"
     }

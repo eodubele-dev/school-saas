@@ -7,12 +7,19 @@ import { sendSMS } from '@/lib/services/termii'
 export interface AdmissionData {
     firstName: string
     lastName: string
+    middleName?: string
     gender: string
     dob: string // ISO Date
     classId: string
+    house?: string
+    bloodGroup?: string
+    genotype?: string
+    passportUrl?: string
     parentPhone: string
     parentEmail?: string
     parentName?: string
+    admissionNumber?: string
+    parentId?: string
 }
 
 /**
@@ -30,22 +37,52 @@ export async function admitStudent(data: AdmissionData) {
     const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
     const tenantId = profile?.tenant_id
 
-    // 1. Handle Parent (Find or Create)
-    let parentId = null
-    const { data: existingParent } = await supabase
-        .from('profiles')
-        .select('id')
+    // 1. Get Active Session
+    const { data: session } = await supabase
+        .from('academic_sessions')
+        .select('*')
         .eq('tenant_id', tenantId)
-        .eq('role', 'parent')
-        .limit(1)
+        .eq('is_active', true)
         .single()
 
-    if (existingParent) {
-        parentId = existingParent.id
+    if (!session) return { success: false, error: 'No active academic session found. Please start a session first.' }
+
+    // 2. Handle Parent (Use ID, Find by Phone, or Create)
+    let parentId = data.parentId
+
+    if (!parentId) {
+        // Search for existing parent by phone
+        const { data: existingParent } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('tenant_id', tenantId)
+            .eq('role', 'parent')
+            .eq('phone', data.parentPhone)
+            .single()
+
+        if (existingParent) {
+            parentId = existingParent.id
+        } else {
+            // Create new parent profile
+            const { data: newParent, error: parentError } = await supabase
+                .from('profiles')
+                .insert({
+                    tenant_id: tenantId,
+                    role: 'parent',
+                    full_name: data.parentName || `Parent of ${data.firstName}`,
+                    phone: data.parentPhone,
+                    email: data.parentEmail || null,
+                })
+                .select('id')
+                .single()
+
+            if (parentError) return { success: false, error: "Failed to create parent: " + parentError.message }
+            parentId = newParent.id
+        }
     }
 
-    // 2. Create Student
-    const admissionNumber = `ADM/${new Date().getFullYear()}/${Math.floor(Math.random() * 10000)}`
+    // 3. Create Student
+    const admissionNumber = data.admissionNumber || `ADM/${new Date().getFullYear()}/${Math.floor(Math.random() * 10000)}`
 
     const { data: student, error: studentError } = await supabase
         .from('students')
@@ -53,18 +90,25 @@ export async function admitStudent(data: AdmissionData) {
             tenant_id: tenantId,
             first_name: data.firstName,
             last_name: data.lastName,
-            full_name: `${data.firstName} ${data.lastName}`,
+            middle_name: data.middleName,
+            full_name: `${data.firstName} ${data.middleName ? data.middleName + ' ' : ''}${data.lastName}`,
             class_id: data.classId,
+            house: data.house,
             admission_number: admissionNumber,
             status: 'active',
-            // parent_id: parentId 
+            parent_id: parentId,
+            dob: data.dob,
+            gender: data.gender,
+            blood_group: data.bloodGroup,
+            genotype: data.genotype,
+            passport_url: data.passportUrl
         })
         .select()
         .single()
 
     if (studentError) return { success: false, error: studentError.message }
 
-    // 3. Automated Billing (Generate Tuition Invoice)
+    // 4. Automated Billing (Generate Tuition Invoice)
     const { data: feeParams } = await supabase
         .from('fee_structures')
         .select('amount, name')
@@ -79,7 +123,7 @@ export async function admitStudent(data: AdmissionData) {
         .insert({
             tenant_id: tenantId,
             student_id: student.id,
-            term: '1st Term 2025/2026',
+            term: `${session.session} ${session.term}`,
             amount: tuitionAmount,
             status: 'pending',
             due_date: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString()
@@ -96,11 +140,12 @@ export async function admitStudent(data: AdmissionData) {
         })
     }
 
-    // 4. Send Welcome SMS
+    // 5. Send Welcome SMS
     const smsMessage = `Welcome to Blue-Horizon High! Your child ${data.firstName} is enrolled. Admission No: ${admissionNumber}. Portal Login: ${data.parentPhone}`
     await sendSMS(data.parentPhone, smsMessage)
 
     revalidatePath('/dashboard/admin/students')
+    revalidatePath('/dashboard/admin/admissions') // Ensure wizard state might refresh if needed
     return { success: true, message: 'Student admitted successfully' }
 }
 

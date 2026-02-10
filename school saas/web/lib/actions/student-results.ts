@@ -49,7 +49,8 @@ export async function checkFeeStatus(term: string, session: string) {
         success: true,
         isPaid,
         balance: Number(invoice.amount) - Number(invoice.amount_paid),
-        total: invoice.amount
+        total: invoice.amount,
+        studentId: student.id
     }
 }
 

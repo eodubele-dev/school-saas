@@ -12,9 +12,13 @@ export function BrandingClient({ initialTenant }: { initialTenant: any }) {
     }
 
     return (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 items-start">
-            <BrandingForm tenant={tenant} onUpdate={handleUpdate} />
-            <ResultPreview data={tenant} />
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_500px] gap-8 items-start">
+            <div className="min-w-0"> {/* Prevent grid blowout */}
+                <BrandingForm tenant={tenant} onUpdate={handleUpdate} />
+            </div>
+            <div className="sticky top-8">
+                <ResultPreview data={tenant} />
+            </div>
         </div>
     )
 }

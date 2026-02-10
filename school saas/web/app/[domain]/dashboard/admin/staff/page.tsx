@@ -59,6 +59,7 @@ export default async function StaffPage({ params, searchParams }: { params: { do
                     domain={params.domain}
                     classes={classes || []}
                     tenant={tenant}
+                    totalPages={Math.ceil((count || 0) / 10)}
                 />
             ) : (
                 <div className="p-8 text-center text-red-400 bg-red-500/10 rounded-lg border border-red-500/20">

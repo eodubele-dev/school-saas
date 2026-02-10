@@ -12,7 +12,7 @@ export default async function ResultCheckerPage() {
     const { grades } = await getTermResults(term, session)
 
     // Fallback if check fails
-    const isPaid = feeStatus.success ? feeStatus.isPaid : true
+    const isPaid = feeStatus.success ? (feeStatus.isPaid ?? false) : true
     const balance = feeStatus.balance || 0
 
     return (
@@ -28,7 +28,7 @@ export default async function ResultCheckerPage() {
                 </div>
             </div>
 
-            <ResultGatekeeper isPaid={isPaid} balance={balance}>
+            <ResultGatekeeper isPaid={isPaid} balance={balance} studentId={feeStatus.studentId}>
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div className="lg:col-span-3">
                         <ReportCard grades={grades || []} />

@@ -12,9 +12,11 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { TopBarPreview } from "./top-bar-preview"
 
+import { Tenant } from "@/types/tenants"
+
 interface BrandingFormProps {
-    tenant: any
-    onUpdate: (data: any) => void
+    tenant: Tenant
+    onUpdate: (data: Partial<Tenant>) => void
 }
 
 export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
@@ -25,9 +27,14 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
     const [address, setAddress] = useState(tenant?.address || "")
     const [logo, setLogo] = useState<string | null>(tenant?.logo_url || null)
 
-    // Default to cyan if not set
-    const defaultColor = tenant?.theme_config?.primary || "#06b6d4"
-    const [accent, setAccent] = useState(defaultColor)
+    // Default colors
+    const defaultPrimary = tenant?.theme_config?.primary || "#2563eb"
+    const defaultSecondary = tenant?.theme_config?.secondary || "#1e293b"
+    const defaultAccent = tenant?.theme_config?.accent || "#0ea5e9"
+
+    const [primary, setPrimary] = useState(defaultPrimary)
+    const [secondary, setSecondary] = useState(defaultSecondary)
+    const [accent, setAccent] = useState(defaultAccent)
     const [uploading, setUploading] = useState(false)
 
     // Helper to upload Logo to Supabase Storage via Server Action (RLS Bypass)
@@ -51,19 +58,18 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
     }
 
     const handleSave = async () => {
-        console.log('[BrandingForm] handleSave initiated', {
-            tenantId: tenant?.id,
-            accent,
-            logoPresent: !!logo
-        });
         setLoading(true)
         try {
-            console.log('[BrandingForm] Calling updateTenantBranding...');
             const result = await updateTenantBranding(tenant.id, {
                 name,
                 motto,
                 address,
-                theme_config: { ...tenant?.theme_config, primary: accent },
+                theme_config: {
+                    ...tenant?.theme_config,
+                    primary,
+                    secondary,
+                    accent
+                },
                 logo_path: logo || undefined
             })
 
@@ -73,8 +79,12 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                 name,
                 motto,
                 address,
-                logo_url: logo,
-                theme_config: { ...tenant?.theme_config, primary: accent }
+                logo_url: logo || undefined,
+                theme_config: {
+                    primary,
+                    secondary,
+                    accent
+                }
             })
 
             toast.success("Branding Updated!", {
@@ -114,15 +124,16 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
     }
 
     return (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 animate-in slide-in-from-bottom-4 duration-700">
-            {/* Left Column: Verification & Preview (Sticky) */}
-            <div className="xl:sticky xl:top-8 h-fit space-y-8 order-2 xl:order-1">
+        <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-700">
+            {/* Top Section: Preview & Assets */}
+            <div className="space-y-8">
                 <div className="bg-slate-900/40 border border-white/5 p-6 rounded-2xl backdrop-blur-sm">
                     <TopBarPreview
                         name={name}
                         logo={logo}
                         motto={motto}
-                        accent={accent}
+                        accent={primary}
+                        tier={tenant.tier}
                     />
                 </div>
 
@@ -138,7 +149,7 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                             {logo ? (
                                 <img src={logo} className="h-8 w-8 object-contain" />
                             ) : (
-                                <div className="h-6 w-6 rounded-full" style={{ backgroundColor: accent }} />
+                                <div className="h-6 w-6 rounded-full" style={{ backgroundColor: primary }} />
                             )}
                             <div className="absolute top-0 right-0 h-3 w-3 bg-green-500 rounded-full border-2 border-slate-950"></div>
                         </div>
@@ -150,8 +161,8 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                 </div>
             </div>
 
-            {/* Right Column: Controls - Now with independent scrolling */}
-            <div className="space-y-8 bg-slate-900/40 border border-white/5 p-8 rounded-2xl backdrop-blur-sm order-1 xl:order-2 max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent pr-4">
+            {/* Main Inputs Section */}
+            <div className="space-y-8 bg-slate-900/40 border border-white/5 p-8 rounded-2xl backdrop-blur-sm">
                 <div className="space-y-4">
                     <h3 className="text-xl font-bold text-white flex items-center gap-2">
                         <Palette className="h-5 w-5 text-[var(--school-accent)]" />
@@ -231,39 +242,69 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                     </div>
                 </div>
 
-                <div className="space-y-4">
-                    <Label className="text-slate-400">Brand Accent Color</Label>
-                    <div className="flex flex-col gap-4">
-                        <div className="flex gap-4 items-center">
-                            <Input
+                <div className="space-y-6 border-t border-white/5 pt-6">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Brand Palette</h3>
+
+                    {/* Primary Color Picker */}
+                    <div className="space-y-2">
+                        <Label className="text-slate-400">Primary Brand Color</Label>
+                        <div className="flex items-center gap-4 border border-white/10 p-3 rounded-lg bg-slate-950/50">
+                            <input
                                 type="color"
-                                value={accent}
+                                value={primary}
                                 onChange={(e) => {
-                                    const newColor = e.target.value
-                                    setAccent(newColor)
-                                    onUpdate({ theme_config: { ...tenant?.theme_config, primary: newColor } })
+                                    const val = e.target.value
+                                    setPrimary(val)
+                                    onUpdate({ theme_config: { ...tenant?.theme_config, primary: val, secondary, accent } })
                                 }}
-                                className="h-12 w-24 p-1 bg-slate-950 border-white/10 cursor-pointer"
+                                className="h-10 w-16 cursor-pointer bg-transparent border-none p-0"
                             />
-                            <div className="flex-1 space-y-1">
-                                <p className="text-sm font-medium text-white">Custom Hex Color</p>
-                                <p className="text-xs text-slate-500">Pick any color to match your brand guidelines.</p>
+                            <div className="flex-1">
+                                <p className="text-xs font-mono text-slate-400 uppercase">{primary}</p>
+                                <p className="text-[10px] text-slate-500">Main identity color (Logo, Headers)</p>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Native Color Picker for maximum compatibility */}
+                    {/* Secondary Color Picker */}
+                    <div className="space-y-2">
+                        <Label className="text-slate-400">Secondary/Dark Color</Label>
+                        <div className="flex items-center gap-4 border border-white/10 p-3 rounded-lg bg-slate-950/50">
+                            <input
+                                type="color"
+                                value={secondary}
+                                onChange={(e) => {
+                                    const val = e.target.value
+                                    setSecondary(val)
+                                    onUpdate({ theme_config: { ...tenant?.theme_config, primary, secondary: val, accent } })
+                                }}
+                                className="h-10 w-16 cursor-pointer bg-transparent border-none p-0"
+                            />
+                            <div className="flex-1">
+                                <p className="text-xs font-mono text-slate-400 uppercase">{secondary}</p>
+                                <p className="text-[10px] text-slate-500">Text, borders, and dark backgrounds</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Accent Color Picker */}
+                    <div className="space-y-2">
+                        <Label className="text-slate-400">Accent/Highlight Color</Label>
                         <div className="flex items-center gap-4 border border-white/10 p-3 rounded-lg bg-slate-950/50">
                             <input
                                 type="color"
                                 value={accent}
                                 onChange={(e) => {
-                                    const newColor = e.target.value
-                                    setAccent(newColor)
-                                    onUpdate({ theme_config: { ...tenant?.theme_config, primary: newColor } })
+                                    const val = e.target.value
+                                    setAccent(val)
+                                    onUpdate({ theme_config: { ...tenant?.theme_config, primary, secondary, accent: val } })
                                 }}
-                                className="h-10 w-20 cursor-pointer bg-transparent border-none p-0"
+                                className="h-10 w-16 cursor-pointer bg-transparent border-none p-0"
                             />
-                            <div className="text-xs font-mono text-slate-400 uppercase">{accent}</div>
+                            <div className="flex-1">
+                                <p className="text-xs font-mono text-slate-400 uppercase">{accent}</p>
+                                <p className="text-[10px] text-slate-500">Highlights, badges, and decorations</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -273,8 +314,8 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                     disabled={loading || uploading}
                     className="w-full text-white font-bold h-12 shadow-lg transition-all"
                     style={{
-                        backgroundColor: 'var(--school-accent)',
-                        boxShadow: '0 0 20px rgba(var(--school-accent-rgb), 0.2)'
+                        backgroundColor: primary,
+                        boxShadow: `0 0 20px ${primary}40`
                     }}
                 >
                     {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}

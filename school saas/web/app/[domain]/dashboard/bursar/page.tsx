@@ -15,8 +15,15 @@ export default async function BursarDashboardPage({ params }: { params: { domain
         .eq('id', user.id)
         .single()
 
-    if (!['admin', 'bursar'].includes(profile?.role)) {
-        return <div className="p-8 text-center text-red-500">Access Denied: Bursar only.</div>
+    const userRole = profile?.role?.toLowerCase()
+
+    if (!['admin', 'bursar'].includes(userRole)) {
+        return (
+            <div className="p-8 text-center text-red-500">
+                Access Denied: Bursar only. <br />
+                <span className="text-xs text-slate-500">Current Role: {profile?.role || 'None'}</span>
+            </div>
+        )
     }
 
     const stats = await getBursarStats()

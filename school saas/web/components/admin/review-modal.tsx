@@ -122,11 +122,38 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                             <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                                 <AlertCircle className="h-16 w-16 text-slate-300" />
                                 <h3 className="text-xl font-bold">Gradebook Summary</h3>
-                                <p>Pass Rate: 85% | Class Average: 68.5</p>
-                                <div className="p-4 bg-slate-100 rounded text-xs text-left w-full max-w-md">
-                                    <p>Missing CA1: 0 students</p>
-                                    <p>Missing Exam: 2 students (Absent)</p>
-                                </div>
+                                {item.details?.stats ? (
+                                    <>
+                                        <div className="flex gap-4 text-sm font-medium">
+                                            <span className="px-3 py-1 bg-green-500/10 text-green-600 rounded-full border border-green-500/20">
+                                                Pass Rate: {item.details.stats.passRate}%
+                                            </span>
+                                            <span className="px-3 py-1 bg-blue-500/10 text-blue-600 rounded-full border border-blue-500/20">
+                                                Class Avg: {item.details.stats.classAverage}
+                                            </span>
+                                        </div>
+                                        <div className="p-4 bg-slate-50 rounded text-xs text-left w-full max-w-md space-y-2 border border-slate-100">
+                                            <div className="flex justify-between">
+                                                <span className="text-slate-500">Total Students:</span>
+                                                <span className="font-mono font-bold">{item.details.stats.studentCount}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-slate-500">Missing CA1:</span>
+                                                <span className={cn("font-mono font-bold", item.details.stats.missingCA1 > 0 ? "text-amber-600" : "text-slate-700")}>
+                                                    {item.details.stats.missingCA1} students
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-slate-500">Missing Exam:</span>
+                                                <span className={cn("font-mono font-bold", item.details.stats.missingExam > 0 ? "text-amber-600" : "text-slate-700")}>
+                                                    {item.details.stats.missingExam} students
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p className="text-slate-400">Loading stats...</p>
+                                )}
                             </div>
                         )}
                     </div>
