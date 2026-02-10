@@ -1,16 +1,16 @@
-"use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Package, TrendingDown, AlertTriangle, FileCheck } from "lucide-react"
-import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
+import { getInventoryStats, getLowStockItemsWithDetails } from "@/lib/actions/inventory"
+import { formatCurrency } from "@/lib/utils"
 
-export default function InventoryDashboard() {
-    // Mock Data
-    const [lowStock] = useState([
-        { name: "Diesel (Liter)", qty: 50, level: 150, category: "Operational" },
-        { name: "A4 Paper Ream", qty: 2, level: 10, category: "Academic" },
-    ])
+export default async function InventoryDashboard() {
+    const statsRes = await getInventoryStats()
+    const lowStockRes = await getLowStockItemsWithDetails()
+
+    const stats = (statsRes.success && statsRes.data) ? statsRes.data : { totalValuation: 0, lowStockCount: 0, pendingRequestsCount: 0, monthlyUsageChange: 0 }
+    const lowStock = lowStockRes || []
 
     return (
         <div className="space-y-8">
@@ -22,7 +22,7 @@ export default function InventoryDashboard() {
                         <Package className="h-4 w-4 text-blue-400" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-white">₦4.2M</div>
+                        <div className="text-2xl font-bold text-white">{formatCurrency(stats.totalValuation)}</div>
                         <p className="text-xs text-slate-500">Across all categories</p>
                     </CardContent>
                 </Card>
@@ -32,7 +32,9 @@ export default function InventoryDashboard() {
                         <AlertTriangle className="h-4 w-4 text-red-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-red-500">2 Items</div>
+                        <div className={`text-2xl font-bold ${stats.lowStockCount > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+                            {stats.lowStockCount} Items
+                        </div>
                         <p className="text-xs text-slate-500">Need immediate restock</p>
                     </CardContent>
                 </Card>
@@ -42,7 +44,7 @@ export default function InventoryDashboard() {
                         <FileCheck className="h-4 w-4 text-amber-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-amber-500">5</div>
+                        <div className="text-2xl font-bold text-amber-500">{stats.pendingRequestsCount}</div>
                         <p className="text-xs text-slate-500">Waiting for approval</p>
                     </CardContent>
                 </Card>
@@ -52,7 +54,7 @@ export default function InventoryDashboard() {
                         <TrendingDown className="h-4 w-4 text-purple-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-purple-500">-12%</div>
+                        <div className="text-2xl font-bold text-purple-500">{stats.monthlyUsageChange}%</div>
                         <p className="text-xs text-slate-500">Consumption improved</p>
                     </CardContent>
                 </Card>
@@ -79,17 +81,23 @@ export default function InventoryDashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {lowStock.map((item, i) => (
-                                    <tr key={i} className="border-b border-white/5 hover:bg-slate-800/50">
+                                {lowStock.length > 0 ? lowStock.map((item: any) => (
+                                    <tr key={item.id} className="border-b border-white/5 hover:bg-slate-800/50">
                                         <td className="py-3 px-4 text-white font-medium">{item.name}</td>
-                                        <td className="py-3 px-4 text-slate-400">{item.category}</td>
-                                        <td className="py-3 px-4 text-center text-red-500 font-bold">{item.qty}</td>
-                                        <td className="py-3 px-4 text-center text-slate-500">{item.level}</td>
+                                        <td className="py-3 px-4 text-slate-400">{item.category?.name || 'Uncategorized'}</td>
+                                        <td className="py-3 px-4 text-center text-red-500 font-bold">{item.quantity_on_hand}</td>
+                                        <td className="py-3 px-4 text-center text-slate-500">{item.reorder_level}</td>
                                         <td className="py-3 px-4 text-right">
                                             <Badge className="bg-blue-600 hover:bg-blue-700 cursor-pointer">Restock</Badge>
                                         </td>
                                     </tr>
-                                ))}
+                                )) : (
+                                    <tr>
+                                        <td colSpan={5} className="py-8 text-center text-slate-500">
+                                            No critical low stock items found. Good job!
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>

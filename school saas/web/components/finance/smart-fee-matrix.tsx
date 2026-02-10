@@ -6,6 +6,17 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { updateFeeSchedule } from "@/lib/actions/finance"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -98,8 +109,7 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
 
         if (amount === undefined) return
 
-        if (!confirm(`Apply ₦${amount} to all classes for this fee?`)) return
-
+        // Confirmation handled by UI Dialog
         setMatrix(prev => {
             const next = { ...prev }
             classes.forEach(cls => {
@@ -111,8 +121,8 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
     }
 
     return (
-        <Card className="bg-slate-900 border-white/10 h-full flex flex-col">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Card className="bg-slate-900 border-white/10 h-full flex flex-col relative">
+            <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-white/5 bg-slate-900 sticky top-0 z-30">
                 <div>
                     <CardTitle className="text-white">Fee Structure Matrix</CardTitle>
                     <CardDescription className="text-slate-400">Set amounts for each fee type per class.</CardDescription>
@@ -125,22 +135,39 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
             <CardContent className="flex-1 overflow-auto">
                 <div className="border border-white/10 rounded-md">
                     <Table>
-                        <TableHeader className="bg-slate-950 sticky top-0 z-10">
+                        <TableHeader className="bg-slate-950 sticky top-0 z-20">
                             <TableRow className="border-white/10 hover:bg-transparent">
                                 <TableHead className="text-white font-bold w-[120px] bg-slate-950 sticky left-0 z-20 shadow-[1px_0_0_rgba(255,255,255,0.1)]">Class / Fee</TableHead>
                                 {categories.map(cat => (
                                     <TableHead key={cat.id} className="text-slate-300 min-w-[150px] text-center bg-slate-950">
                                         <div className="flex flex-col items-center gap-1">
                                             <span>{cat.name}</span>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-5 w-5 opacity-50 hover:opacity-100"
-                                                title="Apply first value to all"
-                                                onClick={() => applyToAll(cat.id)}
-                                            >
-                                                <Copy className="h-3 w-3" />
-                                            </Button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-5 w-5 opacity-50 hover:opacity-100"
+                                                        title="Apply first value to all"
+                                                    >
+                                                        <Copy className="h-3 w-3" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent className="bg-slate-950 border-white/10">
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle className="text-white">Apply to All Classes?</AlertDialogTitle>
+                                                        <AlertDialogDescription className="text-slate-400">
+                                                            This will copy the value <span className="text-white font-bold">₦{matrix[`${classes[0]?.id}_${cat.id}`] || 0}</span> to all classes for <span className="text-white font-bold">{cat.name}</span>.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel className="bg-transparent text-slate-400 border-white/10 hover:bg-white/5 hover:text-white">Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => applyToAll(cat.id)} className="bg-[var(--school-accent)] text-white">
+                                                            Confirm
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </div>
                                     </TableHead>
                                 ))}

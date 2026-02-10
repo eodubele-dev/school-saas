@@ -8,6 +8,17 @@ import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { upsertFeeCategory, deleteFeeCategory } from "@/lib/actions/finance"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -31,7 +42,7 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Delete this category? Associated fees will also be removed.")) return
+        // Confirmation handled by UI Dialog
         const res = await deleteFeeCategory(id)
         if (res.success) {
             toast.success("Category deleted")
@@ -88,9 +99,29 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
                                         </span>
                                     </TableCell>
                                     <TableCell>
-                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(cat.id)} className="h-6 w-6 text-slate-500 hover:text-red-500">
-                                            <Trash2 className="h-3 w-3" />
-                                        </Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-red-500">
+                                                    <Trash2 className="h-3 w-3" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-slate-950 border-white/10">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle className="text-white text-left">Delete Category?</AlertDialogTitle>
+                                                    <AlertDialogDescription className="text-slate-400 text-left">
+                                                        Are you sure you want to delete <span className="text-white font-bold">{cat.name}</span>?
+                                                        <br />
+                                                        This will also remove all associated fee entries from the matrix. This action cannot be undone.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel className="bg-transparent text-slate-400 border-white/10 hover:bg-white/5 hover:text-white">Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDelete(cat.id)} className="bg-red-600 hover:bg-red-700 text-white font-bold">
+                                                        Delete
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </TableCell>
                                 </TableRow>
                             ))}

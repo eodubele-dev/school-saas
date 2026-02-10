@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
-import { LayoutDashboard, Package, FileText, Truck, AlertTriangle } from "lucide-react"
+import { LayoutDashboard, Package, FileText, Truck, AlertTriangle, LayoutGrid } from "lucide-react"
 
 export default function InventoryLayout({
     children,
@@ -40,6 +40,12 @@ export default function InventoryLayout({
                         <TabsTrigger value="vendors" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">
                             <Truck className="mr-2 h-4 w-4" />
                             Vendors
+                        </TabsTrigger>
+                    </Link>
+                    <Link href="/dashboard/admin/inventory/categories">
+                        <TabsTrigger value="categories" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">
+                            <LayoutGrid className="mr-2 h-4 w-4" />
+                            Categories
                         </TabsTrigger>
                     </Link>
                 </TabsList>
