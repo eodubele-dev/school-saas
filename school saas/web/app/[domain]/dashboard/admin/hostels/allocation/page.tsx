@@ -1,8 +1,9 @@
-import { getHostelsWithStats } from "@/lib/actions/hostel"
+import { getHostelsWithStats, getAcademicSettings } from "@/lib/actions/hostel"
 import { AllocationClient } from "./allocation-client"
 
 export default async function AllocationPage() {
     const { data: buildings = [], error } = await getHostelsWithStats()
+    const academicSettings = await getAcademicSettings()
 
     if (error) {
         return (
@@ -12,5 +13,8 @@ export default async function AllocationPage() {
         )
     }
 
-    return <AllocationClient initialBuildings={buildings} />
+    return <AllocationClient
+        initialBuildings={buildings}
+        academicSettings={academicSettings}
+    />
 }

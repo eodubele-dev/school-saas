@@ -35,7 +35,7 @@ export async function getStaffList(domain: string, page = 1, query = "") {
             )
         `, { count: 'exact' })
         .eq('tenant_id', profile.tenant_id)
-        .in('role', ['admin', 'teacher', 'bursar', 'registrar'])
+        .in('role', ['admin', 'teacher', 'bursar', 'registrar', 'support_staff'])
         .order('created_at', { ascending: false })
         .range(from, to)
 

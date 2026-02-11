@@ -73,7 +73,19 @@ export async function bulkTransferStudents(studentIds: string[], newClassId: str
 export async function getAllStudents() {
     const supabase = createClient()
 
-    // Fetch students with class info
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    // 1. Get the current user's tenant_id if not provided
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('tenant_id')
+        .eq('id', user.id)
+        .single()
+
+    if (!profile?.tenant_id) return []
+
+    // Fetch students with class info for the specific tenant
     const { data, error } = await supabase
         .from('students')
         .select(`
@@ -84,6 +96,7 @@ export async function getAllStudents() {
             passport_url,
             classes (id, name, grade_level)
         `)
+        .eq('tenant_id', profile.tenant_id)
         .order('full_name')
 
     if (error) {
@@ -91,15 +104,18 @@ export async function getAllStudents() {
         return []
     }
 
-    return data.map(s => ({
-        id: s.id,
-        name: s.full_name,
-        admissionNo: s.admission_number,
-        class: s.classes?.name || 'Unassigned',
-        classId: s.classes?.id,
-        status: s.status || 'Active',
-        avatar: s.passport_url
-    }))
+    return data.map(s => {
+        const classInfo = Array.isArray(s.classes) ? s.classes[0] : s.classes
+        return {
+            id: s.id,
+            name: s.full_name,
+            admissionNo: s.admission_number,
+            class: classInfo?.name || 'Unassigned',
+            classId: classInfo?.id,
+            status: s.status || 'Active',
+            avatar: s.passport_url
+        }
+    })
 }
 
 export async function getAllClasses() {

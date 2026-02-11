@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { unstable_noStore as noStore } from 'next/cache'
 import { MobileNav } from "./mobile-nav"
 import { Sidebar } from "./sidebar"
 import { DynamicTopBar } from "@/components/layout/dynamic-top-bar"
@@ -22,13 +23,16 @@ export async function Navbar({ domain }: { domain?: string }) {
     let teacherClasses: any[] = []
     let studentClass: any = null
     let pendingReconciliations = 0
+    let profile: any = null
 
     if (user) {
-        const { data: profile } = await supabase
+        const { data: profileRes } = await supabase
             .from('profiles')
             .select('full_name, role, avatar_url, tenant_id')
             .eq('id', user.id)
             .single()
+
+        profile = profileRes
 
         if (profile) {
             userName = profile.full_name || user.email?.split('@')[0] || "User"
@@ -139,14 +143,9 @@ export async function Navbar({ domain }: { domain?: string }) {
     }
 
     // 5. Fetch Active Session
+    noStore()
     let activeSessionDisplay = ""
     if (user) {
-        // We need tenant_id. We can re-use the profile fetch or just do it here if we refactor.
-        // But since we already have a profile fetch block above, let's just do a clean separate fetch 
-        // OR move this logic up.
-        // For simplicity and cleanest code given the structure:
-        const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
-
         if (profile?.tenant_id) {
             const { data: sessionData } = await supabase
                 .from('academic_sessions')

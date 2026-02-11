@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logActivity } from "./audit"
 
 export async function getActiveAcademicSession() {
     const supabase = createClient()
@@ -50,11 +51,24 @@ export async function updateGlobalSession(domain: string, sessionData: any) {
         .upsert({
             tenant_id: profile.tenant_id,
             ...sessionData
+        }, {
+            onConflict: 'tenant_id,session,term'
         })
 
     if (error) return { success: false, error: error.message }
 
+    await logActivity(
+        'Academic',
+        'SESSION_UPDATE',
+        `Academic session/term updated: ${sessionData.session} - ${sessionData.term}`,
+        'academic_session',
+        undefined,
+        null,
+        sessionData
+    )
+
     revalidatePath(`/${domain}/dashboard/admin/setup`)
+    revalidatePath('/', 'layout')
     return { success: true }
 }
 
@@ -74,6 +88,17 @@ export async function saveGradeScales(scales: any[]) {
         .upsert(data)
 
     if (error) return { success: false, error: error.message }
+
+    await logActivity(
+        'Academic',
+        'GRADE_SCALE_UPDATE',
+        `Grading scales updated for the institution.`,
+        'grade_scale',
+        undefined,
+        null,
+        { count: scales.length }
+    )
+
     return { success: true }
 }
 

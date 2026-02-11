@@ -3,33 +3,70 @@
 import { useState } from "react"
 import { RoomVisualizer } from "@/components/hostel/room-visualizer"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { allocateStudent } from "@/lib/actions/hostel"
+import { allocateStudent, vacateStudent } from "@/lib/actions/hostel"
 import { toast } from "sonner"
 import { AllocationModal } from "./allocation-modal"
+import { useRouter } from "next/navigation"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
-export function AllocationClient({ initialBuildings }: { initialBuildings: any[] }) {
-    const [buildings, setBuildings] = useState(initialBuildings)
+export function AllocationClient({ initialBuildings, academicSettings }: {
+    initialBuildings: any[],
+    academicSettings: { session: string, term: string }
+}) {
+    const router = useRouter()
     const [selectedBuildingId, setSelectedBuildingId] = useState(initialBuildings[0]?.id || "")
     const [isAllocating, setIsAllocating] = useState(false)
     const [activeBunk, setActiveBunk] = useState<string | null>(null)
+    const [bunkToVacate, setBunkToVacate] = useState<string | null>(null)
 
-    const selectedBuilding = buildings.find(b => b.id === selectedBuildingId)
+    const selectedBuilding = initialBuildings.find(b => b.id === selectedBuildingId)
 
     const handleAllocate = (bunkId: string) => {
         setActiveBunk(bunkId)
         setIsAllocating(true)
     }
 
+    const handleVacate = (bunkId: string) => {
+        setBunkToVacate(bunkId)
+    }
+
+    const confirmVacate = async () => {
+        if (!bunkToVacate) return
+
+        const res = await vacateStudent(bunkToVacate)
+        setBunkToVacate(null)
+        if (res.success) {
+            toast.success("Student vacated successfully")
+            router.refresh()
+        } else {
+            toast.error(res.error || "Failed to vacate student")
+        }
+    }
+
     const handleConfirmAllocation = async (studentId: string) => {
         if (!activeBunk) return
 
-        const res = await allocateStudent(studentId, activeBunk, "1st Term", "2023/2024")
+        const res = await allocateStudent(
+            studentId,
+            activeBunk,
+            academicSettings.term,
+            academicSettings.session
+        )
+
         if (res.success) {
             toast.success("Student allocated successfully")
             setIsAllocating(false)
             setActiveBunk(null)
-            // Ideally we'd refresh the data here
-            window.location.reload()
+            router.refresh()
         } else {
             toast.error(res.error || "Failed to allocate student")
         }
@@ -44,8 +81,8 @@ export function AllocationClient({ initialBuildings }: { initialBuildings: any[]
                         <SelectTrigger className="w-[220px] bg-slate-950 border-white/10">
                             <SelectValue placeholder="Select a Hall" />
                         </SelectTrigger>
-                        <SelectContent>
-                            {buildings.map(b => (
+                        <SelectContent className="bg-slate-950 border-white/10 text-white">
+                            {initialBuildings.map(b => (
                                 <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                             ))}
                         </SelectContent>
@@ -60,7 +97,7 @@ export function AllocationClient({ initialBuildings }: { initialBuildings: any[]
                             key={room.id}
                             room={room}
                             onAllocate={handleAllocate}
-                            onVacate={(bunkId) => console.log("Vacate", bunkId)}
+                            onVacate={handleVacate}
                         />
                     ))}
                 </div>
@@ -75,6 +112,23 @@ export function AllocationClient({ initialBuildings }: { initialBuildings: any[]
                 onClose={() => setIsAllocating(false)}
                 onConfirm={handleConfirmAllocation}
             />
+
+            <AlertDialog open={!!bunkToVacate} onOpenChange={(open) => !open && setBunkToVacate(null)}>
+                <AlertDialogContent className="bg-slate-950 border-white/10 text-white">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription className="text-slate-400">
+                            This will remove the student from this bed space. This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel className="bg-white/5 border-white/10 text-white hover:bg-white/10">Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmVacate} className="bg-red-600 hover:bg-red-700 text-white">
+                            Vacate Student
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

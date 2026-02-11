@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { sendSMS } from '@/lib/services/termii'
+import { SMS_CONFIG } from '@/lib/constants/communication'
 
 /**
  * 1. Get Daily Absentees
@@ -16,7 +18,7 @@ export async function getDailyAbsentees() {
         if (!user) return { success: false, error: "Not authenticated" }
 
         const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
-        if (!profile) return { success: false, error: "Unauthorized" }
+        if (!profile?.tenant_id) return { success: false, error: "Unauthorized" }
 
         const { data: attendance, error } = await supabase
             .from('student_attendance')
@@ -30,10 +32,6 @@ export async function getDailyAbsentees() {
 
         if (error) throw error
 
-        // Enrich with parent details (mocked or actual join if parent linked)
-        // Ideally, we'd join 'profiles' via 'parent_id' to get phone numbers.
-        // For MVP, we'll fetch parent profiles separately if needed or rely on a simpler structure.
-
         return { success: true, data: attendance }
     } catch (error) {
         console.error("Fetch absentees error:", error)
@@ -42,35 +40,55 @@ export async function getDailyAbsentees() {
 }
 
 /**
- * 2. Send Bulk SMS (Termii Stub)
- * Sends SMS to a list of recipients.
+ * 2. Send Bulk SMS
+ * Sends SMS to a list of recipients using the integrated Termii service.
  */
 export async function sendBulkSMS(recipients: { phone: string, name: string }[], message: string) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
 
-    // In a real app, we'd limit this to 50/100 per batch or use a queue.
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile?.tenant_id) return { success: false, error: "Tenant context missing" }
+
+    const { data: tenant } = await supabase.from('tenants').select('sms_balance').eq('id', profile.tenant_id).single()
+    let currentBalance = Number(tenant?.sms_balance) || 0
+    const SMS_COST = SMS_CONFIG.UNIT_COST // Standard rate
+
     const results = []
 
-    // Simulate Termii API Call
-    // const response = await fetch('https://api.ng.termii.com/api/sms/send', ...)
-
     for (const recipient of recipients) {
-        // Mock success
-        const status = 'sent'
-        const cost = 2.50 // Mock cost per SMS
+        // --- Wallet Check ---
+        if (currentBalance < SMS_COST) {
+            results.push({ phone: recipient.phone, status: 'skipped_insufficient_funds' })
+            continue
+        }
 
-        // Log to DB
+        // --- PRO PRODUCTION: Call real Termii Service ---
+        const smsRes = await sendSMS(recipient.phone, message)
+        const status = smsRes.success ? 'sent' : 'failed'
+
+        if (smsRes.success) {
+            currentBalance -= SMS_COST
+            // Aggressively update balance to avoid over-spending in parallel if possible, 
+            // though single-tenant sequential sends here are safer.
+            await supabase
+                .from('tenants')
+                .update({ sms_balance: currentBalance })
+                .eq('id', profile.tenant_id)
+        }
+
+        // Log to Communications Audit Trail
         await supabase.from('message_logs').insert({
-            tenant_id: (await supabase.from('profiles').select('tenant_id').eq('id', user?.id).single()).data?.tenant_id,
-            sender_id: user?.id,
+            tenant_id: profile.tenant_id,
+            sender_id: user.id,
             recipient_phone: recipient.phone,
             recipient_name: recipient.name,
             message_content: message,
             channel: 'sms',
             status: status,
-            cost: cost,
-            provider_ref: `MOCK_REF_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`
+            cost: smsRes.success ? SMS_COST : 0,
+            provider_ref: smsRes.success ? (smsRes.data as any)?.message_id : 'FAILED'
         })
 
         results.push({ phone: recipient.phone, status })
@@ -278,7 +296,7 @@ export async function updateCommunicationSettings(payload: any) {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
-    if (!profile) return { success: false, error: "Unauthorized" }
+    if (!profile?.tenant_id) return { success: false, error: "Unauthorized" }
 
     const { error } = await supabase
         .from('communication_settings')
@@ -287,7 +305,7 @@ export async function updateCommunicationSettings(payload: any) {
 
     if (error) return { success: false, error: "Failed to update settings" }
 
-    revalidatePath('/dashboard/communication')
+    revalidatePath('/dashboard/messages') // Update this to match the actual page
     return { success: true }
 }
 

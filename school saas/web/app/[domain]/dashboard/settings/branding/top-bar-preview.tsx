@@ -75,7 +75,7 @@ export function TopBarPreview({ name, logo, motto, accent, tier = "Free" }: TopB
                                     {tier}
                                 </span>
                                 <p
-                                    className="text-[10px] font-semibold mt-0.5 tracking-wide truncate"
+                                    className="text-xs font-semibold mt-0.5 tracking-wide truncate opacity-80"
                                     style={{ color: accent }}
                                 >
                                     {motto || "Excellence in Education"}

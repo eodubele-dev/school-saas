@@ -123,28 +123,12 @@ export async function updateNotificationSettings(updates: Partial<NotificationSe
     }
 }
 
+import { SMS_CONFIG } from '@/lib/constants/communication'
+
 /**
  * Get Monthly SMS Volume Estimates
  * Calculates estimated monthly SMS volume based on current settings
  */
 export async function getMonthlyVolumeEstimates() {
-    // Base estimates per student per month
-    const estimates = {
-        fee_reminders: 4, // Weekly reminders
-        payment_confirmations: 2, // Bi-weekly
-        outstanding_balance_alerts: 8, // Twice weekly
-        attendance_clock_in: 20, // Daily
-        attendance_clock_out: 20, // Daily
-        absence_alerts: 4, // As needed
-        result_published: 3, // Per term
-        grade_updates: 2, // Occasional
-        assignment_reminders: 12, // 3x per week
-        bus_arrival_alerts: 20, // Daily
-        bus_departure_alerts: 20, // Daily
-        maintenance_updates: 2, // Occasional
-        security_alerts: 1, // Rare but critical
-        forensic_grade_changes: 0.5 // Very rare
-    }
-
-    return estimates
+    return SMS_CONFIG.ESTIMATES
 }

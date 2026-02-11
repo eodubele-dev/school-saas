@@ -11,7 +11,7 @@ type Bunk = {
     label: string
     type: 'top' | 'bottom' | 'single'
     is_serviceable: boolean
-    student?: { id: string, name: string, class: string } | null
+    student?: { id: string, name: string, class: string, passport_url?: string } | null
 }
 
 type Room = {
@@ -42,8 +42,8 @@ export function RoomVisualizer({ room, onAllocate, onVacate }: {
                     <div
                         key={bunk.id}
                         className={`relative p-3 rounded-lg border-2 transition-all ${bunk.student
-                                ? 'bg-blue-950/30 border-blue-500/50'
-                                : 'bg-slate-950/50 border-slate-700/50 hover:border-slate-500'
+                            ? 'bg-blue-950/30 border-blue-500/50'
+                            : 'bg-slate-950/50 border-slate-700/50 hover:border-slate-500'
                             }`}
                     >
                         <div className="flex justify-between items-start mb-2">
@@ -54,8 +54,21 @@ export function RoomVisualizer({ room, onAllocate, onVacate }: {
                         {bunk.student ? (
                             <div className="space-y-1">
                                 <div className="flex items-center gap-2">
-                                    <div className="h-6 w-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold text-white">
-                                        {bunk.student.name.substring(0, 2)}
+                                    <div className="h-6 w-6 rounded-full overflow-hidden bg-blue-500 flex items-center justify-center text-[10px] font-bold text-white border border-blue-400/30">
+                                        {bunk.student.passport_url ? (
+                                            <img
+                                                src={bunk.student.passport_url}
+                                                alt={bunk.student.name}
+                                                className="h-full w-full object-cover"
+                                                onError={(e) => {
+                                                    // Fallback if image fails to load
+                                                    e.currentTarget.style.display = 'none';
+                                                    e.currentTarget.parentElement!.innerHTML = bunk.student!.name.substring(0, 2);
+                                                }}
+                                            />
+                                        ) : (
+                                            bunk.student.name.substring(0, 2)
+                                        )}
                                     </div>
                                     <p className="text-sm font-bold text-white truncate w-24">
                                         {bunk.student.name}

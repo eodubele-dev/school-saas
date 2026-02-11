@@ -75,6 +75,15 @@
 }
 
 @layer base {
+
+  /* Fix native date picker icon visibility in dark mode */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+  }
+}
+
+@layer base {
   * {
     @apply border-border;
   }
@@ -104,6 +113,24 @@
 
 .animate-cyan-pulse {
   animation: cyan-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes gradient-x {
+
+  0%,
+  100% {
+    background-size: 200% 200%;
+    background-position: left center;
+  }
+
+  50% {
+    background-size: 200% 200%;
+    background-position: right center;
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 3s ease infinite;
 }
 
 /* EduFlow Platinum Styling Guide */

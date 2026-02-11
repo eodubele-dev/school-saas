@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { sendSMS } from '@/lib/services/termii'
 import { revalidatePath } from 'next/cache'
+import { SMS_CONFIG } from '@/lib/constants/communication'
 
 export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused'
 
@@ -253,6 +254,39 @@ export async function sendAbsentNotification(
             return { success: false, error: 'Student not found' }
         }
 
+        // ...
+        // --- NEW: Check Communication Settings ---
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return { success: false, error: 'Unauthorized' }
+
+        const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+        const [{ data: settings }, { data: tenant }] = await Promise.all([
+            supabase
+                .from('communication_settings')
+                .select('absence_alerts_enabled')
+                .eq('tenant_id', profile?.tenant_id)
+                .maybeSingle(),
+            supabase
+                .from('tenants')
+                .select('sms_balance')
+                .eq('id', profile?.tenant_id)
+                .single()
+        ])
+
+        if (!settings?.absence_alerts_enabled) {
+            console.log('Absence alerts disabled for tenant:', profile?.tenant_id)
+            return { success: true } // Silently skip
+        }
+
+        const walletBalance = Number(tenant?.sms_balance) || 0
+        const SMS_COST = SMS_CONFIG.UNIT_COST
+
+        if (walletBalance < SMS_COST) {
+            console.warn('Insufficient SMS balance for absence alert:', profile?.tenant_id)
+            return { success: false, error: 'Insufficient balance' }
+        }
+        // ----------------------------------------
+
         const parentPhone = (student.profiles as unknown as { phone: string })?.phone
         if (!parentPhone) {
             console.log('No parent phone number found for student:', studentId)
@@ -269,6 +303,25 @@ export async function sendAbsentNotification(
         const smsResult = await sendSMS(parentPhone, message)
 
         if (smsResult.success) {
+            // Deduct from wallet
+            await supabase
+                .from('tenants')
+                .update({ sms_balance: walletBalance - SMS_COST })
+                .eq('id', profile?.tenant_id)
+
+            // Log to Communications Audit Trail
+            await supabase.from('message_logs').insert({
+                tenant_id: profile?.tenant_id,
+                sender_id: user.id,
+                recipient_phone: parentPhone,
+                recipient_name: student.full_name, // Typically notifying about the student
+                message_content: message,
+                channel: 'sms',
+                status: 'sent',
+                cost: SMS_COST,
+                provider_ref: (smsResult.data as any)?.message_id || 'SENT'
+            })
+
             // Update attendance record to mark SMS as sent
             await supabase
                 .from('student_attendance')
@@ -386,7 +439,7 @@ export async function getClassStudents(classId: string): Promise<{ success: bool
             .eq('class_id', classId)
             .order('full_name')
 
-        return { success: true, data: students }
+        return { success: true, data: students || [] }
     } catch (error) {
         console.error('Error fetching class students:', error)
         return { success: false, error: 'Failed to fetch students' }

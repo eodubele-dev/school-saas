@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { Shield, DollarSign, Bell, Bus, GraduationCap, Lock } from 'lucide-react'
 import { getNotificationSettings, updateNotificationSettings, getMonthlyVolumeEstimates } from '@/lib/actions/notifications'
 import { toast } from 'sonner'
+import { SMS_CONFIG } from '@/lib/constants/communication'
 
 interface NotificationCategory {
     title: string
@@ -210,7 +211,7 @@ export function NotificationSettings() {
                     <div className="text-right">
                         <p className="text-[10px] text-slate-500 uppercase font-mono tracking-widest">Est. Monthly Volume</p>
                         <p className="text-2xl font-bold text-cyan-400 mt-1">{calculateTotalVolume()}<span className="text-sm text-slate-500 ml-1">SMS/student</span></p>
-                        <p className="text-[10px] text-slate-600 mt-1">≈ ₦{(calculateTotalVolume() * 5).toLocaleString()} per student</p>
+                        <p className="text-[10px] text-slate-600 mt-1">≈ ₦{(calculateTotalVolume() * SMS_CONFIG.UNIT_COST).toLocaleString()} per student</p>
                     </div>
                 </div>
             </header>
@@ -234,8 +235,8 @@ export function NotificationSettings() {
                                 <div
                                     key={setting.key}
                                     className={`flex items-center justify-between p-4 rounded-2xl transition-all ${setting.isCritical
-                                            ? 'bg-cyan-500/5 border border-cyan-500/20'
-                                            : 'bg-white/5 border border-white/5 hover:border-white/10'
+                                        ? 'bg-cyan-500/5 border border-cyan-500/20'
+                                        : 'bg-white/5 border border-white/5 hover:border-white/10'
                                         }`}
                                 >
                                     <div className="flex-1">
@@ -297,10 +298,10 @@ function Toggle({ active, onClick, disabled = false, isCritical = false }: Toggl
             onClick={onClick}
             disabled={disabled}
             className={`w-12 h-6 rounded-full transition-all flex items-center px-1 shrink-0 ${isCritical
-                    ? 'bg-cyan-500/40 opacity-50 cursor-not-allowed'
-                    : active
-                        ? 'bg-cyan-500 hover:bg-cyan-400'
-                        : 'bg-white/10 hover:bg-white/20'
+                ? 'bg-cyan-500/40 opacity-50 cursor-not-allowed'
+                : active
+                    ? 'bg-cyan-500 hover:bg-cyan-400'
+                    : 'bg-white/10 hover:bg-white/20'
                 } ${disabled && !isCritical ? 'opacity-50 cursor-wait' : ''}`}
         >
             <div

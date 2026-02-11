@@ -3,6 +3,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { SMS_CONFIG } from '@/lib/constants/communication'
 
 // --- Types ---
 export type BehavioralRating = {
@@ -72,17 +73,24 @@ export async function awardBadge(studentId: string, badge: { title: string, icon
 
     // 3. Automated Notification Routing & Wallet Verification
     try {
-        const { data: tenant } = await supabase
-            .from('tenants')
-            .select('sms_balance, notification_settings')
-            .eq('id', profile.tenant_id)
-            .single()
+        const [{ data: settings }, { data: tenant }] = await Promise.all([
+            supabase
+                .from('communication_settings')
+                .select('badge_notifications_enabled')
+                .eq('tenant_id', profile.tenant_id)
+                .maybeSingle(),
+            supabase
+                .from('tenants')
+                .select('sms_balance')
+                .eq('id', profile.tenant_id)
+                .single()
+        ])
 
-        const settings = tenant?.notification_settings as any
         const walletBalance = Number(tenant?.sms_balance) || 0
-        const SMS_COST = 5;
+        const SMS_COST = SMS_CONFIG.UNIT_COST;
 
-        if (settings?.positive_behavior_sms && walletBalance >= SMS_COST && parent?.phone) {
+        // Use the dedicated communication_settings table for the toggle
+        if (settings?.badge_notifications_enabled && walletBalance >= SMS_COST && parent?.phone) {
             // Deduct from wallet
             await supabase
                 .from('tenants')
@@ -110,7 +118,7 @@ export async function awardBadge(studentId: string, badge: { title: string, icon
             })
 
             console.log(`[PLATINUM SMS] Sent to ${parent.full_name} (${parent.phone}) for ${student.full_name}.`)
-        } else if (settings?.positive_behavior_sms && !parent?.phone) {
+        } else if (settings?.badge_notifications_enabled && !parent?.phone) {
             console.warn(`[SMS SKIPPED] No phone number on file for parent of ${student.full_name}`)
         }
     } catch (e) {

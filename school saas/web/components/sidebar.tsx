@@ -124,6 +124,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
                 userName={userName}
                 brandColor={primaryColor}
                 tenantName={tenantName}
+                tenantMotto={tenantMotto}
                 tier={tenantTier}
                 tenantLogo={tenantLogo}
                 linkedStudents={linkedStudents}

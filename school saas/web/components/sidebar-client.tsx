@@ -11,7 +11,8 @@ import {
     HelpCircle,
     AlertCircle,
     ShieldCheck,
-    Mail
+    Mail,
+    Zap
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -33,12 +34,14 @@ import { Crown } from "lucide-react"
 
 import { SIDEBAR_LINKS, type UserRole, type SidebarCategory, type SidebarItem } from "@/config/sidebar"
 import { StudentSwitcher } from "./dashboard/student-switcher"
+import { UpgradeModal } from "@/components/modals/upgrade-modal"
 
 export function SidebarClient({
     role: initialRole = 'student',
     userName = 'Guest User',
     brandColor = '#3b82f6',
     tenantName = 'EduFlow',
+    tenantMotto = 'Excellence in Education',
     tier = 'starter',
     tenantLogo = null,
     linkedStudents = []
@@ -47,6 +50,7 @@ export function SidebarClient({
     userName?: string,
     brandColor?: string,
     tenantName?: string,
+    tenantMotto?: string,
     tier?: string,
     tenantLogo?: string | null,
     linkedStudents?: any[]
@@ -67,6 +71,7 @@ export function SidebarClient({
     // State for Search
     const [openSearch, setOpenSearch] = useState(false)
     const [isSupportOpen, setIsSupportOpen] = useState(false)
+    const [isUpgradeOpen, setIsUpgradeOpen] = useState(false)
 
     // State for Collapsed Categories (Hubs) - Initialize without localStorage to prevent hydration errors
     const [openHub, setOpenHub] = useState<string | null>(() => {
@@ -189,7 +194,7 @@ export function SidebarClient({
                         </div>
                         <div className="flex-1">
                             <h2 className="text-white font-bold text-lg tracking-tight leading-tight">{tenantName}</h2>
-                            <p className="text-[10px] font-semibold mt-0.5" style={{ color: 'var(--school-accent)' }}>Excellence in Education</p>
+                            <p className="text-xs font-semibold mt-0.5 opacity-80" style={{ color: 'var(--school-accent)' }}>{tenantMotto}</p>
                         </div>
                     </div>
 
@@ -226,6 +231,13 @@ export function SidebarClient({
                         ))}
                     </CommandList>
                 </CommandDialog>
+
+                <UpgradeModal
+                    isOpen={isUpgradeOpen}
+                    onClose={() => setIsUpgradeOpen(false)}
+                    currentTier={tier}
+                    tenantName={tenantName}
+                />
 
                 <SupportModal
                     isOpen={isSupportOpen}
@@ -396,6 +408,35 @@ export function SidebarClient({
                             </Link>
                         )
                     })}
+
+                    {/* Dynamic Upgrade Button (Non-Premium Admins Only) */}
+                    {!isPremium && (normalizedRole === 'admin' || normalizedRole === 'owner' || normalizedRole === 'proprietor') && (
+                        <button
+                            onClick={() => {
+                                toast.info("Institutional Expansion Protocols Active", {
+                                    description: "Initializing Tier Selection Console...",
+                                })
+                                setIsUpgradeOpen(true)
+                            }}
+                            className="group relative w-full overflow-hidden p-[1px] rounded-xl transition-all duration-500 hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(34,211,238,0.1)] active:shadow-none"
+                        >
+                            {/* Animated Background Pulse */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-amber-500 to-cyan-500 animate-gradient-x opacity-30 group-hover:opacity-100 transition-opacity" />
+
+                            <div className="relative flex items-center justify-between gap-3 p-3 bg-slate-950 rounded-[11px] h-full group-hover:bg-slate-950/80 backdrop-blur-sm transition-colors">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/10 border border-cyan-500/20 group-hover:border-cyan-500/50 transition-colors shadow-inner">
+                                        <Zap size={16} className="text-cyan-400 fill-cyan-400/20 group-hover:scale-110 transition-transform" />
+                                    </div>
+                                    <div className="flex flex-col items-start">
+                                        <span className="text-[11px] font-black uppercase tracking-widest text-white leading-none">Upgrade Now</span>
+                                        <span className="text-[9px] font-bold text-cyan-400/60 uppercase tracking-tighter mt-1 group-hover:text-cyan-300 transition-colors">Unlock Platinum Hub</span>
+                                    </div>
+                                </div>
+                                <ChevronDown size={14} className="text-slate-600 -rotate-90 group-hover:translate-x-1 group-hover:text-cyan-400 transition-all" />
+                            </div>
+                        </button>
+                    )}
 
                     <button
                         onClick={() => {

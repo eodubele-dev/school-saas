@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, Printer, Search } from "lucide-react"
+import { Calendar, Loader2, Printer, Search } from "lucide-react"
 import { ResultSheet } from "@/components/results/result-sheet"
 import { getStudentResultData } from "@/lib/actions/results"
 import { ResultData } from "@/types/results"
@@ -112,12 +112,18 @@ export default function GenerateResultsPage() {
                         {/* Dates */}
                         <div className="space-y-2">
                             <Label className="text-white">Next Term Begins</Label>
-                            <Input
-                                type="date"
-                                value={nextTermBegins}
-                                onChange={(e) => setNextTermBegins(e.target.value)}
-                                className="bg-slate-800 border-white/20 text-white"
-                            />
+                            <div className="relative">
+                                <Input
+                                    type="date"
+                                    value={nextTermBegins}
+                                    onChange={(e) => setNextTermBegins(e.target.value)}
+                                    className="bg-slate-800 border-white/20 text-white pl-10"
+                                />
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                                    <Calendar className="h-4 w-4" />
+                                    <span className="sr-only">Calendar Icon</span>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Date Issued */}

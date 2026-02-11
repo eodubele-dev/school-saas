@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { logActivity } from "./audit"
 
 // --- Fee Categories ---
 
@@ -11,6 +12,7 @@ export async function upsertFeeCategory(data: any) {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (!profile?.tenant_id) return { success: false, error: "Tenant context missing" }
     if (!['admin', 'bursar'].includes(profile?.role)) return { success: false, error: "Permission denied" }
 
     const { error } = await supabase
@@ -18,6 +20,17 @@ export async function upsertFeeCategory(data: any) {
         .upsert({ ...data, tenant_id: profile.tenant_id })
 
     if (error) return { success: false, error: error.message }
+
+    await logActivity(
+        'Financial',
+        'FEE_CATEGORY_UPDATE',
+        `Fee category updated: ${data.name}`,
+        'fee_category',
+        undefined,
+        null,
+        data
+    )
+
     return { success: true }
 }
 
@@ -36,6 +49,7 @@ export async function updateFeeSchedule(updates: any[]) {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (!profile?.tenant_id) return { success: false, error: "Tenant context missing" }
     if (!['admin', 'bursar'].includes(profile?.role)) return { success: false, error: "Permission denied" }
 
     const data = updates.map(u => ({ ...u, tenant_id: profile.tenant_id }))

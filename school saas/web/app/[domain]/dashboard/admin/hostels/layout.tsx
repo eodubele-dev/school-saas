@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
-import { Building, Bed, ClipboardCheck, PenTool, LayoutDashboard, Package } from "lucide-react"
+import { Building, Bed, ClipboardCheck, PenTool, LayoutDashboard, Package, Settings2 } from "lucide-react"
 
 export default function HostelLayout({
     children,
@@ -46,6 +46,12 @@ export default function HostelLayout({
                         <TabsTrigger value="maintenance" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">
                             <PenTool className="mr-2 h-4 w-4" />
                             Maintenance Tickets
+                        </TabsTrigger>
+                    </Link>
+                    <Link href="/dashboard/admin/hostels/config">
+                        <TabsTrigger value="config" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">
+                            <Settings2 className="mr-2 h-4 w-4" />
+                            Infrastructure
                         </TabsTrigger>
                     </Link>
                 </TabsList>

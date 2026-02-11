@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { RollCallList } from "@/components/hostel/roll-call-list"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
@@ -13,10 +13,11 @@ export function NightCheckClient({ initialBuildings }: { initialBuildings: any[]
     const [selectedBuildingId, setSelectedBuildingId] = useState(initialBuildings[0]?.id || "")
     const [students, setStudents] = useState<any[]>([])
 
-    // Update students when building changes
-    const handleBuildingChange = (id: string) => {
-        setSelectedBuildingId(id)
-        const b = buildings.find(b => b.id === id)
+    // Update students when building changes or on mount
+    useEffect(() => {
+        if (!selectedBuildingId) return
+
+        const b = buildings.find(b => b.id === selectedBuildingId)
         const hostelStudents: any[] = []
 
         b?.rooms?.forEach((r: any) => {
@@ -32,11 +33,10 @@ export function NightCheckClient({ initialBuildings }: { initialBuildings: any[]
             })
         })
         setStudents(hostelStudents)
-    }
+    }, [selectedBuildingId, buildings])
 
-    // Initialize students for first building
-    if (students.length === 0 && selectedBuildingId) {
-        handleBuildingChange(selectedBuildingId)
+    const handleBuildingChange = (id: string) => {
+        setSelectedBuildingId(id)
     }
 
     const handleStatusChange = (id: string, status: any) => {
