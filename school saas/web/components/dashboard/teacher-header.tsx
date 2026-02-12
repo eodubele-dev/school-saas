@@ -12,6 +12,8 @@ interface TeacherHeaderProps {
         name: string
         grade_level: string
         subject?: string
+        start_time?: string
+        end_time?: string
     }
     vitals: {
         present: number
@@ -24,6 +26,23 @@ interface TeacherHeaderProps {
 export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: TeacherHeaderProps) => {
     const supabase = createClient()
     const router = useRouter()
+
+    // Helper to format HH:mm:ss to HH:mm AM/PM
+    const formatTime = (timeStr?: string) => {
+        if (!timeStr) return null
+        try {
+            const [hours, minutes] = timeStr.split(':')
+            const h = parseInt(hours)
+            const ampm = h >= 12 ? 'PM' : 'AM'
+            const formattedH = h % 12 || 12
+            return `${formattedH}:${minutes} ${ampm}`
+        } catch (e) {
+            return timeStr
+        }
+    }
+
+    const startTime = formatTime(classData.start_time)
+    const endTime = formatTime(classData.end_time)
 
     const handleStartClass = async () => {
         // 🛡️ Forensic Audit Trigger
@@ -90,9 +109,11 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
                             <span className="text-[10px] font-mono text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full uppercase tracking-widest border border-blue-400/20">
                                 Current Session
                             </span>
-                            <span className="text-slate-400 text-[10px] font-mono flex items-center gap-1.5 uppercase tracking-widest">
-                                <Clock className="w-3 h-3" /> 09:00 AM - 10:30 AM
-                            </span>
+                            {(startTime && endTime) && (
+                                <span className="text-slate-400 text-[10px] font-mono flex items-center gap-1.5 uppercase tracking-widest">
+                                    <Clock className="w-3 h-3" /> {startTime} - {endTime}
+                                </span>
+                            )}
                         </div>
                         <h2 className="text-6xl font-black mt-6 tracking-tighter text-white">
                             {classData.name}

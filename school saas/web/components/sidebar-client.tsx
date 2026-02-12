@@ -11,8 +11,7 @@ import {
     HelpCircle,
     AlertCircle,
     ShieldCheck,
-    Mail,
-    Zap
+    Mail
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -423,17 +422,12 @@ export function SidebarClient({
                             {/* Animated Background Pulse */}
                             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-amber-500 to-cyan-500 animate-gradient-x opacity-30 group-hover:opacity-100 transition-opacity" />
 
-                            <div className="relative flex items-center justify-between gap-3 p-3 bg-slate-950 rounded-[11px] h-full group-hover:bg-slate-950/80 backdrop-blur-sm transition-colors">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/10 border border-cyan-500/20 group-hover:border-cyan-500/50 transition-colors shadow-inner">
-                                        <Zap size={16} className="text-cyan-400 fill-cyan-400/20 group-hover:scale-110 transition-transform" />
-                                    </div>
-                                    <div className="flex flex-col items-start">
-                                        <span className="text-[11px] font-black uppercase tracking-widest text-white leading-none">Upgrade Now</span>
-                                        <span className="text-[9px] font-bold text-cyan-400/60 uppercase tracking-tighter mt-1 group-hover:text-cyan-300 transition-colors">Unlock Platinum Hub</span>
-                                    </div>
+                            <div className="relative flex items-center justify-center p-3 bg-slate-950 rounded-[11px] h-full group-hover:bg-slate-950/80 backdrop-blur-sm transition-colors">
+                                <div className="flex flex-col items-center">
+                                    <span className="text-[11px] font-black uppercase tracking-widest text-white leading-none">Upgrade Now</span>
+                                    <span className="text-[9px] font-bold text-cyan-400/60 uppercase tracking-tighter mt-1 group-hover:text-cyan-300 transition-colors">Unlock Platinum Hub</span>
                                 </div>
-                                <ChevronDown size={14} className="text-slate-600 -rotate-90 group-hover:translate-x-1 group-hover:text-cyan-400 transition-all" />
+                                <ChevronDown size={14} className="absolute right-3 text-slate-600 -rotate-90 group-hover:translate-x-1 group-hover:text-cyan-400 transition-all" />
                             </div>
                         </button>
                     )}
