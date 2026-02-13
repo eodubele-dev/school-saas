@@ -17,6 +17,7 @@ import {
     Menu
 } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { OmniSearch } from "@/components/omni-search"
 import { Button } from "@/components/ui/button"
@@ -62,9 +63,11 @@ export function DynamicTopBar({
     campuses = [],
     teacherClasses = [],
     pendingReconciliations = 0,
-    activeSession
+    activeSession,
+    className
 }: DynamicTopBarProps) {
     const normalizedRole = role.toUpperCase()
+    const router = useRouter()
 
     const renderRoleUtilities = () => {
         switch (normalizedRole) {
@@ -171,7 +174,14 @@ export function DynamicTopBar({
                         {/* Pass active class ID if available, else null to disable */}
                         <AttendancePip classId={activeClass?.id} />
 
-                        <Button size="sm" className="hidden sm:flex bg-cyan-600 hover:bg-cyan-500 text-black text-[10px] font-black uppercase items-center gap-2 h-8">
+                        <Button
+                            size="sm"
+                            className="hidden sm:flex bg-cyan-600 hover:bg-cyan-500 text-black text-[10px] font-black uppercase items-center gap-2 h-8"
+                            onClick={() => {
+                                toast.info("Assessment Engine", { description: "Opening assessments portal..." })
+                                router.push('/dashboard/teacher/assessments')
+                            }}
+                        >
                             <Plus size={14} /> Assess
                         </Button>
                     </>

@@ -69,8 +69,8 @@ export default async function StudentAttendancePage() {
                             safeHistory.slice(0, 5).map((record: any, i: number) => (
                                 <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-white/5 bg-slate-900/50">
                                     <div className={`h-2 w-2 rounded-full ${record.status === 'present' ? 'bg-emerald-500' :
-                                            record.status === 'late' ? 'bg-amber-500' :
-                                                record.status === 'absent' ? 'bg-red-500' : 'bg-blue-500'
+                                        record.status === 'late' ? 'bg-amber-500' :
+                                            record.status === 'absent' ? 'bg-red-500' : 'bg-blue-500'
                                         }`} />
                                     <div className="flex-1">
                                         <div className="flex justify-between">
