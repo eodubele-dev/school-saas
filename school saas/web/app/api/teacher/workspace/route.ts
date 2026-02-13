@@ -23,6 +23,14 @@ export async function GET() {
         const currentTime = now.toTimeString().split(' ')[0] // HH:mm:ss
         const today = now.toISOString().split('T')[0]
 
+        // 1.5 Get Active Academic Session
+        const { data: activeAcademicSession } = await supabase
+            .from('academic_sessions')
+            .select('*')
+            .eq('tenant_id', profile?.tenant_id)
+            .eq('is_active', true)
+            .maybeSingle()
+
         // 2. Resolve Active Session from Timetable
         const { data: activeSession } = await supabase
             .from('timetables')
@@ -99,20 +107,21 @@ export async function GET() {
         const calculatedAvg = totalRecords > 0 ? Math.round((presentRecords / totalRecords) * 100) : 0
 
         // Final Data Construction
-        // @ts-ignore - Supabase nested selection types
-        const activeClass = activeSession?.classes || classes?.[0] || { name: 'Laboratory A', grade_level: 'Senior Sec' }
-        // @ts-ignore
-        const activeSubject = activeSession?.subjects?.name || "No Active Session"
+        const activeClass = activeSession?.classes || classes?.[0] || { name: 'N/A', grade_level: 'N/A' }
+        const activeSubject = activeSession?.subjects?.name || (classes?.[0] ? "Primary Class" : "No Active Session")
 
         return NextResponse.json({
             profile,
+            activeSession: activeAcademicSession,
             activeClass: {
                 ...activeClass,
                 subject: activeSubject,
                 // @ts-ignore
                 start_time: activeSession?.start_time,
                 // @ts-ignore
-                end_time: activeSession?.end_time
+                end_time: activeSession?.end_time,
+                academic_session: activeAcademicSession?.session,
+                term: activeAcademicSession?.term
             },
             vitals: {
                 present: presentCount,

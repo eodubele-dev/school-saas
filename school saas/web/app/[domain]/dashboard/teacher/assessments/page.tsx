@@ -24,9 +24,10 @@ export default async function AssessmentHubPage({ params, searchParams }: { para
     }
 
     // 2. Fetch Active Session and Teacher Allocations parallel
-    const [sessionRes, allocsRes] = await Promise.all([
+    const [sessionRes, allocsRes, subjAssignRes] = await Promise.all([
         supabase.from('academic_sessions').select('session, term').eq('tenant_id', tenantId).eq('is_active', true).maybeSingle(),
-        supabase.from('teacher_allocations').select('class_id, subject, classes(name)').eq('teacher_id', user.id).limit(1).maybeSingle()
+        supabase.from('teacher_allocations').select('class_id, subject, classes(name)').eq('teacher_id', user.id).limit(1).maybeSingle(),
+        supabase.from('subject_assignments').select('class_id, subject, classes(name)').eq('teacher_id', user.id).limit(1).maybeSingle()
     ])
 
     const userRole = (profile?.role || 'teacher').toLowerCase().trim()
@@ -55,8 +56,8 @@ export default async function AssessmentHubPage({ params, searchParams }: { para
     // 3. Resolve Class & Subject Context
     if (!classId || !subjectId) {
         // Use default allocation if available
-        if (allocsRes.data) {
-            const alloc = allocsRes.data as any
+        const alloc = (allocsRes.data || subjAssignRes.data) as any
+        if (alloc) {
             classId = classId || alloc.class_id
             className = Array.isArray(alloc.classes) ? alloc.classes[0]?.name : alloc.classes?.name || className
 

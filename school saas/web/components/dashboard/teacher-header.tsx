@@ -14,6 +14,8 @@ interface TeacherHeaderProps {
         subject?: string
         start_time?: string
         end_time?: string
+        academic_session?: string
+        term?: string
     }
     vitals: {
         present: number
@@ -119,7 +121,9 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
                             {classData.name}
                         </h2>
                         <p className="text-slate-400 text-xl mt-3 font-medium">
-                            {classData.grade_level} • {classData.subject || "Literature & Composition"}
+                            {classData.grade_level} • {classData.subject || "Not Assigned"}
+                            {classData.academic_session && ` • ${classData.academic_session}`}
+                            {classData.term && ` • ${classData.term} Term`}
                         </p>
                     </div>
 

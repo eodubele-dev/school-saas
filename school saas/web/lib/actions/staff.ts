@@ -115,11 +115,12 @@ export async function updateStaffRole(userId: string, newRole: string, newDepart
     const updates: any = { role: newRole }
     if (newDepartment) updates.department = newDepartment
 
-    const { error } = await supabase
+    const supabaseAdmin = createAdminClient()
+    const { error } = await supabaseAdmin
         .from('profiles')
         .update(updates)
         .eq('id', userId)
-        .eq('tenant_id', adminProfile.tenant_id) // Ensure same tenant
+        .eq('tenant_id', adminProfile.tenant_id)
 
     if (error) return { success: false, error: error.message }
 

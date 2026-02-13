@@ -146,6 +146,68 @@ export async function assignFormTeacher(classId: string, teacherId: string | nul
     return { success: true }
 }
 
+export async function assignTeacherToSubject(data: {
+    teacherId: string,
+    classId: string,
+    subject: string,
+    isFormTeacher: boolean
+}) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+
+    const supabaseAdmin = createAdminClient()
+
+    // 1. If form teacher, update classes table
+    if (data.isFormTeacher) {
+        const { error: formError } = await supabaseAdmin
+            .from('classes')
+            .update({ form_teacher_id: data.teacherId })
+            .eq('id', data.classId)
+            .eq('tenant_id', profile.tenant_id)
+
+        if (formError) return { success: false, error: formError.message }
+    }
+
+    // 2. If subject provided, insert into both mapping tables for compatibility
+    if (data.subject) {
+        // Upsert into subject_assignments (Legacy/Alternative)
+        const { error: subjectError } = await supabaseAdmin
+            .from('subject_assignments')
+            .upsert({
+                tenant_id: profile.tenant_id,
+                class_id: data.classId,
+                teacher_id: data.teacherId,
+                subject: data.subject
+            }, {
+                onConflict: 'class_id,teacher_id,subject'
+            })
+
+        if (subjectError) return { success: false, error: subjectError.message }
+
+        // Upsert into teacher_allocations (Used by Assessment Hub)
+        const { error: allocError } = await supabaseAdmin
+            .from('teacher_allocations')
+            .upsert({
+                tenant_id: profile.tenant_id,
+                class_id: data.classId,
+                teacher_id: data.teacherId,
+                subject: data.subject,
+                is_form_teacher: data.isFormTeacher
+            }, {
+                onConflict: 'tenant_id,teacher_id,class_id,subject'
+            })
+
+        if (allocError) return { success: false, error: allocError.message }
+    }
+
+    revalidatePath('/dashboard/admin/staff')
+    return { success: true }
+}
+
 export async function createClassLevel(data: { name: string, section: string }) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()

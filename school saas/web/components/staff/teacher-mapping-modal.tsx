@@ -22,7 +22,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
-// import { assignTeacher } from "@/lib/actions/staff" // To be implemented
+import { assignTeacherToSubject } from "@/lib/actions/classes"
 
 export function TeacherMappingModal({ teacher, classes }: { teacher: any, classes: any[] }) {
     const [open, setOpen] = useState(false)
@@ -37,11 +37,25 @@ export function TeacherMappingModal({ teacher, classes }: { teacher: any, classe
         if (!formData.classId) return toast.error("Please select a class")
 
         setLoading(true)
-        // Simulate assignment
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        toast.success(`Assigned to ${formData.subject || 'Class'} successfully`)
-        setOpen(false)
-        setLoading(false)
+        try {
+            const res = await assignTeacherToSubject({
+                teacherId: teacher.id,
+                classId: formData.classId,
+                subject: formData.subject,
+                isFormTeacher: formData.isFormTeacher
+            })
+
+            if (res.success) {
+                toast.success(`Assigned to ${formData.subject || 'Class'} successfully`)
+                setOpen(false)
+            } else {
+                toast.error(res.error || "Failed to save assignment")
+            }
+        } catch (error: any) {
+            toast.error("An error occurred: " + error.message)
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
