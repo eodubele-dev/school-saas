@@ -10,6 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Trash2, ArrowRight, User } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/modals/confirm-modal"
+import { getTeachersForAssignment } from "@/lib/actions/staff"
+import {
+    assignFormTeacher,
+    createClassLevel,
+    createClass,
+    deleteClassLevel,
+    deleteClass
+} from "@/lib/actions/classes"
 
 interface ClassLevel {
     id: string
@@ -79,12 +87,12 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
             const [levelsRes, armsRes, teachersRes] = await Promise.all([
                 supabase.from('class_levels').select('*').order('name'),
                 supabase.from('classes').select('*, class_levels(name)').order('name'),
-                supabase.from('profiles').select('id, full_name').eq('role', 'teacher')
+                getTeachersForAssignment()
             ])
 
             if (levelsRes.data) setLevels(levelsRes.data)
             if (armsRes.data) setArms(armsRes.data)
-            if (teachersRes.data) setTeachers(teachersRes.data)
+            if (teachersRes.success && teachersRes.data) setTeachers(teachersRes.data)
         } catch (error) {
             console.error(error)
             toast.error("Failed to load data")
@@ -94,25 +102,17 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
     }
 
     const addLevel = async () => {
-        if (!newLevelName || !tenantId) return
+        if (!newLevelName) return
 
-        const { data, error } = await supabase
-            .from('class_levels')
-            .insert({ name: newLevelName, section: newLevelSection, tenant_id: tenantId })
-            .select()
-            .single()
+        const res = await createClassLevel({ name: newLevelName, section: newLevelSection })
 
-        if (error) {
-            console.error(error)
-            toast.error("Failed to add level: " + error.message)
-            return
-        }
-
-        if (data) {
-            setLevels([...levels, data])
+        if (res.success && res.data) {
+            setLevels([...levels, res.data])
             toast.success("Level Added")
             setIsAddLevelOpen(false)
             setNewLevelName("")
+        } else {
+            toast.error(res.error || "Failed to add level")
         }
     }
 
@@ -120,13 +120,13 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
         const hasArms = arms.some(a => a.class_level_id === id)
 
         const proceedDelete = async () => {
-            const { error } = await supabase.from('class_levels').delete().eq('id', id)
-            if (!error) {
+            const res = await deleteClassLevel(id)
+            if (res.success) {
                 setLevels(levels.filter(l => l.id !== id))
                 setArms(arms.filter(a => a.class_level_id !== id))
                 toast.success("Level Deleted")
             } else {
-                toast.error("Failed to delete level")
+                toast.error(res.error || "Failed to delete level")
             }
         }
 
@@ -146,41 +146,35 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
     }
 
     const addArm = async () => {
-        if (!newArmName || !activeLevelId || !tenantId) return
+        if (!newArmName || !activeLevelId) return
 
         const level = levels.find(l => l.id === activeLevelId)
-        // Ensure name is unique for this level logic if needed, or constructed name like "JSS 1 Gold"
-
         const constructedName = `${level?.name} ${newArmName}`
 
-        const { data, error } = await supabase
-            .from('classes')
-            .insert({ name: constructedName, grade_level: level?.name, class_level_id: activeLevelId, tenant_id: tenantId })
-            .select()
-            .single()
+        const res = await createClass({
+            name: constructedName,
+            grade_level: level?.name || "",
+            class_level_id: activeLevelId
+        })
 
-        if (error) {
-            toast.error("Failed to add arm: " + error.message)
-            return
-        }
-
-        if (data) {
-            setArms([...arms, data])
+        if (res.success && res.data) {
+            setArms([...arms, res.data])
             toast.success("Arm Added")
             setIsAddArmOpen(false)
             setNewArmName("")
+        } else {
+            toast.error(res.error || "Failed to add arm")
         }
     }
 
     const updateArmTeacher = async (armId: string, teacherId: string) => {
-        const { error } = await supabase
-            .from('classes')
-            .update({ form_teacher_id: teacherId })
-            .eq('id', armId)
+        const res = await assignFormTeacher(armId, teacherId || null)
 
-        if (!error) {
+        if (res.success) {
             setArms(arms.map(a => a.id === armId ? { ...a, form_teacher_id: teacherId } : a))
             toast.success("Form Teacher Updated")
+        } else {
+            toast.error(res.error || "Failed to update form teacher")
         }
     }
 
@@ -242,8 +236,13 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
                                                             title: "Delete Arm?",
                                                             description: `Are you sure you want to delete ${arm.name}?`,
                                                             onConfirm: async () => {
-                                                                await supabase.from('classes').delete().eq('id', arm.id)
-                                                                setArms(arms.filter(a => a.id !== arm.id))
+                                                                const res = await deleteClass(arm.id)
+                                                                if (res.success) {
+                                                                    setArms(arms.filter(a => a.id !== arm.id))
+                                                                    toast.success("Arm Deleted")
+                                                                } else {
+                                                                    toast.error(res.error || "Failed to delete arm")
+                                                                }
                                                             }
                                                         })
                                                     }}>

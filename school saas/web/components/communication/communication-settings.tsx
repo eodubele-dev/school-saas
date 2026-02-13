@@ -66,7 +66,7 @@ export function CommunicationSettingsView() {
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 border-b border-white/5 pb-8">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-white">Communication Settings</h1>
-                    <p className="text-slate-400 text-sm mt-1">Configure automated triggers for the Lagos Pilot branches.</p>
+                    <p className="text-slate-400 text-sm mt-1">Configure automated triggers and notification preferences.</p>
                 </div>
 
                 {isAdmin && (

@@ -4,6 +4,33 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 
+export async function getTeachersForAssignment() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    // Get Tenant ID
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('tenant_id')
+        .eq('id', user.id)
+        .single()
+
+    if (!profile?.tenant_id) return { success: false, error: "Tenant not found" }
+
+    const supabaseAdmin = createAdminClient()
+    const { data, error } = await supabaseAdmin
+        .from('profiles')
+        .select('id, full_name')
+        .eq('tenant_id', profile.tenant_id)
+        .eq('role', 'teacher')
+        .order('full_name')
+
+    if (error) return { success: false, error: error.message }
+
+    return { success: true, data }
+}
+
 export async function getStaffList(domain: string, page = 1, query = "") {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -22,7 +49,9 @@ export async function getStaffList(domain: string, page = 1, query = "") {
     const from = (page - 1) * ITEMS_PER_PAGE
     const to = from + ITEMS_PER_PAGE - 1
 
-    let dbQuery = supabase
+    const supabaseAdmin = createAdminClient()
+
+    let dbQuery = supabaseAdmin
         .from('profiles')
         .select(`
             *,
@@ -35,21 +64,32 @@ export async function getStaffList(domain: string, page = 1, query = "") {
             )
         `, { count: 'exact' })
         .eq('tenant_id', profile.tenant_id)
-        .in('role', ['admin', 'teacher', 'bursar', 'registrar', 'support_staff'])
+        .in('role', ['admin', 'teacher', 'bursar', 'registrar', 'support_staff', 'owner'])
         .order('created_at', { ascending: false })
         .range(from, to)
 
     if (query) {
-        dbQuery = dbQuery.or(`full_name.ilike.%${query}%,email.ilike.%${query}%`)
+        dbQuery = dbQuery.or(`full_name.ilike.%${query}%`)
     }
 
-    const { data, count, error } = await dbQuery
+    const { data: profiles, count, error } = await dbQuery
 
     if (error) return { success: false, error: error.message }
 
+    // 4. Enrich with emails from auth.users (since email column is missing in profiles)
+    const { data: { users: authUsers }, error: authError } = await supabaseAdmin.auth.admin.listUsers()
+
+    const enrichedData = (profiles || []).map(p => {
+        const authUser = authUsers?.find(u => u.id === p.id)
+        return {
+            ...p,
+            email: authUser?.email || p.email || "" // Fallback to p.email if it ever gets added
+        }
+    })
+
     return {
         success: true,
-        data,
+        data: enrichedData,
         count,
         totalPages: count ? Math.ceil(count / ITEMS_PER_PAGE) : 0
     }
@@ -154,7 +194,6 @@ export async function createStaff(formData: any) {
             full_name: `${formData.firstName} ${formData.lastName}`,
             role: formData.role,
             department: formData.department,
-            email: formData.email,
             phone: formData.phone // Save to profiles
         })
         .select()

@@ -24,7 +24,10 @@ export async function getDailyAbsentees() {
             .from('student_attendance')
             .select(`
                 *,
-                student:students(full_name, parent_id)
+                student:students(
+                    full_name, 
+                    parent:profiles!parent_id(full_name, phone)
+                )
             `)
             .eq('date', today)
             .eq('status', 'absent')
@@ -103,20 +106,97 @@ export async function sendBulkSMS(recipients: { phone: string, name: string }[],
  */
 export async function sendBroadcast(
     channel: 'sms' | 'whatsapp' | 'email',
-    audienceType: 'class' | 'student',
+    audienceType: 'all_parents' | 'class' | 'staff',
     audienceId: string,
     message: string
 ) {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
 
-    // Logic to resolve audience to list of parents
-    // Fetch students in class -> Get Parents -> Get Phones
-    // Then call sendBulkSMS or WhatsApp stub
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile?.tenant_id) return { success: false, error: "Tenant context missing" }
 
-    // Stub for now:
-    console.log(`Sending ${channel} to ${audienceType} ${audienceId}: ${message}`)
+    let recipients: { phone: string, name: string }[] = []
 
-    return { success: true, message: `Broadcast queued for ${channel}` }
+    try {
+        if (audienceType === 'all_parents') {
+            const { data: parents } = await supabase
+                .from('profiles')
+                .select('full_name, phone')
+                .eq('tenant_id', profile.tenant_id)
+                .eq('role', 'parent')
+
+            recipients = (parents || [])
+                .filter(p => p.phone)
+                .map(p => ({ phone: p.phone!, name: p.full_name || 'Parent' }))
+        } else if (audienceType === 'class') {
+            const { data: students } = await supabase
+                .from('students')
+                .select(`
+                    full_name,
+                    parent:profiles!parent_id(full_name, phone)
+                `)
+                .eq('class_id', audienceId)
+                .eq('tenant_id', profile.tenant_id)
+
+            recipients = (students || []).map(s => {
+                const parent = Array.isArray(s.parent) ? s.parent[0] : s.parent
+                return {
+                    phone: (parent as any)?.phone,
+                    name: (parent as any)?.full_name || 'Parent'
+                }
+            }).filter(p => p.phone)
+        } else if (audienceType === 'staff') {
+            const { data: staff } = await supabase
+                .from('profiles')
+                .select('full_name, phone')
+                .eq('tenant_id', profile.tenant_id)
+                .eq('role', 'teacher')
+
+            recipients = (staff || [])
+                .filter(s => s.phone)
+                .map(s => ({ phone: s.phone!, name: s.full_name || 'Staff' }))
+        }
+
+        if (recipients.length === 0) {
+            return { success: false, error: "No valid recipients found with phone numbers" }
+        }
+
+        if (channel === 'sms') {
+            return await sendBulkSMS(recipients, message)
+        }
+
+        // WhatsApp/Email stubs for future phases
+        return { success: true, message: `Broadcast simulation for ${channel} to ${recipients.length} recipients successful.` }
+
+    } catch (error) {
+        console.error("Broadcast error:", error)
+        return { success: false, error: "Failed to process broadcast" }
+    }
+}
+
+/**
+ * 3b. Get Communication Audience Options
+ * Fetches classes and other groups for the broadcast composer.
+ */
+export async function getCommunicationAudience() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Unauthorized" }
+
+    const { data: classes, error } = await supabase
+        .from('classes')
+        .select('id, name')
+        .eq('tenant_id', profile.tenant_id)
+        .order('name')
+
+    if (error) return { success: false, error: "Failed to load audience options" }
+
+    return { success: true, classes }
 }
 
 /**

@@ -1,6 +1,8 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { revalidatePath } from 'next/cache'
 
 export interface TeacherClass {
     id: string
@@ -122,4 +124,104 @@ export async function getClassRoster(classId: string) {
     })
 
     return { success: true, data: roster }
+}
+
+export async function assignFormTeacher(classId: string, teacherId: string | null) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+
+    const supabaseAdmin = createAdminClient()
+    const { error } = await supabaseAdmin
+        .from('classes')
+        .update({ form_teacher_id: teacherId })
+        .eq('id', classId)
+        .eq('tenant_id', profile.tenant_id)
+
+    if (error) return { success: false, error: error.message }
+
+    return { success: true }
+}
+
+export async function createClassLevel(data: { name: string, section: string }) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+
+    const supabaseAdmin = createAdminClient()
+    const { data: newLevel, error } = await supabaseAdmin
+        .from('class_levels')
+        .insert({ ...data, tenant_id: profile.tenant_id })
+        .select()
+        .single()
+
+    if (error) return { success: false, error: error.message }
+
+    return { success: true, data: newLevel }
+}
+
+export async function deleteClassLevel(id: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+
+    const supabaseAdmin = createAdminClient()
+    const { error } = await supabaseAdmin
+        .from('class_levels')
+        .delete()
+        .eq('id', id)
+        .eq('tenant_id', profile.tenant_id)
+
+    if (error) return { success: false, error: error.message }
+
+    return { success: true }
+}
+
+export async function createClass(data: { name: string, grade_level: string, class_level_id: string }) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+
+    const supabaseAdmin = createAdminClient()
+    const { data: newClass, error } = await supabaseAdmin
+        .from('classes')
+        .insert({ ...data, tenant_id: profile.tenant_id })
+        .select()
+        .single()
+
+    if (error) return { success: false, error: error.message }
+
+    return { success: true, data: newClass }
+}
+
+export async function deleteClass(id: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+
+    const supabaseAdmin = createAdminClient()
+    const { error } = await supabaseAdmin
+        .from('classes')
+        .delete()
+        .eq('id', id)
+        .eq('tenant_id', profile.tenant_id)
+
+    if (error) return { success: false, error: error.message }
+
+    return { success: true }
 }

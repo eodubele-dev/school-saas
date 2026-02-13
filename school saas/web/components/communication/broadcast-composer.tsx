@@ -9,11 +9,25 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Loader2, Send, MessageSquare, Phone, Mail, Paperclip } from "lucide-react"
 import { toast } from "sonner"
-import { sendBroadcast } from "@/lib/actions/communication"
+import { sendBroadcast, getCommunicationAudience } from "@/lib/actions/communication"
+import { useEffect } from "react"
 
 export function BroadcastComposer() {
     const [sending, setSending] = useState(false)
+    const [loadingAudience, setLoadingAudience] = useState(true)
+    const [classes, setClasses] = useState<any[]>([])
     const [channel, setChannel] = useState<'sms' | 'whatsapp' | 'email'>('sms')
+
+    useEffect(() => {
+        const loadAudience = async () => {
+            const res = await getCommunicationAudience()
+            if (res.success && res.classes) {
+                setClasses(res.classes)
+            }
+            setLoadingAudience(false)
+        }
+        loadAudience()
+    }, [])
 
     const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()
     const defaultMessage = searchParams.get('message') || ""
@@ -24,10 +38,19 @@ export function BroadcastComposer() {
 
         const form = new FormData(e.currentTarget)
         const message = form.get('message') as string
-        const audience = form.get('audience') as string
+        const audienceValue = form.get('audience') as string
 
         try {
-            const res = await sendBroadcast(channel, 'class', audience, message)
+            let audienceType: 'all_parents' | 'class' | 'staff' = 'class'
+            let audienceId = audienceValue
+
+            if (audienceValue === 'all_parents') {
+                audienceType = 'all_parents'
+            } else if (audienceValue === 'staff') {
+                audienceType = 'staff'
+            }
+
+            const res = await sendBroadcast(channel, audienceType, audienceId, message)
             if (res.success) {
                 toast.success(`Broadcast queued via ${channel.toUpperCase()}`)
                 // Reset form?
@@ -52,12 +75,13 @@ export function BroadcastComposer() {
                     <Label className="text-slate-400">Audience</Label>
                     <Select name="audience" defaultValue="all_parents">
                         <SelectTrigger className="bg-slate-950 border-white/10 text-white">
-                            <SelectValue placeholder="Select Recipients" />
+                            <SelectValue placeholder={loadingAudience ? "Loading recipients..." : "Select Recipients"} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-slate-900 border-white/10 text-slate-200">
                             <SelectItem value="all_parents">All Parents</SelectItem>
-                            <SelectItem value="jss1a">JSS 1A Parents</SelectItem>
-                            <SelectItem value="ss3b">SS 3B Parents</SelectItem>
+                            {classes.map(c => (
+                                <SelectItem key={c.id} value={c.id}>{c.name} Parents</SelectItem>
+                            ))}
                             <SelectItem value="staff">All Staff</SelectItem>
                         </SelectContent>
                     </Select>

@@ -30,31 +30,18 @@ export default async function CalendarPage({ params }: { params: { domain: strin
 
     const activeSession = activeSessionRes.success ? activeSessionRes.session : null
 
-    // Determine Term Bounds (Live Data vs Fallback Mock)
-    let termStartDate: Date
-    let termEndDate: Date
-    let sessionName = "Current Term"
-    let termName = "Academic Year"
-
-    if (activeSession?.start_date && activeSession?.end_date) {
-        termStartDate = new Date(activeSession.start_date)
-        termEndDate = new Date(activeSession.end_date)
-        sessionName = activeSession.session
-        termName = activeSession.term
-    } else {
-        // Fallback Mock logic (Assuming 13 weeks term) if no active session is found
-        termStartDate = new Date()
-        termStartDate.setDate(termStartDate.getDate() - 20)
-        termEndDate = new Date()
-        termEndDate.setDate(termEndDate.getDate() + 70)
-        sessionName = "2023/2024 Session"
-        termName = "2nd Term"
-    }
+    // Determine Term Bounds (Live Data only, no fallback)
+    const hasActiveSession = !!(activeSession?.start_date && activeSession?.end_date)
+    const termStartDate = hasActiveSession ? new Date(activeSession!.start_date) : new Date()
+    const termEndDate = hasActiveSession ? new Date(activeSession!.end_date) : new Date()
+    const sessionName = activeSession?.session || ""
+    const termName = activeSession?.term || ""
 
     const totalDays = (termEndDate.getTime() - termStartDate.getTime()) / (1000 * 3600 * 24)
     const daysPassed = (new Date().getTime() - termStartDate.getTime()) / (1000 * 3600 * 24)
-    const progress = Math.min(100, Math.max(0, (daysPassed / totalDays) * 100))
-    const weeksLeft = Math.ceil((totalDays - daysPassed) / 7)
+    const progress = hasActiveSession ? Math.min(100, Math.max(0, (daysPassed / totalDays) * 100)) : 0
+    const weeksLeft = hasActiveSession ? Math.ceil((totalDays - daysPassed) / 7) : 0
+
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500 pb-20">
@@ -68,19 +55,31 @@ export default async function CalendarPage({ params }: { params: { domain: strin
             <Card className="bg-gradient-to-r from-slate-900 to-slate-950 border-white/5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                 <CardContent className="p-6 relative z-10">
-                    <div className="flex justify-between items-end mb-4">
-                        <div>
-                            <h3 className="text-lg font-bold text-white">Current Term Progress</h3>
-                            <p className="text-sm text-slate-400">{termName}, {sessionName}</p>
+                    {hasActiveSession ? (
+                        <>
+                            <div className="flex justify-between items-end mb-4">
+                                <div>
+                                    <h3 className="text-lg font-bold text-white">Current Term Progress</h3>
+                                    <p className="text-sm text-slate-400">{termName}, {sessionName}</p>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-3xl font-bold text-cyan-400">
+                                        {weeksLeft > 0 ? weeksLeft : 0}
+                                    </span>
+                                    <span className="text-sm text-slate-500 ml-1">weeks left</span>
+                                </div>
+                            </div>
+                            <Progress value={progress} className="h-2 bg-slate-800" indicatorClassName="bg-cyan-500" />
+                        </>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center py-4 text-center">
+                            <CalendarDays className="h-8 w-8 text-slate-600 mb-2" />
+                            <h3 className="text-md font-medium text-slate-300">No Active Academic Session</h3>
+                            <p className="text-xs text-slate-500 max-w-xs">
+                                Please configure the active session and term in the Academic Setup to track term progress.
+                            </p>
                         </div>
-                        <div className="text-right">
-                            <span className="text-3xl font-bold text-cyan-400">
-                                {weeksLeft > 0 ? weeksLeft : 0}
-                            </span>
-                            <span className="text-sm text-slate-500 ml-1">weeks left</span>
-                        </div>
-                    </div>
-                    <Progress value={progress} className="h-2 bg-slate-800" indicatorClassName="bg-cyan-500" />
+                    )}
                 </CardContent>
             </Card>
 

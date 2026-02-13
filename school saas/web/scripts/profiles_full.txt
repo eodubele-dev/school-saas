@@ -1,0 +1,11 @@
+User Profiles:
+- Parent John (parent) [ID: 9ecae254-e89a-40d0-8905-d5129d182f01] -> Tenant: school1 (ID: e18076ff-0404-41aa-a97d-c2b884753ddc)
+- Principal (admin) [ID: e6f2ac23-6272-4e13-a936-e853a94cb5db] -> Tenant: school1 (ID: e18076ff-0404-41aa-a97d-c2b884753ddc)
+- Sarah (teacher) [ID: b5fcb81d-9ca3-4343-b858-fb8842fe923f] -> Tenant: school1 (ID: e18076ff-0404-41aa-a97d-c2b884753ddc)
+- Test Student (student) [ID: d0eebc99-9c0b-4ef8-bb6d-6bb9bd380d22] -> Tenant: school1 (ID: e18076ff-0404-41aa-a97d-c2b884753ddc)
+- Bursar Controller (bursar) [ID: c0eebc99-9c0b-4ef8-bb6d-6bb9bd380c11] -> Tenant: school1 (ID: e18076ff-0404-41aa-a97d-c2b884753ddc)
+- Bursar Admin (bursar) [ID: 93faaf8c-2bf0-4dd3-a132-8c9c10c6a99d] -> Tenant: demo-school (ID: 1a68c9ce-4f41-440c-bc32-5c48899db7f6)
+- Emma Johnson (student) [ID: 06c0174e-8cb1-4d93-a6ba-da1a69b792d5] -> Tenant: demo-school (ID: 1a68c9ce-4f41-440c-bc32-5c48899db7f6)
+- School1 student (student) [ID: 0bb718c2-de25-46f4-933a-0d2c3fdad1e3] -> Tenant: school1 (ID: e18076ff-0404-41aa-a97d-c2b884753ddc)
+- School1 bursar (bursar) [ID: ae7b4cca-e938-4d76-a6e4-48700d3e5268] -> Tenant: school1 (ID: e18076ff-0404-41aa-a97d-c2b884753ddc)
+- School Proprietor (owner) [ID: e0eebc99-9c0b-4ef8-bb6d-6bb9bd380e33] -> Tenant: school1 (ID: e18076ff-0404-41aa-a97d-c2b884753ddc)

@@ -30,14 +30,15 @@ export function AbsenteeFollowUp() {
     const handleBulkNotify = async () => {
         setSending(true)
         try {
-            // Filter recipients (Mocking parent phone numbers as they might be missing in MVP join)
-            const recipients = absentees.map(a => ({
-                phone: "08012345678", // Placeholder if join fails/no data
-                name: a.student?.full_name || "Parent"
-            }))
+            const recipients = absentees
+                .filter(a => a.student?.parent?.phone)
+                .map(a => ({
+                    phone: a.student.parent.phone,
+                    name: a.student.parent.full_name || a.student.full_name || "Parent"
+                }))
 
             if (recipients.length === 0) {
-                toast.error("No absentees to notify")
+                toast.error("No valid parent phone numbers found for absentees")
                 setSending(false)
                 return
             }

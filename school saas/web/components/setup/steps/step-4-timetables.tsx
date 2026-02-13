@@ -267,7 +267,7 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
             </div>
 
             <div className="flex justify-between pt-8 border-t border-white/5">
-                <Button variant="ghost" onClick={onPrev} className="text-slate-400 hover:text-white">
+                <Button variant="ghost" onClick={onPrev} className="text-slate-400 hover:text-slate-200 hover:bg-white/10 transition-colors">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back to Grading
                 </Button>
                 <div className="flex items-center gap-2 text-emerald-500 font-bold text-sm">
