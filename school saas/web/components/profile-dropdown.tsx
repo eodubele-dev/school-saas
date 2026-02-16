@@ -12,6 +12,9 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { PreferencesModal } from "@/components/preferences-modal"
+import { UpgradeModal } from "@/components/modals/upgrade-modal"
+import { toast } from "sonner"
+import { Crown } from "lucide-react"
 
 interface ProfileDropdownProps {
     userName: string
@@ -19,12 +22,15 @@ interface ProfileDropdownProps {
     userEmail?: string
     userAvatarUrl?: string | null
     userId?: string // Added for Identity Command Card
+    tier?: string
+    tenantName?: string
     className?: string
 }
 
-export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, userId, className }: ProfileDropdownProps) {
+export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, userId, tier = 'Free', tenantName = 'EduFlow', className }: ProfileDropdownProps) {
     const router = useRouter()
     const [preferencesOpen, setPreferencesOpen] = useState(false)
+    const [isUpgradeOpen, setIsUpgradeOpen] = useState(false)
 
     const handleLogout = async () => {
         try {
@@ -56,6 +62,9 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
 
     const [imageError, setImageError] = useState(false)
     const [headerImageError, setHeaderImageError] = useState(false)
+
+    const isPremium = tier.toLowerCase() === 'platinum' || tier.toLowerCase() === 'pilot'
+    const showUpgrade = !isPremium && ['ADMIN', 'OWNER', 'PROPRIETOR'].includes(userRole.toUpperCase())
 
     const config = getRoleConfig(userRole)
     const initials = userName.charAt(0).toUpperCase()
@@ -146,6 +155,22 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
                             <DropdownLink href="/dashboard/family" icon={<Users size={14} />} label="Switch Child Account" color="text-emerald-400" />
                         )}
 
+                        {/* Upgrade Button */}
+                        {showUpgrade && (
+                            <DropdownMenuItem
+                                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-white/5 transition-all cursor-pointer focus:bg-white/5 group"
+                                onSelect={() => {
+                                    toast.info("Institutional Expansion Protocols Active", {
+                                        description: "Initializing Tier Selection Console...",
+                                    })
+                                    setIsUpgradeOpen(true)
+                                }}
+                            >
+                                <Crown size={14} className="text-amber-500 group-hover:text-amber-400 transition-colors" />
+                                <span className="text-xs font-bold text-amber-500 group-hover:text-amber-400 transition-colors uppercase tracking-wider">Upgrade Plan</span>
+                            </DropdownMenuItem>
+                        )}
+
                         <DropdownMenuItem
                             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-white/5 transition-all cursor-pointer focus:bg-white/5"
                             onSelect={() => setPreferencesOpen(true)}
@@ -169,6 +194,12 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
             </DropdownMenu>
 
             <PreferencesModal open={preferencesOpen} onOpenChange={setPreferencesOpen} />
+            <UpgradeModal
+                isOpen={isUpgradeOpen}
+                onClose={() => setIsUpgradeOpen(false)}
+                currentTier={tier}
+                tenantName={tenantName}
+            />
         </>
     )
 }

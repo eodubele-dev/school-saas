@@ -33,7 +33,7 @@ import { Crown } from "lucide-react"
 
 import { SIDEBAR_LINKS, type UserRole, type SidebarCategory, type SidebarItem } from "@/config/sidebar"
 import { StudentSwitcher } from "./dashboard/student-switcher"
-import { UpgradeModal } from "@/components/modals/upgrade-modal"
+
 
 export function SidebarClient({
     role: initialRole = 'student',
@@ -70,7 +70,6 @@ export function SidebarClient({
     // State for Search
     const [openSearch, setOpenSearch] = useState(false)
     const [isSupportOpen, setIsSupportOpen] = useState(false)
-    const [isUpgradeOpen, setIsUpgradeOpen] = useState(false)
 
     // State for Collapsed Categories (Hubs) - Initialize without localStorage to prevent hydration errors
     const [openHub, setOpenHub] = useState<string | null>(() => {
@@ -231,12 +230,26 @@ export function SidebarClient({
                     </CommandList>
                 </CommandDialog>
 
-                <UpgradeModal
-                    isOpen={isUpgradeOpen}
-                    onClose={() => setIsUpgradeOpen(false)}
-                    currentTier={tier}
-                    tenantName={tenantName}
-                />
+                <CommandDialog open={openSearch} onOpenChange={setOpenSearch}>
+                    <CommandInput placeholder="Search modules (e.g. Bus, Fees, Staff)..." />
+                    <CommandList>
+                        <CommandEmpty>No results found.</CommandEmpty>
+                        {categories.map((cat) => (
+                            <CommandGroup key={cat.category} heading={cat.category}>
+                                {cat.items?.map((item) => (
+                                    <CommandItem
+                                        key={item.href}
+                                        value={`${cat.category} ${item.label}`}
+                                        onSelect={() => handleSearchSelect(item.href)}
+                                    >
+                                        <item.icon className="mr-2 h-4 w-4" strokeWidth={1.5} />
+                                        <span>{item.label}</span>
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                        ))}
+                    </CommandList>
+                </CommandDialog>
 
                 <SupportModal
                     isOpen={isSupportOpen}
@@ -408,29 +421,7 @@ export function SidebarClient({
                         )
                     })}
 
-                    {/* Dynamic Upgrade Button (Non-Premium Admins Only) */}
-                    {!isPremium && (normalizedRole === 'admin' || normalizedRole === 'owner' || normalizedRole === 'proprietor') && (
-                        <button
-                            onClick={() => {
-                                toast.info("Institutional Expansion Protocols Active", {
-                                    description: "Initializing Tier Selection Console...",
-                                })
-                                setIsUpgradeOpen(true)
-                            }}
-                            className="group relative w-full overflow-hidden p-[1px] rounded-xl transition-all duration-500 hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(34,211,238,0.1)] active:shadow-none"
-                        >
-                            {/* Animated Background Pulse */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-amber-500 to-cyan-500 animate-gradient-x opacity-30 group-hover:opacity-100 transition-opacity" />
 
-                            <div className="relative flex items-center justify-center p-3 bg-slate-950 rounded-[11px] h-full group-hover:bg-slate-950/80 backdrop-blur-sm transition-colors">
-                                <div className="flex flex-col items-center">
-                                    <span className="text-[11px] font-black uppercase tracking-widest text-white leading-none">Upgrade Now</span>
-                                    <span className="text-[9px] font-bold text-cyan-400/60 uppercase tracking-tighter mt-1 group-hover:text-cyan-300 transition-colors">Unlock Platinum Hub</span>
-                                </div>
-                                <ChevronDown size={14} className="absolute right-3 text-slate-600 -rotate-90 group-hover:translate-x-1 group-hover:text-cyan-400 transition-all" />
-                            </div>
-                        </button>
-                    )}
 
                     <button
                         onClick={() => {

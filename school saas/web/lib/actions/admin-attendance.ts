@@ -6,7 +6,10 @@ import { revalidatePath } from 'next/cache'
 /**
  * Get Staff Attendance Statistics for Today
  */
-export async function getStaffAttendanceStats() {
+/**
+ * Get Staff Attendance Statistics for Today or Specific Date
+ */
+export async function getStaffAttendanceStats(date?: string) {
     const supabase = createClient()
 
     try {
@@ -16,7 +19,7 @@ export async function getStaffAttendanceStats() {
         const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
         if (!profile) return { success: false, error: "Profile not found" }
 
-        const today = new Date().toISOString().split('T')[0]
+        const queryDate = date || new Date().toISOString().split('T')[0]
 
         // Fetch all staff (teachers/admins)
         // Schema check: profiles usually has full_name, not first/last in this project version
@@ -29,12 +32,12 @@ export async function getStaffAttendanceStats() {
 
         if (staffError) throw staffError
 
-        // Fetch today's attendance
+        // Fetch attendance for queryDate
         const { data: attendance, error: attError } = await supabase
             .from('staff_attendance')
             .select('*')
             .eq('tenant_id', profile.tenant_id)
-            .eq('date', today)
+            .eq('date', queryDate)
 
         if (attError) throw attError
 
@@ -119,7 +122,7 @@ export async function getPendingLeaveRequests() {
             .from('staff_leave_requests')
             .select(`
                 *,
-                staff:profiles(first_name, last_name, avatar_url, role)
+                staff:profiles!staff_leave_requests_staff_id_fkey(full_name, avatar_url, role)
             `)
             .eq('status', 'pending')
             .order('created_at', { ascending: false })

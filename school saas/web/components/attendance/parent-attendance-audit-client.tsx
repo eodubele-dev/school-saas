@@ -55,16 +55,28 @@ export function ParentAttendanceAudit({
                                         'bg-emerald-500 shadow-emerald-500/20'
                                     }`} />
 
-                                <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-y-2 gap-x-4 w-full">
+                                <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-y-2 gap-x-4 w-full">
                                     <div className="flex items-center gap-3">
                                         <Calendar size={14} className="text-slate-600" />
                                         <span className="text-sm font-medium text-slate-200">{format(new Date(log.date || log.created_at), 'MMM dd, yyyy')}</span>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <Clock size={14} className="text-slate-600" />
-                                        <span className="text-sm font-mono text-slate-400">
-                                            {format(new Date(log.created_at), 'hh:mm:ss a')}
-                                        </span>
+                                        <Clock size={14} className="text-emerald-500/70" />
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] text-emerald-500 uppercase leading-none">Clock In</span>
+                                            <span className="text-sm font-mono text-slate-400">
+                                                {log.clock_in_time ? format(new Date(log.clock_in_time), 'hh:mm a') : format(new Date(log.created_at), 'hh:mm a')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <Clock size={14} className="text-orange-500/70" />
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] text-orange-500 uppercase leading-none">Clock Out</span>
+                                            <span className="text-sm font-mono text-slate-400">
+                                                {log.clock_out_time ? format(new Date(log.clock_out_time), 'hh:mm a') : '--:--'}
+                                            </span>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <MapPin size={14} className="text-slate-600" />
@@ -77,12 +89,18 @@ export function ParentAttendanceAudit({
                                     </div>
                                 </div>
 
-                                <div className="text-left md:text-right w-full md:w-auto mt-2 md:mt-0 pl-7 md:pl-0">
+                                <div className="text-left md:text-right w-full md:w-auto mt-2 md:mt-0 pl-7 md:pl-0 flex flex-col items-end">
                                     <p className="text-[10px] text-slate-600 uppercase mb-0.5">Status</p>
                                     <p className={`text-xs font-bold tracking-wider ${isAbsent ? 'text-red-500' :
                                         isLate ? 'text-amber-400' :
                                             'text-emerald-500'
                                         }`}>{String(log.status).toUpperCase()}</p>
+
+                                    {log.clocked_out?.full_name && (
+                                        <p className="text-[10px] text-slate-500 mt-1">
+                                            Checked out by: <span className="text-slate-300">{log.clocked_out.full_name}</span>
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         )

@@ -11,6 +11,7 @@ interface ClockInResult {
     distance?: number
     error?: string
     auditLogId?: string
+    debug?: { expected: SchoolLocation; actual: { latitude: number; longitude: number } }
 }
 
 interface SchoolLocation {
@@ -67,7 +68,7 @@ export async function clockInStaff(
 
         if (!verified) {
             // Forensic Flagging of failed verification
-            const { data: logEntry } = await logActivity(
+            const logResponse = await logActivity(
                 'Security',
                 'FAILED_LOCATION_VERIFICATION',
                 `Institutional breach blocked. Staff attempted clock-in from ${Math.round(distance)}m away.`,
@@ -77,12 +78,18 @@ export async function clockInStaff(
                 { latitude, longitude, distance, radius: schoolLocation.radius_meters }
             )
 
+            const auditLogId = logResponse && 'data' in logResponse && logResponse.data ? logResponse.data.id : undefined
+
             return {
                 success: false,
                 verified: false,
                 distance,
-                auditLogId: logEntry?.id,
-                error: `You are ${Math.round(distance)}m away from school. You must be within ${schoolLocation.radius_meters}m to clock in.`
+                auditLogId,
+                error: `You are ${Math.round(distance)}m away from school. You must be within ${schoolLocation.radius_meters}m to clock in.`,
+                debug: {
+                    expected: schoolLocation,
+                    actual: { latitude, longitude }
+                }
             }
         }
 
@@ -113,17 +120,53 @@ export async function clockInStaff(
         }
 
 
+        // 4. Auto-activate Class Register (if Form Teacher)
+        const { data: formClass } = await supabase
+            .from('classes')
+            .select('id')
+            .eq('form_teacher_id', user.id)
+            .maybeSingle()
+
+        let registerId = null;
+
+        if (formClass) {
+            // Create/Get Register
+            const { data: register, error: regError } = await supabase
+                .from('attendance_registers')
+                .upsert({
+                    tenant_id: profile.tenant_id,
+                    class_id: formClass.id,
+                    date: today,
+                    marked_by: user.id,
+                    marked_at_latitude: latitude,
+                    marked_at_longitude: longitude,
+                    is_within_geofence: true
+                }, {
+                    onConflict: 'class_id, date'
+                })
+                .select('id')
+                .single()
+
+            if (register) {
+                registerId = register.id
+            } else if (regError) {
+                console.error("Auto-register creation failed:", regError)
+            }
+        }
+
         // Forensic Recording in Audit Log
-        const { data: logEntry } = await logActivity(
+        const logResponse = await logActivity(
             'System',
             'CLOCK_IN',
-            `Staff clocked in successfully. Distance: ${Math.round(distance)}m`,
+            `Staff clocked in successfully. Distance: ${Math.round(distance)}m. ${registerId ? 'Class Register Activated.' : ''}`,
             'profiles',
             user.id
         )
 
-        revalidatePath('/clock-in')
-        return { success: true, verified: true, distance, auditLogId: logEntry?.id }
+        const auditLogId = logResponse && 'data' in logResponse && logResponse.data ? logResponse.data.id : undefined
+
+        revalidatePath('/[domain]/dashboard/attendance')
+        return { success: true, verified: true, distance, auditLogId }
 
     } catch (error) {
         console.error('Error in clockInStaff:', error)
@@ -176,22 +219,22 @@ export async function getSchoolCoordinates(
     const supabase = createClient()
 
     try {
+        // Correctly fetch from tenants table to match Admin Settings
         const { data, error } = await supabase
-            .from('school_locations')
-            .select('latitude, longitude, radius_meters')
-            .eq('tenant_id', tenantId)
-            .eq('is_primary', true)
+            .from('tenants')
+            .select('geofence_lat, geofence_lng, geofence_radius_meters')
+            .eq('id', tenantId)
             .single()
 
-        if (error || !data) {
-            console.error('School location not found:', error)
+        if (error || !data || !data.geofence_lat || !data.geofence_lng) {
+            console.error('School location not found in tenants config:', error)
             return null
         }
 
         return {
-            latitude: Number(data.latitude),
-            longitude: Number(data.longitude),
-            radius_meters: data.radius_meters
+            latitude: Number(data.geofence_lat),
+            longitude: Number(data.geofence_lng),
+            radius_meters: data.geofence_radius_meters || 500
         }
 
     } catch (error) {
@@ -252,7 +295,7 @@ export async function getClockInStatus(): Promise<{
         return {
             success: true,
             data: {
-                clockedIn: true,
+                clockedIn: !data.check_out_time, // If checked out, they are no longer "clocked in" for active duty
                 clockInTime: data.check_in_time,
                 clockOutTime: data.check_out_time,
                 distance: data.distance_meters ? Number(data.distance_meters) : null,

@@ -42,7 +42,7 @@ export async function Navbar({ domain }: { domain?: string }) {
 
             // Fetch school name and logo
             if (tenantId) {
-                const { data: tenant } = await supabase.from('tenants').select('name, logo_url').eq('id', tenantId).single()
+                const { data: tenant } = await supabase.from('tenants').select('name, logo_url, tier').eq('id', tenantId).single()
                 if (tenant) {
                     schoolName = tenant.name
                     // @ts-ignore - logo_url exists but types might be stale
@@ -70,19 +70,68 @@ export async function Navbar({ domain }: { domain?: string }) {
                     pendingReconciliations = count || 0
                 }
 
-                // 3. Fetch Teacher Classes - For Teacher
+                // 3. Fetch Teacher Classes - For Teacher (Combined from Allocations & Form Teacher & Subject Assignments)
                 if (userRole === 'teacher') {
-                    const { data: allocs } = await supabase
-                        .from('teacher_allocations')
-                        .select('class_id, subject, is_form_teacher, classes(name)')
+                    const classesMap = new Map<string, any>();
+
+                    // A. Check Form Teacher (My Class)
+                    const { data: formClasses } = await supabase
+                        .from('classes')
+                        .select('id, name')
+                        .eq('form_teacher_id', user.id)
+
+                    if (formClasses) {
+                        formClasses.forEach(c => {
+                            classesMap.set(c.id, {
+                                id: c.id,
+                                name: c.name,
+                                subject: 'Form Class', // Special indicator
+                                isFormTeacher: true
+                            })
+                        })
+                    }
+
+                    // B. Check Subject Assignments
+                    const { data: subjectAssigns } = await supabase
+                        .from('subject_assignments')
+                        .select('class_id, subject, classes(id, name)')
                         .eq('teacher_id', user.id)
 
-                    teacherClasses = allocs?.map((a: any) => ({
-                        id: a.class_id,
-                        name: Array.isArray(a.classes) ? a.classes[0]?.name : a.classes?.name || 'Unknown Class',
-                        subject: a.subject,
-                        isFormTeacher: a.is_form_teacher
-                    })) || []
+                    if (subjectAssigns) {
+                        subjectAssigns.forEach((sa: any) => {
+                            const cls = Array.isArray(sa.classes) ? sa.classes[0] : sa.classes
+                            if (cls && !classesMap.has(cls.id)) {
+                                classesMap.set(cls.id, {
+                                    id: cls.id,
+                                    name: cls.name,
+                                    subject: sa.subject,
+                                    isFormTeacher: false
+                                })
+                            }
+                        })
+                    }
+
+                    // C. Check Allocations (Legacy/Alternate)
+                    const { data: allocs } = await supabase
+                        .from('teacher_allocations')
+                        .select('class_id, subject, is_form_teacher, classes(id, name)')
+                        .eq('teacher_id', user.id)
+
+                    if (allocs) {
+                        allocs.forEach((a: any) => {
+                            const cls = Array.isArray(a.classes) ? a.classes[0] : a.classes
+                            if (cls && !classesMap.has(cls.id)) {
+                                classesMap.set(cls.id, {
+                                    id: cls.id,
+                                    name: cls.name,
+                                    subject: a.subject,
+                                    isFormTeacher: a.is_form_teacher
+                                })
+                            }
+                        })
+                    }
+
+                    teacherClasses = Array.from(classesMap.values())
                 }
 
                 // 4. Fetch Student Class/Grade - For Student
@@ -153,11 +202,17 @@ export async function Navbar({ domain }: { domain?: string }) {
                 .eq('tenant_id', profile.tenant_id)
                 .eq('is_active', true)
                 .maybeSingle()
-
             if (sessionData) {
-                activeSessionDisplay = `${sessionData.session} - ${sessionData.term}`
+                activeSessionDisplay = `${sessionData.session} • ${sessionData.term}`
             }
         }
+    }
+
+    let tenantTier = 'Free'
+    if (profile?.tenant_id) {
+        // Re-fetch because initial fetch might have missed tier if cached or structure different
+        const { data: tenant } = await supabase.from('tenants').select('tier').eq('id', profile.tenant_id).single()
+        if (tenant) tenantTier = tenant.tier || 'Free'
     }
 
     return (
@@ -172,6 +227,7 @@ export async function Navbar({ domain }: { domain?: string }) {
             teacherClasses={teacherClasses}
             pendingReconciliations={pendingReconciliations}
             activeSession={activeSessionDisplay}
+            tier={tenantTier}
         />
     )
 }

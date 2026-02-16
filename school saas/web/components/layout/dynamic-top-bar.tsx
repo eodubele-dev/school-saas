@@ -50,6 +50,7 @@ interface DynamicTopBarProps {
     teacherClasses?: any[]
     pendingReconciliations?: number
     activeSession?: string
+    tier?: string
     className?: string
 }
 
@@ -64,6 +65,7 @@ export function DynamicTopBar({
     teacherClasses = [],
     pendingReconciliations = 0,
     activeSession,
+    tier = 'Free',
     className
 }: DynamicTopBarProps) {
     const normalizedRole = role.toUpperCase()
@@ -283,6 +285,8 @@ export function DynamicTopBar({
                             userEmail={userProfile.userEmail}
                             userAvatarUrl={userProfile.userAvatarUrl}
                             userId={user?.id}
+                            tier={tier}
+                            tenantName={schoolName}
                             className="ml-2"
                         />
                     )}

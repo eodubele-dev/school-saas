@@ -98,8 +98,12 @@ export function StaffClockIn() {
                 loadData() // Refresh
             } else {
                 toast.error(result.error || "Failed to clock in", { id: "clock-in" })
-                if (result.error?.includes("radius")) {
+                if (result.error?.includes("radius") || result.error?.includes("away")) {
                     setLocationError(result.error)
+                    if (result.debug) {
+                        console.log("Geofence Debug:", result.debug)
+                        setLocationError(`${result.error} (Debug: Expected ${result.debug.expected.latitude}, ${result.debug.expected.longitude} | You are at ${result.debug.actual.latitude}, ${result.debug.actual.longitude})`)
+                    }
                 }
             }
         } catch (error) {

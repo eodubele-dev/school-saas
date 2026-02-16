@@ -3,11 +3,12 @@ import { MapPin, AlertTriangle, RefreshCcw } from 'lucide-react';
 
 interface GeofenceFailureAlertProps {
     distance: number;
+    requiredRadius: number; // Added
     onRetry: () => void;
     onDispute: () => void;
 }
 
-export const GeofenceFailureAlert: React.FC<GeofenceFailureAlertProps> = ({ distance, onRetry, onDispute }) => {
+export const GeofenceFailureAlert: React.FC<GeofenceFailureAlertProps> = ({ distance, requiredRadius, onRetry, onDispute }) => {
     return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[100] p-6 animate-in fade-in duration-300">
             <div className="bg-[#0A0A0B] border border-red-500/30 rounded-[2.5rem] p-8 max-w-md w-full shadow-[0_0_80px_rgba(239,68,68,0.15)] relative overflow-hidden group">
@@ -26,7 +27,7 @@ export const GeofenceFailureAlert: React.FC<GeofenceFailureAlertProps> = ({ dist
                         </h2>
                         <p className="text-slate-400 text-sm leading-relaxed font-medium">
                             You are currently <span className="text-red-400 font-bold underline decoration-red-500/30 underline-offset-4">{distance}m</span> away from the school gate.
-                            Smart Attendance requires you to be within a <span className="text-white font-bold">100m radius</span>.
+                            Smart Attendance requires you to be within a <span className="text-white font-bold">{requiredRadius}m radius</span>.
                         </p>
                     </div>
 

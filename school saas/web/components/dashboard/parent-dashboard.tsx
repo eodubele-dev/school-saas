@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Trophy, Clock, CheckCircle2, AlertCircle, BookOpen } from "lucide-react"
 import { getParentStats } from "@/lib/actions/dashboard"
 import { getParentFeed } from "@/lib/actions/class-feed"
+import { getActiveAcademicSession } from "@/lib/actions/academic"
 import { ParentFeedView } from "@/components/class-feed/parent-feed-view"
 
 
@@ -56,9 +57,11 @@ function formatTime(minutes: number): string {
 export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: string, studentId?: string }) {
     const statsPromise = getParentStats(studentId)
     const feedPromise = getParentFeed(5)
+    const sessionPromise = getActiveAcademicSession()
 
-    const [stats, feedResult] = await Promise.all([statsPromise, feedPromise])
+    const [stats, feedResult, sessionResult] = await Promise.all([statsPromise, feedPromise, sessionPromise])
     const feedPosts = feedResult.success ? (feedResult.data || []) : []
+    const session = sessionResult.success ? sessionResult.session : null
 
 
 
@@ -79,7 +82,14 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
         <div className="space-y-8 animate-in fade-in duration-500">
             <div>
                 <h2 className="text-3xl font-bold tracking-tight text-white glow-blue">Student Progress</h2>
-                <p className="text-slate-400">Overview for {stats.studentName} ({stats.className})</p>
+                <div className="flex items-center gap-2 mt-1">
+                    <p className="text-slate-400">Overview for {stats.studentName} ({stats.className})</p>
+                    {session && (
+                        <span className="hidden md:inline-flex items-center rounded-md bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-500/20">
+                            {session.session} • {session.term}
+                        </span>
+                    )}
+                </div>
             </div>
 
             {/* Progress Overview Section */}

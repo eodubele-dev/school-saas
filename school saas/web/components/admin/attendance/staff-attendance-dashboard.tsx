@@ -10,19 +10,23 @@ import { getStaffAttendanceStats } from "@/lib/actions/admin-attendance"
 import { LeaveRequestManager } from "./leave-request-manager"
 import { format } from "date-fns"
 import { toast } from "sonner"
+import { SmartClockIn } from "@/components/attendance/smart-clock-in"
+import { useRouter } from "next/navigation"
 
 export function StaffAttendanceDashboard() {
+    const router = useRouter()
     const [loading, setLoading] = useState(true)
     const [stats, setStats] = useState<any>(null)
     const [error, setError] = useState<string | null>(null)
+    const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0])
 
     useEffect(() => {
-        loadStats()
-    }, [])
+        loadStats(selectedDate)
+    }, [selectedDate])
 
-    const loadStats = async () => {
+    const loadStats = async (date: string) => {
         setLoading(true)
-        const res = await getStaffAttendanceStats()
+        const res = await getStaffAttendanceStats(date)
         if (res.success && res.data) {
             setStats(res.data)
         } else {
@@ -38,7 +42,7 @@ export function StaffAttendanceDashboard() {
         <div className="flex flex-col items-center justify-center h-64 gap-4">
             <AlertCircle className="h-10 w-10 text-red-500" />
             <div className="text-red-400">Failed to load statistics: {error}</div>
-            <Button onClick={loadStats} variant="outline" className="border-white/10">Retry</Button>
+            <Button onClick={() => loadStats(selectedDate)} variant="outline" className="border-white/10">Retry</Button>
         </div>
     )
 
@@ -47,6 +51,22 @@ export function StaffAttendanceDashboard() {
     return (
         <div className="space-y-8 animate-in fade-in duration-500 pb-20">
             {/* 1. Header & Stats Cards */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div>
+                    <h2 className="text-2xl font-bold text-white tracking-tight">Staff Attendance</h2>
+                    <p className="text-slate-400">Monitor staff presence and punctuality.</p>
+                </div>
+                <div className="flex items-center gap-2 bg-slate-900 border border-white/10 p-1 rounded-lg">
+                    <div className="px-3 text-sm text-slate-400 font-medium">Date:</div>
+                    <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="bg-transparent text-white text-sm border-none focus:ring-0 cursor-pointer [&::-webkit-calendar-picker-indicator]:invert"
+                    />
+                </div>
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <StatsCard
                     label="Total Staff"
@@ -56,7 +76,7 @@ export function StaffAttendanceDashboard() {
                     bg="bg-slate-800/50"
                 />
                 <StatsCard
-                    label="Present Today"
+                    label="Present"
                     value={stats.summary.present}
                     icon={UserCheck}
                     color="text-emerald-400"
@@ -78,16 +98,26 @@ export function StaffAttendanceDashboard() {
                 />
             </div>
 
+            {/* NEW: Smart Clock In for Admin/Staff */}
+            <div className="mb-8">
+                <SmartClockIn onClockIn={() => {
+                    loadStats(selectedDate)
+                    router.refresh()
+                }} />
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* 2. Live Attendance Table */}
                 <div className="lg:col-span-2">
                     <Card className="bg-slate-900 border-white/5 overflow-hidden">
                         <div className="p-6 border-b border-white/5 flex justify-between items-center">
                             <div>
-                                <h3 className="text-lg font-bold text-white">Live Attendance Log</h3>
-                                <p className="text-sm text-slate-500">{format(new Date(), 'EEEE, MMMM do, yyyy')}</p>
+                                <h3 className="text-lg font-bold text-white">Attendance Log</h3>
+                                <p className="text-sm text-slate-500">{format(new Date(selectedDate), 'EEEE, MMMM do, yyyy')}</p>
                             </div>
-                            <Badge variant="outline" className="animate-pulse bg-green-500/20 text-green-400 border-green-500/40">● Live</Badge>
+                            <Badge variant="outline" className={`animate-pulse ${selectedDate === new Date().toISOString().split('T')[0] ? 'bg-green-500/20 text-green-400 border-green-500/40' : 'bg-slate-500/20 text-slate-400 border-slate-500/40'}`}>
+                                {selectedDate === new Date().toISOString().split('T')[0] ? '● Live' : '○ History'}
+                            </Badge>
                         </div>
 
                         <div className="overflow-x-auto">

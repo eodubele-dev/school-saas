@@ -11,7 +11,11 @@ import { AttendanceDisputeView } from "./attendance-dispute-view"
 import { isWithinRadius } from "@/lib/utils/geolocation"
 import { createClient } from "@/lib/supabase/client"
 
-export function SmartClockIn() {
+interface SmartClockInProps {
+    onClockIn?: () => void
+}
+
+export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     const [loading, setLoading] = useState(false)
     const [status, setStatus] = useState<{
         clockedIn: boolean
@@ -96,6 +100,7 @@ export function SmartClockIn() {
                 if (res.success) {
                     toast.success("Clocked in successfully!")
                     loadStatus()
+                    if (onClockIn) onClockIn()
                 } else {
                     if (res.verified === false) {
                         setFailedDistance(Math.round(res.distance || 0))
@@ -188,7 +193,7 @@ export function SmartClockIn() {
                         ? "You are currently active. Don't forget to clock out."
                         : isWithinRange === false
                             ? "CRITICAL: OUT OF BOUNDS DETECTED. You must be within school premises."
-                            : "Ensure you are within the school premises (100m radius)."
+                            : `Ensure you are within the school premises (${schoolLocation?.radius_meters || 500}m radius).`
                     }
                 </p>
             </div>
@@ -196,6 +201,7 @@ export function SmartClockIn() {
             {showFailureAlert && (
                 <GeofenceFailureAlert
                     distance={failedDistance}
+                    requiredRadius={schoolLocation?.radius_meters || 500}
                     onRetry={() => {
                         setShowFailureAlert(false)
                         handleClockIn()

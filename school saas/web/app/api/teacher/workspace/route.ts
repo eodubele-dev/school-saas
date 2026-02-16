@@ -1,3 +1,4 @@
+
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
@@ -46,27 +47,73 @@ export async function GET() {
             .maybeSingle()
 
         // 3. Get Assigned Classes (Backup/Context)
-        const { data: classes } = await supabase
+        // Hierarchy: Form Class > Subject Class > Any Class (Fallbacks)
+
+        // A. Check Form Teacher (Direct Class Ownership)
+        // We use maybeSingle() because a teacher usually has only one form class
+        const { data: formClass } = await supabase
             .from('classes')
-            .select('*, students(count)')
-            .eq('tenant_id', profile?.tenant_id)
-            .limit(5)
+            .select('id, name, grade_level')
+            .eq('form_teacher_id', user.id)
+            .maybeSingle()
+
+        let assignedClass = null
+
+        if (formClass) {
+            assignedClass = { ...formClass, subject: 'Form Class' }
+        } else {
+            // B. Check Subject Assignments if not a form teacher
+            const { data: subjectAssigns } = await supabase
+                .from('subject_assignments')
+                .select('class_id, classes!inner(id, name, grade_level), subject')
+                .eq('teacher_id', user.id)
+                .limit(1)
+
+            if (subjectAssigns && subjectAssigns.length > 0) {
+                // @ts-ignore
+                const cls = subjectAssigns[0].classes
+                if (cls) {
+                    assignedClass = { ...cls, subject: subjectAssigns[0].subject }
+                }
+            }
+        }
 
         // 4. Attendance Vitals (Present/Absent counts for today, filtered by Active Class)
         // We first resolve the activeClass to use its ID for filtering
         // @ts-ignore
-        const resolvedActiveClass = activeSession?.classes || classes?.[0]
+        const resolvedActiveClass = activeSession?.classes || assignedClass
 
-        const { data: attendanceData } = await supabase
-            .from('student_attendance')
-            .select('status')
-            .eq('date', today)
-            .eq('tenant_id', profile?.tenant_id)
-            .eq('register:attendance_registers!inner(class_id)', resolvedActiveClass?.id)
+        let presentCount = 0
+        let absentCount = 0
+        let lateCount = 0
+        let calculatedAvg = 0
 
-        const presentCount = attendanceData?.filter(a => a.status === 'present').length || 0
-        const absentCount = attendanceData?.filter(a => a.status === 'absent').length || 0
-        const lateCount = attendanceData?.filter(a => a.status === 'late').length || 0
+        if (resolvedActiveClass?.id) {
+            const { data: attendanceData } = await supabase
+                .from('student_attendance')
+                .select('status, register:attendance_registers!inner(class_id, date)')
+                .eq('register.date', today)
+                .eq('register.class_id', resolvedActiveClass.id)
+
+            presentCount = attendanceData?.filter(a => a.status === 'present').length || 0
+            absentCount = attendanceData?.filter(a => a.status === 'absent').length || 0
+            lateCount = attendanceData?.filter(a => a.status === 'late').length || 0
+
+            // 7. Dynamic Avg Attendance (Simple Class Average for last 7 days)
+            const lastWeek = new Date()
+            lastWeek.setDate(lastWeek.getDate() - 7)
+            const lastWeekStr = lastWeek.toISOString().split('T')[0]
+
+            const { data: classAttendanceVitals } = await supabase
+                .from('student_attendance')
+                .select('status, register:attendance_registers!inner(class_id, date)')
+                .eq('register.class_id', resolvedActiveClass.id)
+                .gte('register.date', lastWeekStr)
+
+            const totalRecords = classAttendanceVitals?.length || 0
+            const presentRecords = classAttendanceVitals?.filter(a => a.status === 'present').length || 0
+            calculatedAvg = totalRecords > 0 ? Math.round((presentRecords / totalRecords) * 100) : 0
+        }
 
         // 5. Upcoming Lessons (Tenant & Teacher isolated)
         const { data: upcomingLessons } = await supabase
@@ -94,21 +141,9 @@ export async function GET() {
             .eq('is_active', true)
             .gte('scheduled_at', now.toISOString())
 
-        // 7. Dynamic Avg Attendance (Simple Class Average for today or last 7 days)
-        const { data: classAttendanceVitals } = await supabase
-            .from('student_attendance')
-            .select('status')
-            .eq('tenant_id', profile?.tenant_id)
-            .eq('register:attendance_registers!inner(class_id)', resolvedActiveClass?.id)
-            .gte('date', new Date(now.setDate(now.getDate() - 7)).toISOString().split('T')[0])
-
-        const totalRecords = classAttendanceVitals?.length || 0
-        const presentRecords = classAttendanceVitals?.filter(a => a.status === 'present').length || 0
-        const calculatedAvg = totalRecords > 0 ? Math.round((presentRecords / totalRecords) * 100) : 0
-
         // Final Data Construction
-        const activeClass = activeSession?.classes || classes?.[0] || { name: 'N/A', grade_level: 'N/A' }
-        const activeSubject = activeSession?.subjects?.name || (classes?.[0] ? "Primary Class" : "No Active Session")
+        const activeClass = activeSession?.classes || assignedClass || { name: 'No Active Class', grade_level: 'Free Period' }
+        const activeSubject = activeSession?.subjects?.name || (assignedClass ? assignedClass.subject : "No Active Session")
 
         return NextResponse.json({
             profile,

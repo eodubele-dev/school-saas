@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Palette, ArrowRight, ShieldCheck, Bell } from "lucide-react"
 import Link from "next/link"
+import { GeofenceConfig } from "@/components/admin/settings/geofence-config"
 
 export default function SettingsPage({ params }: { params: { domain: string } }) {
     return (
@@ -29,8 +30,11 @@ export default function SettingsPage({ params }: { params: { domain: string } })
                     </Card>
                 </Link>
 
+                {/* Geofence Configuration */}
+                <GeofenceConfig />
+
                 {/* Notifications Placeholder */}
-                <div className="opacity-50 pointer-events-none">
+                <div className="opacity-50 pointer-events-none md:col-span-2">
                     <Card className="bg-slate-900/40 border-white/5 backdrop-blur-sm">
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <div className="h-12 w-12 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20">

@@ -1,11 +1,11 @@
-
-"use client"
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BookOpen, Calendar, GraduationCap, Trophy, Clock } from "lucide-react"
 import { MetricCard } from "./metric-card"
+import { getActiveAcademicSession } from "@/lib/actions/academic"
 
-export function StudentDashboard() {
+export async function StudentDashboard() {
+    const { session } = await getActiveAcademicSession()
+
     // Mock Data for now - to be replaced with real hook
     const stats = {
         attendance: 95,
@@ -19,7 +19,14 @@ export function StudentDashboard() {
             {/* Header */}
             <div>
                 <h2 className="text-3xl font-bold tracking-tight text-white glow-text">My Dashboard</h2>
-                <p className="text-slate-400">Welcome back! Here's your academic overview.</p>
+                <div className="flex items-center gap-2 mt-1">
+                    <p className="text-slate-400">Welcome back! Here's your academic overview.</p>
+                    {session && (
+                        <span className="hidden md:inline-flex items-center rounded-md bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-500/20">
+                            {session.session} • {session.term}
+                        </span>
+                    )}
+                </div>
             </div>
 
             {/* Metrics */}

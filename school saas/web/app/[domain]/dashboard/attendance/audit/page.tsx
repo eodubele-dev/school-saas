@@ -2,6 +2,8 @@ import { ParentAttendanceAudit } from "@/components/attendance/parent-attendance
 import { getStudentAttendanceAudit } from "@/lib/actions/parent-portal"
 import { getAuditStudents } from "@/lib/actions/admin-attendance-audit"
 import { redirect } from "next/navigation"
+import { StudentSearch } from "@/components/attendance/student-search"
+import { StudentSelector } from "@/components/attendance/student-selector"
 
 export default async function AttendanceAuditPage({
     searchParams
@@ -39,6 +41,15 @@ export default async function AttendanceAuditPage({
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-white tracking-tight">Attendance Transparency</h1>
                 <p className="text-slate-400 mt-2">Verify daily arrival times and geofence integrity.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <StudentSearch students={students} />
+                </div>
+                <div>
+                    <StudentSelector students={students} />
+                </div>
             </div>
 
             <ParentAttendanceAudit

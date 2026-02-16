@@ -26,7 +26,8 @@ export function LeaveRequestManager() {
         if (res.success && res.data) {
             setRequests(res.data)
         } else {
-            toast.error("Failed to load requests")
+            console.error(res.error)
+            toast.error(`Failed: ${res.error}`)
         }
         setLoading(false)
     }
@@ -70,10 +71,10 @@ export function LeaveRequestManager() {
 
                                     <Avatar>
                                         <AvatarImage src={r?.staff?.avatar_url} />
-                                        <AvatarFallback>{r?.staff?.first_name?.[0]}</AvatarFallback>
+                                        <AvatarFallback>{r?.staff?.full_name?.[0]}</AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <p className="font-bold text-white">{r.staff?.first_name} {r.staff?.last_name}</p>
+                                        <p className="font-bold text-white">{r.staff?.full_name}</p>
                                         <p className="text-xs text-slate-400 capitalize">{r.staff?.role} • <span className="text-blue-400">{r.leave_type}</span></p>
                                     </div>
                                 </div>

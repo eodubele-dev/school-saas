@@ -163,7 +163,10 @@ export async function getStudentAttendanceAudit(studentId: string) {
         .from('student_attendance')
         .select(`
             *,
-            register:attendance_registers(date)
+            register:attendance_registers(date),
+            clock_in_time,
+            clock_out_time,
+            clocked_out:clocked_out_by(full_name)
         `)
         .eq('student_id', studentId)
         .order('created_at', { ascending: false })

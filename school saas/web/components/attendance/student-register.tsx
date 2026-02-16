@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Send, Save } from "lucide-react"
 import { toast } from "sonner"
-import { getAssignedClass, getClassStudents, markStudentAttendance, sendAbsenceSMS, StudentAttendanceDTO } from "@/lib/actions/student-attendance"
+import { getAssignedClass, getClassStudents, markStudentAttendance, sendAbsenceSMS, clockOutStudent, getClassAttendance, StudentAttendanceDTO } from "@/lib/actions/student-attendance"
 import { getClockInStatus } from "@/lib/actions/staff-clock-in"
 
 export function StudentRegister() {
@@ -16,7 +16,7 @@ export function StudentRegister() {
     const [submitting, setSubmitting] = useState(false)
     const [classInfo, setClassInfo] = useState<{ id: string, name: string } | null>(null)
     const [students, setStudents] = useState<any[]>([])
-    const [attendance, setAttendance] = useState<Record<string, { status: 'present' | 'absent' | 'excused', remarks?: string }>>({})
+    const [attendance, setAttendance] = useState<Record<string, { status: 'present' | 'absent' | 'excused', remarks?: string, clockOutTime?: string }>>({})
     const [isVerified, setIsVerified] = useState(false)
 
     useEffect(() => {
@@ -50,10 +50,28 @@ export function StudentRegister() {
             if (studentsRes.success && studentsRes.data) {
                 setStudents(studentsRes.data)
 
-                // Initialize all as present by default
+                // 3. Get Existing Attendance for Today
+                const today = new Date().toISOString().split('T')[0]
+                const attendanceRes = await getClassAttendance(classRes.data.id, today)
+
+                const existingMap: any = {}
+                if (attendanceRes.success && attendanceRes.data) {
+                    attendanceRes.data.forEach((r: any) => {
+                        existingMap[r.student_id] = {
+                            status: r.status,
+                            clockOutTime: r.clock_out_time
+                        }
+                    })
+                }
+
+                // Initialize state (merge existing with default present)
                 const initial: any = {}
                 studentsRes.data.forEach((s: any) => {
-                    initial[s.id] = { status: 'present' }
+                    const existing = existingMap[s.id]
+                    initial[s.id] = {
+                        status: existing?.status || 'present',
+                        clockOutTime: existing?.clockOutTime // Keep track of clock out
+                    }
                 })
                 setAttendance(initial)
             }
@@ -117,8 +135,8 @@ export function StudentRegister() {
                     <Loader2 className="h-8 w-8 text-blue-500 animate-pulse" />
                 </div>
                 <div>
-                    <h3 className="text-white font-bold">Pending Site-Verification</h3>
-                    <p className="text-slate-400 text-sm mt-1">Attendance register activates upon successful Clock-In.</p>
+                    <h3 className="text-white font-bold">Session Locked</h3>
+                    <p className="text-slate-400 text-sm mt-1">You must Clock In to access the Class Register.</p>
                 </div>
             </Card>
         )
@@ -179,6 +197,43 @@ export function StudentRegister() {
                                 >
                                     {status.toUpperCase()}
                                 </button>
+
+                                {status === 'present' && (
+                                    attendance[student.id]?.clockOutTime ? (
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="ml-2 h-8 bg-emerald-500/10 border-emerald-500/20 text-emerald-400 cursor-not-allowed opacity-80"
+                                            disabled
+                                        >
+                                            CLOCKED OUT
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="ml-2 h-8 bg-slate-800 border-white/10 text-slate-300 hover:bg-slate-700 hover:text-white"
+                                            onClick={async (e) => {
+                                                e.stopPropagation() // Prevent row click if any
+                                                const promise = clockOutStudent(student.id, new Date().toISOString().split('T')[0], classInfo!.id)
+                                                toast.promise(promise, {
+                                                    loading: 'Clocking out...',
+                                                    success: () => {
+                                                        // Update local state to show as clocked out instantly
+                                                        setAttendance(prev => ({
+                                                            ...prev,
+                                                            [student.id]: { ...prev[student.id], clockOutTime: new Date().toISOString() }
+                                                        }))
+                                                        return 'Student clocked out!'
+                                                    },
+                                                    error: 'Failed to clock out'
+                                                })
+                                            }}
+                                        >
+                                            CHECK OUT
+                                        </Button>
+                                    )
+                                )}
                             </div>
                         )
                     })}

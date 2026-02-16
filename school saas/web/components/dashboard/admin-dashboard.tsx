@@ -15,6 +15,7 @@ import { LockedGenericWidget } from "./locked-generic-widget"
 import { TierManager } from "./tier-manager"
 import { SMSWalletTopupButton } from "./sms-wallet-topup-button"
 import { GlobalCampusSwitcher } from "./global-campus-switcher"
+import { getActiveAcademicSession } from "@/lib/actions/academic"
 
 export async function AdminDashboard({
     tier = 'starter',
@@ -51,6 +52,8 @@ export async function AdminDashboard({
         stats = await getAdminStats()
     }
 
+    const { session } = await getActiveAcademicSession()
+
     const isStarter = tier.toLowerCase() === 'starter'
 
     return (
@@ -61,11 +64,18 @@ export async function AdminDashboard({
                     <h2 className="text-3xl font-bold tracking-tight text-white glow-text">
                         {isGlobalView ? "Global Command Center" : `${schoolName} Overview`}
                     </h2>
-                    <p className="text-slate-400">
-                        {isGlobalView
-                            ? "Aggregated metrics across all campuses."
-                            : "Real-time campus performance metrics."}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                        <p className="text-slate-400">
+                            {isGlobalView
+                                ? "Aggregated metrics across all campuses."
+                                : "Real-time campus performance metrics."}
+                        </p>
+                        {session && (
+                            <span className="hidden md:inline-flex items-center rounded-md bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-500/20">
+                                {session.session} • {session.term}
+                            </span>
+                        )}
+                    </div>
                 </div>
                 <div className="w-full md:w-[300px]">
                     <GlobalCampusSwitcher
