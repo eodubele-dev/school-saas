@@ -2,25 +2,22 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { getStudentAttendanceHistory } from './student-attendance'
+import { resolveStudentForUser } from './assignments'
 
 export async function getStudentMetrics() {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
-    // 1. Get Student Profile & Class
-    const { data: student } = await supabase
-        .from('students')
-        .select('id, class_id, full_name, admission_number')
-        // In a real app, we link auth.uid() -> profiles -> students logic
-        // For MVP demo, assuming the 'user' is a student or we link via email?
-        // Let's assume there's a way to find the student_id for the current auth user.
-        // Stub: Fetching *any* student for demo if not strictly linked, or use the one matching auth.
-        // real: .eq('parent_id', ...) or if student login exists.
-        .limit(1)
-        .single()
+    // 1. Get Tenant ID first
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Profile not found" }
+
+    // 2. Resolve Student Profile
+    const student = await resolveStudentForUser(supabase, user.id, profile.tenant_id)
 
     if (!student) return { success: false, error: "Student profile not found" }
+
 
     // 2. Calculate Real Metrics
     // Fetch all grades for this student's class to calculate rank
@@ -98,21 +95,14 @@ export async function getStudentSubjects() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
-    // 1. Get Student Class
-    let { data: student } = await supabase.from('students').select('id, class_id').eq('user_id', user.id).maybeSingle()
+    // 1. Get Tenant ID first
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, subjects: [] }
 
-    // Fallback logic (shared with other actions, could be abstracted)
-    if (!student) {
-        const { data: profile } = await supabase.from('profiles').select('email').eq('id', user.id).single()
-        if (profile) {
-            const { data: s } = await supabase.from('students').select('id, class_id').eq('email', profile.email).maybeSingle()
-            if (s) student = s
-        }
-    }
-    if (!student) {
-        const { data: s } = await supabase.from('students').select('id, class_id').limit(1).single()
-        if (s) student = s
-    }
+    // 2. Resolve Student Class
+    const student = await resolveStudentForUser(supabase, user.id, profile.tenant_id)
+
+    if (!student || !student.class_id) return { success: false, subjects: [] }
 
     if (!student || !student.class_id) return { success: false, subjects: [] }
 

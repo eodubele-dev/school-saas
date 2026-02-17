@@ -19,6 +19,13 @@ import {
 } from "@/lib/actions/staff-clock-in"
 import { getCurrentPosition } from "@/lib/utils/geolocation"
 
+// Helper for local date YYYY-MM-DD
+const getLocalToday = () => {
+    const d = new Date()
+    const pad = (n: number) => n < 10 ? '0' + n : n
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
 interface ClockInStatus {
     clockedIn: boolean
     clockInTime: string | null
@@ -52,7 +59,7 @@ export function StaffClockIn() {
         setLoading(true)
         try {
             const [statusRes, historyRes] = await Promise.all([
-                getClockInStatus(),
+                getClockInStatus(getLocalToday()),
                 getStaffAttendanceHistory()
             ])
 
@@ -91,7 +98,7 @@ export function StaffClockIn() {
 
             // 2. Submit Clock In
             toast.loading("Verifying location...", { id: "clock-in" })
-            const result = await clockInStaff(latitude, longitude)
+            const result = await clockInStaff(latitude, longitude, getLocalToday())
 
             if (result.success) {
                 toast.success("Successfully clocked in!", { id: "clock-in" })
@@ -118,7 +125,7 @@ export function StaffClockIn() {
     const handleClockOut = async () => {
         setActionLoading(true)
         try {
-            const result = await clockOutStaff()
+            const result = await clockOutStaff(getLocalToday())
             if (result.success) {
                 toast.success("Successfully clocked out!")
                 loadData()

@@ -1,0 +1,4 @@
+[2026-02-16T12:38:32.214Z] [WORKSPACE_API] Found Register ID: 0820f11c-d99e-40a3-89d9-93c96c1a5434 for Class: ae9234ef-7eee-4094-8f3c-4e7c2e1546f9
+[2026-02-16T12:38:32.645Z] [WORKSPACE_API] Total students viewed in student_attendance: 4
+[2026-02-16T12:38:33.314Z] [WORKSPACE_API] Counts -> Present: 2, Absent: 0
+[2026-02-16T12:38:34.268Z] [WORKSPACE_API] Querying Final Metrics for Teacher: b5fcb81d-9ca3-4343-b858-fb8842fe923f

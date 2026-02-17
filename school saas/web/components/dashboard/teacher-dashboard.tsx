@@ -68,6 +68,7 @@ export function TeacherDashboard({ tier = 'starter' }: { tier?: string }) {
                 />
             </div>
 
+
             {/* 📖 Academic Resources & Schedule */}
             <div className="grid gap-6">
                 <Card className="bg-[#0f172a]/80 border-white/10 backdrop-blur-xl shadow-lg group rounded-2xl">
@@ -99,7 +100,7 @@ export function TeacherDashboard({ tier = 'starter' }: { tier?: string }) {
                                             }}
                                             className="text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1.5 rounded-full hover:bg-blue-500/20 uppercase tracking-wider"
                                         >
-                                            Resource Page
+                                            Manage Lessons
                                         </button>
                                     </div>
                                 </div>

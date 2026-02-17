@@ -17,7 +17,12 @@ export function AttendanceHistory() {
                 setHistory(res.data)
             }
         }
+
         fetchHistory()
+
+        // Poll for realtime updates
+        const interval = setInterval(fetchHistory, 10000)
+        return () => clearInterval(interval)
     }, [])
 
     const derivedLateDays: Date[] = []

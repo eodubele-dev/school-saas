@@ -27,8 +27,8 @@ export default async function DashboardPage({
 
     const appMeta = user.app_metadata || {}
 
-    // Role: DB > JWT > URL Param
-    let role = profile?.role || appMeta.role || searchParams.role
+    // Role: URL Param (Debug) > DB > JWT
+    let role = searchParams.role || profile?.role || appMeta.role
 
     // School Name: DB > JWT > Header
     // @ts-ignore - Supabase types for joins can be tricky

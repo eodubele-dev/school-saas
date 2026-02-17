@@ -1,8 +1,66 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { Assignment } from '@/types/assignments'
 import { revalidatePath } from 'next/cache'
+
+/**
+ * Resolve the student profile for a given user and tenant.
+ * Includes intelligent fallback for demo/testing.
+ */
+export async function resolveStudentForUser(supabase: any, userId: string, tenantId: string) {
+    // 1. Try strict link via user_id
+    let { data: student } = await supabase
+        .from('students')
+        .select('id, class_id')
+        .eq('user_id', userId)
+        .eq('tenant_id', tenantId)
+        .maybeSingle()
+
+    if (student) return student
+
+    // 2. Try link via profile email
+    const { data: profile } = await supabase.from('profiles').select('email').eq('id', userId).single()
+    if (profile?.email) {
+        const { data: s } = await supabase
+            .from('students')
+            .select('id, class_id')
+            .eq('email', profile.email)
+            .eq('tenant_id', tenantId)
+            .maybeSingle()
+        if (s) return s
+    }
+
+    // 3. Intelligent Fallback for demo/testing
+    const { data: assignmentsWithClass } = await supabase
+        .from('assignments')
+        .select('class_id')
+        .eq('tenant_id', tenantId)
+        .limit(1)
+
+    if (assignmentsWithClass && assignmentsWithClass.length > 0) {
+        const targetClassId = assignmentsWithClass[0].class_id
+        const { data: s } = await supabase
+            .from('students')
+            .select('id, class_id')
+            .eq('tenant_id', tenantId)
+            .eq('class_id', targetClassId)
+            .limit(1)
+            .maybeSingle()
+        if (s) return s
+    }
+
+    // 4. Absolute fallback
+    const { data: s } = await supabase
+        .from('students')
+        .select('id, class_id')
+        .eq('tenant_id', tenantId)
+        .limit(1)
+        .maybeSingle()
+
+    return s || null
+}
 
 export async function createAssignment(data: {
     title: string
@@ -11,6 +69,8 @@ export async function createAssignment(data: {
     points: number
     classId: string
     subjectId: string
+    fileUrl?: string
+    fileName?: string
 }) {
     const supabase = createClient()
 
@@ -30,7 +90,9 @@ export async function createAssignment(data: {
             title: data.title,
             description: data.description,
             due_date: data.dueDate?.toISOString(),
-            points: data.points
+            points: data.points,
+            file_url: data.fileUrl,
+            file_name: data.fileName
         })
 
         if (error) {
@@ -38,7 +100,8 @@ export async function createAssignment(data: {
             return { success: false, error: 'Failed to create assignment' }
         }
 
-        revalidatePath('/dashboard/teacher/assessments')
+        revalidatePath('/[domain]/dashboard/teacher/assessments', 'page')
+        revalidatePath('/[domain]/dashboard/student/assignments', 'page')
         return { success: true }
     } catch (error) {
         console.error('Unexpected error creating assignment:', error)
@@ -50,9 +113,17 @@ export async function getAssignments(classId: string, subjectId: string) {
     const supabase = createClient()
 
     try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return { success: false, error: "Unauthorized" }
+
+        // Get tenant_id from profile
+        const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+        if (!profile) return { success: false, error: "Profile not found" }
+
         const { data, error } = await supabase
             .from('assignments')
             .select('*')
+            .eq('tenant_id', profile.tenant_id)
             .eq('class_id', classId)
             .eq('subject_id', subjectId)
             .order('created_at', { ascending: false })
@@ -80,70 +151,68 @@ export async function getStudentAssignments() {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return { success: false, error: "Unauthorized" }
 
-        // 1. Get Student Profile to know their Class ID
-        // For simplicity, we assume one student per user or matching logic from profile
-        // Using similar logic to student-profile.ts
-        let { data: student } = await supabase
-            .from('students')
-            .select('id, class_id')
-            .eq('user_id', user.id)
-            .maybeSingle()
+        // 1. Get User Profile to know their tenant_id
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('tenant_id, email')
+            .eq('id', user.id)
+            .single()
 
-        if (!student) {
-            // Fallback: Try linking via email if user_id is null in students table (legacy sync issue)
-            const { data: profile } = await supabase.from('profiles').select('email').eq('id', user.id).single()
-            if (profile) {
-                const { data: s } = await supabase.from('students').select('id, class_id').eq('email', profile.email).maybeSingle()
-                if (s) student = s
-            }
+        if (!profile) return { success: false, error: "Profile not found" }
+
+        // 2. Resolve Student ID linked to this user/tenant
+        const student = await resolveStudentForUser(supabase, user.id, profile.tenant_id)
+
+        if (!student || !student.class_id) {
+            console.error('[getStudentAssignments] Student resolution failed for user:', user.id)
+            return { success: false, error: "Student profile not found" }
         }
 
-        // Final Fallback for demo: Pick first student if local dev and no link found
-        if (!student) {
-            const { data: s } = await supabase.from('students').select('id, class_id').limit(1).single()
-            if (s) student = s
-        }
-
-        if (!student || !student.class_id) return { success: false, error: "Student or class not found" }
-
-        // 2. Fetch Assignments for the Class
-        const { data: assignments, error: assignError } = await supabase
+        // 3. Fetch Traditional Assignments ONLY, isolated by tenant and class
+        const { data: assignments, error: assignmentsError } = await supabase
             .from('assignments')
             .select(`
                 *,
                 subject:subjects(name),
                 teacher:profiles(full_name)
             `)
+            .eq('tenant_id', profile.tenant_id)
             .eq('class_id', student.class_id)
             .order('due_date', { ascending: true })
 
-        if (assignError) throw assignError
+        if (assignmentsError) throw assignmentsError
 
-        // 3. Fetch Submissions for this student
+        // 4. Fetch Submissions for this student
         const { data: submissions, error: subError } = await supabase
             .from('assignment_submissions')
             .select('*')
             .eq('student_id', student.id)
-            .in('assignment_id', assignments.map(a => a.id))
+            .in('assignment_id', (assignments || []).map(a => a.id))
 
-        if (subError) throw subError
+        if (subError && assignments && assignments.length > 0) throw subError
 
-        // 4. Merge Data
-        const merged = assignments.map(a => {
-            const sub = submissions.find(s => s.assignment_id === a.id)
+        // 5. Normalize Data
+        const normalized = (assignments || []).map(a => {
+            const sub = submissions?.find(s => s.assignment_id === a.id)
             return {
-                ...a,
+                id: a.id,
+                title: a.title,
+                description: a.description,
+                points: a.points,
+                dueDate: a.due_date,
                 subject: a.subject?.name || 'General',
                 teacher: a.teacher?.full_name || 'Unknown Teacher',
-                status: sub ? (sub.grade ? 'graded' : 'submitted') : 'pending',
-                submittedDate: sub?.submitted_at,
+                status: sub ? (sub.grade !== null ? 'graded' : 'submitted') : 'pending',
+                type: 'assignment',
                 grade: sub?.grade,
                 feedback: sub?.feedback,
-                submission: sub // detailed submission info
+                submittedDate: sub?.submitted_at,
+                fileUrl: a.file_url,
+                fileName: a.file_name
             }
         })
 
-        return { success: true, data: merged }
+        return { success: true, data: normalized }
 
     } catch (error) {
         console.error('Error fetching student assignments:', error)
@@ -161,24 +230,21 @@ export async function submitAssignment(assignmentId: string, content: string, fi
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return { success: false, error: "Unauthorized" }
 
-        // Resolve Student ID (reuse logic or abstract it)
-        let { data: student } = await supabase.from('students').select('id').eq('user_id', user.id).maybeSingle()
-        if (!student) {
-            const { data: profile } = await supabase.from('profiles').select('email').eq('id', user.id).single()
-            if (profile) {
-                const { data: s } = await supabase.from('students').select('id').eq('email', profile.email).maybeSingle()
-                if (s) student = s
-            }
-        }
-        // Fallback
-        if (!student) {
-            const { data: s } = await supabase.from('students').select('id').limit(1).single()
-            if (s) student = s
-        }
+        // 1. Get User Profile to know their tenant_id
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('tenant_id, email')
+            .eq('id', user.id)
+            .single()
+
+        if (!profile) return { success: false, error: "Profile not found" }
+
+        // 2. Resolve Student ID linked to this user/tenant
+        const student = await resolveStudentForUser(supabase, user.id, profile.tenant_id)
 
         if (!student) return { success: false, error: "Student profile not found" }
 
-        // Upsert Submission
+        // 3. Upsert Submission
         const { error } = await supabase
             .from('assignment_submissions')
             .upsert({
@@ -191,11 +257,143 @@ export async function submitAssignment(assignmentId: string, content: string, fi
 
         if (error) throw error
 
-        revalidatePath('/dashboard/student/assignments')
-        return { success: true }
+        revalidatePath('/[domain]/dashboard/student/assignments', 'page')
+        revalidatePath('/[domain]/dashboard/teacher/assessments', 'page')
 
+        return { success: true }
     } catch (error) {
         console.error('Error submitting assignment:', error)
         return { success: false, error: 'Failed to submit assignment' }
+    }
+}
+
+/**
+ * Grade an assignment submission
+ */
+export async function gradeAssignmentSubmission(submissionId: string, grade: number, feedback?: string) {
+    const supabase = createClient()
+    const admin = createAdminClient()
+
+    try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return { success: false, error: "Unauthorized" }
+
+        const { error } = await admin
+            .from('assignment_submissions')
+            .update({
+                grade: grade,
+                feedback: feedback,
+                graded_at: new Date().toISOString()
+            })
+            .eq('id', submissionId)
+
+        if (error) {
+            console.error('Supabase Error grading submission:', error)
+            throw error
+        }
+
+        revalidatePath('/[domain]/dashboard/student/assignments', 'page')
+        revalidatePath('/[domain]/dashboard/teacher/assessments', 'page')
+
+        return { success: true }
+    } catch (error: any) {
+        console.error('Error grading submission:', error)
+        return { success: false, error: error.message || 'Failed to save grade' }
+    }
+}
+
+export async function getAssignmentSubmissions(assignmentId: string) {
+    const supabase = createClient()
+
+    try {
+        const { data, error } = await supabase
+            .from('assignment_submissions')
+            .select(`
+                *,
+                student:students(id, full_name, admission_number)
+            `)
+            .eq('assignment_id', assignmentId)
+            .order('submitted_at', { ascending: false })
+
+        if (error) throw error
+        return { success: true, data }
+    } catch (error) {
+        console.error('Error fetching submissions:', error)
+        return { success: false, error: 'Failed to load submissions' }
+    }
+}
+export async function updateAssignment(assignmentId: string, data: {
+    title: string
+    description: string
+    dueDate: Date | undefined
+    points: number
+    fileUrl?: string
+    fileName?: string
+}) {
+    const supabase = createClient()
+
+    try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return { success: false, error: "Unauthorized" }
+
+        // Get tenant_id from profile
+        const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+        if (!profile) return { success: false, error: "Profile not found" }
+
+        const { error } = await supabase
+            .from('assignments')
+            .update({
+                title: data.title,
+                description: data.description,
+                due_date: data.dueDate?.toISOString(),
+                points: data.points,
+                file_url: data.fileUrl,
+                file_name: data.fileName
+            })
+            .eq('id', assignmentId)
+            .eq('tenant_id', profile.tenant_id) // Strict tenant isolation
+
+        if (error) {
+            console.error('Error updating assignment:', error)
+            return { success: false, error: 'Failed to update assignment' }
+        }
+
+        revalidatePath('/[domain]/dashboard/teacher/assessments', 'page')
+        revalidatePath('/[domain]/dashboard/student/assignments', 'page')
+        return { success: true }
+    } catch (error) {
+        console.error('Unexpected error updating assignment:', error)
+        return { success: false, error: 'An unexpected error occurred' }
+    }
+}
+
+export async function deleteAssignment(assignmentId: string) {
+    const supabase = createClient()
+
+    try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return { success: false, error: "Unauthorized" }
+
+        // Get tenant_id from profile
+        const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+        if (!profile) return { success: false, error: "Profile not found" }
+
+        const { error } = await supabase
+            .from('assignments')
+            .delete()
+            .eq('id', assignmentId)
+            .eq('tenant_id', profile.tenant_id) // Strict tenant isolation
+
+        if (error) {
+            console.error('Error deleting assignment:', error)
+            return { success: false, error: 'Failed to delete assignment' }
+        }
+
+        revalidatePath('/[domain]/dashboard/teacher/assessments', 'page')
+        revalidatePath('/[domain]/dashboard/student/assignments', 'page')
+        return { success: true }
+    } catch (error) {
+        console.error('Unexpected error deleting assignment:', error)
+        return { success: false, error: 'An unexpected error occurred' }
     }
 }

@@ -18,7 +18,7 @@ export default async function StudentAssignmentsPage() {
                 </div>
             </div>
 
-            <AssignmentList />
+            <AssignmentList initialData={success ? data : []} />
         </div>
     )
 }

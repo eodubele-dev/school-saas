@@ -19,18 +19,28 @@ export function StudentRegister() {
     const [attendance, setAttendance] = useState<Record<string, { status: 'present' | 'absent' | 'excused', remarks?: string, clockOutTime?: string }>>({})
     const [isVerified, setIsVerified] = useState(false)
 
+    // Helper for local date YYYY-MM-DD
+    const getLocalToday = () => {
+        const d = new Date()
+        const pad = (n: number) => n < 10 ? '0' + n : n
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+    }
+
     useEffect(() => {
         loadData()
+        // Poll for updates (Realtime)
+        const interval = setInterval(() => loadData(true), 10000)
+        return () => clearInterval(interval)
     }, [])
 
-    const loadData = async () => {
-        setLoading(true)
+    const loadData = async (isBackground = false) => {
+        if (!isBackground) setLoading(true)
         try {
             // 0. Check Clock-In Status first
-            const statusRes = await getClockInStatus()
+            const statusRes = await getClockInStatus(getLocalToday())
             if (!statusRes.success || !statusRes.data?.clockedIn) {
                 setIsVerified(false)
-                setLoading(false)
+                if (!isBackground) setLoading(false)
                 return
             }
             setIsVerified(true)
@@ -39,7 +49,7 @@ export function StudentRegister() {
             const classRes = await getAssignedClass()
             if (!classRes.success || !classRes.data) {
                 // If no class, stop here (UI will show empty state)
-                setLoading(false)
+                if (!isBackground) setLoading(false)
                 return
             }
 
@@ -51,7 +61,7 @@ export function StudentRegister() {
                 setStudents(studentsRes.data)
 
                 // 3. Get Existing Attendance for Today
-                const today = new Date().toISOString().split('T')[0]
+                const today = getLocalToday()
                 const attendanceRes = await getClassAttendance(classRes.data.id, today)
 
                 const existingMap: any = {}
@@ -78,7 +88,7 @@ export function StudentRegister() {
         } catch (error) {
             toast.error("Failed to load class data")
         } finally {
-            setLoading(false)
+            if (!isBackground) setLoading(false)
         }
     }
 
@@ -105,7 +115,7 @@ export function StudentRegister() {
             }))
 
             // 1. Save to DB
-            const saveRes = await markStudentAttendance(classInfo.id, new Date().toISOString().split('T')[0], records)
+            const saveRes = await markStudentAttendance(classInfo.id, getLocalToday(), records)
             if (!saveRes.success) throw new Error(saveRes.error)
 
             // 2. Send SMS if needed
@@ -215,7 +225,7 @@ export function StudentRegister() {
                                             className="ml-2 h-8 bg-slate-800 border-white/10 text-slate-300 hover:bg-slate-700 hover:text-white"
                                             onClick={async (e) => {
                                                 e.stopPropagation() // Prevent row click if any
-                                                const promise = clockOutStudent(student.id, new Date().toISOString().split('T')[0], classInfo!.id)
+                                                const promise = clockOutStudent(student.id, getLocalToday(), classInfo!.id)
                                                 toast.promise(promise, {
                                                     loading: 'Clocking out...',
                                                     success: () => {

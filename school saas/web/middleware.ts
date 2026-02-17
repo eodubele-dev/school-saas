@@ -54,27 +54,27 @@ export default async function middleware(req: NextRequest) {
   currentHost = currentHost?.replace('.localhost', '')
   currentHost = currentHost?.replace('.eduflow.ng', '')
 
+  console.log(`[Middleware] Host: ${hostname}, CurrentHost: ${currentHost}, Path: ${url.pathname}`)
+
   // Handle Main Domain matches
   if (!currentHost || currentHost === 'www' || currentHost === 'localhost' || currentHost.includes(':')) {
-    // We are on the Main Domain (Marketing Site)
-    // Pass user to 'app/page.tsx' or 'app/onboard/*'
+    console.log('[Middleware] Main domain detected')
     return response
   }
 
   // 2. Tenant Verification (The "Filter")
-  // We are on a subdomain (e.g. "greenwood")
-  // Check if tenant exists
-  const { data: tenant } = await supabase
+  console.log(`[Middleware] Fetching tenant for: ${currentHost}`)
+  const { data: tenant, error: tenantErr } = await supabase
     .from('tenants')
     .select('id, name, slug, logo_url, theme_config')
-    .eq('slug', currentHost.toLowerCase()) // assuming slug matches subdomain
+    .eq('slug', currentHost.toLowerCase())
     .single()
 
-  if (!tenant) {
-    // Tenant not found -> Redirect to 404 (or specific School Not Found page)
-    console.log(`[Middleware] Tenant not found for host: ${currentHost}`)
+  if (tenantErr || !tenant) {
+    console.log(`[Middleware] Tenant not found Error:`, tenantErr)
     return NextResponse.rewrite(new URL('/404', req.url))
   }
+  console.log(`[Middleware] Tenant found: ${tenant.id}`)
 
   // 3. Contextual Branding Injection
   // Create a new Headers object for the rewrite request

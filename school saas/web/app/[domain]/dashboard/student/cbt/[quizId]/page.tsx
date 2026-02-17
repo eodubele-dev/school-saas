@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { startQuizAttempt, getQuizQuestions, finalizeQuiz } from "@/lib/actions/student-learning"
+import { startQuizAttempt, getQuizQuestions, finalizeQuiz, getQuizReview } from "@/lib/actions/student-learning"
 import { ExamInterface } from "@/components/student/learning/exam-interface"
 import { QuizResult } from "@/components/student/learning/quiz-result"
 import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 export default function CBTExamPage() {
     const params = useParams()
+    const router = useRouter()
     const quizId = params?.quizId as string
 
     // State
@@ -26,41 +28,69 @@ export default function CBTExamPage() {
         async function init() {
             setLoading(true)
 
-            // 1. Start Attempt (server checks if exists)
-            const attRes = await startQuizAttempt(quizId)
+            try {
+                // 1. Start Attempt & Get Quiz Meta
+                const attRes = await startQuizAttempt(quizId)
 
-            if (attRes.success && attRes.attemptId) {
-                setAttemptId(attRes.attemptId)
+                if (attRes.success && attRes.attemptId && attRes.quiz) {
+                    setAttemptId(attRes.attemptId)
+                    setQuizData(attRes.quiz)
 
-                // 2. Fetch Questions (server action should also return quiz meta or we do separate)
-                // Assuming we need quiz meta for title/duration. 
-                // Currently API separation is a bit loose in demo actions.
-                // Let's assume getQuizQuestions returns questions. 
-                // We might need another call for Quiz Meta if not already stored.
-                // For demo speed, let's fetch questions and assume we have quiz meta passed or fetchable.
+                    // CHECK IF COMPLETED (Review Mode)
+                    if (attRes.status === 'completed') {
+                        // Directly fetch reviewed questions
+                        const reviewRes = await getQuizReview(attRes.attemptId)
+                        if (reviewRes.success) {
+                            setQuestions(reviewRes.questions || [])
+                            setUserAnswers(reviewRes.userAnswers || {}) // Restore user's answers
+                            setResult({
+                                score: attRes.score,
+                                // Calculate pct if not returned directly (backend returns score/total)
+                                // But for now rely on quiz-result to calculate or pass dummy total
+                                // Ideally getQuizReview returns score metadata too
+                            })
 
-                const qRes = await getQuizQuestions(quizId)
+                            // setQuestions(reviewRes.questions || []) // Already set above
 
-                if (qRes.success) {
-                    setQuestions(qRes.questions)
-                    // Mock Quiz Meta if not fetched (real app would fetch 'cbt_quizzes' row)
-                    setQuizData({
-                        id: quizId,
-                        title: "Mid-Term Assessment", // Placeholder until fetched
-                        duration_minutes: 30
-                    })
-                    setPhase('exam')
+                            // DO NOT call finalizeQuiz here - it would re-grade with empty answers and wipe the score!
+                            setResult({
+                                score: attRes.score,
+                                // We might want to fetch the total points from the quiz metadata or calculate it
+                                // For now, we trust the UI to handle it or fetch it separately if needed
+                                percentage: attRes.score // Assuming score is percentage for now based on finalizeQuiz logic
+                            })
+
+                            setPhase('result')
+                            setLoading(false)
+                            return
+                        }
+                    }
+
+                    // 2. Fetch Questions (Normal Mode)
+                    const qRes = await getQuizQuestions(quizId)
+
+                    if (qRes.success && qRes.questions.length > 0) {
+                        setQuestions(qRes.questions)
+                        setPhase('exam')
+                    } else {
+                        toast.error(qRes.questions.length === 0 ? "This quiz has no questions yet." : "Failed to load questions")
+                        router.push('/dashboard/student/learning')
+                    }
                 } else {
-                    alert("Failed to load questions")
+                    toast.error(attRes.error || "Could not start quiz session")
+                    router.push('/dashboard/student/learning')
                 }
-            } else {
-                alert("Could not start quiz session")
+            } catch (err) {
+                console.error(err)
+                toast.error("An unexpected error occurred")
+                router.push('/dashboard/student/learning')
+            } finally {
+                setLoading(false)
             }
-            setLoading(false)
         }
 
         init()
-    }, [quizId])
+    }, [quizId, router])
 
     const handleComplete = async (answers: Record<string, string>) => {
         if (!attemptId) return
@@ -71,6 +101,13 @@ export default function CBTExamPage() {
         const res = await finalizeQuiz(attemptId, answers)
 
         if (res.success) {
+            // Fetch reviewed questions (with correct answers revealed)
+            const reviewRes = await getQuizReview(attemptId)
+
+            if (reviewRes.success) {
+                setQuestions(reviewRes.questions || []) // Update questions with "Reviewed" version
+            }
+
             setResult(res)
             setPhase('result')
         }
@@ -100,11 +137,22 @@ export default function CBTExamPage() {
         )
     }
 
+    if (phase === 'exam' && quizData && questions.length > 0) {
+        return (
+            <ExamInterface
+                quiz={quizData}
+                questions={questions}
+                onComplete={handleComplete}
+            />
+        )
+    }
+
     return (
-        <ExamInterface
-            quiz={quizData}
-            questions={questions}
-            onComplete={handleComplete}
-        />
+        <div className="h-screen w-full bg-slate-950 flex items-center justify-center text-white">
+            <div className="flex flex-col items-center gap-4">
+                <Loader2 className="h-8 w-8 animate-spin text-[var(--school-accent)]" />
+                <p>Initializing Secure Exam Environment...</p>
+            </div>
+        </div>
     )
 }

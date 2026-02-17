@@ -54,45 +54,63 @@ export function SubjectFolders({ subjects }: { subjects: any[] }) {
             </div>
 
             {/* Subject Drawer */}
-            <Sheet open={!!selectedSubject} onOpenChange={(o) => !o && setSelectedSubject(null)}>
-                <SheetContent className="w-full sm:max-w-xl bg-slate-950 border-l border-white/10 text-white overflow-y-auto">
-                    <SheetHeader className="mb-6">
-                        <SheetTitle className="text-white flex items-center gap-2">
-                            <BookOpen className="h-5 w-5 text-[var(--school-accent)]" />
-                            {selectedSubject?.name} Notes
-                        </SheetTitle>
-                    </SheetHeader>
-
-                    {activeLesson ? (
-                        <LessonViewer lesson={activeLesson} onBack={() => setActiveLesson(null)} />
-                    ) : (
-                        <div className="space-y-2">
-                            {loading ? (
-                                <div className="text-center py-8 text-slate-500">Loading notes...</div>
-                            ) : lessons.length === 0 ? (
-                                <div className="text-center py-8 text-slate-500">No notes published yet.</div>
-                            ) : (
-                                lessons.map((lesson) => (
-                                    <div
-                                        key={lesson.id}
-                                        onClick={() => setActiveLesson(lesson)}
-                                        className="flex items-center justify-between p-4 rounded-lg bg-slate-900 border border-white/5 hover:bg-slate-800 cursor-pointer transition-colors"
-                                    >
-                                        <div className="flex gap-4">
-                                            <div className="h-10 w-10 rounded bg-white/5 flex items-center justify-center text-slate-400 font-mono text-xs">
-                                                wk{lesson.week || 1}
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-sm text-white">{lesson.topic}</h4>
-                                                <p className="text-xs text-slate-400 line-clamp-1">{lesson.subtopics || "No description"}</p>
-                                            </div>
-                                        </div>
-                                        <ChevronRight className="h-4 w-4 text-slate-600" />
-                                    </div>
-                                ))
-                            )}
-                        </div>
+            <Sheet open={!!selectedSubject} onOpenChange={(o) => {
+                if (!o) {
+                    setSelectedSubject(null)
+                    setActiveLesson(null)
+                }
+            }}>
+                <SheetContent className="w-full sm:max-w-[1200px] bg-slate-950 border-l border-white/10 text-white overflow-y-auto p-0 flex flex-col">
+                    {!activeLesson && (
+                        <SheetHeader className="p-8 border-b border-white/5">
+                            <SheetTitle className="text-white flex items-center gap-2 text-2xl">
+                                <BookOpen className="h-6 w-6 text-[var(--school-accent)]" />
+                                {selectedSubject?.name}
+                            </SheetTitle>
+                            <SheetDescription className="text-slate-400">
+                                Browse and read your published notes for this subject.
+                            </SheetDescription>
+                        </SheetHeader>
                     )}
+
+                    <div className="flex-1 overflow-hidden">
+                        {activeLesson ? (
+                            <div className="h-full p-4 md:p-8">
+                                <LessonViewer lesson={activeLesson} onBack={() => setActiveLesson(null)} />
+                            </div>
+                        ) : (
+                            <div className="p-8 space-y-3">
+                                {loading ? (
+                                    <div className="text-center py-8 text-slate-500">Loading notes...</div>
+                                ) : lessons.length === 0 ? (
+                                    <div className="text-center py-8 text-slate-500">No notes published yet.</div>
+                                ) : (
+                                    lessons.map((lesson) => (
+                                        <div
+                                            key={lesson.id}
+                                            onClick={() => setActiveLesson(lesson)}
+                                            className="flex items-center justify-between p-4 rounded-lg bg-slate-900 border border-white/5 hover:bg-slate-800 cursor-pointer transition-colors"
+                                        >
+                                            <div className="flex gap-4">
+                                                <div className="h-10 w-10 rounded bg-white/5 flex items-center justify-center text-slate-400 font-mono text-xs">
+                                                    wk{lesson.week || 1}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-sm text-white">{lesson.title}</h4>
+                                                    <p className="text-xs text-slate-400 line-clamp-1">
+                                                        {lesson.topics && lesson.topics.length > 0
+                                                            ? lesson.topics.join(", ")
+                                                            : "No description available"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <ChevronRight className="h-4 w-4 text-slate-600" />
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </SheetContent>
             </Sheet>
         </div>

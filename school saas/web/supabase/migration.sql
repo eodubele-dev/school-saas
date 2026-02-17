@@ -86,3 +86,11 @@ create index idx_lessons_tenant_subject on public.lessons(tenant_id, subject, gr
 create index idx_student_progress_student on public.student_progress(student_id);
 create index idx_student_activities_student on public.student_activities(student_id, created_at desc);
 create index idx_student_activities_date on public.student_activities(student_id, completed_at);
+
+-- FIX: Add missing status column to cbt_attempts
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'cbt_attempts' AND column_name = 'status') THEN
+        ALTER TABLE public.cbt_attempts ADD COLUMN status text NOT NULL DEFAULT 'in_progress';
+    END IF;
+END $$;

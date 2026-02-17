@@ -60,6 +60,7 @@ create table public.cbt_attempts (
   tenant_id uuid references public.tenants(id) not null,
   quiz_id uuid references public.cbt_quizzes(id) not null,
   student_id uuid references public.students(id) not null,
+  status text not null default 'in_progress', -- 'in_progress', 'completed'
   score integer default 0,
   total_score integer default 0,
   answers jsonb, -- Map of question_id -> selected_option_index

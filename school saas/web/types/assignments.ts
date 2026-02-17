@@ -9,6 +9,8 @@ export interface Assignment {
     due_date: string | null // ISO string
     points: number
     created_at: string
+    file_url?: string | null
+    file_name?: string | null
 }
 
 export interface AssignmentSubmission {

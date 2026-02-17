@@ -25,7 +25,8 @@ interface SchoolLocation {
  */
 export async function clockInStaff(
     latitude: number,
-    longitude: number
+    longitude: number,
+    date?: string
 ): Promise<ClockInResult> {
     const supabase = createClient()
 
@@ -94,7 +95,7 @@ export async function clockInStaff(
         }
 
         // Record attendance
-        const today = new Date().toISOString().split('T')[0]
+        const today = date || new Date().toISOString().split('T')[0]
         const now = new Date()
         const checkInTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`
 
@@ -177,7 +178,7 @@ export async function clockInStaff(
 /**
  * Clock out staff
  */
-export async function clockOutStaff(): Promise<{ success: boolean; error?: string }> {
+export async function clockOutStaff(date?: string): Promise<{ success: boolean; error?: string }> {
     const supabase = createClient()
 
     try {
@@ -186,7 +187,7 @@ export async function clockOutStaff(): Promise<{ success: boolean; error?: strin
             return { success: false, error: 'Not authenticated' }
         }
 
-        const today = new Date().toISOString().split('T')[0]
+        const today = date || new Date().toISOString().split('T')[0]
         const now = new Date()
         const checkOutTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`
 
@@ -246,7 +247,7 @@ export async function getSchoolCoordinates(
 /**
  * Get staff clock-in status for today
  */
-export async function getClockInStatus(): Promise<{
+export async function getClockInStatus(date?: string): Promise<{
     success: boolean
     data?: {
         clockedIn: boolean
@@ -265,7 +266,7 @@ export async function getClockInStatus(): Promise<{
             return { success: false, error: 'Not authenticated' }
         }
 
-        const today = new Date().toISOString().split('T')[0]
+        const today = date || new Date().toISOString().split('T')[0]
 
         const { data, error } = await supabase
             .from('staff_attendance')

@@ -205,7 +205,6 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
                 { icon: Award, label: "Growth Portfolio", href: "/dashboard/student/portfolio", badge: "New" }, // Behavioral & Badges
                 { icon: BookOpen, label: "My Results", href: "/dashboard/student/results" }, // Academic Performance
                 { icon: FileText, label: "Assignments", href: "/dashboard/student/assignments" }, // Tasks
-                { icon: BrainCircuit, label: "CBT Portal", href: "/dashboard/cbt", badge: "Active" }, // Quizzes
             ]
         },
         {

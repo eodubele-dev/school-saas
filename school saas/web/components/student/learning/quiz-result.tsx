@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { CheckCircle2, XCircle, Home, RotateCcw, Brain } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { cn } from "@/lib/utils"
 
 export function QuizResult({ score, totalPoints, percentage, questions, answers }: any) {
     const router = useRouter()
@@ -55,15 +56,31 @@ export function QuizResult({ score, totalPoints, percentage, questions, answers 
                                                 )}
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-sm font-medium text-white line-clamp-1">{q.question_text}</p>
+                                                <p className="text-sm font-medium text-white">{q.question_text}</p>
                                             </div>
                                         </div>
                                     </AccordionTrigger>
                                     <AccordionContent className="pl-9 pb-4 space-y-3">
-                                        <div className="p-3 bg-slate-950 rounded border border-white/5 text-sm">
-                                            <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Correct Answer</span>
-                                            <div className="text-green-400 font-bold">{q[q.correct_answer] || "Option " + q.correct_answer}</div>
+                                        {/* User Selection */}
+                                        <div className={cn(
+                                            "p-3 rounded border text-sm",
+                                            isCorrect
+                                                ? "bg-green-500/10 border-green-500/20 text-green-200"
+                                                : "bg-red-500/10 border-red-500/20 text-red-200"
+                                        )}>
+                                            <span className="block text-xs opacity-70 uppercase tracking-wider mb-1">Your Selection</span>
+                                            <div className="font-bold">
+                                                {userAns ? (q[userAns] || "Option " + userAns) : "No Selection"}
+                                            </div>
                                         </div>
+
+                                        {/* Correct Answer */}
+                                        {!isCorrect && (
+                                            <div className="p-3 bg-slate-950 rounded border border-white/5 text-sm">
+                                                <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Correct Answer</span>
+                                                <div className="text-green-400 font-bold">{q[q.correct_answer] || "Option " + q.correct_answer}</div>
+                                            </div>
+                                        )}
 
                                         {q.explanation && (
                                             <div className="flex gap-3 items-start p-3 bg-purple-500/10 rounded border border-purple-500/20">

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { UploadCloud, File, X, Loader2 } from "lucide-react"
+import { UploadCloud, File as FileIcon, X, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import { submitAssignment } from "@/lib/actions/assignments"
@@ -96,6 +96,28 @@ export function SubmitAssignmentModal({ assignment, trigger, onSuccess }: Submit
                 </DialogHeader>
 
                 <div className="grid gap-4 py-4">
+                    {assignment.description && (
+                        <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 max-h-[150px] overflow-y-auto">
+                            <div className="flex justify-between items-center mb-1">
+                                <Label className="text-[10px] uppercase tracking-wider text-slate-500 block">Instructions / Questions</Label>
+                                {assignment.fileUrl && (
+                                    <Button
+                                        variant="link"
+                                        size="sm"
+                                        className="h-auto p-0 text-cyan-400 text-[10px] font-bold h-4"
+                                        onClick={() => window.open(assignment.fileUrl, '_blank')}
+                                    >
+                                        <FileIcon className="h-3 w-3 mr-1" />
+                                        View Attachment
+                                    </Button>
+                                )}
+                            </div>
+                            <div className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">
+                                {assignment.description}
+                            </div>
+                        </div>
+                    )}
+
                     <div className="grid gap-2">
                         <Label htmlFor="content" className="text-slate-300">Your Answer / Comments</Label>
                         <Textarea
@@ -124,7 +146,7 @@ export function SubmitAssignmentModal({ assignment, trigger, onSuccess }: Submit
                             <div className="flex items-center justify-between p-3 bg-slate-900 border border-slate-700 rounded-lg">
                                 <div className="flex items-center gap-3 overflow-hidden">
                                     <div className="h-10 w-10 bg-[var(--school-accent)]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <File className="h-5 w-5 text-[var(--school-accent)]" />
+                                        <FileIcon className="h-5 w-5 text-[var(--school-accent)]" />
                                     </div>
                                     <div className="truncate">
                                         <p className="text-sm font-medium text-white truncate">{file.name}</p>

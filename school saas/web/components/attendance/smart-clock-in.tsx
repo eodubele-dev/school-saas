@@ -11,6 +11,13 @@ import { AttendanceDisputeView } from "./attendance-dispute-view"
 import { isWithinRadius } from "@/lib/utils/geolocation"
 import { createClient } from "@/lib/supabase/client"
 
+// Helper for local date YYYY-MM-DD
+const getLocalToday = () => {
+    const d = new Date()
+    const pad = (n: number) => n < 10 ? '0' + n : n
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
 interface SmartClockInProps {
     onClockIn?: () => void
 }
@@ -67,7 +74,7 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     }
 
     const loadStatus = async () => {
-        const res = await getClockInStatus()
+        const res = await getClockInStatus(getLocalToday())
         if (res.success && res.data) {
             // Check if late (after 8:00 AM)
             let isLate = false
@@ -95,7 +102,7 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
             }
 
             navigator.geolocation.getCurrentPosition(async (position) => {
-                const res = await clockInStaff(position.coords.latitude, position.coords.longitude)
+                const res = await clockInStaff(position.coords.latitude, position.coords.longitude, getLocalToday())
 
                 if (res.success) {
                     toast.success("Clocked in successfully!")
@@ -125,7 +132,7 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     const handleClockOut = async () => {
         setLoading(true)
         try {
-            const res = await clockOutStaff()
+            const res = await clockOutStaff(getLocalToday())
             if (res.success) {
                 toast.success("Clocked out successfully!")
                 setStatus(prev => ({ ...prev, clockedIn: false }))

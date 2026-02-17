@@ -123,7 +123,7 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
                         <p className="text-slate-400 text-xl mt-3 font-medium">
                             {classData.grade_level} • {classData.subject || "Not Assigned"}
                             {classData.academic_session && ` • ${classData.academic_session}`}
-                            {classData.term && ` • ${classData.term} Term`}
+                            {classData.term && ` • ${classData.term}${classData.term.toLowerCase().includes('term') ? '' : ' Term'}`}
                         </p>
                     </div>
 

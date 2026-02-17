@@ -139,7 +139,7 @@ export function ExamInterface({ quiz, questions, onComplete }: { quiz: any, ques
                     variant="ghost"
                     disabled={currentIdx === 0}
                     onClick={() => setCurrentIdx(prev => prev - 1)}
-                    className="text-slate-400 hover:text-white"
+                    className="bg-transparent text-slate-400 hover:bg-white/5 hover:text-white"
                 >
                     <ChevronLeft className="h-4 w-4 mr-2" /> Prev
                 </Button>
@@ -174,7 +174,11 @@ export function ExamInterface({ quiz, questions, onComplete }: { quiz: any, ques
                             Once submitted, you cannot change your answers.
                         </p>
                         <div className="grid grid-cols-2 gap-4">
-                            <Button variant="outline" onClick={() => setConfirmSubmit(false)} className="border-white/10 text-white">
+                            <Button
+                                variant="outline"
+                                onClick={() => setConfirmSubmit(false)}
+                                className="bg-transparent border-white/10 text-white hover:bg-white/5 hover:text-white"
+                            >
                                 Go Back
                             </Button>
                             <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 text-white">
