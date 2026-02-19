@@ -4,6 +4,7 @@ import { getParentStats } from "@/lib/actions/dashboard"
 import { getParentFeed } from "@/lib/actions/class-feed"
 import { getActiveAcademicSession } from "@/lib/actions/academic"
 import { ParentFeedView } from "@/components/class-feed/parent-feed-view"
+import { ChatInterface } from "@/components/communication/chat-interface"
 
 
 
@@ -281,13 +282,22 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
             </Card>
 
             {/* Class Updates / Digital Diary */}
-            <div>
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-xl text-white">Class Updates</h3>
-                </div>
-                {/* Note: ParentFeedView might need internal styling updates to match dark mode, 
+            <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2">
+                <div>
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-bold text-xl text-white">Class Updates</h3>
+                    </div>
+                    {/* Note: ParentFeedView might need internal styling updates to match dark mode, 
                      but since it's a separate component we assume it inherits globals or will require separate pass if distinct */}
-                <ParentFeedView posts={feedPosts} />
+                    <ParentFeedView posts={feedPosts} />
+                </div>
+
+                <div>
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-bold text-xl text-white">Messages</h3>
+                    </div>
+                    <ChatInterface />
+                </div>
             </div>
 
 

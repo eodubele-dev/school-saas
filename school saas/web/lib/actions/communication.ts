@@ -328,36 +328,56 @@ export async function getChatRecipients() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
-    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
     if (!profile) return { success: false, error: "Unauthorized" }
 
-    const { data: parents, error } = await supabase
+    let query = supabase
         .from('profiles')
-        .select('id, full_name, photo_url')
+        .select('id, full_name, photo_url, role')
         .eq('tenant_id', profile.tenant_id)
-        .eq('role', 'parent')
         .order('full_name')
 
+    // If user is parent, fetch teachers/staff
+    if (profile.role === 'parent') {
+        query = query.in('role', ['teacher', 'admin', 'proprietor'])
+    } else {
+        // If user is staff, fetch parents
+        query = query.eq('role', 'parent')
+    }
+
+    const { data: recipients, error } = await query
+
     if (error) return { success: false, error: "Failed to load recipients" }
-    return { success: true, data: parents }
+    return { success: true, data: recipients }
 }
 
 /**
  * 7. Get or Create Chat Channel
  */
-export async function getOrCreateChannel(parentId: string) {
+export async function getOrCreateChannel(partnerId: string) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
-    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
     if (!profile) return { success: false, error: "Unauthorized" }
+
+    // Determine who is who based on initiator
+    let staffId, parentId
+
+    if (profile.role === 'parent') {
+        parentId = user.id
+        staffId = partnerId
+    } else {
+        staffId = user.id
+        parentId = partnerId
+    }
 
     // Check if exists
     const { data: existing } = await supabase
         .from('chat_channels')
         .select('id')
-        .eq('staff_id', user.id)
+        .eq('staff_id', staffId)
         .eq('parent_id', parentId)
         .maybeSingle()
 
@@ -368,7 +388,7 @@ export async function getOrCreateChannel(parentId: string) {
         .from('chat_channels')
         .insert({
             tenant_id: profile.tenant_id,
-            staff_id: user.id,
+            staff_id: staffId,
             parent_id: parentId
         })
         .select('id')
