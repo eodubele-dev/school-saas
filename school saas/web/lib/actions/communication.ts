@@ -17,15 +17,34 @@ export async function getDailyAbsentees() {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return { success: false, error: "Not authenticated" }
 
-        const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+        const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
         if (!profile?.tenant_id) return { success: false, error: "Unauthorized" }
 
-        const { data: attendance, error } = await supabase
+        let classFilter = []
+
+        // If user is a teacher, fetch their assigned classes
+        if (profile.role === 'teacher') {
+            const { data: teacherClasses } = await supabase
+                .from('subject_teachers')
+                .select('class_id')
+                .eq('teacher_id', user.id)
+                .eq('tenant_id', profile.tenant_id)
+
+            if (teacherClasses && teacherClasses.length > 0) {
+                classFilter = teacherClasses.map(tc => tc.class_id)
+            } else {
+                // Teacher has no classes, so they shouldn't see any absentees
+                return { success: true, data: [] }
+            }
+        }
+
+        let query = supabase
             .from('student_attendance')
             .select(`
                 *,
                 student:students(
                     full_name, 
+                    class_id,
                     parent:profiles!parent_id(full_name, phone)
                 )
             `)
@@ -33,9 +52,37 @@ export async function getDailyAbsentees() {
             .eq('status', 'absent')
             .eq('tenant_id', profile.tenant_id)
 
+        // Apply class filter if it exists (for teachers)
+        if (classFilter.length > 0) {
+            // We need to filter by the student's class_id. 
+            // Since we can't easily do a nested filter on the join in one go with Supabase JS sometimes,
+            // we can filter the parent rows if we assume the attendance table might have class_id or we filter after fetch.
+            // However, student_attendance usually is linked to a student.
+            // Let's filter by student's class_id. 
+            // Optimized way: Get students in those classes first? Or filter in memory if dataset is small.
+            // Better: use !inner join to filter.
+
+            // Actually, does student_attendance have class_id? Let's assume No, it links to student.
+            // We can use the foreign key filter:
+            query = query.in('student.class_id', classFilter)
+            // but 'student.class_id' notation in .in() might not work as expected for M:1.
+            // Alternative: Filter returned data in application layer for now (MVP) since daily absentees count is low.
+        }
+
+        const { data: attendance, error } = await query
+
         if (error) throw error
 
-        return { success: true, data: attendance }
+        // In-memory filter for teachers to ensure strict class adherence
+        // (Supabase join filtering syntax can be tricky with 'in')
+        let filteredAttendance = attendance
+        if (profile.role === 'teacher') {
+            filteredAttendance = attendance.filter(record =>
+                record.student && classFilter.includes(record.student.class_id)
+            )
+        }
+
+        return { success: true, data: filteredAttendance }
     } catch (error) {
         console.error("Fetch absentees error:", error)
         return { success: false, error: "Failed to fetch absentees" }

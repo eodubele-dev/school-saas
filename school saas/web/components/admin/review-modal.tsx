@@ -6,11 +6,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { PendingItem, approveItem, rejectItem } from "@/lib/actions/approvals"
 import { useState } from "react"
-import { CheckCircle, XCircle, Stamp, UserCheck, AlertCircle } from "lucide-react"
+import { CheckCircle, XCircle, Stamp, UserCheck, AlertCircle, Clock } from "lucide-react"
 import { toast } from "sonner"
 import { cn, formatDate } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { AttendanceDisputeNotification } from "../attendance/attendance-dispute-notification"
+import { LessonEditor } from "../academic/lesson-editor"
 
 interface ReviewModalProps {
     item: PendingItem | null
@@ -24,6 +25,20 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
     const [isProcessing, setIsProcessing] = useState(false)
     const [isStamped, setIsStamped] = useState(false)
     const router = useRouter()
+
+    // Custom styles for the lesson content to ensure "ready-for-students" spacing
+    const contentStyles = `
+        .lesson-content h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: 2rem; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; }
+        .lesson-content h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1.25rem; color: #1e293b; border-left: 4px solid #3b82f6; padding-left: 1rem; }
+        .lesson-content h3 { font-size: 1.25rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; color: #334155; }
+        .lesson-content p { margin-bottom: 1.5rem; line-height: 1.8; color: #475569; }
+        .lesson-content ul, .lesson-content ol { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+        .lesson-content li { margin-bottom: 0.75rem; line-height: 1.6; }
+        .lesson-content table { width: 100%; border-collapse: collapse; margin: 2rem 0; border: 1px solid #e2e8f0; }
+        .lesson-content th { background: #f8fafc; padding: 12px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600; }
+        .lesson-content td { padding: 12px; border: 1px solid #e2e8f0; }
+        .lesson-content hr { margin: 3rem 0; border: 0; border-top: 1px solid #e2e8f0; }
+    `
 
     if (!item) return null
 
@@ -87,7 +102,8 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                 </DialogHeader>
 
                 <ScrollArea className="flex-1 p-8 bg-slate-900/50">
-                    <div className="bg-white text-slate-900 p-8 min-h-[600px] shadow-2xl relative max-w-3xl mx-auto rounded-sm">
+                    <style>{contentStyles}</style>
+                    <div className="bg-white text-slate-900 p-8 min-h-[600px] shadow-2xl relative max-w-3xl mx-auto rounded-sm lesson-content">
 
                         {/* Digital Stamp Overlay */}
                         <div className={cn(
@@ -103,8 +119,60 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                         </div>
 
                         {/* Content */}
-                        {item.type === 'lesson_plan' ? (
-                            <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: item.details?.content || "<p>No content</p>" }} />
+                        {item.type === 'lesson_plan' || item.type === 'lesson_note' || item.lesson_type === 'lesson_note' ? (
+                            <div className="bg-white min-h-[600px] h-full flex flex-col">
+                                {/* Document Header - Fits the "Paper" look */}
+                                <div className="border-b border-slate-100 p-8 md:p-12 pb-6 mb-0">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <div className={cn(
+                                            "uppercase tracking-widest text-xs font-bold px-3 py-1 rounded border",
+                                            item.lesson_type === 'lesson_note'
+                                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                                : "bg-blue-50 text-blue-700 border-blue-200"
+                                        )}>
+                                            {item.lesson_type === 'lesson_note' ? 'Lesson Note' : 'Lesson Plan'}
+                                        </div>
+                                        <div className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-amber-200 flex items-center gap-1">
+                                            <Clock className="w-3 h-3" /> Pending Review
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-3 text-sm font-mono">
+                                        {item.details?.class_name && (
+                                            <span className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md border border-slate-200 flex items-center gap-2">
+                                                <span className="font-bold text-slate-400 text-xs uppercase">Class:</span>
+                                                {item.details.class_name}
+                                            </span>
+                                        )}
+                                        {item.details?.subject && (
+                                            <span className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md border border-slate-200 flex items-center gap-2">
+                                                <span className="font-bold text-slate-400 text-xs uppercase">Subject:</span>
+                                                {item.details.subject}
+                                            </span>
+                                        )}
+                                        {item.details?.week && (
+                                            <span className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md border border-slate-200 flex items-center gap-2">
+                                                <span className="font-bold text-slate-400 text-xs uppercase">Week:</span>
+                                                {item.details.week}
+                                            </span>
+                                        )}
+                                        {item.details?.term && (
+                                            <span className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md border border-slate-200 flex items-center gap-2">
+                                                <span className="font-bold text-slate-400 text-xs uppercase">Term:</span>
+                                                {item.details.term}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex-1">
+                                    <LessonEditor
+                                        content={item.details?.content || "<p>No content</p>"}
+                                        onChange={() => { }}
+                                        editable={false}
+                                    />
+                                </div>
+                            </div>
                         ) : item.type === 'attendance_dispute' ? (
                             <div className="-m-8">
                                 <AttendanceDisputeNotification

@@ -9,10 +9,32 @@ import { useState } from "react"
 import { ReviewModal } from "./review-modal"
 import { FileText, Calculator, Clock, ChevronRight, MapPin } from "lucide-react"
 
+import { useRouter, useSearchParams } from "next/navigation"
+
 export function ApprovalQueue({ initialItems, domain }: { initialItems: PendingItem[], domain: string }) {
+    const searchParams = useSearchParams()
+    const router = useRouter()
     const [selectedItem, setSelectedItem] = useState<PendingItem | null>(null)
 
-    const lessonPlans = initialItems.filter(i => i.type === 'lesson_plan')
+    // Get filter from URL or default to 'all'
+    const lessonFilter = (searchParams.get('filter') as 'all' | 'lesson_plan' | 'lesson_note') || 'all'
+
+    const setLessonFilter = (filter: string) => {
+        const params = new URLSearchParams(searchParams)
+        if (filter === 'all') {
+            params.delete('filter')
+        } else {
+            params.set('filter', filter)
+        }
+        router.replace(`?${params.toString()}`, { scroll: false })
+    }
+
+    const lessonPlans = initialItems.filter(i => {
+        if (i.type !== 'lesson_plan') return false
+        if (lessonFilter === 'all') return true
+        const type = i.lesson_type || 'lesson_plan' // Default to plan if null
+        return type === lessonFilter
+    })
     const gradebooks = initialItems.filter(i => i.type === 'gradebook')
     const disputes = initialItems.filter(i => i.type === 'attendance_dispute')
 
@@ -23,7 +45,25 @@ export function ApprovalQueue({ initialItems, domain }: { initialItems: PendingI
                 icon={FileText}
                 items={lessonPlans}
                 onSelect={setSelectedItem}
+                filter={
+                    <div className="flex gap-1 bg-slate-950 p-0.5 rounded border border-white/5">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setLessonFilter('all'); }}
+                            className={cn("px-2 py-0.5 text-[10px] rounded transition-colors", lessonFilter === 'all' ? "bg-indigo-600 text-white" : "text-slate-500 hover:text-slate-300")}
+                        >All</button>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setLessonFilter('lesson_plan'); }}
+                            className={cn("px-2 py-0.5 text-[10px] rounded transition-colors", lessonFilter === 'lesson_plan' ? "bg-indigo-600 text-white" : "text-slate-500 hover:text-slate-300")}
+                        >Plans</button>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setLessonFilter('lesson_note'); }}
+                            className={cn("px-2 py-0.5 text-[10px] rounded transition-colors", lessonFilter === 'lesson_note' ? "bg-indigo-600 text-white" : "text-slate-500 hover:text-slate-300")}
+                        >Notes</button>
+                    </div>
+                }
             />
+
+            {/* Debug (Client Side) - Removed */}
             <QueueList
                 title="Gradebooks"
                 icon={Calculator}
@@ -48,7 +88,14 @@ export function ApprovalQueue({ initialItems, domain }: { initialItems: PendingI
     )
 }
 
-function QueueList({ title, icon: Icon, items, onSelect, accent }: { title: string, icon: any, items: PendingItem[], onSelect: (i: PendingItem) => void, accent?: string }) {
+function QueueList({ title, icon: Icon, items, onSelect, accent, filter }: {
+    title: string,
+    icon: any,
+    items: PendingItem[],
+    onSelect: (i: PendingItem) => void,
+    accent?: string,
+    filter?: React.ReactNode
+}) {
     return (
         <Card className="bg-slate-900/50 border-white/10 flex flex-col h-full overflow-hidden">
             <div className="p-4 border-b border-white/10 bg-slate-900 flex justify-between items-center">
@@ -56,7 +103,8 @@ function QueueList({ title, icon: Icon, items, onSelect, accent }: { title: stri
                     <Icon className={cn("h-5 w-5", accent || "text-[var(--school-accent)]")} />
                     <h3 className="font-bold text-white uppercase tracking-tight text-xs">{title}</h3>
                 </div>
-                <Badge variant="secondary" className="bg-slate-800 text-slate-300">
+                {filter}
+                <Badge variant="outline" className="bg-slate-800/50 text-slate-400 border-white/10">
                     {items.length} Pending
                 </Badge>
             </div>

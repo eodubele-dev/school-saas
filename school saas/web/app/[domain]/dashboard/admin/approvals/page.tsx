@@ -2,6 +2,9 @@ import { getPendingApprovals, getComplianceStats } from "@/lib/actions/approvals
 import { ApprovalQueue } from "@/components/admin/approval-queue"
 import { ComplianceAnalytics } from "@/components/admin/compliance-analytics"
 import { ShieldCheck } from "lucide-react"
+import { Suspense } from "react"
+
+export const dynamic = 'force-dynamic'
 
 export default async function ApprovalsPage({ params }: { params: { domain: string } }) {
     const [approvalsRes, stats] = await Promise.all([
@@ -25,8 +28,12 @@ export default async function ApprovalsPage({ params }: { params: { domain: stri
             </div>
 
             <div className="flex-1 min-h-0">
-                <ApprovalQueue initialItems={approvalsRes.data || []} domain={params.domain} />
+                <Suspense fallback={<div className="p-10 text-center text-slate-500">Loading approvals...</div>}>
+                    <ApprovalQueue initialItems={approvalsRes.data || []} domain={params.domain} />
+                </Suspense>
             </div>
+
+            {/* Debug Info Section Removed */}
         </div>
     )
 }

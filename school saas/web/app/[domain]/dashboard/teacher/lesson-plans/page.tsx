@@ -1,4 +1,5 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { LessonTabs } from "@/components/academic/lesson-tabs"
 import { createClient } from "@/lib/supabase/server"
 import { BookOpen, FileText, Sparkles, Table, Clock, Archive } from "lucide-react"
 import { TeacherLessonPublisher } from "@/components/dashboard/teacher-lesson-publisher"
@@ -173,7 +174,7 @@ export default async function LessonPlansPage({ params, searchParams }: { params
                     </div>
                 </div>
 
-                <Tabs defaultValue={searchParams.tab || "ai"} className="flex-1 flex flex-col">
+                <LessonTabs defaultTab="ai">
                     <TabsList className="bg-slate-900 border border-white/10 w-full md:w-auto p-1 self-start mb-6">
                         <TabsTrigger value="ai" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
                             <Sparkles className="h-4 w-4 mr-2" /> AI Generator
@@ -259,7 +260,7 @@ export default async function LessonPlansPage({ params, searchParams }: { params
                             </ScrollArea>
                         </div>
                     </TabsContent>
-                </Tabs>
+                </LessonTabs>
             </div>
         )
 

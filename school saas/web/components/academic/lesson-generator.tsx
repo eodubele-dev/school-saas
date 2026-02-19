@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, Sparkles, Save, Download, Share2, Plus, FileText, Activity, Zap } from "lucide-react"
+import { Loader2, Sparkles, Save, Download, Share2, Plus, FileText, Activity, Zap, BookOpen, CheckCircle2 } from "lucide-react"
 import { LessonEditor } from "./lesson-editor"
 import { saveLessonPlan, LessonPlan } from "@/lib/actions/lesson-plan"
 import { createLesson } from "@/lib/actions/teacher-lesson-publisher"
@@ -45,6 +45,7 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
     const [classId, setClassId] = useState("")
     const [content, setContent] = useState("")
     const [type, setType] = useState<"lesson_plan" | "lesson_note">("lesson_plan")
+    const [isPublished, setIsPublished] = useState(false)
 
     // Sync with initialPlan when it changes (History selection or New)
     useEffect(() => {
@@ -55,6 +56,8 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
             setWeek(initialPlan.week || "Week 1")
             setClassId(initialPlan.class_id)
             setContent(initialPlan.content)
+            setType(initialPlan.type || "lesson_plan")
+            setIsPublished(initialPlan.is_published || false)
 
             const cls = teacherClasses.find(c => c.id === initialPlan.class_id)
             if (cls) setLevel(cls.name)
@@ -69,6 +72,8 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                 setLevel(firstClass.name)
                 setSubject(firstClass.subject || "General")
             }
+            setType("lesson_plan")
+            setIsPublished(false)
         }
     }, [initialPlan, teacherClasses])
 
@@ -114,42 +119,29 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
         // 1. LESSON NOTE -> Student Locker (Public)
         // 1. LESSON NOTE -> Student Locker (Public)
         if (type === 'lesson_note') {
-            const weekNum = parseInt(week.replace("Week ", "")) || 1
-
-            // A. Publish to Student Locker
-            const publishPromise = createLesson({
-                title: topic,
-                content,
-                subject,
-                grade_level: level,
-                week: weekNum,
-                subtopics: topic
-            }).then(res => {
-                if (!res.success) throw new Error(res.error || "Failed to publish")
-                return res
-            })
-
-            // B. Save to Teacher Archive (as Approved/Published)
+            // LESSON NOTE -> Teacher Archive (Pending Approval)
+            // Ideally, notes should be approved before students see them.
             const archivePromise = saveLessonPlan({
                 id,
                 title: topic,
                 content,
                 subject,
                 week,
-                term: "1st Term",
+                term: "1st Term", // This should be dynamic based on session
                 class_id: classId,
-                is_published: true,
-                status: 'approved',
+                is_published: true, // Saved as "done" from editing perspective
+                approval_status: 'pending', // MUST go to admin
                 type: 'lesson_note'
             })
 
-            toast.promise(Promise.all([publishPromise, archivePromise]), {
-                loading: 'Publishing & Archiving...',
+            toast.promise(archivePromise, {
+                loading: 'Submitting Note for Approval...',
                 success: () => {
                     router.refresh()
-                    return 'Published to Students & Archived!'
+                    setIsPublished(true)
+                    return 'Lesson Note Submitted for Admin Review!'
                 },
-                error: 'Failed to publish'
+                error: (err: any) => err.message || 'Failed to submit'
             })
             return
         }
@@ -164,14 +156,15 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
             term: "1st Term",
             class_id: classId,
             is_published: published,
-            type: 'lesson_plan'
+            type: type
         })
 
         toast.promise(promise, {
             loading: 'Archiving Plan...',
             success: () => {
                 router.refresh()
-                return published ? 'Lesson Plan Archived!' : 'Draft Saved!'
+                setIsPublished(true) // Ensure it marks as published/saved
+                return published ? 'Lesson Plan Updated!' : 'Draft Saved!'
             },
             error: (err) => err.message || 'Failed to save'
         })
@@ -192,18 +185,57 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                 </div>
 
                 <div className="flex items-center gap-2">
+                    {/* Persistent Status Badge in Header */}
+                    {initialPlan?.approval_status === 'approved' && (
+                        <div className="bg-green-500/10 border border-green-500/20 px-3 py-1.5 rounded-full flex items-center gap-2">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                            <span className="text-xs font-semibold text-green-400">Approved</span>
+                        </div>
+                    )}
+                    {initialPlan?.approval_status === 'rejected' && (
+                        <div className="bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-full flex items-center gap-2" title={initialPlan.rejection_reason}>
+                            <Activity className="w-3.5 h-3.5 text-red-500" />
+                            <span className="text-xs font-semibold text-red-400">Changes Requested</span>
+                        </div>
+                    )}
+                    {initialPlan?.approval_status === 'pending' && (
+                        <div className="flex items-center gap-2">
+                            <div className="bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-full flex items-center gap-2">
+                                <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />
+                                <span className="text-xs font-semibold text-blue-400">In Review</span>
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => router.refresh()}
+                                className="h-8 w-8 p-0 rounded-full hover:bg-white/10 text-slate-400 hover:text-white"
+                                title="Refresh Status"
+                            >
+                                <Zap className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+
                     {content && (
                         <>
-                            <Button variant="outline" size="sm" onClick={() => setContent("")} className="border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white">
+                            <Button variant="outline" size="sm" onClick={handleNew} className="border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white">
                                 <Plus className="h-4 w-4 mr-2" /> New Chat
                             </Button>
                             <Button
                                 size="sm"
-                                className={type === 'lesson_note' ? "bg-green-600 hover:bg-green-700 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}
+                                className={
+                                    type === 'lesson_note'
+                                        ? "bg-green-600 hover:bg-green-700 text-white"
+                                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                                }
                                 onClick={() => handleSave(true)}
                             >
-                                {type === 'lesson_note' ? (
-                                    <><Share2 className="h-4 w-4 mr-2" /> Publish to Students</>
+                                {isPublished ? (
+                                    type === 'lesson_note'
+                                        ? <><CheckCircle2 className="h-4 w-4 mr-2" /> Update Note</>
+                                        : <><Save className="h-4 w-4 mr-2" /> Update Archive</>
+                                ) : type === 'lesson_note' ? (
+                                    <><Share2 className="h-4 w-4 mr-2" /> Submit for Review</>
                                 ) : (
                                     <><Save className="h-4 w-4 mr-2" /> Save to Archive</>
                                 )}
@@ -212,6 +244,8 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                     )}
                 </div>
             </div>
+
+            {/* Status Banner Removed - Moved to Header */}
 
             {/* Main Content Area */}
             <div className="flex-1 overflow-hidden relative flex flex-col">
@@ -335,7 +369,8 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                         <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl border border-slate-200 min-h-full flex flex-col overflow-hidden">
                             {/* Document Header */}
                             <div className="border-b pb-6 mb-8 p-6 md:p-14">
-                                <h1 className="text-3xl font-bold text-slate-900 mb-2 uppercase tracking-tight">
+                                <h1 className={`text-3xl font-bold mb-2 uppercase tracking-tight ${type === 'lesson_note' ? 'text-emerald-900' : 'text-slate-900'
+                                    }`}>
                                     {type === 'lesson_plan' ? 'Lesson Plan' : 'Lesson Note'}
                                 </h1>
                                 <div className="flex flex-wrap gap-4 text-sm text-slate-500 font-mono">

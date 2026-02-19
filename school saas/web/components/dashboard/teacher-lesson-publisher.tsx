@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import { createLesson } from "@/lib/actions/teacher-lesson-publisher"
+import { saveLessonPlan } from "@/lib/actions/lesson-plan"
 import { Plus, BookOpen, Save } from "lucide-react"
 
 export function TeacherLessonPublisher({ classId, subject }: { classId?: string, subject?: string }) {
@@ -34,6 +35,21 @@ export function TeacherLessonPublisher({ classId, subject }: { classId?: string,
                 week: parseInt(week),
                 subtopics
             })
+
+            // Also save to Archive
+            if (classId) {
+                await saveLessonPlan({
+                    title,
+                    content,
+                    subject,
+                    week: `Week ${week}`,
+                    term: "1st Term",
+                    class_id: classId,
+                    is_published: true,
+                    approval_status: 'approved',
+                    type: 'lesson_note'
+                })
+            }
 
             if (res.success) {
                 toast.success("Lesson published to Digital Locker!")

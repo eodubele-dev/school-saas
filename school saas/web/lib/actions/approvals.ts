@@ -12,6 +12,7 @@ export interface PendingItem {
     status: string
     details?: any // Extra data like content or subject/class
     student_id?: string
+    lesson_type?: 'lesson_plan' | 'lesson_note'
 }
 
 /**
@@ -30,12 +31,22 @@ export async function getPendingApprovals() {
     const { data: plans } = await supabase
         .from('lesson_plans')
         .select(`
-            id, title, created_at, approval_status, content,
-            teacher:profiles!teacher_id(full_name)
+            id, title, created_at, approval_status, content, type, subject, week, term,
+            teacher:profiles!teacher_id(full_name),
+            class:classes!class_id(name)
         `)
         .eq('tenant_id', profile?.tenant_id)
         .eq('approval_status', 'pending')
         .order('created_at', { ascending: false })
+
+    console.log("DEBUG: Admin Tenant:", profile?.tenant_id)
+    console.log("DEBUG: Pending Plans Query Result:", plans?.length)
+    if (plans) {
+        console.log("DEBUG: Plan IDs:", plans.map((p: any) => p.id))
+        console.log("DEBUG: Plan Types:", plans.map((p: any) => p.type))
+    } else {
+        console.log("DEBUG: Plans is null or undefined")
+    }
 
     const pendingItems: PendingItem[] = []
 
@@ -51,9 +62,16 @@ export async function getPendingApprovals() {
                 type: 'lesson_plan',
                 title: p.title,
                 submitted_by: teacherName || 'Unknown Teacher',
-                submitted_at: p.created_at,
+                submitted_at: new Date(p.created_at).toISOString(),
                 status: 'pending',
-                details: { content: p.content }
+                lesson_type: p.type || 'lesson_plan',
+                details: {
+                    content: p.content,
+                    subject: p.subject,
+                    class_name: Array.isArray(p.class) ? p.class[0]?.name : p.class?.name,
+                    week: p.week,
+                    term: p.term
+                }
             })
         })
     }

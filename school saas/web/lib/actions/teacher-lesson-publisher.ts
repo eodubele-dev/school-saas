@@ -9,7 +9,9 @@ export interface CreateLessonParams {
     subject: string
     grade_level: string
     week: number
+    week: number
     subtopics?: string
+    lessonPlanId?: string
 }
 
 export async function createLesson(data: CreateLessonParams) {
@@ -46,6 +48,11 @@ export async function createLesson(data: CreateLessonParams) {
     if (error) {
         console.error("Failed to publish lesson:", error)
         throw new Error(error.message || "Failed to publish lesson")
+    }
+
+    // OPTIONAL: Update the source lesson plan to mark as published
+    if (data.lessonPlanId) {
+        await supabase.from('lesson_plans').update({ status: 'published' }).eq('id', data.lessonPlanId)
     }
 
     revalidatePath('/dashboard/student/learning')
