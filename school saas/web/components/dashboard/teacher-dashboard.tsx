@@ -53,18 +53,21 @@ export function TeacherDashboard({ tier = 'starter' }: { tier?: string }) {
                     value={metrics.pendingAssignments.toString()}
                     icon={BookOpen}
                     description="Pending Grading"
+                    accentColor="rose"
                 />
                 <MetricCard
                     title="Upcoming Exams"
                     value={metrics.upcomingExams.toString()}
                     icon={Calendar}
                     description="Active Assessments"
+                    accentColor="amber"
                 />
                 <MetricCard
                     title="Avg. Attendance"
                     value={`${vitals.avgAttendance}%`}
                     icon={UserCheck}
                     description="Class Average"
+                    accentColor="emerald"
                 />
             </div>
 

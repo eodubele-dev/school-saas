@@ -1,7 +1,7 @@
 import { LayoutDashboard, CalendarDays, BookOpen, Activity, FileText, MapPin, Users, Settings, GraduationCap, ClipboardCheck, CreditCard, UserCircle, BrainCircuit, MessageSquare, BookCheck as BookOpenCheck, Banknote, Wallet, ShieldCheck, Smartphone, Sparkles, Crown, Bus, Bed, Package, Search, Building2, Landmark, Truck, Shield, Award } from "lucide-react"
 import { NairaIcon } from "@/components/ui/naira-icon"
 
-export type UserRole = 'admin' | 'teacher' | 'parent' | 'student' | 'bursar' | 'owner'
+export type UserRole = 'admin' | 'teacher' | 'parent' | 'student' | 'bursar' | 'owner' | 'driver' | 'staff'
 
 export type SidebarItem = {
     icon: any
@@ -62,7 +62,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             category: "Campus Logistics",
             icon: Truck,
             items: [
-                { icon: Bus, label: "Transport Hub", href: "/dashboard/admin/logistics" },
+                { icon: Bus, label: "Transport Hub", href: "/dashboard/logistics" },
                 { icon: Bed, label: "Hostel Management", href: "/dashboard/admin/hostels" },
             ]
         },
@@ -76,6 +76,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
         {
             category: "System",
             items: [
+                { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
                 { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
                 { icon: MessageSquare, label: "SMS Notifications", href: "/dashboard/settings/notifications" },
             ]
@@ -123,7 +124,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             category: "Campus Logistics",
             icon: Truck,
             items: [
-                { icon: Bus, label: "Transport Hub", href: "/dashboard/admin/logistics" },
+                { icon: Bus, label: "Transport Hub", href: "/dashboard/logistics" },
                 { icon: Bed, label: "Hostel Management", href: "/dashboard/admin/hostels" },
             ]
         },
@@ -137,6 +138,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
         {
             category: "System",
             items: [
+                { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
                 { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
                 { icon: MessageSquare, label: "SMS Notifications", href: "/dashboard/settings/notifications" },
             ]
@@ -182,6 +184,26 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             ]
         }
     ],
+    driver: [
+        {
+            category: "Operations",
+            items: [
+                { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
+                { icon: Bus, label: "My Routes", href: "/dashboard/logistics" },
+                { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
+            ]
+        }
+    ],
+    staff: [
+        {
+            category: "Operations",
+            items: [
+                { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
+                { icon: Bus, label: "Transport Hub", href: "/dashboard/logistics" },
+                { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
+            ]
+        }
+    ],
     parent: [
         {
             category: "General", items: [
@@ -194,6 +216,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
                 { icon: MapPin, label: "Bus Tracker", href: "/dashboard/bus-tracker", disabled: true, badge: "Premium" },
                 { icon: BookOpen, label: "Academics", href: "/dashboard/academics" },
                 { icon: Crown, label: "Platinum Concierge", href: "/dashboard/platinum", badge: "New" },
+                { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
             ]
         }
     ],
@@ -226,7 +249,9 @@ export const ROLE_LABELS: Record<UserRole, string> = {
     parent: "Parent",
     student: "Student",
     bursar: "Bursar",
-    owner: "Proprietor"
+    owner: "Proprietor",
+    driver: "Driver",
+    staff: "Staff Assistant"
 }
 
 export const ROLE_BADGES: Record<UserRole, string> = {
@@ -235,5 +260,7 @@ export const ROLE_BADGES: Record<UserRole, string> = {
     parent: "👨‍👩‍👧",
     student: "🎒",
     bursar: "💰",
-    owner: "👑"
+    owner: "👑",
+    driver: "🚌",
+    staff: "📋"
 }

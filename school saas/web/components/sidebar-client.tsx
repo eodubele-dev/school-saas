@@ -33,6 +33,8 @@ import { Crown } from "lucide-react"
 
 import { SIDEBAR_LINKS, type UserRole, type SidebarCategory, type SidebarItem } from "@/config/sidebar"
 import { StudentSwitcher } from "./dashboard/student-switcher"
+import { getUnreadMessageCount } from "@/lib/actions/communication"
+import { createClient } from "@/lib/supabase/client"
 
 
 export function SidebarClient({
@@ -56,6 +58,7 @@ export function SidebarClient({
 }) {
     const pathname = usePathname()
     const router = useRouter()
+    const [unreadCount, setUnreadCount] = useState(0)
 
     // Normalize role string
     const normalizedRole = (initialRole || 'student').trim().toLowerCase()
@@ -89,6 +92,39 @@ export function SidebarClient({
                 setOpenHub(saved)
             }
         }
+
+        // Initialize supabase
+        const supabase = createClient()
+
+        // Fetch unread count
+        const fetchUnread = async () => {
+            const res = await getUnreadMessageCount()
+            if (res && res.success) setUnreadCount(res.count)
+        }
+        fetchUnread()
+
+        // Real-time subscription for global unread count
+        const channel = supabase
+            .channel('global-unread-count')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*', // Listen for all changes (Mark as read, delete, new messages)
+                    schema: 'public',
+                    table: 'chat_messages'
+                },
+                () => {
+                    fetchUnread()
+                }
+            )
+            .subscribe()
+
+        // Polling for unread messages (Backup)
+        const interval = setInterval(fetchUnread, 60000)
+        return () => {
+            clearInterval(interval)
+            supabase.removeChannel(channel)
+        }
     }, []) // Run once on mount
 
     // Save to localStorage when hub changes (but never save "System")
@@ -115,7 +151,7 @@ export function SidebarClient({
         // Find active category based on current path (but never auto-open System)
         const activeCategory = categories.find(cat =>
             cat.category !== "System" && cat.items?.some(item =>
-                item.href === '/dashboard' ? pathname === item.href : pathname.startsWith(item.href)
+                pathname && (item.href === '/dashboard' ? pathname === item.href : pathname.startsWith(item.href))
             )
         )
 
@@ -230,27 +266,6 @@ export function SidebarClient({
                     </CommandList>
                 </CommandDialog>
 
-                <CommandDialog open={openSearch} onOpenChange={setOpenSearch}>
-                    <CommandInput placeholder="Search modules (e.g. Bus, Fees, Staff)..." />
-                    <CommandList>
-                        <CommandEmpty>No results found.</CommandEmpty>
-                        {categories.map((cat) => (
-                            <CommandGroup key={cat.category} heading={cat.category}>
-                                {cat.items?.map((item) => (
-                                    <CommandItem
-                                        key={item.href}
-                                        value={`${cat.category} ${item.label}`}
-                                        onSelect={() => handleSearchSelect(item.href)}
-                                    >
-                                        <item.icon className="mr-2 h-4 w-4" strokeWidth={1.5} />
-                                        <span>{item.label}</span>
-                                    </CommandItem>
-                                ))}
-                            </CommandGroup>
-                        ))}
-                    </CommandList>
-                </CommandDialog>
-
                 <SupportModal
                     isOpen={isSupportOpen}
                     onClose={() => setIsSupportOpen(false)}
@@ -270,7 +285,7 @@ export function SidebarClient({
                         const Icon = cat.icon
 
                         // Check if this hub has the active link
-                        const hasActiveLink = cat.items.some(item =>
+                        const hasActiveLink = pathname && cat.items.some(item =>
                             item.href === '/dashboard' ? pathname === item.href : pathname.startsWith(item.href)
                         )
 
@@ -304,9 +319,9 @@ export function SidebarClient({
                                     <div className="ml-9 mt-2 space-y-1 border-l border-white/10 pl-4 animate-in slide-in-from-top-2 duration-200">
                                         {cat.items.map((item) => {
                                             const ItemIcon = item.icon
-                                            const isActive = item.href === '/dashboard'
+                                            const isActive = pathname && (item.href === '/dashboard'
                                                 ? pathname === item.href
-                                                : pathname.startsWith(item.href)
+                                                : pathname.startsWith(item.href))
 
                                             const isPremiumFeature = item.badge === 'Premium'
 
@@ -357,6 +372,11 @@ export function SidebarClient({
                                                 >
                                                     {ItemIcon && <ItemIcon className="h-3.5 w-3.5" strokeWidth={1.5} />}
                                                     <span>{item.label}</span>
+                                                    {item.href === '/dashboard/messages' && unreadCount > 0 && (
+                                                        <span className="ml-auto bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-slate-950">
+                                                            {unreadCount}
+                                                        </span>
+                                                    )}
                                                 </Link>
                                             )
                                         })}
@@ -371,11 +391,11 @@ export function SidebarClient({
                 <div className="pt-4 px-4 border-t border-white/5 space-y-4 pb-4">
                     {/* 🏦 Family Financial Summary (Parent Only) */}
                     {role === 'parent' && (
-                        <div className="bg-slate-900/50 border border-white/5 rounded-xl p-3 mb-2">
-                            <p className="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-1">
-                                Total_Family_Balance
+                        <div className="bg-slate-900/50 border border-white/5 rounded-xl p-3 mb-2 shadow-[0_0_20px_rgba(6,182,212,0.05)]">
+                            <p className="text-[10px] font-black text-cyan-600 uppercase tracking-tighter mb-1 leading-none italic">
+                                Total Family Balance
                             </p>
-                            <p className="text-lg font-bold text-white font-mono tracking-tight">
+                            <p className="text-xl font-black text-white tabular-nums tracking-tighter">
                                 ₦{(linkedStudents?.reduce((sum, s) => sum + (s.school_fees_debt || 0), 0) || 0).toLocaleString()}
                             </p>
                         </div>
@@ -398,7 +418,7 @@ export function SidebarClient({
                     {/* System Links */}
                     {categories.find(c => c.category === "System")?.items?.map(item => {
                         const ItemIcon = item.icon
-                        const isActive = pathname.startsWith(item.href)
+                        const isActive = pathname?.startsWith(item.href)
                         return (
                             <Link
                                 key={item.href}

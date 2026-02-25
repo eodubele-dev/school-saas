@@ -24,7 +24,7 @@ export default async function ManifestPage({
             <div className="bg-slate-900 border-b border-white/10 p-4 sticky top-0 z-10 glass-header">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                        <Link href={`/dashboard/admin/logistics`} className="p-2 hover:bg-white/5 rounded-full transition-colors">
+                        <Link href={`/dashboard/logistics`} className="p-2 hover:bg-white/5 rounded-full transition-colors">
                             <ChevronLeft className="h-5 w-5 text-slate-400" />
                         </Link>
                         <div>

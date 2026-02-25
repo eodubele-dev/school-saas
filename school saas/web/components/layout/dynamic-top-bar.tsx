@@ -195,7 +195,11 @@ export function DynamicTopBar({
                             <Users size={14} />
                             <span className="hidden sm:inline">FAMILY_ID: {user.id.slice(0, 6).toUpperCase()}</span>
                         </button>
-                        <Button size="sm" variant="outline" className="hidden sm:flex border-slate-800 text-slate-400 hover:text-white text-[10px] uppercase h-8">
+                        <Button
+                            size="sm"
+                            className="hidden sm:flex bg-emerald-600 hover:bg-emerald-500 text-black text-[10px] font-black uppercase h-8"
+                            onClick={() => router.push('/dashboard/billing/family')}
+                        >
                             <CreditCard size={14} className="mr-2" /> Pay Fees
                         </Button>
                     </>
@@ -230,7 +234,7 @@ export function DynamicTopBar({
 
                 {/* ZONE 2: SCOPED SEARCH (FLEX GROW) */}
                 <div className="flex-1 max-w-2xl px-2 md:px-8 flex items-center gap-4">
-                    <OmniSearch />
+                    <OmniSearch role={role} />
                     {activeSession && (
                         <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-slate-300 whitespace-nowrap">
                             <Activity className="h-3 w-3 text-[var(--school-accent)]" />

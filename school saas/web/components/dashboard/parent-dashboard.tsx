@@ -95,39 +95,48 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
 
             {/* Progress Overview Section */}
             <div className="grid gap-6 md:grid-cols-3">
-                <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden group">
+                <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden group pt-2">
+                    {/* 🌈 Thick Top Border Action */}
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-blue-500" />
+
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl -mr-16 -mt-16" />
                     <CardContent className="pt-6">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-semibold text-lg text-slate-200">Overall Progress</h3>
-                            <span className="text-xs text-slate-500">All Subjects</span>
+                            <h3 className="font-bold text-[10px] text-slate-500 uppercase tracking-widest font-mono">Overall Progress</h3>
+                            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">All Subjects</span>
                         </div>
                         <div className="h-20 flex items-center justify-center">
                             <CircularProgress percentage={stats.overallProgress} color="#3B82F6" />
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden">
+                <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden group pt-2">
+                    {/* 🌈 Thick Top Border Action */}
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-emerald-500" />
+
                     <CardContent className="pt-6">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-semibold text-lg text-slate-200">Activity Completion</h3>
-                            <span className="text-xs text-slate-500">Today</span>
+                            <h3 className="font-bold text-[10px] text-slate-500 uppercase tracking-widest font-mono">Activity Completion</h3>
+                            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Today</span>
                         </div>
                         <div className="h-20 flex items-center justify-center">
                             <CircularProgress percentage={stats.overallActivity} color="#10B981" />
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden">
+                <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden group pt-2">
+                    {/* 🌈 Thick Top Border Action */}
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-amber-500" />
+
                     <CardContent className="pt-6">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-semibold text-lg text-slate-200">Learning Time</h3>
-                            <span className="text-2xl font-bold text-white tracking-tight">{formatTime(stats.totalTimeMinutes)}</span>
+                            <h3 className="font-bold text-[10px] text-slate-500 uppercase tracking-widest font-mono">Learning Time</h3>
+                            <span className="text-2xl font-black text-white tracking-tight">{formatTime(stats.totalTimeMinutes)}</span>
                         </div>
                         <div className="h-20 flex items-center justify-center">
                             <div className="text-center">
-                                <Clock className="w-12 h-12 text-slate-700 mx-auto mb-1" />
-                                <p className="text-xs text-slate-500">Active Today</p>
+                                <Clock className="w-10 h-10 text-slate-700 mx-auto mb-1 group-hover:text-amber-500/50 transition-colors" />
+                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Active Today</p>
                             </div>
                         </div>
                     </CardContent>
@@ -138,7 +147,10 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
             <div className="grid gap-6 md:grid-cols-2">
                 {/* Math */}
                 {mathSubject ? (
-                    <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl">
+                    <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl group pt-2 relative overflow-hidden">
+                        {/* 🌈 Thick Top Border Action */}
+                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-blue-500" />
+
                         <CardContent className="p-6 space-y-4">
                             <div className="flex justify-between items-start">
                                 <div>
@@ -185,7 +197,10 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
 
                 {/* Reading */}
                 {readingSubject ? (
-                    <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl">
+                    <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl group pt-2 relative overflow-hidden">
+                        {/* 🌈 Thick Top Border Action */}
+                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-pink-500" />
+
                         <CardContent className="p-6 space-y-4">
                             <div className="flex justify-between items-start">
                                 <div>
@@ -290,13 +305,6 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
                     {/* Note: ParentFeedView might need internal styling updates to match dark mode, 
                      but since it's a separate component we assume it inherits globals or will require separate pass if distinct */}
                     <ParentFeedView posts={feedPosts} />
-                </div>
-
-                <div>
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-xl text-white">Messages</h3>
-                    </div>
-                    <ChatInterface />
                 </div>
             </div>
 

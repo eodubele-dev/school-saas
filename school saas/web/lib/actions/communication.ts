@@ -45,7 +45,7 @@ export async function getDailyAbsentees() {
                 student:students(
                     full_name, 
                     class_id,
-                    parent:profiles!parent_id(full_name, phone)
+                    parent:profiles!parent_id(full_name, phone, phone_number)
                 )
             `)
             .eq('date', today)
@@ -92,59 +92,74 @@ export async function getDailyAbsentees() {
 /**
  * 2. Send Bulk SMS
  * Sends SMS to a list of recipients using the integrated Termii service.
+ * Optimized for parallel processing and bulk logging.
  */
 export async function sendBulkSMS(recipients: { phone: string, name: string }[], message: string) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
-    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
-    if (!profile?.tenant_id) return { success: false, error: "Tenant context missing" }
+    try {
+        const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+        if (!profile?.tenant_id) return { success: false, error: "Tenant context missing" }
 
-    const { data: tenant } = await supabase.from('tenants').select('sms_balance').eq('id', profile.tenant_id).single()
-    let currentBalance = Number(tenant?.sms_balance) || 0
-    const SMS_COST = SMS_CONFIG.UNIT_COST // Standard rate
+        const { data: tenant } = await supabase.from('tenants').select('sms_balance').eq('id', profile.tenant_id).single()
+        let currentBalance = Number(tenant?.sms_balance) || 0
+        const SMS_COST = SMS_CONFIG.UNIT_COST
 
-    const results = []
+        const results: any[] = []
+        const messageLogs: any[] = []
+        let queuedCount = 0
 
-    for (const recipient of recipients) {
-        // --- Wallet Check ---
-        if (currentBalance < SMS_COST) {
-            results.push({ phone: recipient.phone, status: 'skipped_insufficient_funds' })
-            continue
+        // Process in batches to avoid timeouts
+        const BATCH_SIZE = 5
+        for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
+            const batch = recipients.slice(i, i + BATCH_SIZE)
+
+            if (currentBalance < (SMS_COST * batch.length)) {
+                batch.forEach(r => results.push({ phone: r.phone, status: 'skipped_insufficient_funds' }))
+                break
+            }
+
+            const batchResults = await Promise.all(batch.map(async (recipient) => {
+                const smsRes = await sendSMS(recipient.phone, message)
+                return { ...recipient, success: smsRes.success, smsData: smsRes.data }
+            }))
+
+            for (const res of batchResults) {
+                const status = res.success ? 'sent' : 'failed'
+                if (res.success) {
+                    currentBalance -= SMS_COST
+                    queuedCount++
+                    messageLogs.push({
+                        tenant_id: profile.tenant_id,
+                        sender_id: user.id,
+                        recipient_phone: res.phone,
+                        recipient_name: res.name,
+                        message_content: message,
+                        channel: 'sms',
+                        status: status,
+                        cost: SMS_COST,
+                        provider_ref: (res.smsData as any)?.message_id
+                    })
+                }
+                results.push({ phone: res.phone, status })
+            }
         }
 
-        // --- PRO PRODUCTION: Call real Termii Service ---
-        const smsRes = await sendSMS(recipient.phone, message)
-        const status = smsRes.success ? 'sent' : 'failed'
-
-        if (smsRes.success) {
-            currentBalance -= SMS_COST
-            // Aggressively update balance to avoid over-spending in parallel if possible, 
-            // though single-tenant sequential sends here are safer.
-            await supabase
-                .from('tenants')
-                .update({ sms_balance: currentBalance })
-                .eq('id', profile.tenant_id)
+        // Final bulk updates
+        if (queuedCount > 0) {
+            await supabase.from('tenants').update({ sms_balance: currentBalance }).eq('id', profile.tenant_id)
+            if (messageLogs.length > 0) {
+                await supabase.from('message_logs').insert(messageLogs)
+            }
         }
 
-        // Log to Communications Audit Trail
-        await supabase.from('message_logs').insert({
-            tenant_id: profile.tenant_id,
-            sender_id: user.id,
-            recipient_phone: recipient.phone,
-            recipient_name: recipient.name,
-            message_content: message,
-            channel: 'sms',
-            status: status,
-            cost: smsRes.success ? SMS_COST : 0,
-            provider_ref: smsRes.success ? (smsRes.data as any)?.message_id : 'FAILED'
-        })
-
-        results.push({ phone: recipient.phone, status })
+        return { success: true, results }
+    } catch (error) {
+        console.error("[SEND_BULK_SMS] Error:", error)
+        return { success: false, error: "Communication service failure" }
     }
-
-    return { success: true, results }
 }
 
 /**
@@ -170,40 +185,41 @@ export async function sendBroadcast(
         if (audienceType === 'all_parents') {
             const { data: parents } = await supabase
                 .from('profiles')
-                .select('full_name, phone')
+                .select('full_name, phone, phone_number')
                 .eq('tenant_id', profile.tenant_id)
                 .eq('role', 'parent')
 
             recipients = (parents || [])
-                .filter(p => p.phone)
-                .map(p => ({ phone: p.phone!, name: p.full_name || 'Parent' }))
+                .filter(p => p.phone || p.phone_number)
+                .map(p => ({ phone: (p.phone || p.phone_number)!, name: p.full_name || 'Parent' }))
         } else if (audienceType === 'class') {
             const { data: students } = await supabase
                 .from('students')
                 .select(`
                     full_name,
-                    parent:profiles!parent_id(full_name, phone)
+                    parent:profiles!parent_id(full_name, phone, phone_number)
                 `)
                 .eq('class_id', audienceId)
                 .eq('tenant_id', profile.tenant_id)
 
             recipients = (students || []).map(s => {
                 const parent = Array.isArray(s.parent) ? s.parent[0] : s.parent
+                const phone = (parent as any)?.phone || (parent as any)?.phone_number
                 return {
-                    phone: (parent as any)?.phone,
+                    phone: phone,
                     name: (parent as any)?.full_name || 'Parent'
                 }
             }).filter(p => p.phone)
         } else if (audienceType === 'staff') {
             const { data: staff } = await supabase
                 .from('profiles')
-                .select('full_name, phone')
+                .select('full_name, phone, phone_number')
                 .eq('tenant_id', profile.tenant_id)
                 .eq('role', 'teacher')
 
             recipients = (staff || [])
-                .filter(s => s.phone)
-                .map(s => ({ phone: s.phone!, name: s.full_name || 'Staff' }))
+                .filter(s => s.phone || s.phone_number)
+                .map(s => ({ phone: (s.phone || s.phone_number)!, name: s.full_name || 'Staff' }))
         }
 
         if (recipients.length === 0) {
@@ -261,31 +277,35 @@ export async function getChatThreads() {
         .select(`
             id,
             last_message_at,
-            parent:profiles!parent_id(id, full_name, photo_url),
-            staff:profiles!staff_id(id, full_name, photo_url),
+            parent:profiles!parent_id(id, full_name, avatar_url),
+            staff:profiles!staff_id(id, full_name, avatar_url),
             messages:chat_messages(content, is_read, sender_id, created_at)
         `)
         .or(`staff_id.eq.${user.id},parent_id.eq.${user.id}`)
         .order('last_message_at', { ascending: false })
 
     if (error) {
-        console.error("Get threads error:", error)
-        return { success: false, error: "Failed to load chats" }
+        console.error("[CHAT_DEBUG] Get threads error:", error)
+        return { success: false, error: `Failed to load chats: ${error.message}` }
     }
 
     // Process to get last message preview
     const processed = (threads || []).map(t => {
-        // Handle potential array results from joins
         const staff = Array.isArray(t.staff) ? t.staff[0] : t.staff
         const parent = Array.isArray(t.parent) ? t.parent[0] : t.parent
 
         const isStaff = (staff as any)?.id === user.id
         const partner = isStaff ? parent : staff
 
+        // Ensure we get the actual latest message from the joined array
+        const sortedMessages = [...(t.messages || [])].sort((a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
+
         return {
             id: t.id,
             partner: partner,
-            lastMessage: t.messages?.[0],
+            lastMessage: sortedMessages[0],
             unreadCount: t.messages?.filter((m: any) => !m.is_read && m.sender_id !== user.id).length || 0
         }
     })
@@ -333,7 +353,7 @@ export async function getChatRecipients() {
 
     let query = supabase
         .from('profiles')
-        .select('id, full_name, photo_url, role')
+        .select('id, full_name, avatar_url, role')
         .eq('tenant_id', profile.tenant_id)
         .order('full_name')
 
@@ -488,4 +508,223 @@ export async function getUserRole() {
     if (!profile) return { success: false, error: "Unauthorized" }
 
     return { success: true, role: profile.role }
+}
+
+/**
+ * 12. Get Unread Message Count
+ * Returns the total number of unread messages for the current user.
+ */
+export async function getUnreadMessageCount() {
+    try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return { success: false, count: 0 }
+
+        // Count messages in channels where the user is a participant but not the sender
+        const { data: channels } = await supabase
+            .from('chat_channels')
+            .select('id')
+            .or(`staff_id.eq.${user.id},parent_id.eq.${user.id}`)
+
+        if (!channels || channels.length === 0) return { success: true, count: 0 }
+
+        const channelIds = channels.map(c => c.id)
+
+        const { count, error } = await supabase
+            .from('chat_messages')
+            .select('id', { count: 'exact', head: true })
+            .eq('is_read', false)
+            .neq('sender_id', user.id)
+            .in('channel_id', channelIds)
+
+        if (error) {
+            console.error("[CHAT] Unread count query error:", error)
+            return { success: false, count: 0 }
+        }
+
+        return { success: true, count: count || 0 }
+    } catch (error) {
+        console.error("[CHAT] Unread count critical error:", error)
+        return { success: false, count: 0, error: "Critical failure in unread count" }
+    }
+}
+
+/**
+ * 13. Get Chat Messages
+ * Fetches the full message history for a specific channel.
+ */
+export async function getChatMessages(channelId: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: messages, error } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('channel_id', channelId)
+        .order('created_at', { ascending: true })
+
+    if (error) {
+        console.error("[CHAT] Fetch messages error:", error)
+        return { success: false, error: "Failed to load messages" }
+    }
+
+    // Mark messages as read if recipient is current user
+    const unreadIds = messages
+        .filter(m => !m.is_read && m.sender_id !== user.id)
+        .map(m => m.id)
+
+    if (unreadIds.length > 0) {
+        await supabase
+            .from('chat_messages')
+            .update({ is_read: true })
+            .in('id', unreadIds)
+    }
+
+    return { success: true, data: messages }
+}
+
+/**
+ * 14. Nudge Debtors
+ * Identifies all students with outstanding balances for the current session/term
+ * and sends personalized SMS reminders to their parents.
+ * Optimized for performance and stability.
+ */
+export async function nudgeDebtors() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    try {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('tenant_id')
+            .eq('id', user.id)
+            .single()
+
+        if (!profile?.tenant_id) return { success: false, error: "Tenant context missing" }
+
+        // 1. Get Tenant Info & Balance
+        const { data: tenant } = await supabase
+            .from('tenants')
+            .select('name, sms_balance')
+            .eq('id', profile.tenant_id)
+            .single()
+
+        if (!tenant) return { success: false, error: "School profile not found" }
+
+        // 2. Get Active Session
+        const { data: session } = await supabase
+            .from('academic_sessions')
+            .select('session, term')
+            .eq('tenant_id', profile.tenant_id)
+            .eq('is_active', true)
+            .maybeSingle()
+
+        if (!session) return { success: false, error: "No active academic session found" }
+
+        // 3. Identify Debtors (Students with balance > 0 in current session)
+        // Query both phone and phone_number to be safe against schema variations
+        const { data: debtors, error: debtorError } = await supabase
+            .from('billing')
+            .select(`
+                balance,
+                student:students(
+                    full_name,
+                    parent:profiles!parent_id(full_name, phone, phone_number)
+                )
+            `)
+            .eq('tenant_id', profile.tenant_id)
+            .eq('session', session.session)
+            .eq('term', session.term)
+            .gt('balance', 0)
+            .limit(100) // Safety limit for single action
+
+        if (debtorError) throw debtorError
+        if (!debtors || debtors.length === 0) return { success: true, count: 0, message: "No outstanding balances found for this session." }
+
+        // 4. Processing Logic
+        let currentBalance = Number(tenant.sms_balance) || 0
+        const SMS_COST = SMS_CONFIG.UNIT_COST
+        let queuedCount = 0
+        const messageLogs: any[] = []
+
+        // Filter valid debtors with phones
+        const validDebtors = debtors.filter(record => {
+            const parent = record.student?.parent as any
+            const phone = parent?.phone || parent?.phone_number
+            return !!(phone && record.student?.full_name)
+        })
+
+        if (validDebtors.length === 0) return { success: true, count: 0, message: "No debtors with valid phone numbers found." }
+
+        // Process in small parallel batches to avoid timeouts but respect concurrency
+        const BATCH_SIZE = 5
+        for (let i = 0; i < validDebtors.length; i += BATCH_SIZE) {
+            const batch = validDebtors.slice(i, i + BATCH_SIZE)
+
+            // Check if we still have enough wallet balance
+            if (currentBalance < (SMS_COST * batch.length)) break
+
+            const results = await Promise.all(batch.map(async (record) => {
+                const parent = record.student?.parent as any
+                const phone = parent?.phone || parent?.phone_number
+                const studentName = record.student?.full_name
+                const balance = record.balance
+
+                if (!phone) return { success: false }
+
+                const message = `Hello ${parent.full_name || 'Parent'}, this is a reminder regarding the outstanding balance of ₦${balance.toLocaleString()} for ${studentName} at ${tenant.name}. Please kindly settle at your earliest convenience.`
+
+                const smsRes = await sendSMS(phone, message)
+                return { success: smsRes.success, phone, name: parent.full_name, message, data: smsRes.data }
+            }))
+
+            for (const res of results) {
+                if (res.success) {
+                    currentBalance -= SMS_COST
+                    queuedCount++
+                    messageLogs.push({
+                        tenant_id: profile.tenant_id,
+                        sender_id: user.id,
+                        recipient_phone: res.phone,
+                        recipient_name: res.name || 'Parent',
+                        message_content: res.message,
+                        channel: 'sms',
+                        status: 'sent',
+                        cost: SMS_COST,
+                        provider_ref: (res.data as any)?.message_id
+                    })
+                }
+            }
+        }
+
+        // 5. Batch updates
+        if (queuedCount > 0) {
+            // Update Tenant Balance
+            await supabase
+                .from('tenants')
+                .update({ sms_balance: currentBalance })
+                .eq('id', profile.tenant_id)
+
+            // Insert Logs in Bulk
+            if (messageLogs.length > 0) {
+                await supabase.from('message_logs').insert(messageLogs)
+            }
+        }
+
+        return {
+            success: true,
+            count: queuedCount,
+            totalDebtors: debtors.length,
+            message: queuedCount === validDebtors.length
+                ? `Successfully nudged ${queuedCount} debtors.`
+                : `Processed ${queuedCount} of ${validDebtors.length} eligible debtors (stopped due to wallet balance or limit).`
+        }
+
+    } catch (error) {
+        console.error("[NUDGE_DEBTORS] Critical Error:", error)
+        return { success: false, error: "System failure during nudge processing." }
+    }
 }

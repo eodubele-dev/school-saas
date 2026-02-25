@@ -5,6 +5,9 @@ import { Bus, MapPin, Wrench, Users, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { CreateRouteModal } from "@/components/logistics/create-route-modal"
 import { AssignStudentModal } from "@/components/logistics/assign-student-modal"
+import { ArrowUpRight } from "lucide-react"
+
+export const dynamic = 'force-dynamic'
 
 export default async function LogisticsPage({ params }: { params: { domain: string } }) {
     const routes = await getRoutes() || []
@@ -74,17 +77,25 @@ export default async function LogisticsPage({ params }: { params: { domain: stri
 
                             <div className="grid grid-cols-2 gap-2 pt-2">
                                 <Link
-                                    href={`/dashboard/admin/logistics/manifest/${route.id}?dir=pickup`}
+                                    key={`pickup-${route.id}`}
+                                    href={`/dashboard/logistics/manifest/${route.id}?dir=pickup`}
                                     className="flex flex-col items-center justify-center p-3 rounded bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-colors text-blue-400 text-sm font-medium"
                                 >
-                                    <span>Morning Pickup</span>
+                                    <div className="flex items-center gap-1">
+                                        <span>Morning Pickup</span>
+                                        <ArrowUpRight className="h-3 w-3 opacity-50" />
+                                    </div>
                                     <span className="text-[10px] opacity-70">Start Manifest</span>
                                 </Link>
                                 <Link
-                                    href={`/dashboard/admin/logistics/manifest/${route.id}?dir=dropoff`}
+                                    key={`dropoff-${route.id}`}
+                                    href={`/dashboard/logistics/manifest/${route.id}?dir=dropoff`}
                                     className="flex flex-col items-center justify-center p-3 rounded bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-colors text-orange-400 text-sm font-medium"
                                 >
-                                    <span>Afternoon Drop</span>
+                                    <div className="flex items-center gap-1">
+                                        <span>Afternoon Drop</span>
+                                        <ArrowUpRight className="h-3 w-3 opacity-50" />
+                                    </div>
                                     <span className="text-[10px] opacity-70">Start Manifest</span>
                                 </Link>
                             </div>

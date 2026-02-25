@@ -40,18 +40,27 @@ import { toast } from "sonner"
 
 function MetricCard({ title, amount, subtitle, icon: Icon, trend, colorClass }: any) {
     return (
-        <Card className="bg-slate-900 border-white/10 relative overflow-hidden group">
-            <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl -mr-12 -mt-12 opacity-10 ${colorClass}`}></div>
+        <Card className="bg-slate-900 border-white/10 relative overflow-hidden group pt-2">
+            {/* 🌈 Thick Top Border Action */}
+            <div className={cn("absolute top-0 left-0 right-0 h-1.5", colorClass)} />
+
+            <div className={cn("absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl -mr-12 -mt-12 opacity-10 transition-opacity group-hover:opacity-20", colorClass)}></div>
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-sm font-medium text-slate-400">{title}</CardTitle>
-                <Icon className={`h-4 w-4 ${colorClass.replace('bg-', 'text-')}`} />
+                <CardTitle className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{title}</CardTitle>
+                <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center border transition-all duration-300 group-hover:scale-110",
+                    colorClass.replace('bg-', 'bg-').concat('/10'),
+                    colorClass.replace('bg-', 'text-').replace('500', '400'),
+                    colorClass.replace('bg-', 'border-').concat('/20')
+                )}>
+                    <Icon className="h-4 w-4" />
+                </div>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-white">₦{amount.toLocaleString()}</div>
+                <div className="text-3xl font-black text-white tracking-tighter">₦{amount.toLocaleString()}</div>
                 <div className="flex items-center gap-2 mt-1">
-                    <p className="text-xs text-slate-500">{subtitle}</p>
+                    <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">{subtitle}</p>
                     {trend && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span className="text-[10px] px-1.5 py-0.5 font-bold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                             {trend}
                         </span>
                     )}

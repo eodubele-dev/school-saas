@@ -14,7 +14,21 @@ interface ResultSheetProps {
 
 export function ResultSheet({ data }: { data: ResultData }) {
     const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
-    const theme = data.school_details.theme || {
+
+    // Safety check for school details
+    const school = data.school_details || {
+        name: "School Name",
+        address: "School Address",
+        motto: "Excellence in Education",
+        logo_url: "/placeholder-logo.png",
+        theme: {
+            primary_color: '#2563eb',
+            secondary_color: '#1e293b',
+            accent_color: '#0ea5e9'
+        }
+    }
+
+    const theme = school.theme || {
         primary_color: '#2563eb',
         secondary_color: '#1e293b',
         accent_color: '#0ea5e9'
@@ -36,7 +50,7 @@ export function ResultSheet({ data }: { data: ResultData }) {
             <div className="absolute inset-0 z-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none">
                 <div className="relative w-[500px] h-[500px]">
                     <Image
-                        src={data.school_details.logo_url || "/placeholder-logo.png"}
+                        src={school.logo_url || "/placeholder-logo.png"}
                         alt="Watermark"
                         fill
                         className="object-contain rotate-[-30deg]"
@@ -50,12 +64,12 @@ export function ResultSheet({ data }: { data: ResultData }) {
                 <header className="flex justify-between items-center border-b-2 pb-6 mb-6" style={{ borderColor: theme.secondary_color }}>
                     <div className="flex items-center gap-4">
                         <div className="relative w-20 h-20">
-                            {data.school_details.logo_url && <Image src={data.school_details.logo_url} alt="School Logo" fill className="object-contain" />}
+                            {school.logo_url && <Image src={school.logo_url} alt="School Logo" fill className="object-contain" />}
                         </div>
                         <div>
-                            <h1 className="text-3xl font-black uppercase tracking-wider" style={{ color: theme.primary_color }}>{data.school_details.name}</h1>
-                            <p className="text-sm font-medium text-slate-600 tracking-widest uppercase">{data.school_details.motto}</p>
-                            <p className="text-xs text-slate-500 mt-1">{data.school_details.address}</p>
+                            <h1 className="text-3xl font-black uppercase tracking-wider" style={{ color: theme.primary_color }}>{school.name}</h1>
+                            <p className="text-sm font-medium text-slate-600 tracking-widest uppercase">{school.motto}</p>
+                            <p className="text-xs text-slate-500 mt-1">{school.address}</p>
                         </div>
                     </div>
                     <div className="flex flex-col items-end text-right">

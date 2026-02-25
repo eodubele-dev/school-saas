@@ -9,6 +9,7 @@ import { UserRole } from "@/config/sidebar"
 import { Zap } from "lucide-react"
 import { SMSWalletAlert } from "./sms-wallet-alert"
 import { DashboardHeader } from "./dashboard-header"
+import { redirect } from "next/navigation"
 
 interface BentoDashboardLoaderProps {
     user: any // Supabase User
@@ -72,6 +73,10 @@ export async function BentoDashboardLoader({
             const stats = await getBursarStats()
             const { transactions: smsTransactions } = await getSMSTransactions(50)
             ContentComponent = <BursarDashboard stats={{ ...stats, smsBalance, smsTransactions }} tier={normalizedTier} />
+            break
+        case 'driver':
+        case 'staff':
+            redirect(`/dashboard/logistics`)
             break
         default:
             ContentComponent = (

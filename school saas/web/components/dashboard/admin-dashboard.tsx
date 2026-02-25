@@ -1,4 +1,5 @@
-import { Users, School, Activity, TrendingUp, TrendingDown, Zap, GraduationCap, CreditCard, ArrowUpRight } from "lucide-react"
+import { Users, School, Activity, TrendingUp, TrendingDown, Zap, GraduationCap, CreditCard, ArrowUpRight, Bus } from "lucide-react"
+import Link from "next/link"
 import { NairaIcon } from "@/components/ui/naira-icon"
 import { getAdminStats } from "@/lib/actions/dashboard"
 import { MetricCard } from "./metric-card"
@@ -122,12 +123,14 @@ export async function AdminDashboard({
                     value={new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(stats?.totalRevenue || 0)}
                     icon={NairaIcon}
                     trend={{ value: "+12%", positive: true }}
+                    accentColor="emerald"
                 />
                 <MetricCard
                     title={isGlobalView ? "Total Students" : "Active Students"}
                     value={(stats?.totalStudents || 0).toString()}
                     icon={Users}
                     trend={{ value: "+4%", positive: true }}
+                    accentColor="blue"
                 />
                 <MetricCard
                     id="staff-attendance-gauge"
@@ -135,18 +138,37 @@ export async function AdminDashboard({
                     value={(stats?.totalTeachers || 0).toString()}
                     icon={isGlobalView ? GraduationCap : School}
                     description={isGlobalView ? "Including admin & support" : "Full-time & Part-time"}
+                    accentColor="purple"
                 />
                 <MetricCard
                     title={isGlobalView ? "Active Campuses" : "Active Classes"}
                     value={(stats?.totalClasses || 0).toString()}
                     icon={isGlobalView ? School : Activity}
                     description={isGlobalView ? "Operational locations" : "Across 3 arms"}
+                    accentColor="amber"
                 />
             </div>
 
             {/* Quick Actions (Tour Targets) */}
-            <div className="flex justify-end">
-                <NudgeButton />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Link
+                    href="/dashboard/logistics"
+                    className="flex items-center justify-between p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl hover:bg-blue-500/20 transition-all group"
+                >
+                    <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <Bus className="h-5 w-5 text-blue-400" />
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-bold text-white">Safe-Route Transport Hub</h3>
+                            <p className="text-[10px] text-slate-400">Initialize manifests & track fleet</p>
+                        </div>
+                    </div>
+                    <ArrowUpRight className="h-5 w-5 text-slate-500 group-hover:text-blue-400 transition-colors" />
+                </Link>
+                <div className="flex justify-end items-center">
+                    <NudgeButton />
+                </div>
             </div>
 
             {/* Charts & Details */}

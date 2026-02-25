@@ -1,8 +1,9 @@
 'use server'
 
 import { createClient } from "@/lib/supabase/server"
-import { ChannelSimulator } from "@/lib/notifications/channels"
 import { revalidatePath } from "next/cache"
+import { sendSMS } from "@/lib/services/termii"
+import { SMS_CONFIG } from "@/lib/constants/communication"
 
 /**
  * Fetch all routes for the tenant
@@ -38,7 +39,7 @@ export async function createRoute(data: { name: string, vehicle: string, driver:
     })
 
     if (error) return { success: false, error: error.message }
-    revalidatePath('/dashboard/admin/logistics')
+    revalidatePath('/dashboard/logistics')
     return { success: true }
 }
 
@@ -62,7 +63,7 @@ export async function getDailyManifest(routeId: string, direction: 'pickup' | 'd
             *,
             items:transport_manifest_items(
                 *,
-                student:students(first_name, last_name, admission_number, phone)
+                student:students(first_name, last_name, admission_number)
             )
         `)
         .eq('route_id', routeId)
@@ -125,17 +126,20 @@ export async function startTrip(manifestId: string) {
         .update({ status: 'active', started_at: new Date().toISOString() })
         .eq('id', manifestId)
 
-    revalidatePath('/dashboard/admin/logistics')
+    revalidatePath('/dashboard/logistics')
 }
 
 /**
  * Check-In / Check-Out Student
- * Triggers Notifications
+ * Triggers Production Notifications
  */
 export async function updateManifestItemStatus(itemId: string, status: 'boarded' | 'dropped') {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    // 1. Update DB
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    // 1. Update Manifest Item
     const updateData: any = { status }
     if (status === 'boarded') updateData.boarded_at = new Date().toISOString()
     if (status === 'dropped') updateData.dropped_at = new Date().toISOString()
@@ -146,50 +150,80 @@ export async function updateManifestItemStatus(itemId: string, status: 'boarded'
         .eq('id', itemId)
         .select(`
             *,
-            student:students(first_name, last_name, phone),
+            student:students(
+                tenant_id,
+                first_name, 
+                last_name,
+                parent:profiles!parent_id(full_name, phone, phone_number)
+            ),
             manifest:transport_manifest(direction)
         `)
         .single()
 
-    if (error || !item) return { success: false }
+    if (error || !item || !item.student) return { success: false, error: "Item not found" }
 
-    // 2. Trigger Notification
-    // We use the simulator directly here or call notification engine. 
-    // Ideally, we keep it simple here.
-
-    const studentName = item.student?.first_name || 'Student'
-    const parentPhone = item.student?.phone // Assuming student record has parent phone
+    const tenantId = item.student.tenant_id
     const direction = item.manifest?.direction
+    const parent = item.student.parent as any
+    const phone = parent?.phone || parent?.phone_number
+    const studentName = item.student.first_name || 'Student'
 
-    if (parentPhone) {
-        let message = ""
+    // 2. Production Notification Logic
+    if (phone && tenantId) {
+        // Fetch Tenant Branding & Balance
+        const { data: tenant } = await supabase
+            .from('tenants')
+            .select('name, sms_balance')
+            .eq('id', tenantId)
+            .single()
 
-        if (status === 'boarded') {
-            if (direction === 'pickup') {
-                message = `SAFE-ROUTE: ${studentName} has boarded the bus to school. Expected arrival: 8:00 AM.`
-            } else {
-                message = `SAFE-ROUTE: ${studentName} has boarded the bus home. We are 10-15 mins away.`
+        if (tenant) {
+            let message = ""
+            const SMS_COST = SMS_CONFIG.UNIT_COST
+            let currentBalance = Number(tenant.sms_balance) || 0
+
+            if (status === 'boarded') {
+                message = direction === 'pickup'
+                    ? `SAFE-ROUTE: ${studentName} has boarded the bus to school. Expected arrival: 8:00 AM.`
+                    : `SAFE-ROUTE: ${studentName} has boarded the bus home. We are 10-15 mins away.`
+            } else if (status === 'dropped') {
+                message = direction === 'pickup'
+                    ? `SAFE-ROUTE: ${studentName} has safely arrived at school.`
+                    : `SAFE-ROUTE: ${studentName} has been dropped off at home.`
             }
-        } else if (status === 'dropped') {
-            if (direction === 'pickup') {
-                message = `SAFE-ROUTE: ${studentName} has safely arrived at school.`
-            } else {
-                message = `SAFE-ROUTE: ${studentName} has been dropped off at home.`
-            }
-        }
 
-        if (message) {
-            // Fire and forget notification
-            ChannelSimulator.sms({
-                to: parentPhone,
-                message
-            })
+            // Wallet Check & Send
+            if (message && currentBalance >= SMS_COST) {
+                const smsRes = await sendSMS(phone, message)
+
+                if (smsRes.success) {
+                    // Update Balance
+                    await supabase
+                        .from('tenants')
+                        .update({ sms_balance: currentBalance - SMS_COST })
+                        .eq('id', tenantId)
+
+                    // Log Communication
+                    await supabase.from('message_logs').insert({
+                        tenant_id: tenantId,
+                        sender_id: user.id,
+                        recipient_phone: phone,
+                        recipient_name: parent?.full_name || 'Parent',
+                        message_content: message,
+                        channel: 'sms',
+                        status: 'sent',
+                        cost: SMS_COST,
+                        provider_ref: (smsRes.data as any)?.message_id
+                    })
+                }
+            }
         }
     }
 
-    revalidatePath('/dashboard/admin/logistics')
+    revalidatePath('/dashboard/logistics')
     return { success: true }
 }
+
 /**
  * Fetch students assigned to a specific route
  */
@@ -235,7 +269,7 @@ export async function assignStudentToRoute(data: {
     if (error) return { success: false, error: error.message }
 
     // Also revalidate the logistics page
-    revalidatePath('/dashboard/admin/logistics')
+    revalidatePath('/dashboard/logistics')
     return { success: true }
 }
 

@@ -44,6 +44,17 @@ export default async function VerifiedResultPortal({ params }: { params: { domai
             present: attendance.present,
             absent: attendance.total - attendance.present
         },
+        school_details: {
+            name: tenant?.name || 'School Name',
+            address: tenant?.address || 'School Address',
+            motto: tenant?.motto || 'Excellence in Everything',
+            logo_url: tenant?.logo_url || '/placeholder-logo.png',
+            theme: tenant?.theme_config || {
+                primary_color: '#2563eb',
+                secondary_color: '#1e293b',
+                accent_color: '#0ea5e9'
+            }
+        },
         academic: {
             subjects: grades.map((g: any) => ({
                 name: g.subject?.name || 'Subject',
