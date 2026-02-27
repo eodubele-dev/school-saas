@@ -15,24 +15,42 @@ export function ManifestClient({ manifest }: { manifest: any }) {
     const router = useRouter()
 
     const handleStart = async () => {
-        setLoading('trip')
-        await startTrip(manifest.id)
-        setStatus('active')
-        router.refresh()
-        setLoading(null)
-        toast.success("Trip Started! Drive safely. 🚌")
+        try {
+            setLoading('trip')
+            await startTrip(manifest.id)
+            setStatus('active')
+            router.refresh()
+            toast.success("Trip Started! Drive safely. 🚌")
+        } catch (err) {
+            console.error('[ManifestClient] StartTrip failed:', err)
+            toast.error("Network Error", {
+                description: "Failed to reach the server. Please check your connection."
+            })
+        } finally {
+            setLoading(null)
+        }
     }
 
     const handleAction = async (itemId: string, action: 'boarded' | 'dropped') => {
-        setLoading(itemId)
-        const res = await updateManifestItemStatus(itemId, action)
-        if (res.success) {
-            toast.success(action === 'boarded' ? "Student Boarded" : "Student Dropped")
-            router.refresh()
-        } else {
-            toast.error("Failed to update status")
+        try {
+            setLoading(itemId)
+            const res = await updateManifestItemStatus(itemId, action)
+            if (res.success) {
+                toast.success(action === 'boarded' ? "Student Boarded" : "Student Dropped")
+                router.refresh()
+            } else {
+                toast.error("Action Failed", {
+                    description: res.error || "Please try again."
+                })
+            }
+        } catch (err) {
+            console.error('[ManifestClient] updateStatus failed:', err)
+            toast.error("System Error", {
+                description: "The request timed out or was interrupted."
+            })
+        } finally {
+            setLoading(null)
         }
-        setLoading(null)
     }
 
     if (status === 'pending') {
@@ -99,7 +117,7 @@ export function ManifestClient({ manifest }: { manifest: any }) {
                                     onClick={() => handleAction(item.id, 'boarded')}
                                     disabled={!!loading}
                                 >
-                                    {actionLoading ? "..." : manifest.direction === 'pickup' ? "BOARD BUS" : "ON BOARD"}
+                                    {actionLoading ? "..." : manifest.direction === 'pickup' ? "BOARD BUS" : "BOARD AT SCHOOL"}
                                 </Button>
                             )}
 

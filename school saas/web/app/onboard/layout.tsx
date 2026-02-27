@@ -7,16 +7,27 @@ export default function OnboardingLayout({
     children: React.ReactNode
 }) {
     return (
-        <div className="h-screen bg-[#0A0A0B] flex flex-col overflow-hidden">
+        <div className="h-screen bg-[#000000] flex flex-col overflow-hidden relative">
+            {/* Background: Geometric Texture (Faint Grid) */}
+            <div
+                className="absolute inset-0 opacity-[0.15] pointer-events-none"
+                style={{
+                    backgroundImage: `linear-gradient(#3B82F6 1px, transparent 1px), linear-gradient(90deg, #3B82F6 1px, transparent 1px)`,
+                    backgroundSize: '40px 40px',
+                    WebkitMaskImage: 'radial-gradient(circle at center, black 30%, transparent 90%)',
+                    maskImage: 'radial-gradient(circle at center, black 30%, transparent 90%)'
+                }}
+            />
+
             <header className="h-20 border-b border-white/5 bg-black/40 backdrop-blur-md flex items-center justify-between px-10 relative z-20">
                 <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.3)]">
-                        <span className="text-white font-bold text-lg">EF</span>
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="font-bold text-white tracking-tight text-lg">EduFlow</span>
-                        <span className="text-[10px] text-cyan-400 font-mono tracking-widest uppercase">Platinum_Edition</span>
-                    </div>
+                    <Link href="/" className="flex items-center gap-0 group relative z-10 transition-transform duration-300 hover:scale-[1.02]">
+                        <img
+                            src="/visuals/eduflow-logo.png?v=3"
+                            alt="EduFlow"
+                            className="h-[4.5rem] w-auto object-contain mix-blend-screen"
+                        />
+                    </Link>
                 </div>
 
                 <div className="flex items-center gap-8">

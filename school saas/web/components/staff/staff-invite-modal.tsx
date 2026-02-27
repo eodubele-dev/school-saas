@@ -152,6 +152,8 @@ export function StaffInviteModal({ domain }: { domain: string }) {
                                     <SelectItem value="teacher">Teacher</SelectItem>
                                     <SelectItem value="bursar">Bursar</SelectItem>
                                     <SelectItem value="registrar">Registrar</SelectItem>
+                                    <SelectItem value="driver">Driver</SelectItem>
+                                    <SelectItem value="staff">Staff Assistant</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

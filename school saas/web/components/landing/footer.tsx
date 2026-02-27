@@ -78,6 +78,9 @@ export function Footer() {
                         © 2026 EduCare Inc. Built for Nigerian Excellence.
                     </p>
                     <div className="flex items-center gap-6">
+                        <Link href="/privacy" className="text-xs text-slate-600 hover:text-white transition-colors">Privacy</Link>
+                        <Link href="/terms" className="text-xs text-slate-600 hover:text-white transition-colors">Terms</Link>
+                        <div className="w-px h-4 bg-white/10 mx-2" />
                         <Link href="#" className="text-slate-600 hover:text-white transition-colors"><Twitter className="h-4 w-4" /></Link>
                         <Link href="#" className="text-slate-600 hover:text-white transition-colors"><Linkedin className="h-4 w-4" /></Link>
                         <Link href="#" className="text-slate-600 hover:text-white transition-colors"><Github className="h-4 w-4" /></Link>

@@ -69,18 +69,17 @@ export function SignupForm({ domain, schoolName, logoUrl, primaryColor = '#2563e
                 <div className="relative z-10 max-w-lg text-center">
                     <div className="flex justify-center gap-6 mb-12">
                         {logoUrl ? (
-                            <div className="h-32 w-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow group hover:bg-white/10 transition-all duration-300 p-4">
+                            <div className="h-32 w-32 rounded-full bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow group hover:bg-white/10 transition-all duration-300 p-4">
                                 <img src={logoUrl} alt="School Logo" className="w-full h-full object-contain" />
                             </div>
                         ) : (
-                            <>
-                                <div className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow-purple group hover:bg-white/10 transition-all duration-300">
-                                    <School className="h-8 w-8 text-purple-400 group-hover:scale-110 transition-transform" />
-                                </div>
-                                <div className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow-green group hover:bg-white/10 transition-all duration-300">
-                                    <GraduationCap className="h-8 w-8 text-emerald-400 group-hover:scale-110 transition-transform" />
-                                </div>
-                            </>
+                            <div className="h-32 w-32 rounded-full bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow group hover:bg-white/10 transition-all duration-300 p-4">
+                                <img
+                                    src="/visuals/auth-logo.png"
+                                    alt="Identity Verified"
+                                    className="w-full h-full object-contain"
+                                />
+                            </div>
                         )}
                     </div>
 

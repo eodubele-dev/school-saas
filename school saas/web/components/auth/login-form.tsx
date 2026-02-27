@@ -92,11 +92,15 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
                 <div className="w-full bg-black/60 backdrop-blur-xl border-none rounded-2xl text-white p-8">
                     {/* Header: School Logo & Name */}
                     <div className="text-center mb-8">
-                        <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.05)] overflow-hidden p-2">
+                        <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/5 border border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.05)] overflow-hidden p-2">
                             {logoUrl ? (
                                 <img src={logoUrl} alt={schoolName} className="w-full h-full object-contain" />
                             ) : (
-                                <School className="h-10 w-10 text-slate-400" />
+                                <img
+                                    src="/visuals/auth-logo.png"
+                                    alt="Identiy Verified"
+                                    className="w-full h-full object-contain"
+                                />
                             )}
                         </div>
                         <h2 className="text-2xl font-bold tracking-tight text-white mb-2">

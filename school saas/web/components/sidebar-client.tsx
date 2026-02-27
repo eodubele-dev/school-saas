@@ -214,7 +214,7 @@ export function SidebarClient({
                 <div className="px-4 pt-4 pb-4 border-b border-white/5">
                     {/* Logo */}
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="h-12 w-12 rounded-xl bg-slate-900/50 border border-white/10 flex items-center justify-center overflow-hidden">
+                        <div className="h-12 w-12 rounded-full bg-slate-900/50 border border-white/10 flex items-center justify-center overflow-hidden">
                             {tenantLogo && !logoError ? (
                                 <img
                                     src={tenantLogo}
@@ -223,7 +223,11 @@ export function SidebarClient({
                                     onError={() => setLogoError(true)}
                                 />
                             ) : (
-                                <span className="text-2xl">🎓</span>
+                                <img
+                                    src="/visuals/auth-logo.png"
+                                    alt="Identity Verified"
+                                    className="h-full w-full object-contain p-1"
+                                />
                             )}
                         </div>
                         <div className="flex-1">
