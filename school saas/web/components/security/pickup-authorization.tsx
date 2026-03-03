@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 
 export const PickupAuthorization = ({ data = [] }: { data?: any[] }) => {
     return (
-        <div className="bg-[#0A0A0B] border border-white/10 rounded-3xl p-8 shadow-2xl animate-in fade-in duration-500">
+        <div className="bg-slate-950/40 backdrop-blur-md border border-white/10 rounded-3xl p-8 shadow-2xl animate-in fade-in duration-500">
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h2 className="text-2xl font-bold text-white uppercase tracking-tight italic">Authorized Pick-up Persons</h2>

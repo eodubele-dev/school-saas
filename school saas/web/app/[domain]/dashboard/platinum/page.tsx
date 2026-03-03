@@ -83,7 +83,7 @@ export default async function PlatinumConciergePage({
     ])
 
     return (
-        <div className="p-8 space-y-8 bg-black min-h-screen text-white">
+        <div className="p-8 space-y-8 min-h-screen text-white">
             <div className="flex flex-col gap-2">
                 <h1 className="text-3xl font-bold tracking-tight text-white glow-blue">Platinum Concierge</h1>
                 <p className="text-slate-400">Exclusive access to premium school services and executive support.</p>

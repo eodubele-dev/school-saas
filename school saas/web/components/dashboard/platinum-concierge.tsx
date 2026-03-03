@@ -91,7 +91,7 @@ export function PlatinumConcierge({
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-6 bg-[#0A0A0B]/80 backdrop-blur-xl border border-white/10 p-1.5 mb-8 rounded-xl shadow-lg">
+                <TabsList className="grid w-full grid-cols-6 bg-slate-950/40 backdrop-blur-xl border border-white/10 p-1.5 mb-8 rounded-xl shadow-lg">
                     <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all duration-300">Overview</TabsTrigger>
                     <TabsTrigger value="security" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all duration-300">Security</TabsTrigger>
                     <TabsTrigger value="health" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all duration-300">Health</TabsTrigger>
@@ -103,7 +103,7 @@ export function PlatinumConcierge({
                 {/* OVERVIEW TAB */}
                 <TabsContent value="overview" className="space-y-6">
                     <div className="grid gap-4 md:grid-cols-4">
-                        <Card className="bg-gradient-to-br from-cyan-950/40 via-[#0A0A0B] to-[#0A0A0B] border-cyan-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-cyan-900/20 hover:border-cyan-700/50 transition-all duration-500 cursor-pointer pt-1">
+                        <Card className="bg-gradient-to-br from-cyan-950/40 via-slate-950/40 to-slate-950/60 border-cyan-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-cyan-900/20 hover:border-cyan-700/50 transition-all duration-500 cursor-pointer pt-1">
                             {/* 🌈 Thick Top Border Action */}
                             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 group-hover:h-1.5 transition-all duration-300" />
                             <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-cyan-500/10 transition-all duration-500" />
@@ -116,7 +116,7 @@ export function PlatinumConcierge({
                                 <p className="text-xs text-slate-500 uppercase tracking-widest font-bold mt-1">No active passes</p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-gradient-to-br from-rose-950/40 via-[#0A0A0B] to-[#0A0A0B] border-rose-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-rose-900/20 hover:border-rose-700/50 transition-all duration-500 cursor-pointer pt-1">
+                        <Card className="bg-gradient-to-br from-rose-950/40 via-slate-950/40 to-slate-950/60 border-rose-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-rose-900/20 hover:border-rose-700/50 transition-all duration-500 cursor-pointer pt-1">
                             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-400 to-pink-500 group-hover:h-1.5 transition-all duration-300" />
                             <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-rose-500/10 transition-all duration-500" />
                             <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
@@ -128,7 +128,7 @@ export function PlatinumConcierge({
                                 <p className="text-xs text-rose-500/50 uppercase tracking-widest font-bold mt-1">Active conditions</p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-gradient-to-br from-emerald-950/40 via-[#0A0A0B] to-[#0A0A0B] border-emerald-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-emerald-900/20 hover:border-emerald-700/50 transition-all duration-500 cursor-pointer pt-1">
+                        <Card className="bg-gradient-to-br from-emerald-950/40 via-slate-950/40 to-slate-950/60 border-emerald-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-emerald-900/20 hover:border-emerald-700/50 transition-all duration-500 cursor-pointer pt-1">
                             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-500 group-hover:h-1.5 transition-all duration-300" />
                             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-emerald-500/10 transition-all duration-500" />
                             <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
@@ -140,7 +140,7 @@ export function PlatinumConcierge({
                                 <p className="text-xs text-emerald-500/50 uppercase tracking-widest font-bold mt-1">Due soon</p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-gradient-to-br from-amber-950/40 via-[#0A0A0B] to-[#0A0A0B] border-amber-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-amber-900/20 hover:border-amber-700/50 transition-all duration-500 cursor-pointer pt-1">
+                        <Card className="bg-gradient-to-br from-amber-950/40 via-slate-950/40 to-slate-950/60 border-amber-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-amber-900/20 hover:border-amber-700/50 transition-all duration-500 cursor-pointer pt-1">
                             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-orange-500 group-hover:h-1.5 transition-all duration-300" />
                             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-amber-500/10 transition-all duration-500" />
                             <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
@@ -255,7 +255,7 @@ export function PlatinumConcierge({
 
                 {/* SUPPORT TAB */}
                 <TabsContent value="support" className="space-y-6">
-                    <Card className="bg-slate-950 border-white/5">
+                    <Card className="bg-slate-950/40 backdrop-blur-md border-white/5">
                         <CardHeader>
                             <CardTitle className="text-white flex items-center gap-2">
                                 <Headphones className="h-5 w-5 text-cyan-400" /> Executive Support Suite

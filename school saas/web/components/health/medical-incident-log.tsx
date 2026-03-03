@@ -22,7 +22,7 @@ export const MedicalIncidentLog = ({ outcomes = [] }: { outcomes?: any[] }) => {
     const logs = outcomes && outcomes.length > 0 ? outcomes : [];
 
     return (
-        <div className="bg-[#0A0A0B] border border-white/10 rounded-3xl p-6 shadow-2xl animate-in fade-in duration-500">
+        <div className="bg-slate-950/40 backdrop-blur-md border border-white/10 rounded-3xl p-6 shadow-2xl animate-in fade-in duration-500">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-3">
                     <div className="bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20">
@@ -40,7 +40,7 @@ export const MedicalIncidentLog = ({ outcomes = [] }: { outcomes?: any[] }) => {
                     <>
                         {logs.map((log: any) => (
                             <div key={log.id} className="relative pl-6 pb-6 border-l border-white/10 last:pb-0 last:border-0 group">
-                                <div className="absolute left-[-5px] top-0 w-2.5 h-2.5 rounded-full bg-slate-800 border-2 border-[#0A0A0B] group-hover:bg-rose-500 transition-colors"></div>
+                                <div className="absolute left-[-5px] top-0 w-2.5 h-2.5 rounded-full bg-slate-800 border-2 border-slate-900 group-hover:bg-rose-500 transition-colors"></div>
 
                                 <div className="flex justify-between items-start mb-2">
                                     <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${log.type === 'Injury' ? 'bg-rose-500/20 text-rose-300' :

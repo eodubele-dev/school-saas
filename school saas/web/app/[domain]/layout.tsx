@@ -17,7 +17,7 @@ export default async function DomainLayout({
     // Fetch Tenant Theme Config
     const { data: tenant } = await supabase
         .from('tenants')
-        .select('theme_config')
+        .select('name, logo_url, theme_config, current_session, current_term')
         .eq('slug', params.domain)
         .single()
 

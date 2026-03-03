@@ -61,7 +61,7 @@ export function HealthDashboardClient({ initialData }: { initialData: any }) {
                 </div>
 
                 <TabsContent value="incidents" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="bg-[#0A0A0B] border border-white/5 rounded-2xl overflow-hidden shadow-2xl relative">
+                    <div className="bg-slate-950/40 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden shadow-2xl relative">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] pointer-events-none" />
 
                         <div className="p-6 border-b border-white/5 bg-slate-900/40">
@@ -91,8 +91,8 @@ export function HealthDashboardClient({ initialData }: { initialData: any }) {
                                                         <div className="flex flex-wrap items-center gap-2 mb-1">
                                                             <h4 className="text-white font-bold">{incident.student?.full_name}</h4>
                                                             <Badge variant="outline" className={`text-[10px] uppercase font-bold tracking-widest ${incident.type === 'Injury' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
-                                                                    incident.type === 'Emergency' ? 'bg-red-500/20 text-red-500 border-red-500/30 animate-pulse' :
-                                                                        'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                                                incident.type === 'Emergency' ? 'bg-red-500/20 text-red-500 border-red-500/30 animate-pulse' :
+                                                                    'bg-blue-500/10 text-blue-400 border-blue-500/20'
                                                                 }`}>
                                                                 {incident.type}
                                                             </Badge>
@@ -124,7 +124,7 @@ export function HealthDashboardClient({ initialData }: { initialData: any }) {
                 </TabsContent>
 
                 <TabsContent value="alerts" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="bg-[#0A0A0B] border border-rose-500/10 rounded-2xl overflow-hidden shadow-2xl relative">
+                    <div className="bg-slate-950/40 backdrop-blur-md border border-rose-500/10 rounded-2xl overflow-hidden shadow-2xl relative">
                         <div className="absolute top-0 left-0 w-64 h-64 bg-rose-500/5 rounded-full blur-[80px] pointer-events-none" />
 
                         <div className="p-6 border-b border-rose-500/10 bg-rose-950/20">

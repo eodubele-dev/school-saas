@@ -21,7 +21,7 @@ export const AllergyAlertManager = ({ alerts = [] }: { alerts?: any[] }) => {
     }
 
     return (
-        <div className="bg-[#0A0A0B] border border-white/10 rounded-3xl p-6 shadow-2xl animate-in fade-in duration-500 delay-100">
+        <div className="bg-slate-950/40 backdrop-blur-md border border-white/10 rounded-3xl p-6 shadow-2xl animate-in fade-in duration-500 delay-100">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-3">
                     <div className="bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">

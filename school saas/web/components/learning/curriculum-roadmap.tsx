@@ -59,7 +59,7 @@ export const CurriculumRoadmap = ({ milestones = [] }: { milestones?: any[] }) =
     };
 
     return (
-        <div className="bg-[#0A0A0B] border border-white/10 rounded-3xl p-6 shadow-2xl animate-in fade-in duration-500">
+        <div className="bg-slate-950/40 backdrop-blur-md border border-white/10 rounded-3xl p-6 shadow-2xl animate-in fade-in duration-500">
             <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-3">
                     <div className="bg-blue-500/10 p-2.5 rounded-xl border border-blue-500/20">
@@ -84,9 +84,9 @@ export const CurriculumRoadmap = ({ milestones = [] }: { milestones?: any[] }) =
                     {items.length > 0 ? (
                         items.map((item, idx) => (
                             <div key={item.id} className="flex gap-4 group">
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 transition-all ${item.status === 'completed' ? 'bg-emerald-500 border-[#0A0A0B] text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' :
-                                    item.status === 'in-progress' ? 'bg-blue-600 border-[#0A0A0B] text-white shadow-[0_0_15px_rgba(37,99,235,0.3)] animate-pulse' :
-                                        'bg-[#0A0A0B] border-white/10 text-slate-600'
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 transition-all ${item.status === 'completed' ? 'bg-emerald-500 border-slate-900 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' :
+                                    item.status === 'in-progress' ? 'bg-blue-600 border-slate-900 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)] animate-pulse' :
+                                        'bg-slate-800 border-white/10 text-slate-500'
                                     }`}>
                                     {item.status === 'completed' ? <CheckCircle2 size={20} /> :
                                         item.status === 'in-progress' ? <BookOpen size={20} /> :

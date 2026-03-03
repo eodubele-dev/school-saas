@@ -33,7 +33,7 @@ export const FeedbackHub = ({ studentId }: { studentId?: string }) => {
     };
 
     return (
-        <div className="bg-[#0A0A0B] border border-white/10 rounded-3xl p-5 shadow-2xl animate-in fade-in duration-500 delay-100">
+        <div className="bg-slate-950/40 backdrop-blur-md border border-white/10 rounded-3xl p-5 shadow-2xl animate-in fade-in duration-500 delay-100">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-3">
                     <div className="bg-cyan-500/10 p-2.5 rounded-xl border border-cyan-500/20">

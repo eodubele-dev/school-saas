@@ -211,9 +211,9 @@ export function SidebarClient({
         <TooltipProvider>
             <div className="flex flex-col h-full">
                 {/* 🛡️ Identity Section */}
-                <div className="px-4 pt-4 pb-4 border-b border-white/5">
+                <div className="px-4 pt-4 pb-4 border-b border-white/5 shrink-0 min-h-min z-20 bg-inherit relative">
                     {/* Logo */}
-                    <div className="flex items-center gap-4 mb-4 mt-2 px-1">
+                    <div className="flex items-center gap-4 py-2 px-1">
                         <div className="h-16 w-16 shrink-0 rounded-2xl bg-slate-900/50 border border-white/10 flex items-center justify-center overflow-hidden shadow-lg shadow-black/20">
                             {tenantLogo && !logoError ? (
                                 <img
@@ -277,7 +277,7 @@ export function SidebarClient({
                 />
 
                 {/* 🏛️ Navigation Hubs */}
-                <nav className="flex-1 overflow-y-auto px-4 pb-4 space-y-2 scrollbar-thin scrollbar-thumb-slate-800">
+                <nav className="flex-1 overflow-y-auto px-4 pb-4 pt-4 space-y-2 scrollbar-thin scrollbar-thumb-slate-800 z-10">
                     {categories.map((cat, index) => {
                         const isSystem = cat.category === "System"
                         if (isSystem) return null

@@ -115,7 +115,7 @@ export function GateControlPortal({ initialPasses }: { initialPasses: any[] }) {
             </div>
 
             {/* Right Column: Verification Panel */}
-            <div className="w-full lg:w-2/3 p-8 flex flex-col relative overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900/50 via-[#0A0A0B] to-black">
+            <div className="w-full lg:w-2/3 p-8 flex flex-col relative overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900/50 via-slate-950/40 to-slate-950/60 backdrop-blur-md">
                 {selectedPass ? (
                     <div className="max-w-md mx-auto w-full animate-in zoom-in-95 duration-500">
                         <div className="text-center mb-8">

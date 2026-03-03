@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { Upload, X, Loader2, Palette, Star } from "lucide-react"
-import { updateTenantBranding } from "@/lib/actions/tenant"
+import { updateTenantBranding, uploadTenantLogo } from "@/lib/actions/tenant"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { TopBarPreview } from "./top-bar-preview"
@@ -39,13 +39,18 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
 
     // Helper to upload Logo to Supabase Storage via Server Action (RLS Bypass)
     const uploadLogoToStorage = async (file: File): Promise<string | null> => {
+        // Enforce 5MB limit on the client side to prevent generic fetch errors
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("File is too large. Maximum size is 5MB.")
+            return null
+        }
+
         try {
             const formData = new FormData()
             formData.append('file', file)
             formData.append('tenantId', tenant.id)
 
-            // Dynamic import to avoid potential circular/build issues in some environments
-            const { uploadTenantLogo } = await import("@/lib/actions/tenant")
+            // Direct Server Action Call
             const result = await uploadTenantLogo(formData)
 
             if (!result.success) throw new Error(result.error)
