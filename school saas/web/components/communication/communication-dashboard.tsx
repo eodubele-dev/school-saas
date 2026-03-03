@@ -30,10 +30,10 @@ export function CommunicationDashboard({ initialRole }: { initialRole?: string }
                 {role && (
                     <TabsList className="bg-slate-900 border border-white/5 p-1 text-slate-400">
                         {isStaff && (
-                            <>
-                                <TabsTrigger value="absentees" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">Daily Absentees</TabsTrigger>
-                                <TabsTrigger value="broadcast" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">Broadcast</TabsTrigger>
-                            </>
+                            <TabsTrigger value="absentees" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">Daily Absentees</TabsTrigger>
+                        )}
+                        {isAdmin && (
+                            <TabsTrigger value="broadcast" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">Broadcast</TabsTrigger>
                         )}
                         <TabsTrigger value="chat" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">Parent Chat</TabsTrigger>
                         {isAdmin && (
@@ -43,15 +43,15 @@ export function CommunicationDashboard({ initialRole }: { initialRole?: string }
                 )}
 
                 {isStaff && (
-                    <>
-                        <TabsContent value="absentees" className="space-y-4">
-                            <AbsenteeFollowUp />
-                        </TabsContent>
+                    <TabsContent value="absentees" className="space-y-4">
+                        <AbsenteeFollowUp />
+                    </TabsContent>
+                )}
 
-                        <TabsContent value="broadcast" className="max-w-3xl">
-                            <BroadcastComposer />
-                        </TabsContent>
-                    </>
+                {isAdmin && (
+                    <TabsContent value="broadcast" className="max-w-3xl">
+                        <BroadcastComposer />
+                    </TabsContent>
                 )}
 
                 <TabsContent value="chat">

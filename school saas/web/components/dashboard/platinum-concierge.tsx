@@ -83,7 +83,7 @@ export function PlatinumConcierge({
     const activeAlerts = healthAlerts.length
 
     return (
-        <div className="space-y-6 pt-8 border-t border-white/10 animate-in slide-in-from-bottom-5 duration-700">
+        <div className="space-y-6 pt-8 animate-in slide-in-from-bottom-5 duration-700">
             <div className="flex items-center justify-between mb-6">
                 <Badge variant="outline" className="bg-cyan-950/30 text-cyan-400 border-cyan-500/30 px-3 py-1 font-mono text-xs tracking-widest uppercase ml-auto">
                     Status: Active

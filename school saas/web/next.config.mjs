@@ -3,6 +3,7 @@ const nextConfig = {
     experimental: {
         serverActions: {
             allowedOrigins: ["localhost:3000", "localhost:3001", "*.localhost:3000", "*.localhost:3001"],
+            allowedDevOrigins: ["http://*.localhost:3000", "http://*.localhost:3001", "https://*.localhost:3000"],
             bodySizeLimit: '5mb',
         },
     },

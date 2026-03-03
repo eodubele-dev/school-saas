@@ -25,7 +25,7 @@ export function ExpenseDashboard() {
         ])
 
         if (sumRes.success) setSummary(sumRes.data)
-        if (chartRes.success) setChartData(chartRes.data)
+        if (chartRes.success && chartRes.data) setChartData(chartRes.data)
 
         setLoading(false)
     }
@@ -129,7 +129,7 @@ export function ExpenseDashboard() {
                                     <Tooltip
                                         contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#fff' }}
                                         itemStyle={{ color: '#fff' }}
-                                        formatter={(value: number) => `₦${value.toLocaleString()}`}
+                                        formatter={(value: any) => `₦${value.toLocaleString()}`}
                                     />
                                     <Legend />
                                 </PieChart>

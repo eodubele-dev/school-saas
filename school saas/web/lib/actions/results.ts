@@ -132,6 +132,28 @@ export async function getStudentResultData(studentId: string, term: string, sess
     }
 }
 
+export async function getBulkClassResults(
+    studentIds: string[],
+    term: string,
+    session: string,
+    nextTermBegins: string = "TBD",
+    dateIssued: string = new Date().toDateString()
+): Promise<ResultData[]> {
+    try {
+        // We run getStudentResultData in parallel for all students in the class
+        // This is safe because Next.js/Supabase will pipeline the requests
+        const results = await Promise.all(
+            studentIds.map(id => getStudentResultData(id, term, session, nextTermBegins, dateIssued))
+        )
+
+        // Filter out nulls (students without results/errors)
+        return results.filter((result): result is ResultData => result !== null)
+    } catch (error) {
+        console.error("Error in bulk result generation:", error)
+        return []
+    }
+}
+
 export async function checkStudentFeeStatus(studentId: string, term: string, session: string) {
     const supabase = createClient()
 
@@ -148,4 +170,28 @@ export async function checkStudentFeeStatus(studentId: string, term: string, ses
         isCleared: !invoice,
         status: invoice?.status || 'paid'
     }
+}
+
+export async function getClassesForSelection() {
+    const supabase = createClient()
+    const { data } = await supabase
+        .from('classes')
+        .select('id, name')
+        .order('name')
+    return data || []
+}
+
+export async function getStudentsForSelection(classId?: string) {
+    const supabase = createClient()
+    let query = supabase
+        .from('students')
+        .select('id, full_name, admission_number, class_id, classes(name)')
+        .order('full_name')
+
+    if (classId) {
+        query = query.eq('class_id', classId)
+    }
+
+    const { data } = await query
+    return data || []
 }

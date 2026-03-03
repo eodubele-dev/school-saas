@@ -1,22 +1,37 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Loader2, Send, MessageSquare, Phone, Mail, Paperclip } from "lucide-react"
+import { Loader2, Send, MessageSquare, Phone, Mail, Paperclip, Sparkles } from "lucide-react"
 import { toast } from "sonner"
 import { sendBroadcast, getCommunicationAudience } from "@/lib/actions/communication"
-import { useEffect } from "react"
+import { generateBroadcastAI } from "@/lib/actions/ai-broadcast"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
 
 export function BroadcastComposer() {
     const [sending, setSending] = useState(false)
     const [loadingAudience, setLoadingAudience] = useState(true)
     const [classes, setClasses] = useState<any[]>([])
     const [channel, setChannel] = useState<'sms' | 'whatsapp' | 'email'>('sms')
+
+    // AI State
+    const [isAIOpen, setIsAIOpen] = useState(false)
+    const [aiGenerating, setAiGenerating] = useState(false)
+    const [aiTopic, setAiTopic] = useState("")
+    const [aiTone, setAiTone] = useState("Professional")
+    const [messageDraft, setMessageDraft] = useState("")
 
     useEffect(() => {
         const loadAudience = async () => {
@@ -30,7 +45,11 @@ export function BroadcastComposer() {
     }, [])
 
     const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()
-    const defaultMessage = searchParams.get('message') || ""
+
+    useEffect(() => {
+        const urlMessage = searchParams.get('message')
+        if (urlMessage) setMessageDraft(urlMessage)
+    }, [])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -61,6 +80,28 @@ export function BroadcastComposer() {
             toast.error("An error occurred")
         }
         setSending(false)
+    }
+
+    const handleAIGenerate = async () => {
+        if (!aiTopic.trim()) {
+            toast.error("Please enter a topic for the AI to write about.")
+            return
+        }
+
+        setAiGenerating(true)
+        try {
+            const res = await generateBroadcastAI(aiTopic, aiTone, channel)
+            if (res.success && res.content) {
+                setMessageDraft(res.content)
+                setIsAIOpen(false)
+                toast.success("Message generated successfully!")
+            } else {
+                toast.error(res.error || "Failed to generate message")
+            }
+        } catch (e: any) {
+            toast.error(e.message || "An error occurred during generation")
+        }
+        setAiGenerating(false)
     }
 
     return (
@@ -117,14 +158,27 @@ export function BroadcastComposer() {
                     </div>
                 </div>
 
-                <div className="space-y-2 flex-1">
-                    <Label className="text-slate-400">Message</Label>
+                <div className="space-y-4 flex-1 flex flex-col min-h-0">
+                    <div className="flex items-center justify-between">
+                        <Label className="text-slate-400">Message</Label>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="text-amber-400 hover:text-amber-300 hover:bg-amber-400/10 h-8 px-3"
+                            onClick={() => setIsAIOpen(true)}
+                        >
+                            <Sparkles className="h-4 w-4 mr-2" />
+                            Generate with AI
+                        </Button>
+                    </div>
                     <Textarea
                         name="message"
                         required
-                        defaultValue={defaultMessage}
-                        className="bg-slate-950 border-white/10 text-white resize-none h-full min-h-[150px]"
-                        placeholder="Type your message here..."
+                        value={messageDraft}
+                        onChange={(e) => setMessageDraft(e.target.value)}
+                        className="bg-slate-950 border-white/10 text-white resize-none h-full min-h-[150px] flex-1 font-mono text-sm leading-relaxed"
+                        placeholder="Type your message here or use AI to draft one..."
                     />
                 </div>
 
@@ -132,11 +186,65 @@ export function BroadcastComposer() {
                     <Button type="button" variant="ghost" className="text-slate-400 hover:text-white hover:bg-white/10">
                         <Paperclip className="h-4 w-4 mr-2" /> Attach File
                     </Button>
-                    <Button type="submit" disabled={sending} className="bg-[var(--school-accent)] text-white w-32">
+                    <Button type="submit" disabled={sending || !messageDraft.trim()} className="bg-[var(--school-accent)] text-white w-32">
                         {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Now"}
                     </Button>
                 </div>
             </form>
+
+            <Dialog open={isAIOpen} onOpenChange={setIsAIOpen}>
+                <DialogContent className="sm:max-w-[425px] bg-slate-950 border-white/5 text-white">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-amber-500">
+                            <Sparkles className="h-5 w-5" />
+                            AI Broadcast Writer
+                        </DialogTitle>
+                        <DialogDescription className="text-slate-400">
+                            Let Gemini draft your {channel.toUpperCase()} broadcast instantly.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="grid gap-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="ai-topic" className="text-slate-300">What is the announcement about?</Label>
+                            <Textarea
+                                id="ai-topic"
+                                placeholder="e.g., Tomorrow is a public holiday, school resumes on Thursday."
+                                className="bg-slate-900 border-white/10 text-white resize-none"
+                                value={aiTopic}
+                                onChange={(e) => setAiTopic(e.target.value)}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="ai-tone" className="text-slate-300">Tone</Label>
+                            <Select value={aiTone} onValueChange={setAiTone}>
+                                <SelectTrigger className="bg-slate-900 border-white/10 text-white">
+                                    <SelectValue placeholder="Select a tone" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-slate-800 border-white/10 text-white">
+                                    <SelectItem value="Professional">Professional (Standard)</SelectItem>
+                                    <SelectItem value="Urgent">Urgent Warning</SelectItem>
+                                    <SelectItem value="Friendly">Friendly & Enthusiastic</SelectItem>
+                                    <SelectItem value="Formal">Formal & Academic</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" className="text-slate-400 hover:text-white hover:bg-white/5" onClick={() => setIsAIOpen(false)} disabled={aiGenerating}>
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleAIGenerate}
+                            disabled={aiGenerating || !aiTopic.trim()}
+                            className="bg-amber-500 hover:bg-amber-600 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                        >
+                            {aiGenerating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
+                            {aiGenerating ? "Drafting..." : "Generate Draft"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </Card>
     )
 }

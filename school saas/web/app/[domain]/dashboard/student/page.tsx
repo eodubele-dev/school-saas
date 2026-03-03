@@ -29,7 +29,7 @@ export default async function StudentDashboardPage({ params }: { params: { domai
             <DashboardHeader
                 student={metricsData.student}
                 metrics={metricsData.metrics}
-                feesPaid={metricsData.feesPaid}
+                feesPaid={!!metricsData.feesPaid}
             />
 
             {/* 2. Subjects Grid */}

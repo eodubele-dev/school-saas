@@ -61,20 +61,20 @@ export function ResultSheet({ data }: { data: ResultData }) {
             <div className="relative z-10 border-4 border-double h-full p-8 flex flex-col" style={{ borderColor: theme.secondary_color }}>
 
                 {/* Header */}
-                <header className="flex justify-between items-center border-b-2 pb-6 mb-6" style={{ borderColor: theme.secondary_color }}>
-                    <div className="flex items-center gap-4">
-                        <div className="relative w-20 h-20">
-                            {school.logo_url && <Image src={school.logo_url} alt="School Logo" fill className="object-contain" />}
+                <header className="flex justify-between items-start border-b-2 pb-6 mb-8" style={{ borderColor: theme.secondary_color }}>
+                    <div className="flex items-start gap-6">
+                        <div className="relative w-28 h-28 shrink-0 bg-white rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-slate-100 p-2 relative z-20">
+                            {school.logo_url && <Image src={school.logo_url} alt="School Logo" fill className="object-contain p-2" priority />}
                         </div>
-                        <div>
-                            <h1 className="text-3xl font-black uppercase tracking-wider" style={{ color: theme.primary_color }}>{school.name}</h1>
-                            <p className="text-sm font-medium text-slate-600 tracking-widest uppercase">{school.motto}</p>
-                            <p className="text-xs text-slate-500 mt-1">{school.address}</p>
+                        <div className="pt-2 relative z-20">
+                            <h1 className="text-4xl font-black uppercase tracking-wider leading-none mb-1.5 drop-shadow-sm" style={{ color: theme.primary_color }}>{school.name}</h1>
+                            <p className="text-[13px] font-bold text-slate-500 tracking-[0.2em] uppercase">{school.motto}</p>
+                            <p className="text-xs text-slate-400 mt-2 max-w-sm">{school.address}</p>
                         </div>
                     </div>
-                    <div className="flex flex-col items-end text-right">
-                        <h2 className="text-2xl font-bold uppercase" style={{ color: theme.secondary_color }}>Student Report Sheet</h2>
-                        <p className="font-semibold text-lg">{data.term_info.term} Term, {data.term_info.session}</p>
+                    <div className="flex flex-col items-end text-right pt-2 relative z-20">
+                        <h2 className="text-2xl font-bold uppercase tracking-tight" style={{ color: theme.secondary_color }}>Student Report Sheet</h2>
+                        <p className="font-bold text-lg text-slate-600 mt-1">{data.term_info.term} Term, {data.term_info.session}</p>
                     </div>
                 </header>
 

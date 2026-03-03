@@ -157,8 +157,6 @@ export default async function VerifiedResultPortal({ params }: { params: { domai
                     <div className="transform transition-all active:scale-[0.99]">
                         <ResultSheet
                             data={resultSheetData as any}
-                            schoolName={tenant.name}
-                            schoolLogo={tenant.logo_url}
                         />
                     </div>
                 </ResultGatekeeper>

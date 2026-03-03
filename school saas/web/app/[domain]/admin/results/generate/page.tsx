@@ -68,9 +68,9 @@ export default function GenerateResultsPage() {
     }
 
     const handlePrint = useReactToPrint({
-        content: () => printRef.current,
+        contentRef: printRef,
         documentTitle: `Result_${resultData?.student.full_name || 'Student'}`,
-    })
+    } as any)
 
     return (
         <div className="p-8 space-y-8 min-h-screen bg-slate-950 text-white">
@@ -139,8 +139,6 @@ export default function GenerateResultsPage() {
                         <div ref={printRef}>
                             <ResultSheet
                                 data={resultData}
-                                schoolName="Achievers International College" // Mock tenant name
-                                schoolLogo="/logo.png" // Mock
                             />
                         </div>
                     </div>

@@ -8,11 +8,11 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar, Loader2, Printer, Search } from "lucide-react"
 import { ResultSheet } from "@/components/results/result-sheet"
-import { getStudentResultData } from "@/lib/actions/results"
+import { getStudentResultData, getBulkClassResults, getClassesForSelection, getStudentsForSelection } from "@/lib/actions/results"
 import { ResultData } from "@/types/results"
 import { toast } from "sonner"
 import { useReactToPrint } from "react-to-print"
-import { useRef } from "react"
+import { useRef, useEffect } from "react"
 
 export default function GenerateResultsPage() {
     const [loading, setLoading] = useState(false)
@@ -22,40 +22,103 @@ export default function GenerateResultsPage() {
     const [nextTermBegins, setNextTermBegins] = useState("2026-09-15") // Default Example
     const [dateIssued, setDateIssued] = useState(new Date().toISOString().split('T')[0])
 
-    const [resultData, setResultData] = useState<ResultData | null>(null)
+    const [classes, setClasses] = useState<{ id: string; name: string }[]>([])
+    const [students, setStudents] = useState<any[]>([])
+
+    const [selectedClassId, setSelectedClassId] = useState<string>("all")
+    const [selectedStudentId, setSelectedStudentId] = useState<string>("all")
+
+    const [resultDataList, setResultDataList] = useState<ResultData[]>([])
     const printRef = useRef<HTMLDivElement>(null)
 
+    // Load initial data
+    useEffect(() => {
+        async function loadSelectors() {
+            try {
+                const classList = await getClassesForSelection()
+                setClasses(classList)
+                const studentList = await getStudentsForSelection()
+                setStudents(studentList)
+            } catch (error) {
+                console.error("Failed to load selectors", error)
+            }
+        }
+        loadSelectors()
+    }, [])
+
+    // Reload students when class changes
+    useEffect(() => {
+        async function loadStudentsInClass() {
+            try {
+                const studentList = await getStudentsForSelection(selectedClassId === "all" ? undefined : selectedClassId)
+                setStudents(studentList)
+                setSelectedStudentId("all") // Reset student when class changes
+            } catch (error) {
+                console.error("Failed to load students", error)
+            }
+        }
+        loadStudentsInClass()
+    }, [selectedClassId])
+
     const handleGenerate = async () => {
-        if (!studentId) return toast.error("Please enter a Student ID")
-
         setLoading(true)
-        try {
-            // Fetch dynamic results
-            const data = await getStudentResultData(
-                studentId,
-                term,
-                session,
-                new Date(nextTermBegins).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
-                new Date(dateIssued).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-            )
+        setResultDataList([])
 
-            if (!data) {
-                toast.error("Result data not found for this student")
-                setResultData(null)
+        try {
+            if (selectedStudentId !== "all") {
+                // Generate for single student
+                const data = await getStudentResultData(
+                    selectedStudentId,
+                    term,
+                    session,
+                    new Date(nextTermBegins).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                    new Date(dateIssued).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                )
+
+                if (!data) {
+                    toast.error("Result data not found for this student")
+                } else {
+                    setResultDataList([data])
+                    toast.success("Result generated successfully")
+                }
+            } else if (selectedClassId !== "all") {
+                // Generate for entire class
+                const classStudents = students.filter(s => s.class_id === selectedClassId)
+                if (classStudents.length === 0) {
+                    toast.error("No students found in this class")
+                    setLoading(false)
+                    return
+                }
+
+                const studentIds = classStudents.map(s => s.id)
+                const dataList = await getBulkClassResults(
+                    studentIds,
+                    term,
+                    session,
+                    new Date(nextTermBegins).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                    new Date(dateIssued).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                )
+
+                if (dataList.length === 0) {
+                    toast.error("No result data found for this class")
+                } else {
+                    setResultDataList(dataList)
+                    toast.success(`Generated ${dataList.length} results successfully`)
+                }
             } else {
-                setResultData(data)
-                toast.success("Result generated successfully")
+                toast.error("Please select a Class or a specific Student")
             }
         } catch (error) {
-            toast.error("Error generating result")
+            toast.error("Error generating result(s)")
+            console.error(error)
         } finally {
             setLoading(false)
         }
     }
 
     const handlePrint = useReactToPrint({
-        content: () => printRef.current,
-        documentTitle: `Result_${resultData?.student.full_name || 'Student'}`,
+        contentRef: printRef,
+        documentTitle: resultDataList.length > 1 ? `Results_Class_${session}` : `Result_${resultDataList[0]?.student.full_name || 'Student'}`,
     } as any)
 
     return (
@@ -72,15 +135,38 @@ export default function GenerateResultsPage() {
             <Card className="bg-slate-900 border-white/10">
                 <CardContent className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-                        {/* Student ID */}
+                        {/* Class Selection */}
                         <div className="space-y-2 lg:col-span-1">
-                            <Label className="text-white">Student ID</Label>
-                            <Input
-                                placeholder="UUID..."
-                                value={studentId}
-                                onChange={(e) => setStudentId(e.target.value)}
-                                className="bg-slate-800 border-white/20 font-mono text-white placeholder:text-slate-400"
-                            />
+                            <Label className="text-white">Class (Optional Bulk)</Label>
+                            <Select value={selectedClassId} onValueChange={setSelectedClassId}>
+                                <SelectTrigger className="bg-slate-800 border-white/20 text-white">
+                                    <SelectValue placeholder="All Classes" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Any Class</SelectItem>
+                                    {classes?.map(c => (
+                                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Student Search */}
+                        <div className="space-y-2 lg:col-span-1">
+                            <Label className="text-white">Student</Label>
+                            <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                                <SelectTrigger className="bg-slate-800 border-white/20 text-white">
+                                    <SelectValue placeholder="Search Student..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Students in Filter</SelectItem>
+                                    {(students || []).map(s => (
+                                        <SelectItem key={s.id} value={s.id}>
+                                            {s.full_name} {s.admission_number ? `(${s.admission_number})` : ''}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         {/* Session */}
@@ -149,24 +235,30 @@ export default function GenerateResultsPage() {
                 </CardContent>
             </Card>
 
-            {resultData && (
+            {resultDataList.length > 0 && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <div className="flex justify-end">
-                        <Button onClick={handlePrint} className="bg-green-600 hover:bg-green-500">
-                            <Printer className="mr-2 h-4 w-4" /> Print Result
+                    <div className="flex justify-between items-center bg-slate-900 border border-white/10 p-4 rounded-xl">
+                        <div className="text-slate-300">
+                            Generated <span className="font-bold text-white">{resultDataList.length}</span> result{resultDataList.length !== 1 && 's'}.
+                        </div>
+                        <Button onClick={handlePrint} className="bg-green-600 hover:bg-green-500 text-white">
+                            <Printer className="mr-2 h-4 w-4" /> {resultDataList.length > 1 ? "Print All" : "Print Result"}
                         </Button>
                     </div>
 
-                    <div className="overflow-auto bg-slate-800/50 p-8 rounded-xl border border-white/5 flex justify-center">
+                    <div className="overflow-auto bg-slate-800/50 p-2 md:p-8 rounded-xl border border-white/5 flex justify-center">
                         {/* Print Container */}
-                        <div ref={printRef}>
-                            <ResultSheet
-                                data={resultData}
-                            />
+                        <div ref={printRef} className="w-full flex flex-col items-center">
+                            {resultDataList.map((data, index) => (
+                                <div key={data.student.id} className="w-full flex justify-center print:block print:w-full print:page-break-after-always last:print:page-break-after-auto mb-8 print:mb-0">
+                                    <ResultSheet data={data} />
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     )
 }

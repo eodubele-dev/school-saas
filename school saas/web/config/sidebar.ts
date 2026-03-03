@@ -80,8 +80,8 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
         {
             category: "System",
             items: [
+                { icon: MessageSquare, label: "Communication Hub", href: "/dashboard/messages" },
                 { icon: MessageSquare, label: "Voice & Feedback", href: "/dashboard/admin/voice", badge: "New" },
-                { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
                 { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
                 { icon: MessageSquare, label: "SMS Notifications", href: "/dashboard/settings/notifications" },
             ]
@@ -146,8 +146,8 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
         {
             category: "System",
             items: [
+                { icon: MessageSquare, label: "Communication Hub", href: "/dashboard/messages" },
                 { icon: MessageSquare, label: "Voice & Feedback", href: "/dashboard/admin/voice", badge: "New" },
-                { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
                 { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
                 { icon: MessageSquare, label: "SMS Notifications", href: "/dashboard/settings/notifications" },
             ]
