@@ -213,26 +213,26 @@ export function SidebarClient({
                 {/* 🛡️ Identity Section */}
                 <div className="px-4 pt-4 pb-4 border-b border-white/5">
                     {/* Logo */}
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="h-12 w-12 rounded-full bg-slate-900/50 border border-white/10 flex items-center justify-center overflow-hidden">
+                    <div className="flex items-center gap-4 mb-4 mt-2 px-1">
+                        <div className="h-16 w-16 shrink-0 rounded-2xl bg-slate-900/50 border border-white/10 flex items-center justify-center overflow-hidden shadow-lg shadow-black/20">
                             {tenantLogo && !logoError ? (
                                 <img
                                     src={tenantLogo}
                                     alt={tenantName}
-                                    className="h-full w-full object-contain p-1"
+                                    className="h-full w-full object-contain p-1.5"
                                     onError={() => setLogoError(true)}
                                 />
                             ) : (
                                 <img
                                     src="/visuals/auth-logo.png"
                                     alt="Identity Verified"
-                                    className="h-full w-full object-contain p-1"
+                                    className="h-full w-full object-contain p-1.5"
                                 />
                             )}
                         </div>
-                        <div className="flex-1">
-                            <h2 className="text-white font-bold text-lg tracking-tight leading-tight">{tenantName}</h2>
-                            <p className="text-xs font-semibold mt-0.5 opacity-80" style={{ color: 'var(--school-accent)' }}>{tenantMotto}</p>
+                        <div className="flex-1 min-w-0">
+                            <h2 className="text-white font-extrabold text-xl tracking-tight leading-tight break-words">{tenantName}</h2>
+                            <p className="text-sm font-bold mt-1 opacity-90 break-words leading-snug" style={{ color: 'var(--school-accent)' }}>{tenantMotto}</p>
                         </div>
                     </div>
 

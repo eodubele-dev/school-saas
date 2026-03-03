@@ -43,43 +43,43 @@ export function TopBarPreview({ name, logo, motto, accent, tier = "Free" }: TopB
                     <div className="flex items-center gap-3 relative z-10 w-full">
                         {/* 1. Logo Container (48px / h-12) */}
                         <div
-                            className="h-12 w-12 shrink-0 flex items-center justify-center rounded-xl bg-slate-900/50 border border-white/10 overflow-hidden"
+                            className="h-16 w-16 shrink-0 flex items-center justify-center rounded-2xl bg-slate-900/50 border border-white/10 overflow-hidden"
                             style={{
                                 borderColor: `${accent}40`, // 25% opacity
-                                boxShadow: `0 0 20px ${accent}10`
+                                boxShadow: `0 0 20px ${accent}20`
                             }}
                         >
                             {logo ? (
                                 <img
                                     src={logo}
                                     alt="Logo"
-                                    className="h-full w-full object-contain p-1"
+                                    className="h-full w-full object-contain p-1.5"
                                 />
                             ) : (
                                 <img
                                     src="/visuals/auth-logo.png"
                                     alt="Default Logo"
-                                    className="h-full w-full object-contain p-1"
+                                    className="h-full w-full object-contain p-1.5"
                                 />
                             )}
                         </div>
 
                         {/* 2. Identity Stack */}
-                        <div className="flex flex-col flex-1 min-w-0">
-                            <h2 className="text-white font-bold text-lg tracking-tight leading-tight truncate flex items-center gap-2">
+                        <div className="flex flex-col flex-1 min-w-0 justify-center">
+                            <h2 className="text-white font-extrabold text-xl tracking-tight leading-tight flex items-center gap-2 break-words">
                                 {name || "School Name"}
                                 {tier === 'Platinum' && (
-                                    <span className="px-1.5 py-0.5 rounded-md bg-gradient-to-r from-slate-300 via-white to-slate-300 text-[9px] text-slate-900 font-extrabold tracking-wider uppercase shadow-lg shadow-white/20">
+                                    <span className="px-1.5 py-0.5 rounded-md bg-gradient-to-r from-slate-300 via-white to-slate-300 text-[9px] text-slate-900 font-extrabold tracking-wider uppercase shadow-lg shadow-white/20 shrink-0">
                                         PRO
                                     </span>
                                 )}
                             </h2>
-                            <div className="flex items-center gap-2">
-                                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
+                            <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500 bg-white/5 px-1.5 py-0.5 rounded border border-white/5 shrink-0">
                                     {tier}
                                 </span>
                                 <p
-                                    className="text-xs font-semibold mt-0.5 tracking-wide truncate opacity-80"
+                                    className="text-sm font-bold opacity-90 break-words leading-snug"
                                     style={{ color: accent }}
                                 >
                                     {motto || "Excellence in Education"}
