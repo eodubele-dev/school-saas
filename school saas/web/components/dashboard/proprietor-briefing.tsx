@@ -1,3 +1,5 @@
+"use client";
+
 import InterCampusRevenueChart from './revenue-comparison-chart';
 import { TrendingUp, ShieldAlert, BarChart3, Globe } from 'lucide-react';
 

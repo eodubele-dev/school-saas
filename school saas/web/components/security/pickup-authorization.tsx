@@ -1,5 +1,5 @@
-import React from 'react';
 import { ShieldCheck, UserPlus, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export const PickupAuthorization = ({ data = [] }: { data?: any[] }) => {
     return (
@@ -9,8 +9,11 @@ export const PickupAuthorization = ({ data = [] }: { data?: any[] }) => {
                     <h2 className="text-2xl font-bold text-white uppercase tracking-tight italic">Authorized Pick-up Persons</h2>
                     <p className="text-gray-500 text-sm">Designate who is permitted to collect your children</p>
                 </div>
-                <button className="bg-cyan-600 hover:bg-cyan-500 text-black px-6 py-3 rounded-2xl font-black text-xs uppercase flex items-center gap-2 shadow-[0_0_15px_rgba(8,145,178,0.3)] hover:shadow-[0_0_20px_rgba(8,145,178,0.5)] transition-all">
-                    <UserPlus size={16} /> ADD_NEW_PERSON
+                <button
+                    onClick={() => toast.info("Device Registration Required", { description: "To add a new authorized pickup proxy, please use the EduFlow Parent Mobile App to complete biometric registration." })}
+                    className="bg-cyan-600 hover:bg-cyan-500 text-black px-6 py-3 rounded-2xl font-black text-xs uppercase flex items-center gap-2 shadow-[0_0_15px_rgba(8,145,178,0.3)] hover:shadow-[0_0_20px_rgba(8,145,178,0.5)] transition-all"
+                >
+                    <UserPlus size={16} /> Add New Person
                 </button>
             </div>
 

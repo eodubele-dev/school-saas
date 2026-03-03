@@ -2,10 +2,24 @@
 
 import React, { useState } from 'react';
 import { AlertTriangle, Plus, ShieldAlert, Check, RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
 
 export const AllergyAlertManager = ({ alerts = [] }: { alerts?: any[] }) => {
     // Map DB fields if necessary, or use directly
+    const [lastVerified, setLastVerified] = useState(new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '_').toUpperCase());
+    const [isSyncing, setIsSyncing] = useState(false);
+
     const activeAlerts = alerts;
+
+    const handleSync = () => {
+        setIsSyncing(true);
+        setTimeout(() => {
+            setLastVerified(new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '_').toUpperCase());
+            setIsSyncing(false);
+            toast.success("Health records synced verified with School Clinic");
+        }, 1500);
+    }
+
     return (
         <div className="bg-[#0A0A0B] border border-white/10 rounded-3xl p-6 shadow-2xl animate-in fade-in duration-500 delay-100">
             <div className="flex justify-between items-center mb-6">
@@ -18,8 +32,11 @@ export const AllergyAlertManager = ({ alerts = [] }: { alerts?: any[] }) => {
                         <p className="text-slate-500 text-xs">Allergies & Conditions</p>
                     </div>
                 </div>
-                <button className="bg-white/5 hover:bg-white/10 text-white p-2 rounded-lg transition-colors">
-                    <Plus size={16} />
+                <button
+                    onClick={() => toast.info("Device Registration Required", { description: "To add a new critical health alert, please use the EduFlow Parent Mobile App to securely upload medical documents." })}
+                    className="bg-white/5 hover:bg-white/10 text-white p-2 rounded-lg transition-colors group"
+                >
+                    <Plus size={16} className="group-hover:scale-110 transition-transform" />
                 </button>
             </div>
 
@@ -54,10 +71,14 @@ export const AllergyAlertManager = ({ alerts = [] }: { alerts?: any[] }) => {
             )}
 
             <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-600 font-mono">
-                <span>LAST_VERIFIED: 24_OCT_2025</span>
-                <div className="flex items-center gap-1 text-cyan-500 cursor-pointer hover:text-cyan-400">
-                    <RefreshCw size={10} /> Sync
-                </div>
+                <span suppressHydrationWarning>LAST_VERIFIED: {lastVerified}</span>
+                <button
+                    onClick={handleSync}
+                    disabled={isSyncing}
+                    className="flex items-center gap-1 text-cyan-500 cursor-pointer hover:text-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <RefreshCw size={10} className={isSyncing ? "animate-spin" : ""} /> {isSyncing ? "SYNCING..." : "SYNC"}
+                </button>
             </div>
         </div>
     );

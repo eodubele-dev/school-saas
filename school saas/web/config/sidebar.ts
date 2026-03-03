@@ -27,6 +27,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             items: [
                 { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
                 { icon: Crown, label: "Executive View", href: "/dashboard/admin/executive/mobile" },
+                { icon: CalendarDays, label: "School Calendar", href: "/dashboard/admin/calendar", badge: "New" },
             ]
         },
         {
@@ -44,6 +45,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             icon: GraduationCap,
             items: [
                 { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup/academic" },
+                { icon: BookOpen, label: "Curriculum Planning", href: "/dashboard/admin/curriculum", badge: "New" },
                 { icon: GraduationCap, label: "Result Processor", href: "/dashboard/admin/results/generate" },
                 { icon: ShieldCheck, label: "Approvals Hub", href: "/dashboard/admin/approvals" },
             ]
@@ -71,11 +73,14 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             icon: Shield,
             items: [
                 { icon: Activity, label: "System Security", href: "/dashboard/admin/security/audit" },
+                { icon: ShieldCheck, label: "Gate Control", href: "/dashboard/admin/security/gate", badge: "Live" },
+                { icon: Activity, label: "Health & Infirmary", href: "/dashboard/admin/health", badge: "New" },
             ]
         },
         {
             category: "System",
             items: [
+                { icon: MessageSquare, label: "Voice & Feedback", href: "/dashboard/admin/voice", badge: "New" },
                 { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
                 { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
                 { icon: MessageSquare, label: "SMS Notifications", href: "/dashboard/settings/notifications" },
@@ -106,6 +111,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             icon: GraduationCap,
             items: [
                 { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup/academic" },
+                { icon: BookOpen, label: "Curriculum Planning", href: "/dashboard/admin/curriculum", badge: "New" },
                 { icon: GraduationCap, label: "Result Processor", href: "/dashboard/admin/results/generate" },
                 { icon: ShieldCheck, label: "Approvals Hub", href: "/dashboard/admin/approvals" },
             ]
@@ -133,11 +139,14 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             icon: Shield,
             items: [
                 { icon: Activity, label: "System Security", href: "/dashboard/admin/security/audit" },
+                { icon: ShieldCheck, label: "Gate Control", href: "/dashboard/admin/security/gate", badge: "Live" },
+                { icon: Activity, label: "Health & Infirmary", href: "/dashboard/admin/health", badge: "New" },
             ]
         },
         {
             category: "System",
             items: [
+                { icon: MessageSquare, label: "Voice & Feedback", href: "/dashboard/admin/voice", badge: "New" },
                 { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
                 { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
                 { icon: MessageSquare, label: "SMS Notifications", href: "/dashboard/settings/notifications" },
@@ -174,6 +183,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             items: [
                 { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
                 { icon: Users, label: "My Classes", href: "/dashboard/teacher/classes" },
+                { icon: BookOpen, label: "Curriculum Planning", href: "/dashboard/admin/curriculum", badge: "New" },
                 { icon: BookOpenCheck, label: "Assessment Hub", href: "/dashboard/teacher/assessments" },
                 { icon: Sparkles, label: "Behavior & Awards", href: "/dashboard/teacher/behavior" },
                 { icon: ClipboardCheck, label: "Attendance", href: "/dashboard/attendance" },
@@ -200,6 +210,8 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             items: [
                 { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
                 { icon: Bus, label: "Transport Hub", href: "/dashboard/logistics" },
+                { icon: ShieldCheck, label: "Gate Control", href: "/dashboard/admin/security/gate", badge: "Live" },
+                { icon: Activity, label: "Health & Infirmary", href: "/dashboard/admin/health", badge: "New" },
                 { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
             ]
         }

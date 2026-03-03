@@ -1,9 +1,10 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { CreditCard, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 import { initiatePayment } from "@/lib/actions/paystack" // Updated import
-import confetti from 'canvas-confetti'
 
 export function PaymentButton({ amount, email, studentId }: { amount: number, email: string, studentId?: string }) {
     const [loading, setLoading] = useState(false)

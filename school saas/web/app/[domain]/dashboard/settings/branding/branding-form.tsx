@@ -70,7 +70,7 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                     secondary,
                     accent
                 },
-                logo_path: logo || undefined
+                logo_path: logo // Allow null to be passed to delete the logo
             })
 
             if (!result.success) throw new Error(result.error)
@@ -79,7 +79,7 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                 name,
                 motto,
                 address,
-                logo_url: logo || undefined,
+                logo_url: logo, // Pass null instead of undefined
                 theme_config: {
                     primary,
                     secondary,

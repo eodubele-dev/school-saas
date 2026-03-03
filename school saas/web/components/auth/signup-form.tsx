@@ -69,15 +69,15 @@ export function SignupForm({ domain, schoolName, logoUrl, primaryColor = '#2563e
                 <div className="relative z-10 max-w-lg text-center">
                     <div className="flex justify-center gap-6 mb-12">
                         {logoUrl ? (
-                            <div className="h-32 w-32 rounded-full bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow group hover:bg-white/10 transition-all duration-300 p-4">
-                                <img src={logoUrl} alt="School Logo" className="w-full h-full object-contain" />
+                            <div className="h-32 w-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow group hover:bg-white/10 transition-all duration-300 overflow-hidden">
+                                <img src={logoUrl} alt="School Logo" className="w-full h-full object-cover" />
                             </div>
                         ) : (
-                            <div className="h-32 w-32 rounded-full bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow group hover:bg-white/10 transition-all duration-300 p-4">
+                            <div className="h-32 w-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow group hover:bg-white/10 transition-all duration-300 overflow-hidden">
                                 <img
                                     src="/visuals/auth-logo.png"
                                     alt="Identity Verified"
-                                    className="w-full h-full object-contain"
+                                    className="w-full h-full object-cover"
                                 />
                             </div>
                         )}

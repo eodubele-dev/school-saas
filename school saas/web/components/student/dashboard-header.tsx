@@ -37,40 +37,46 @@ export function DashboardHeader({ student, metrics, feesPaid }: { student: any, 
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* 1. Avg Score */}
-                <Card className="p-4 bg-gradient-to-br from-blue-900/50 to-slate-900 border-white/10">
-                    <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                            <span className="text-xl">📊</span>
+                <Card className="p-4 relative overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-900 border-none shadow-[0_0_40px_rgba(37,99,235,0.15)] group hover:shadow-[0_0_40px_rgba(37,99,235,0.3)] transition-all duration-500">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700" />
+                    <div className="flex items-center gap-3 relative z-10">
+                        <div className="h-12 w-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-inner border border-white/10">
+                            <span className="text-2xl drop-shadow-md">📊</span>
                         </div>
                         <div>
-                            <p className="text-xs text-blue-200 font-bold uppercase">Average</p>
-                            <p className="text-2xl font-bold text-white">{metrics.average}%</p>
+                            <p className="text-xs text-blue-100 font-bold uppercase tracking-wider opacity-80">Average</p>
+                            <p className="text-3xl font-black text-white drop-shadow-sm">{metrics.average}%</p>
                         </div>
                     </div>
                 </Card>
 
                 {/* 2. Class Rank */}
-                <Card className="p-4 bg-gradient-to-br from-purple-900/50 to-slate-900 border-white/10">
-                    <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                            <Trophy className="h-5 w-5 text-purple-400" />
+                <Card className="p-4 relative overflow-hidden bg-gradient-to-br from-fuchsia-600 to-purple-900 border-none shadow-[0_0_40px_rgba(192,38,211,0.15)] group hover:shadow-[0_0_40px_rgba(192,38,211,0.3)] transition-all duration-500">
+                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -ml-16 -mb-16 transition-transform group-hover:scale-150 duration-700" />
+                    <div className="flex items-center gap-3 relative z-10">
+                        <div className="h-12 w-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-inner border border-white/10">
+                            <Trophy className="h-6 w-6 text-fuchsia-100 drop-shadow-md" />
                         </div>
                         <div>
-                            <p className="text-xs text-purple-200 font-bold uppercase">Class Rank</p>
-                            <p className="text-2xl font-bold text-white">{metrics.rank} <span className="text-sm text-slate-400 font-normal">of {metrics.totalStudents}</span></p>
+                            <p className="text-xs text-fuchsia-100 font-bold uppercase tracking-wider opacity-80">Class Rank</p>
+                            <p className="text-3xl font-black text-white drop-shadow-sm">
+                                {metrics.rank > 0 ? metrics.rank : 'N/A'}
+                                <span className="text-sm text-fuchsia-200/70 font-medium ml-1">of {metrics.totalStudents}</span>
+                            </p>
                         </div>
                     </div>
                 </Card>
 
                 {/* 3. Attendance */}
-                <Card className="p-4 bg-gradient-to-br from-emerald-900/50 to-slate-900 border-white/10">
-                    <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
-                            <UserCheck className="h-5 w-5 text-emerald-400" />
+                <Card className="p-4 relative overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-900 border-none shadow-[0_0_40px_rgba(16,185,129,0.15)] group hover:shadow-[0_0_40px_rgba(16,185,129,0.3)] transition-all duration-500">
+                    <div className="absolute top-1/2 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -translate-y-1/2 transition-transform group-hover:scale-150 duration-700" />
+                    <div className="flex items-center gap-3 relative z-10">
+                        <div className="h-12 w-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-inner border border-white/10">
+                            <UserCheck className="h-6 w-6 text-emerald-100 drop-shadow-md" />
                         </div>
                         <div>
-                            <p className="text-xs text-emerald-200 font-bold uppercase">Attendance</p>
-                            <p className="text-2xl font-bold text-white">{metrics.attendancePct}%</p>
+                            <p className="text-xs text-emerald-100 font-bold uppercase tracking-wider opacity-80">Attendance</p>
+                            <p className="text-3xl font-black text-white drop-shadow-sm">{metrics.attendancePct}%</p>
                         </div>
                     </div>
                 </Card>

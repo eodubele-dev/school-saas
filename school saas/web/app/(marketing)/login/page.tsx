@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { findSchoolsByEmail, SchoolDiscoveryResult } from "@/lib/actions/auth-discovery"
-import { Loader2, School, ArrowRight, UserCircle } from "lucide-react"
+import { Loader2, ArrowRight, UserCircle } from "lucide-react"
 import { toast } from "sonner"
 
 export default function MarketingLoginPage() {
@@ -41,7 +41,7 @@ export default function MarketingLoginPage() {
             } else {
                 toast.error(res.error)
             }
-        } catch (err) {
+        } catch {
             toast.error("Something went wrong.")
         } finally {
             setLoading(false)
@@ -85,11 +85,11 @@ export default function MarketingLoginPage() {
             <div className="relative z-10 w-full max-w-md p-[1px] rounded-2xl bg-gradient-to-b from-cyan-500/30 to-transparent shadow-2xl">
                 <Card className="w-full bg-black/60 backdrop-blur-xl border-none rounded-2xl text-white">
                     <CardHeader className="text-center pt-8 pb-2">
-                        <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/5 border border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.05)] overflow-hidden p-2">
+                        <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.05)] overflow-hidden">
                             <img
                                 src="/visuals/auth-logo.png"
                                 alt="Identity Verified"
-                                className="w-full h-full object-contain"
+                                className="w-full h-full object-cover"
                             />
                         </div>
                         <CardTitle className="text-3xl font-bold tracking-tight text-white">

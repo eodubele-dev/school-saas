@@ -160,10 +160,22 @@ export default async function middleware(req: NextRequest) {
 
     let isViolation = false
 
-    if (isTryingAdmin && role !== 'admin') isViolation = true
-    if (isTryingBursar && role !== 'bursar' && role !== 'admin') isViolation = true
+    // Allow owners to access admin routes natively. Staff can ONLY access specific admin sub-routes like Gate Control.
+    if (isTryingAdmin) {
+      if (role === 'owner' || role === 'admin') {
+        // Built-in logic: Fully permitted
+      } else if (role === 'staff' && (path.startsWith('/dashboard/admin/security/gate') || path.startsWith('/dashboard/admin/health'))) {
+        // Staff logic: Permitted ONLY for Gate Control & Health
+      } else if (role === 'teacher' && path.startsWith('/dashboard/admin/curriculum')) {
+        // Teacher logic: Permitted ONLY for Curriculum Planning
+      } else {
+        isViolation = true
+      }
+    }
 
-    if (role === 'teacher' || role === 'student' || role === 'parent') {
+    if (isTryingBursar && role !== 'bursar' && role !== 'admin' && role !== 'owner') isViolation = true
+
+    if (role === 'student' || role === 'parent') {
       if (isTryingAdmin || isTryingBursar) isViolation = true
     }
 

@@ -5,9 +5,16 @@ import { useEffect } from "react"
 interface TenantThemeProviderProps {
     children: React.ReactNode
     primaryColor?: string
+    secondaryColor?: string
+    accentColor?: string
 }
 
-export function TenantThemeProvider({ children, primaryColor = "#06b6d4" }: TenantThemeProviderProps) {
+export function TenantThemeProvider({
+    children,
+    primaryColor = "#06b6d4",
+    secondaryColor = "#0f172a", // Default slate-900 backgroud
+    accentColor = "#3b82f6"     // Default blue accent
+}: TenantThemeProviderProps) {
     useEffect(() => {
         const root = document.documentElement
 
@@ -19,10 +26,16 @@ export function TenantThemeProvider({ children, primaryColor = "#06b6d4" }: Tena
                 : "6 182 212" // Default Cyan
         }
 
-        root.style.setProperty("--school-accent", primaryColor)
-        root.style.setProperty("--school-accent-rgb", hexToRgb(primaryColor))
+        root.style.setProperty("--school-primary", primaryColor)
+        root.style.setProperty("--school-primary-rgb", hexToRgb(primaryColor))
 
-    }, [primaryColor])
+        root.style.setProperty("--school-secondary", secondaryColor)
+        root.style.setProperty("--school-secondary-rgb", hexToRgb(secondaryColor))
+
+        root.style.setProperty("--school-accent", accentColor)
+        root.style.setProperty("--school-accent-rgb", hexToRgb(accentColor))
+
+    }, [primaryColor, secondaryColor, accentColor])
 
     return <>{children}</>
 }

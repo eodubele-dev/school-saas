@@ -49,6 +49,41 @@ export async function generateGatePass(studentId: string, type: 'early_dismissal
     return { success: true, data }
 }
 
+export async function getActiveGatePasses() {
+    const supabase = createClient()
+
+    // Fetch gate passes that are 'active'
+    const { data, error } = await supabase
+        .from('gate_passes')
+        .select(`
+            *,
+            student:students(full_name, admission_number, photo_url)
+        `)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+
+    if (error) {
+        console.error('Error fetching active gate passes:', error)
+        return []
+    }
+
+    return data
+}
+
+export async function validateGatePass(passId: string) {
+    const supabase = createClient()
+
+    const { data, error } = await supabase
+        .from('gate_passes')
+        .update({ status: 'used' })
+        .eq('id', passId)
+        .select()
+        .single()
+
+    if (error) return { success: false, error: error.message }
+    return { success: true, data }
+}
+
 // 🏥 HEALTH ACTIONS
 export async function getMedicalLogs(studentId: string) {
     const supabase = createClient()
@@ -94,7 +129,7 @@ export async function submitFeedback(category: string, rating: number, message: 
     return { success: true }
 }
 
-export async function bookPTASlot(studentId: string, date: string, time: string) {
+export async function bookPTASlot(studentId: string, timestamp: string) {
     // keeping it simple for MVP
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -106,7 +141,7 @@ export async function bookPTASlot(studentId: string, date: string, time: string)
         .insert({
             parent_id: user.id,
             student_id: studentId,
-            scheduled_at: new Date().toISOString(), // placeholder logic
+            scheduled_at: timestamp,
             status: 'scheduled'
         })
 

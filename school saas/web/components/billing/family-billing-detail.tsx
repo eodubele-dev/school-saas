@@ -9,7 +9,6 @@ import { useReactToPrint } from 'react-to-print';
 import { PaymentReceiptTemplate } from "./payment-receipt-template";
 import { PaymentSuccessLanding } from "./payment-success-landing";
 import { StudentBillingCard } from "./student-billing-card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -175,19 +174,11 @@ export function FamilyBillingDetail({
                 </div>
             </div>
 
-            <Tabs defaultValue="overview" className="space-y-8">
+            <div className="space-y-12">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-white/5 pb-4">
-                    <TabsList className="bg-slate-900 border border-white/5 p-1 rounded-xl">
-                        <TabsTrigger value="overview" className="px-6 data-[state=active]:bg-cyan-600 data-[state=active]:text-black font-black uppercase text-[10px] tracking-wider">Overview</TabsTrigger>
-                        {familyLedger.children.map(child => (
-                            <TabsTrigger key={child.id} value={child.id} className="px-6 data-[state=active]:bg-cyan-600 data-[state=active]:text-black font-black uppercase text-[10px] tracking-wider">
-                                {child.name.split(' ')[0]}
-                            </TabsTrigger>
-                        ))}
-                    </TabsList>
-
+                    <h2 className="text-xl font-bold italic tracking-tight uppercase">Family Overview</h2>
                     <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Filter:</span>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Filter Items:</span>
                         <Select value={statusFilter} onValueChange={(val: any) => setStatusFilter(val)}>
                             <SelectTrigger className="w-32 bg-slate-900 border-white/5 text-xs text-slate-300">
                                 <SelectValue placeholder="Status" />
@@ -201,8 +192,9 @@ export function FamilyBillingDetail({
                     </div>
                 </div>
 
-                <TabsContent value="overview" className="mt-0 space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Dashboard Summary Widgets */}
+                <div className="animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                         {/* Summary Card 1: Balance Breakdown */}
                         <div className="bg-slate-900/50 border border-white/5 rounded-3xl p-6 backdrop-blur-sm">
                             <div className="flex items-center gap-3 mb-4">
@@ -247,67 +239,71 @@ export function FamilyBillingDetail({
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                        {familyLedger.children.map((child) => (
-                            <StudentBillingCard
-                                key={child.id}
-                                child={child}
-                                isProcessing={isProcessing === child.id}
-                                printingId={printingId}
-                                onPay={handlePayment}
-                                onInvoice={triggerInvoice}
-                            />
-                        ))}
-                    </div>
-                </TabsContent>
+                    {/* Unified Multi-Child View */}
+                    <div className="space-y-12">
+                        {familyLedger.children.map((child) => {
+                            // Apply status filter to the child's individual fee line-items
+                            const filteredFees = child.fees.filter((f: any) => {
+                                if (statusFilter === 'all') return true;
+                                if (statusFilter === 'unpaid') return f.amount > 0;
+                                return f.amount === 0;
+                            });
 
-                {familyLedger.children.map(child => {
-                    // Filter child fees based on the selected status filter
-                    const filteredFees = child.fees.filter((f: any) => {
-                        if (statusFilter === 'all') return true;
-                        if (statusFilter === 'unpaid') return f.amount > 0; // Assuming balance check is at fee level too or just show unpaid for this purpose
-                        return f.amount === 0; // Placeholder logic for demonstration
-                    });
+                            return (
+                                <div key={child.id} className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+                                    {/* Billing Card (Left Column) */}
+                                    <div className="w-full">
+                                        <div className="mb-4 flex items-center justify-between">
+                                            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest pl-2 border-l-2 border-cyan-500">Student Ledger</h3>
+                                        </div>
+                                        <StudentBillingCard
+                                            child={{ ...child, fees: filteredFees }}
+                                            isProcessing={isProcessing === child.id}
+                                            printingId={printingId}
+                                            onPay={handlePayment}
+                                            onInvoice={triggerInvoice}
+                                        />
+                                    </div>
 
-                    return (
-                        <TabsContent key={child.id} value={child.id} className="mt-0 animate-in fade-in slide-in-from-right-4 duration-500">
-                            <StudentBillingCard
-                                child={{ ...child, fees: filteredFees }}
-                                isProcessing={isProcessing === child.id}
-                                printingId={printingId}
-                                onPay={handlePayment}
-                                onInvoice={triggerInvoice}
-                            />
-
-                            {/* Detailed Ledger History Placeholder */}
-                            <div className="mt-8 bg-slate-900/30 border border-white/5 rounded-[2rem] p-8">
-                                <h3 className="text-lg font-bold text-white mb-6 italic tracking-tight uppercase">Recent Transaction History</h3>
-                                <div className="space-y-4">
-                                    {[1, 2, 3].map(i => (
-                                        <div key={i} className="flex justify-between items-center p-4 bg-slate-950/50 rounded-2xl border border-white/5 group hover:border-cyan-500/30 transition-all">
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-2 rounded-xl bg-slate-900 text-slate-500">
-                                                    <CreditCard size={18} />
+                                    {/* Individual Ledger History (Right Column) */}
+                                    <div className="w-full">
+                                        <div className="mb-4 flex items-center justify-between">
+                                            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Recent Activity</h3>
+                                        </div>
+                                        <div className="bg-slate-900/30 border border-white/5 rounded-[2rem] p-6 h-full min-h-[300px]">
+                                            <div className="space-y-4">
+                                                {[1, 2].map(i => (
+                                                    <div key={i} className="flex justify-between items-center p-3 bg-slate-950/50 rounded-xl border border-white/5 group hover:border-emerald-500/30 transition-all">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="p-2 rounded-lg bg-slate-900 text-slate-500">
+                                                                <CreditCard size={14} />
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-xs font-bold text-white truncate max-w-[120px]">Tuition Payment</p>
+                                                                <p className="text-[9px] text-slate-500 font-mono tracking-tighter">OCT 12 • REF-8273{i}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <p className="text-xs font-black text-emerald-400">+ ₦50K</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                <div className="pt-4 mt-4 border-t border-white/5 text-center">
+                                                    <button className="text-[10px] text-slate-500 uppercase tracking-widest font-bold hover:text-cyan-400 transition-colors">
+                                                        View Full History →
+                                                    </button>
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm font-bold text-white truncate max-w-[150px]">Payment - Term 1 Tuition</p>
-                                                    <p className="text-[10px] text-slate-500 font-mono tracking-tighter">OCT 12, 2025 • REF-827394</p>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-sm font-black text-emerald-400">+ ₦50,000</p>
-                                                <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] font-black uppercase tracking-widest mt-1">
-                                                    Success
-                                                </Badge>
                                             </div>
                                         </div>
-                                    ))}
+                                    </div>
                                 </div>
-                            </div>
-                        </TabsContent>
-                    );
-                })}
-            </Tabs>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+
+
 
             {/* 🦶 Consolidated Footer Dock */}
             {familyLedger.totalBalance > 0 && (

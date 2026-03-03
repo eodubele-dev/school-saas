@@ -155,14 +155,111 @@ export async function getStudentSubjects() {
 }
 
 export async function getExamReadiness() {
-    // Stub data for Chart
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    // 1. Get Tenant & Student Profile
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, history: [] }
+
+    const student = await resolveStudentForUser(supabase, user.id, profile.tenant_id)
+    if (!student) return { success: false, history: [] }
+
+    // 2. Fetch recent CBT attempts
+    const { data: attempts } = await supabase
+        .from('cbt_attempts')
+        .select(`
+            id,
+            score,
+            total_score,
+            completed_at,
+            cbt_quizzes(title)
+        `)
+        .eq('student_id', student.id)
+        .eq('status', 'completed')
+        .order('completed_at', { ascending: false })
+        .limit(5)
+
+    if (!attempts || attempts.length === 0) {
+        return {
+            success: true,
+            history: []
+        }
+    }
+
+    // Format for chart (oldest first for line chart)
+    const history = attempts.reverse().map(att => {
+        const date = new Date(att.completed_at || new Date()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        const scorePct = att.total_score && att.total_score > 0
+            ? Math.round((att.score || 0) / att.total_score * 100)
+            : 0
+
+        return {
+            date,
+            score: scorePct
+        }
+    })
+
     return {
         success: true,
-        history: [
-            { date: 'Jan 10', score: 45 },
-            { date: 'Jan 17', score: 52 },
-            { date: 'Jan 24', score: 68 },
-            { date: 'Jan 31', score: 75 },
-        ]
+        history
     }
+}
+
+export async function getTodaySchedule() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, schedule: [] }
+
+    const student = await resolveStudentForUser(supabase, user.id, profile.tenant_id)
+    if (!student || !student.class_id) return { success: false, schedule: [] }
+
+    // Get today's day of week
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    const today = days[new Date().getDay()]
+
+    const { data: schedule } = await supabase
+        .from('timetables')
+        .select(`
+            id,
+            start_time,
+            end_time,
+            subjects(name),
+            profiles(full_name)
+        `)
+        .eq('tenant_id', profile.tenant_id)
+        .eq('class_id', student.class_id)
+        .eq('day_of_week', today)
+        .order('start_time', { ascending: true })
+
+    if (!schedule) return { success: true, schedule: [] }
+
+    const formattedSchedule = schedule.map(item => {
+        // Handle potentially array-wrapped relations depending on schema setup
+        const subjectName = Array.isArray(item.subjects) ? item.subjects[0]?.name : (item.subjects as any)?.name
+        const teacherName = Array.isArray(item.profiles) ? item.profiles[0]?.full_name : (item.profiles as any)?.full_name
+
+        // Format time (e.g. "08:00:00" -> "08:00 AM")
+        const formatTime = (timeStr: string) => {
+            if (!timeStr) return ''
+            const [hours, minutes] = timeStr.split(':')
+            const h = parseInt(hours)
+            const ampm = h >= 12 ? 'PM' : 'AM'
+            const h12 = h % 12 || 12
+            return `${h12.toString().padStart(2, '0')}:${minutes} ${ampm}`
+        }
+
+        return {
+            id: item.id,
+            time: `${formatTime(item.start_time)} - ${formatTime(item.end_time)}`,
+            subject: subjectName || 'General Class',
+            teacher: teacherName || 'Staff'
+        }
+    })
+
+    return { success: true, schedule: formattedSchedule }
 }

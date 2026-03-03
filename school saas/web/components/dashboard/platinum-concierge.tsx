@@ -1,7 +1,8 @@
 "use client"
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -11,6 +12,7 @@ import {
     Headphones, CreditCard, Star,
     AlertTriangle, Bell, Clock
 } from "lucide-react"
+import Link from "next/link"
 
 import { PickupAuthorization } from "@/components/security/pickup-authorization"
 import { GatePassGenerator } from "@/components/security/gate-pass-generator"
@@ -44,6 +46,36 @@ export function PlatinumConcierge({
     tenantName = "EduFlow Academy"
 }: PlatinumConciergeProps) {
     const [isSupportOpen, setIsSupportOpen] = useState(false)
+    const [liveCurriculum, setLiveCurriculum] = useState(curriculum)
+    const supabase = createClient()
+
+    useEffect(() => {
+        const channel = supabase
+            .channel('platinum-curriculum')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'curriculum_milestones',
+                    filter: `student_id=eq.${studentId}`
+                },
+                (payload) => {
+                    if (payload.eventType === 'INSERT') {
+                        setLiveCurriculum((prev) => [payload.new as any, ...prev].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()))
+                    } else if (payload.eventType === 'UPDATE') {
+                        setLiveCurriculum((prev) => prev.map((item) => item.id === payload.new.id ? payload.new as any : item))
+                    } else if (payload.eventType === 'DELETE') {
+                        setLiveCurriculum((prev) => prev.filter((item) => item.id !== payload.old.id))
+                    }
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [studentId, supabase])
 
     // Calculate some quick stats for the Overview
     const pendingAssignments = assignments.filter(a => !a.completed).length
@@ -59,58 +91,67 @@ export function PlatinumConcierge({
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-6 bg-slate-900/50 border border-white/5 p-1 mb-6">
-                    <TabsTrigger value="overview" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">Overview</TabsTrigger>
-                    <TabsTrigger value="security" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">Security</TabsTrigger>
-                    <TabsTrigger value="health" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">Health</TabsTrigger>
-                    <TabsTrigger value="academics" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">Academics</TabsTrigger>
-                    <TabsTrigger value="voice" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">Voice</TabsTrigger>
-                    <TabsTrigger value="support" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">Support</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-6 bg-[#0A0A0B]/80 backdrop-blur-xl border border-white/10 p-1.5 mb-8 rounded-xl shadow-lg">
+                    <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all duration-300">Overview</TabsTrigger>
+                    <TabsTrigger value="security" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all duration-300">Security</TabsTrigger>
+                    <TabsTrigger value="health" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all duration-300">Health</TabsTrigger>
+                    <TabsTrigger value="academics" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all duration-300">Academics</TabsTrigger>
+                    <TabsTrigger value="voice" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all duration-300">Voice</TabsTrigger>
+                    <TabsTrigger value="support" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all duration-300">Support</TabsTrigger>
                 </TabsList>
 
                 {/* OVERVIEW TAB */}
                 <TabsContent value="overview" className="space-y-6">
                     <div className="grid gap-4 md:grid-cols-4">
-                        <Card className="bg-slate-900/50 border-white/5 hover:border-cyan-500/20 transition-colors cursor-pointer group">
-                            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-sm font-medium text-slate-300">Active Gate Pass</CardTitle>
-                                <Shield className="h-4 w-4 text-cyan-400 group-hover:drop-shadow-[0_0_5px_rgba(34,211,238,0.8)] transition-all" />
+                        <Card className="bg-gradient-to-br from-cyan-950/40 via-[#0A0A0B] to-[#0A0A0B] border-cyan-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-cyan-900/20 hover:border-cyan-700/50 transition-all duration-500 cursor-pointer pt-1">
+                            {/* 🌈 Thick Top Border Action */}
+                            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 group-hover:h-1.5 transition-all duration-300" />
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-cyan-500/10 transition-all duration-500" />
+                            <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
+                                <CardTitle className="text-sm font-bold text-cyan-200/70 tracking-widest uppercase font-mono">Active Gate Pass</CardTitle>
+                                <Shield className="h-5 w-5 text-cyan-400 group-hover:drop-shadow-[0_0_8px_rgba(34,211,238,0.8)] transition-all duration-500" />
                             </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold text-white">--</div>
-                                <p className="text-xs text-slate-500">No active passes</p>
+                            <CardContent className="relative z-10">
+                                <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-cyan-200">--</div>
+                                <p className="text-xs text-slate-500 uppercase tracking-widest font-bold mt-1">No active passes</p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-slate-900/50 border-white/5 hover:border-cyan-500/20 transition-colors cursor-pointer group">
-                            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-sm font-medium text-slate-300">Health Alerts</CardTitle>
-                                <Activity className="h-4 w-4 text-rose-400 group-hover:drop-shadow-[0_0_5px_rgba(244,63,94,0.8)] transition-all" />
+                        <Card className="bg-gradient-to-br from-rose-950/40 via-[#0A0A0B] to-[#0A0A0B] border-rose-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-rose-900/20 hover:border-rose-700/50 transition-all duration-500 cursor-pointer pt-1">
+                            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-400 to-pink-500 group-hover:h-1.5 transition-all duration-300" />
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-rose-500/10 transition-all duration-500" />
+                            <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
+                                <CardTitle className="text-sm font-bold text-rose-200/70 tracking-widest uppercase font-mono">Health Alerts</CardTitle>
+                                <Activity className="h-5 w-5 text-rose-400 group-hover:drop-shadow-[0_0_8px_rgba(244,63,94,0.8)] transition-all duration-500" />
                             </CardHeader>
-                            <CardContent>
-                                <div className={`text-2xl font-bold ${activeAlerts > 0 ? 'text-rose-400' : 'text-white'}`}>{activeAlerts}</div>
-                                <p className="text-xs text-slate-500">Active conditions</p>
+                            <CardContent className="relative z-10">
+                                <div className={`text-3xl font-black ${activeAlerts > 0 ? 'text-transparent bg-clip-text bg-gradient-to-br from-rose-400 to-red-500' : 'text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400'}`}>{activeAlerts}</div>
+                                <p className="text-xs text-rose-500/50 uppercase tracking-widest font-bold mt-1">Active conditions</p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-slate-900/50 border-white/5 hover:border-cyan-500/20 transition-colors cursor-pointer group">
-                            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-sm font-medium text-slate-300">Assignments</CardTitle>
-                                <BookOpen className="h-4 w-4 text-emerald-400 group-hover:drop-shadow-[0_0_5px_rgba(52,211,153,0.8)] transition-all" />
+                        <Card className="bg-gradient-to-br from-emerald-950/40 via-[#0A0A0B] to-[#0A0A0B] border-emerald-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-emerald-900/20 hover:border-emerald-700/50 transition-all duration-500 cursor-pointer pt-1">
+                            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-500 group-hover:h-1.5 transition-all duration-300" />
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-emerald-500/10 transition-all duration-500" />
+                            <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
+                                <CardTitle className="text-sm font-bold text-emerald-200/70 tracking-widest uppercase font-mono">Assignments</CardTitle>
+                                <BookOpen className="h-5 w-5 text-emerald-400 group-hover:drop-shadow-[0_0_8px_rgba(52,211,153,0.8)] transition-all duration-500" />
                             </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold text-white">{pendingAssignments}</div>
-                                <p className="text-xs text-slate-500">Due soon</p>
+                            <CardContent className="relative z-10">
+                                <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-emerald-200">{pendingAssignments}</div>
+                                <p className="text-xs text-emerald-500/50 uppercase tracking-widest font-bold mt-1">Due soon</p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-slate-900/50 border-white/5 hover:border-cyan-500/20 transition-colors cursor-pointer group">
-                            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-sm font-medium text-slate-300">Next PTA</CardTitle>
-                                <MessageSquare className="h-4 w-4 text-amber-400 group-hover:drop-shadow-[0_0_5px_rgba(251,191,36,0.8)] transition-all" />
+                        <Card className="bg-gradient-to-br from-amber-950/40 via-[#0A0A0B] to-[#0A0A0B] border-amber-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-amber-900/20 hover:border-amber-700/50 transition-all duration-500 cursor-pointer pt-1">
+                            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-orange-500 group-hover:h-1.5 transition-all duration-300" />
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-amber-500/10 transition-all duration-500" />
+                            <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
+                                <CardTitle className="text-sm font-bold text-amber-200/70 tracking-widest uppercase font-mono">Next PTA</CardTitle>
+                                <MessageSquare className="h-5 w-5 text-amber-400 group-hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.8)] transition-all duration-500" />
                             </CardHeader>
-                            <CardContent>
-                                <div className="text-lg font-bold text-white truncate">
+                            <CardContent className="relative z-10">
+                                <div suppressHydrationWarning className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-amber-200 truncate">
                                     {upcomingPTA ? new Date(upcomingPTA).toLocaleDateString() : 'Not Scheduled'}
                                 </div>
-                                <p className="text-xs text-slate-500">Next session</p>
+                                <p className="text-xs text-amber-500/50 uppercase tracking-widest font-bold mt-1">Next session</p>
                             </CardContent>
                         </Card>
                     </div>
@@ -183,7 +224,7 @@ export function PlatinumConcierge({
                             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                                 <BookOpen className="h-5 w-5 text-emerald-400" /> Curriculum Roadmap
                             </h3>
-                            <CurriculumRoadmap milestones={curriculum} />
+                            <CurriculumRoadmap milestones={liveCurriculum} />
                         </div>
                         <div className="space-y-4">
                             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
@@ -229,28 +270,32 @@ export function PlatinumConcierge({
                             <div className="grid gap-4 md:grid-cols-3">
                                 <Button
                                     size="lg"
-                                    className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold h-20 flex flex-col items-center justify-center gap-2"
+                                    className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold h-20 flex flex-col items-center justify-center gap-2 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all hover:-translate-y-1"
                                     onClick={() => setIsSupportOpen(true)}
                                 >
                                     <Headphones className="h-6 w-6" />
                                     <span>Contact Support</span>
                                 </Button>
-                                <Button
-                                    size="lg"
-                                    variant="outline"
-                                    className="bg-transparent border-white/10 hover:bg-white/10 hover:text-white text-white h-20 flex flex-col items-center justify-center gap-2"
-                                >
-                                    <CreditCard className="h-6 w-6 text-slate-400 group-hover:text-white transition-colors" />
-                                    <span>Billing & Invoices</span>
-                                </Button>
-                                <Button
-                                    size="lg"
-                                    variant="outline"
-                                    className="bg-transparent border-white/10 hover:bg-white/10 hover:text-white text-white h-20 flex flex-col items-center justify-center gap-2"
-                                >
-                                    <Shield className="h-6 w-6 text-slate-400 group-hover:text-white transition-colors" />
-                                    <span>Audit Logs</span>
-                                </Button>
+                                <Link href="/dashboard/billing/family" className="w-full">
+                                    <Button
+                                        size="lg"
+                                        variant="outline"
+                                        className="w-full bg-transparent border-white/10 hover:bg-cyan-500/10 hover:border-cyan-500/50 hover:text-cyan-400 text-white h-20 flex flex-col items-center justify-center gap-2 transition-all group"
+                                    >
+                                        <CreditCard className="h-6 w-6 text-slate-400 group-hover:text-cyan-400 transition-colors" />
+                                        <span>Billing & Invoices</span>
+                                    </Button>
+                                </Link>
+                                <Link href="/dashboard/attendance/audit" className="w-full">
+                                    <Button
+                                        size="lg"
+                                        variant="outline"
+                                        className="w-full bg-transparent border-white/10 hover:bg-cyan-500/10 hover:border-cyan-500/50 hover:text-cyan-400 text-white h-20 flex flex-col items-center justify-center gap-2 transition-all group"
+                                    >
+                                        <Shield className="h-6 w-6 text-slate-400 group-hover:text-cyan-400 transition-colors" />
+                                        <span>Audit Logs</span>
+                                    </Button>
+                                </Link>
                             </div>
                         </CardContent>
                     </Card>

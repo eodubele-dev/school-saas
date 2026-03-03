@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { PenTool, Calendar, AlertCircle, FileCheck } from 'lucide-react';
+import { toast } from "sonner";
 
 export const HomeworkTracker = ({ tasks = [] }: { tasks?: any[] }) => {
     const activeTasks = tasks && tasks.length > 0 ? tasks : [];
@@ -14,7 +15,7 @@ export const HomeworkTracker = ({ tasks = [] }: { tasks?: any[] }) => {
                     </div>
                     <div>
                         <h2 className="text-lg font-bold text-white uppercase tracking-tight">Assignments</h2>
-                        <p className="text-slate-500 text-xs">2 Pending Tasks</p>
+                        <p className="text-slate-500 text-xs">{activeTasks.filter(t => t.status !== 'completed').length} Pending Tasks</p>
                     </div>
                 </div>
             </div>
@@ -49,10 +50,16 @@ export const HomeworkTracker = ({ tasks = [] }: { tasks?: any[] }) => {
 
                             {task.status !== 'completed' && (
                                 <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button className="flex-1 bg-white text-black py-2 rounded-lg text-[10px] font-black uppercase">
+                                    <button
+                                        onClick={() => toast.info("Submission Portals", { description: "You can securely submit completed assignments via the Parent Mobile App." })}
+                                        className="flex-1 bg-white text-black py-2 rounded-lg text-[10px] font-black uppercase"
+                                    >
                                         Upload
                                     </button>
-                                    <button className="px-3 bg-white/10 rounded-lg text-white hover:bg-white/20">
+                                    <button
+                                        onClick={() => toast.success("Loading Details", { description: `Opening details for: ${task.title}` })}
+                                        className="px-3 bg-white/10 rounded-lg text-white hover:bg-white/20 text-[10px] font-bold uppercase transition-colors"
+                                    >
                                         Details
                                     </button>
                                 </div>

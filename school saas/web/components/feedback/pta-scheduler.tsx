@@ -13,9 +13,11 @@ interface TimeSlot {
 import { bookPTASlot } from "@/lib/actions/platinum";
 
 export const PTAScheduler = ({ slots = [], studentId }: { slots?: any[], studentId?: string }) => {
-    const [selectedDate, setSelectedDate] = useState<number>(24); // Ideally dynamic
+    const [startDateOffset, setStartDateOffset] = useState(0);
+    const [selectedDateStr, setSelectedDateStr] = useState<string>(new Date().toISOString().split('T')[0]);
     const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
     const [isBooked, setIsBooked] = useState(false);
+    const [bookedInfo, setBookedInfo] = useState<{ time: string, date: string } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     const activeSlots = slots && slots.length > 0 ? slots : [];
@@ -24,12 +26,21 @@ export const PTAScheduler = ({ slots = [], studentId }: { slots?: any[], student
         if (!selectedSlot || !studentId) return;
         setIsLoading(true);
         try {
-            const result = await bookPTASlot(selectedSlot, studentId, 'general_inquiry');
+            // Find the actual timestamp from the mock slots array
+            const slotData = activeSlots.find((s: any) => s.id === selectedSlot);
+            const timestamp = slotData?.start_time || new Date().toISOString();
+
+            const bookedTime = new Date(timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            const bookedDate = new Date(selectedDateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+            const result = await bookPTASlot(studentId, timestamp);
             if (result.success) {
+                setBookedInfo({ time: bookedTime, date: bookedDate });
                 setIsBooked(true);
                 setTimeout(() => {
                     setIsBooked(false);
                     setSelectedSlot(null);
+                    setBookedInfo(null);
                 }, 3000);
             } else {
                 console.error("Booking failed");
@@ -57,25 +68,34 @@ export const PTAScheduler = ({ slots = [], studentId }: { slots?: any[], student
 
             {/* Date Scroller */}
             <div className="flex items-center justify-between mb-6 bg-white/5 p-2 rounded-xl border border-white/5">
-                <button className="p-1 hover:bg-white/10 rounded-lg text-slate-400"><ChevronLeft size={16} /></button>
+                <button onClick={() => setStartDateOffset(o => o - 1)} className="p-1 hover:bg-white/10 rounded-lg text-slate-400 transition-colors"><ChevronLeft size={16} /></button>
                 <div className="flex gap-2 overflow-x-auto no-scrollbar">
-                    {[22, 23, 24, 25, 26].map((day) => (
-                        <button
-                            key={day}
-                            onClick={() => setSelectedDate(day)}
-                            className={cn(
-                                "flex flex-col items-center justify-center w-12 h-14 rounded-lg transition-all border",
-                                selectedDate === day
-                                    ? "bg-purple-500 text-white border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.3)]"
-                                    : "border-transparent text-slate-500 hover:bg-white/5 hover:text-slate-300"
-                            )}
-                        >
-                            <span className="text-[9px] uppercase font-bold">Oct</span>
-                            <span className="text-lg font-black leading-none">{day}</span>
-                        </button>
-                    ))}
+                    {Array.from({ length: 5 }).map((_, i) => {
+                        const date = new Date();
+                        date.setDate(date.getDate() + startDateOffset + i);
+                        const dateStr = date.toISOString().split('T')[0];
+                        const isSelected = selectedDateStr === dateStr;
+                        const month = date.toLocaleString('default', { month: 'short' });
+                        const day = date.getDate();
+
+                        return (
+                            <button
+                                key={dateStr}
+                                onClick={() => { setSelectedDateStr(dateStr); setSelectedSlot(null); }}
+                                className={cn(
+                                    "flex flex-col items-center justify-center w-12 h-14 rounded-lg transition-all border shrink-0",
+                                    isSelected
+                                        ? "bg-purple-500 text-white border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.3)]"
+                                        : "border-transparent text-slate-500 hover:bg-white/5 hover:text-slate-300"
+                                )}
+                            >
+                                <span className="text-[9px] uppercase font-bold">{month}</span>
+                                <span className="text-lg font-black leading-none">{day}</span>
+                            </button>
+                        );
+                    })}
                 </div>
-                <button className="p-1 hover:bg-white/10 rounded-lg text-slate-400"><ChevronRight size={16} /></button>
+                <button onClick={() => setStartDateOffset(o => o + 1)} className="p-1 hover:bg-white/10 rounded-lg text-slate-400 transition-colors"><ChevronRight size={16} /></button>
             </div>
 
             {!isBooked ? (
@@ -144,7 +164,7 @@ export const PTAScheduler = ({ slots = [], studentId }: { slots?: any[], student
                     </div>
                     <h3 className="text-xl font-black text-white italic uppercase tracking-tight mb-2">Slot Confirmed!</h3>
                     <p className="text-xs text-slate-400 max-w-[200px] mx-auto leading-relaxed">
-                        Your meeting with Mr. Ibrahim is set for <span className="text-emerald-400 font-bold">10:00 AM</span> on <span className="text-emerald-400 font-bold">Oct 24</span>.
+                        Your meeting with Mr. Ibrahim is set for <span className="text-emerald-400 font-bold">{bookedInfo?.time}</span> on <span className="text-emerald-400 font-bold">{bookedInfo?.date}</span>.
                     </p>
                 </div>
             )}

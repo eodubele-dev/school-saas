@@ -49,7 +49,7 @@ export default function AboutUs() {
                             className="space-y-6 text-slate-300 text-lg leading-relaxed"
                         >
                             <p>
-                                At EduFlow, we believe the administrative burden of running a school in West Africa shouldn't overshadow the mission of educating the next generation.
+                                &quot;To transform how schools manage administration and learning, making quality education accessible through technology. We believe that by streamlining operations, educators can focus on what they do best: teaching our future leaders.&quot;
                             </p>
                             <p>
                                 Every year, billions of Naira are lost to fee leakage, and thousands of hours are wasted on manual report cards and grade processing. Our mission is to eliminate paper-based inefficiency and replace it with a <strong>Platinum-grade Operating System</strong>.

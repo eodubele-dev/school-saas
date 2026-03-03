@@ -1,0 +1,23 @@
+{
+  "error": null,
+  "data": [
+    {
+      "id": "92ba8277-c7aa-44f9-8ce6-65f5c9efc0b1",
+      "user_id": null,
+      "category": "Test",
+      "rating": 5,
+      "message": "Test message",
+      "status": "pending",
+      "created_at": "2026-03-02T23:52:06.95689+00:00"
+    },
+    {
+      "id": "bc49876f-03c8-4cdd-9dc6-1dfcc492e785",
+      "user_id": "9ecae254-e89a-40d0-8905-d5129d182f01",
+      "category": "General Inquiry",
+      "rating": 2,
+      "message": "Parents should be notified each time there is a change of PTA Meeting date",
+      "status": "pending",
+      "created_at": "2026-03-03T11:10:56.698463+00:00"
+    }
+  ]
+}

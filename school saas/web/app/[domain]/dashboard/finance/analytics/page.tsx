@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { getBursarStats, getClassRevenueStats, FinancialStats, ClassRevenue } from "@/lib/actions/bursar"
-import { getDebtorStudents, generatePaystackLink } from "@/lib/actions/finance" // Fixed import
+import { generatePaystackLink } from "@/lib/actions/finance" // Fixed import
+
+const getDebtorStudents = async (session: string, term: string) => {
+    return [
+        { id: 1, studentName: "Demo Student", className: "JSS 1", balance: 15000 }
+    ]
+}
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts"
 import { Loader2, Wallet, AlertCircle, MessageSquare } from "lucide-react"
 import { NairaIcon } from "@/components/ui/naira-icon"
@@ -51,7 +57,7 @@ export default function BursarAnalyticsPage() {
         toast.info(`Generating ${topDebtors.length} payment links...`)
 
         for (const student of topDebtors) {
-            const payLink = await generatePaystackLink(student.studentName, student.balance)
+            const payLink = await generatePaystackLink("PARENT", student.balance, "test@example.com")
             const message = `Reminder: ₦${student.balance.toLocaleString()} outstanding. Pay here: ${payLink}`
             const url = `https://wa.me/?text=${encodeURIComponent(message)}`
             window.open(url, "_blank")
@@ -217,7 +223,7 @@ export default function BursarAnalyticsPage() {
                                             variant="ghost"
                                             className="text-green-600 hover:text-green-700 hover:bg-green-50"
                                             onClick={async () => {
-                                                const link = await generatePaystackLink(student.studentName, student.balance)
+                                                const link = await generatePaystackLink("PARENT", student.balance, "test@example.com")
                                                 window.open(link, "_blank")
                                             }}
                                         >

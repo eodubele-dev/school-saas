@@ -55,8 +55,7 @@ export async function updateTenantBranding(tenantId: string, data: {
     motto?: string
     address?: string
     theme_config?: Record<string, unknown>
-    logo_base64?: string // Optional: for unexpected legacy handling, but we prefer directupload
-    logo_path?: string
+    logo_path?: string | null
 }) {
     const supabase = createServerClient()
 
@@ -80,7 +79,7 @@ export async function updateTenantBranding(tenantId: string, data: {
     if (data.motto) updates.motto = data.motto
     if (data.address) updates.address = data.address
     if (data.theme_config) updates.theme_config = data.theme_config
-    if (data.logo_path) updates.logo_url = data.logo_path
+    if (data.logo_path !== undefined) updates.logo_url = data.logo_path // Accept null explicitly
     console.log('[updateTenantBranding] Attempting update for:', tenantId)
     console.log('[updateTenantBranding] Updates:', updates)
 

@@ -11,7 +11,7 @@ export default function NotFoundPage() {
 
             <h1 className="text-3xl font-bold tracking-tight mb-2">School Not Found</h1>
             <p className="text-slate-500 max-w-md mb-8">
-                We couldn't find a school with this specific web address.
+                We couldn&apos;t find a school with this specific web address.
                 Please check the URL or contact the school administrator.
             </p>
 

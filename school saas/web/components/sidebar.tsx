@@ -49,6 +49,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
     const user = authRes.data.user
 
     let primaryColor = '#3b82f6' // Default Blue-500
+    let secondaryColor = '#020617' // Default slate-950
     let tenantMotto = "Excellence in Everything" // Default Slogan
     let tenantTier = "Free"
 
@@ -61,6 +62,8 @@ export async function Sidebar({ className, domain }: { className?: string, domai
         if (tenant.theme_config && typeof tenant.theme_config === 'object') {
             // @ts-ignore
             primaryColor = tenant.theme_config.primary || primaryColor
+            // @ts-ignore
+            secondaryColor = tenant.theme_config.secondary || secondaryColor
         }
     }
 
@@ -112,8 +115,9 @@ export async function Sidebar({ className, domain }: { className?: string, domai
 
     return (
         <div
-            className={cn("flex h-screen w-64 flex-col bg-slate-950 text-white relative z-50 shadow-xl", className)}
+            className={cn("flex h-screen w-64 flex-col text-white relative z-50 shadow-xl", className)}
             style={{
+                backgroundColor: secondaryColor,
                 // @ts-ignore
                 '--school-accent': primaryColor,
                 '--school-accent-rgb': accentRgb

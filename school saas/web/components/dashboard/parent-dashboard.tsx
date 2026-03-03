@@ -5,6 +5,8 @@ import { getParentFeed } from "@/lib/actions/class-feed"
 import { getActiveAcademicSession } from "@/lib/actions/academic"
 import { ParentFeedView } from "@/components/class-feed/parent-feed-view"
 import { ChatInterface } from "@/components/communication/chat-interface"
+import Link from "next/link"
+import { PrintActivityButton } from "./print-button"
 
 
 
@@ -95,48 +97,50 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
 
             {/* Progress Overview Section */}
             <div className="grid gap-6 md:grid-cols-3">
-                <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden group pt-2">
+                <Card className="bg-gradient-to-br from-blue-950/40 via-[#0A0A0B] to-[#0A0A0B] border-blue-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-blue-900/20 hover:border-blue-700/50 transition-all duration-500 pt-2">
                     {/* 🌈 Thick Top Border Action */}
-                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-blue-500" />
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 group-hover:h-1.5 transition-all duration-300" />
 
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl -mr-16 -mt-16" />
-                    <CardContent className="pt-6">
+                    <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-blue-500/20 transition-all duration-500" />
+                    <CardContent className="pt-6 relative z-10">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-bold text-[10px] text-slate-500 uppercase tracking-widest font-mono">Overall Progress</h3>
-                            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">All Subjects</span>
+                            <h3 className="font-bold text-[10px] text-blue-200/70 uppercase tracking-widest font-mono">Overall Progress</h3>
+                            <span className="text-[10px] text-blue-400 uppercase font-bold tracking-widest bg-blue-500/10 px-2 py-1 rounded-full border border-blue-500/20">All Subjects</span>
                         </div>
                         <div className="h-20 flex items-center justify-center">
                             <CircularProgress percentage={stats.overallProgress} color="#3B82F6" />
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden group pt-2">
+                <Card className="bg-gradient-to-br from-emerald-950/40 via-[#0A0A0B] to-[#0A0A0B] border-emerald-900/40 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-emerald-900/20 hover:border-emerald-700/50 transition-all duration-500 pt-2">
                     {/* 🌈 Thick Top Border Action */}
-                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-emerald-500" />
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-500 group-hover:h-1.5 transition-all duration-300" />
 
-                    <CardContent className="pt-6">
+                    <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-emerald-500/20 transition-all duration-500" />
+                    <CardContent className="pt-6 relative z-10">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-bold text-[10px] text-slate-500 uppercase tracking-widest font-mono">Activity Completion</h3>
-                            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Today</span>
+                            <h3 className="font-bold text-[10px] text-emerald-200/70 uppercase tracking-widest font-mono">Activity Completion</h3>
+                            <span className="text-[10px] text-emerald-400 uppercase font-bold tracking-widest bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20">Today</span>
                         </div>
                         <div className="h-20 flex items-center justify-center">
                             <CircularProgress percentage={stats.overallActivity} color="#10B981" />
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden group pt-2">
+                <Card className="bg-gradient-to-br from-amber-950/40 via-[#0A0A0B] to-[#0A0A0B] border-amber-900/40 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-amber-900/20 hover:border-amber-700/50 transition-all duration-500 pt-2">
                     {/* 🌈 Thick Top Border Action */}
-                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-amber-500" />
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-orange-500 group-hover:h-1.5 transition-all duration-300" />
 
-                    <CardContent className="pt-6">
+                    <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-amber-500/20 transition-all duration-500" />
+                    <CardContent className="pt-6 relative z-10">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-bold text-[10px] text-slate-500 uppercase tracking-widest font-mono">Learning Time</h3>
-                            <span className="text-2xl font-black text-white tracking-tight">{formatTime(stats.totalTimeMinutes)}</span>
+                            <h3 className="font-bold text-[10px] text-amber-200/70 uppercase tracking-widest font-mono">Learning Time</h3>
+                            <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-amber-200 tracking-tight">{formatTime(stats.totalTimeMinutes)}</span>
                         </div>
                         <div className="h-20 flex items-center justify-center">
                             <div className="text-center">
-                                <Clock className="w-10 h-10 text-slate-700 mx-auto mb-1 group-hover:text-amber-500/50 transition-colors" />
-                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Active Today</p>
+                                <Clock className="w-10 h-10 text-amber-500/30 mx-auto mb-2 group-hover:text-amber-400/80 transition-colors duration-500" />
+                                <p className="text-[10px] text-amber-500/50 font-bold uppercase tracking-widest group-hover:text-amber-400/80 transition-colors">Active Today</p>
                             </div>
                         </div>
                     </CardContent>
@@ -147,17 +151,18 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
             <div className="grid gap-6 md:grid-cols-2">
                 {/* Math */}
                 {mathSubject ? (
-                    <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl group pt-2 relative overflow-hidden">
-                        {/* 🌈 Thick Top Border Action */}
-                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-blue-500" />
+                    <Card className="bg-[#0A0A0B]/80 border-white/5 backdrop-blur-xl group relative overflow-hidden hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-900/20 transition-all duration-500">
+                        {/* 🌈 Vibrant Gradient Background Glow */}
+                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-colors duration-700" />
+                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
 
-                        <CardContent className="p-6 space-y-4">
+                        <CardContent className="p-6 space-y-4 relative z-10">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <h3 className="font-bold text-xl text-white">Math</h3>
-                                    <p className="text-sm text-blue-400 font-medium">Basic Math • {mathSubject.gradeLevel}</p>
+                                    <h3 className="font-bold text-2xl text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200">Math</h3>
+                                    <p className="text-sm text-blue-400/80 font-medium tracking-wide">Basic Math • {mathSubject.gradeLevel}</p>
                                 </div>
-                                <span className="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-bold">Next Grade</span>
+                                <span className="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(59,130,246,0.15)] glow-blue">Next Grade</span>
                             </div>
 
                             <ul className="space-y-2 text-sm text-slate-400">
@@ -197,17 +202,18 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
 
                 {/* Reading */}
                 {readingSubject ? (
-                    <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl group pt-2 relative overflow-hidden">
-                        {/* 🌈 Thick Top Border Action */}
-                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-pink-500" />
+                    <Card className="bg-[#0A0A0B]/80 border-white/5 backdrop-blur-xl group relative overflow-hidden hover:border-pink-500/50 hover:shadow-2xl hover:shadow-pink-900/20 transition-all duration-500">
+                        {/* 🌈 Vibrant Gradient Background Glow */}
+                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-pink-600/10 rounded-full blur-3xl group-hover:bg-pink-500/20 transition-colors duration-700" />
+                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-pink-500 to-fuchsia-400 opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
 
-                        <CardContent className="p-6 space-y-4">
+                        <CardContent className="p-6 space-y-4 relative z-10">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <h3 className="font-bold text-xl text-white">Reading</h3>
-                                    <p className="text-sm text-pink-400 font-medium">Basic Reading • {readingSubject.gradeLevel}</p>
+                                    <h3 className="font-bold text-2xl text-transparent bg-clip-text bg-gradient-to-r from-white to-pink-200">Reading</h3>
+                                    <p className="text-sm text-pink-400/80 font-medium tracking-wide">Basic Reading • {readingSubject.gradeLevel}</p>
                                 </div>
-                                <span className="px-3 py-1 bg-pink-500/10 text-pink-400 border border-pink-500/20 rounded-full text-xs font-bold">Next Grade</span>
+                                <span className="px-3 py-1 bg-pink-500/10 text-pink-400 border border-pink-500/20 rounded-full text-xs font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(236,72,153,0.15)] glow-pink">Next Grade</span>
                             </div>
 
                             <ul className="space-y-2 text-sm text-slate-400">
@@ -247,43 +253,44 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
             </div>
 
             {/* Today's Activity */}
-            <Card className="bg-slate-900/50 border-white/5 backdrop-blur-xl">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-slate-300">Today&apos;s Activity</CardTitle>
+            <Card className="bg-gradient-to-bl from-[#0A0A0B] to-slate-900 border-white/5 backdrop-blur-xl shadow-xl">
+                <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-white/5 mb-4">
+                    <CardTitle className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">Today&apos;s Activity Schedule</CardTitle>
                     <div className="flex gap-4 text-sm">
-                        <span className="flex items-center gap-1 text-slate-500">
+                        <span className="flex items-center gap-1.5 text-amber-500/80 font-mono bg-amber-500/10 px-3 py-1 rounded border border-amber-500/20">
                             <Clock className="w-4 h-4" /> {formatTime(stats.totalTimeMinutes)}
                         </span>
-                        <span className="flex items-center gap-1 text-blue-400 hover:text-blue-300 cursor-pointer transition-colors">Print Activity</span>
+                        <PrintActivityButton />
                     </div>
                 </CardHeader>
                 <CardContent>
                     {stats.todaysActivities.length > 0 ? (
                         <div className="grid gap-4 md:grid-cols-4">
                             {stats.todaysActivities.map((activity) => (
-                                <div key={activity.id} className="bg-slate-950/50 border border-white/5 rounded-lg p-4 hover:border-blue-500/30 transition-colors group">
-                                    <div className="flex justify-between items-start mb-3">
+                                <div key={activity.id} className="relative bg-[#0A0A0B]/80 border border-white/5 rounded-xl p-5 hover:border-blue-500/40 hover:bg-slate-900/80 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-transparent group-hover:from-blue-500/5 transition-colors duration-500" />
+                                    <div className="relative z-10 flex justify-between items-start mb-4">
                                         <div>
-                                            <h4 className="font-bold text-slate-200">{activity.subject}</h4>
-                                            <p className="text-xs text-slate-500">Lesson-{activity.lessonNumber}</p>
+                                            <h4 className="font-bold text-slate-200 group-hover:text-blue-400 transition-colors">{activity.subject}</h4>
+                                            <p className="text-[10px] uppercase font-mono tracking-wider text-slate-500 mt-1">Lesson-{activity.lessonNumber}</p>
                                         </div>
-                                        <span className={`text-[10px] px-2 py-0.5 rounded-full border ${activity.status === 'completed'
-                                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                        <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded border shadow-sm ${activity.status === 'completed'
+                                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/10'
                                             : activity.status === 'in_progress'
-                                                ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                                                : 'bg-slate-800 text-slate-400 border-slate-700'
+                                                ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-amber-500/10'
+                                                : 'bg-slate-800/80 text-slate-400 border-white/5'
                                             }`}>
                                             {activity.status === 'completed' ? 'Completed' :
                                                 activity.status === 'in_progress' ? 'In Progress' : 'Not Started'}
                                         </span>
                                     </div>
-                                    <div className="mb-4">
-                                        <p className="font-bold text-sm text-white">{String(activity.lessonNumber).padStart(2, '0')}</p>
-                                        <p className="text-xs text-slate-400 truncate">{activity.title}</p>
+                                    <div className="mb-5 relative z-10">
+                                        <p className="font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-500 mb-1">{String(activity.lessonNumber).padStart(2, '0')}</p>
+                                        <p className="text-xs text-slate-400 line-clamp-1">{activity.title}</p>
                                     </div>
-                                    <button className="w-full py-1.5 text-xs font-medium text-slate-300 bg-white/5 hover:bg-white/10 rounded-md transition-colors border border-white/5">
+                                    <Link href="/dashboard/academics" className="relative z-10 flex items-center justify-center w-full py-2 text-xs font-bold uppercase tracking-wider text-slate-300 bg-white/5 hover:bg-white/10 hover:text-white rounded transition-colors border border-white/5">
                                         View Lesson
-                                    </button>
+                                    </Link>
                                 </div>
                             ))}
                         </div>

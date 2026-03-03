@@ -195,13 +195,6 @@ export function DynamicTopBar({
                             <Users size={14} />
                             <span className="hidden sm:inline">FAMILY_ID: {user.id.slice(0, 6).toUpperCase()}</span>
                         </button>
-                        <Button
-                            size="sm"
-                            className="hidden sm:flex bg-emerald-600 hover:bg-emerald-500 text-black text-[10px] font-black uppercase h-8"
-                            onClick={() => router.push('/dashboard/billing/family')}
-                        >
-                            <CreditCard size={14} className="mr-2" /> Pay Fees
-                        </Button>
                     </>
                 )
             case 'STUDENT':
@@ -211,9 +204,6 @@ export function DynamicTopBar({
                             <GraduationCap size={14} />
                             <span className="hidden sm:inline">STUDENT PORTAL</span>
                         </div>
-                        <Button size="sm" variant="ghost" className="hidden sm:flex text-slate-400 hover:text-white text-[10px] uppercase h-8">
-                            <BookOpen size={14} className="mr-2" /> Portfolio
-                        </Button>
                     </>
                 )
             default:

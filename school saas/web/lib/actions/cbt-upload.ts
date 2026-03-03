@@ -2,7 +2,8 @@
 
 import { model } from '@/lib/gemini'
 import { createClient } from '@/lib/supabase/server'
-import * as pdf from 'pdf-parse'
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pdf = require('pdf-parse');
 
 /**
  * Server Action: Process PDF and Insert Questions
@@ -30,7 +31,7 @@ export async function processPastQuestionsPdf(formData: FormData) {
 
         // 2. Extract Text
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const pdfData = await (pdf as any).default(buffer)
+        const pdfData = await pdf(buffer)
         const pdfText = pdfData.text
 
         // 3. Prompt Gemini to Structure Data

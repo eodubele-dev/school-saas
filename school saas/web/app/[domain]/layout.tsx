@@ -22,9 +22,15 @@ export default async function DomainLayout({
         .single()
 
     const primaryColor = tenant?.theme_config?.primary || "#06b6d4"
+    const secondaryColor = tenant?.theme_config?.secondary || "#0f172a"
+    const accentColor = tenant?.theme_config?.accent || "#3b82f6"
 
     return (
-        <TenantThemeProvider primaryColor={primaryColor}>
+        <TenantThemeProvider
+            primaryColor={primaryColor}
+            secondaryColor={secondaryColor}
+            accentColor={accentColor}
+        >
             <SchoolContextProvider initialSettings={{
                 name: tenant?.name || 'EduFlow',
                 logo_url: tenant?.logo_url,

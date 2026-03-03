@@ -65,7 +65,7 @@ export default function SuccessStories() {
                             transition={{ delay: 0.2 }}
                             className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed"
                         >
-                            Discover how Lagos' most elite institutions are eliminating paper reports and recovering millions in lost revenue using EduFlow.
+                            Discover how Lagos&apos; most elite institutions are eliminating paper reports and recovering millions in lost revenue using EduFlow.
                         </motion.p>
                     </div>
 
@@ -106,7 +106,7 @@ export default function SuccessStories() {
                                         <TrendingUp className="w-4 h-4" /> {t.recovery}
                                     </div>
                                     <Quote className="w-10 h-10 text-white/10 mb-6 group-hover:text-cyan-500/20 transition-colors" />
-                                    <p className="text-slate-300 leading-relaxed mb-8 italic">"{t.quote}"</p>
+                                    <p className="text-slate-300 leading-relaxed mb-8 italic">&quot;{t.quote}&quot;</p>
                                 </div>
                                 <div className="flex items-center gap-4 mt-auto pt-6 border-t border-white/5">
                                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center font-bold text-white text-lg">

@@ -2,11 +2,14 @@ import { checkFeeStatus, getTermResults } from "@/lib/actions/student-results"
 import { ResultGatekeeper } from "@/components/student/results/result-gatekeeper"
 import { ReportCard } from "@/components/student/results/report-card"
 import { PerformanceRadar } from "@/components/student/results/performance-radar"
+import { getActiveAcademicSession } from "@/lib/actions/academic"
 
 export default async function ResultCheckerPage() {
-    // Hardcoded context for demo - normally context-aware or dropdown selector
-    const term = "1st Term"
-    const session = "2025/2026"
+    const { session: activeSession } = await getActiveAcademicSession()
+
+    // Dynamic context fallback
+    const term = activeSession?.term || "1st Term"
+    const session = activeSession?.session || "2025/2026"
 
     const feeStatus = await checkFeeStatus(term, session)
     const { grades } = await getTermResults(term, session)

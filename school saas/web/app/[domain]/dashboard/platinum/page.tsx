@@ -19,20 +19,56 @@ export default async function PlatinumConciergePage({
     let studentId = searchParams.studentId
 
     // If no studentId in params, try to find one linked to the parent
+    // Prioritize the student who most recently had a curriculum milestone (for a better UX when testing/demoing)
     if (!studentId) {
         const { data: students } = await supabase
             .from('students')
-            .select('id')
+            .select(`
+                id,
+                curriculum_milestones (
+                    created_at
+                )
+            `)
             .eq('parent_id', user.id)
-            .limit(1)
 
         if (students && students.length > 0) {
-            studentId = students[0].id
+            // Sort students by the most recent curriculum milestone
+            const sortedStudents = students.sort((a: any, b: any) => {
+                const aLatest = a.curriculum_milestones?.length > 0
+                    ? Math.max(...a.curriculum_milestones.map((m: any) => new Date(m.created_at).getTime()))
+                    : 0;
+                const bLatest = b.curriculum_milestones?.length > 0
+                    ? Math.max(...b.curriculum_milestones.map((m: any) => new Date(m.created_at).getTime()))
+                    : 0;
+                return bLatest - aLatest;
+            });
+
+            studentId = sortedStudents[0].id
         }
     }
 
-    // If still no studentId, we might need to show a selector or empty state
-    // For now, let's proceed with an empty string which might show empty states in components
+    // If STILL no studentId (e.g., admin testing the parent view), intelligently pick the student they just gave a milestone to!
+    if (!studentId) {
+        const { data: recentMilestone } = await supabase
+            .from('curriculum_milestones')
+            .select('student_id')
+            .order('created_at', { ascending: false })
+            .limit(1)
+
+        if (recentMilestone && recentMilestone.length > 0) {
+            studentId = recentMilestone[0].student_id
+        } else {
+            const { data: fallbackStudent } = await supabase
+                .from('students')
+                .select('id')
+                .limit(1)
+
+            if (fallbackStudent && fallbackStudent.length > 0) {
+                studentId = fallbackStudent[0].id
+            }
+        }
+    }
+
     const safeStudentId = studentId || ''
 
     // Fetch Platinum Data

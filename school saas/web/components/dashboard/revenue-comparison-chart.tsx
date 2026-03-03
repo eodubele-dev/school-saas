@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
@@ -33,7 +35,7 @@ const InterCampusRevenueChart = () => {
                         <Tooltip
                             contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '12px', color: '#fff' }}
                             itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
-                            formatter={(value: number) => `₦${value.toLocaleString()}`}
+                            formatter={(value: any) => `₦${Number(value).toLocaleString()}`}
                         />
                         <Bar dataKey="collected" fill="#22D3EE" radius={[6, 6, 0, 0]} name="Collected Revenue" />
                         <Bar dataKey="debt" fill="#ef444450" radius={[6, 6, 0, 0]} name="Outstanding Debt" stroke="#ef4444" />

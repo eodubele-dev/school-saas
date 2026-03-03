@@ -2,10 +2,62 @@
 
 import React from 'react';
 import { Map, BookOpen, CheckCircle2, Lock, ArrowRight } from 'lucide-react';
+import { toast } from "sonner";
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export const CurriculumRoadmap = ({ milestones = [] }: { milestones?: any[] }) => {
     // Use passed milestones or empty array
     const items = milestones && milestones.length > 0 ? milestones : [];
+
+    const downloadSyllabus = () => {
+        if (items.length === 0) {
+            toast.error("No Data", { description: "There is no curriculum data to download." });
+            return;
+        }
+
+        toast.loading("Generating PDF...", { id: "pdf-gen" });
+
+        try {
+            const doc = new jsPDF();
+
+            // Header
+            doc.setFontSize(20);
+            doc.setTextColor(40, 40, 40);
+            doc.text("Curriculum Syllabus", 14, 22);
+
+            doc.setFontSize(11);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 30);
+
+            // Table Body
+            const tableColumn = ["Subject", "Topic", "Grade Level", "Week Range", "Status", "Progress"];
+            const tableRows = items.map(item => [
+                item.subject || 'N/A',
+                item.topic || item.title || 'N/A',
+                item.grade_level || 'N/A',
+                item.week_range || item.week || 'N/A',
+                item.status.toUpperCase(),
+                `${item.progress_percent || 0}%`
+            ]);
+
+            autoTable(doc, {
+                head: [tableColumn],
+                body: tableRows,
+                startY: 40,
+                styles: { fontSize: 9, cellPadding: 3 },
+                headStyles: { fillColor: [14, 165, 233] }, // Cyan-500
+                alternateRowStyles: { fillColor: [245, 247, 250] } // Slate-50
+            });
+
+            doc.save("student-curriculum-syllabus.pdf");
+            toast.success("PDF Downloaded!", { id: "pdf-gen", description: "Your syllabus has been successfully saved." });
+        } catch (error) {
+            console.error("PDF Generation Error:", error);
+            toast.error("Generation Failed", { id: "pdf-gen", description: "There was an error generating the document." });
+        }
+    };
+
     return (
         <div className="bg-[#0A0A0B] border border-white/10 rounded-3xl p-6 shadow-2xl animate-in fade-in duration-500">
             <div className="flex justify-between items-center mb-8">
@@ -15,7 +67,7 @@ export const CurriculumRoadmap = ({ milestones = [] }: { milestones?: any[] }) =
                     </div>
                     <div>
                         <h2 className="text-lg font-bold text-white uppercase tracking-tight">NERDC Roadmap</h2>
-                        <p className="text-slate-500 text-xs">JSS 2 Mathematics • Term 1</p>
+                        <p className="text-slate-500 text-xs">Current Academic Session</p>
                     </div>
                 </div>
                 <div className="text-right">
@@ -45,22 +97,22 @@ export const CurriculumRoadmap = ({ milestones = [] }: { milestones?: any[] }) =
                                     'bg-transparent border-transparent hover:bg-white/5 hover:border-white/5'
                                     }`}>
                                     <div className="flex justify-between items-start mb-1">
-                                        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">{item.week}</span>
+                                        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">{item.week_range || item.week}</span>
                                         {item.status === 'in-progress' && (
                                             <span className="text-[9px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-bold uppercase">Active</span>
                                         )}
                                     </div>
                                     <h3 className={`font-bold ${item.status === 'locked' ? 'text-slate-500' : 'text-white'}`}>
-                                        {item.title}
+                                        {item.topic || item.title}
                                     </h3>
                                     {item.status === 'in-progress' && (
                                         <div className="mt-3">
                                             <div className="w-full h-1.5 bg-black rounded-full overflow-hidden">
-                                                <div className="h-full bg-blue-500 w-[65%] rounded-full"></div>
+                                                <div className="h-full bg-blue-500 rounded-full" style={{ width: `${item.progress_percent || 0}%` }}></div>
                                             </div>
                                             <div className="flex justify-between mt-1 text-[9px] text-slate-400 font-mono">
-                                                <span>Progress: 65%</span>
-                                                <span>Est. Completion: Fri</span>
+                                                <span>{item.progress_percent || 0}% Complete</span>
+                                                <span>Est: This Week</span>
                                             </div>
                                         </div>
                                     )}
@@ -76,7 +128,10 @@ export const CurriculumRoadmap = ({ milestones = [] }: { milestones?: any[] }) =
                 </div>
             </div>
 
-            <button className="w-full mt-8 bg-white/5 hover:bg-white/10 text-slate-300 font-bold py-3 rounded-xl uppercase tracking-widest text-xs flex items-center justify-center gap-2 border border-white/5 transition-all">
+            <button
+                onClick={downloadSyllabus}
+                className="w-full mt-8 bg-white/5 hover:bg-white/10 text-slate-300 font-bold py-3 rounded-xl uppercase tracking-widest text-xs flex items-center justify-center gap-2 border border-white/5 transition-all"
+            >
                 Download Full Syllabus <ArrowRight size={14} />
             </button>
         </div >

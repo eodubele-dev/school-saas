@@ -56,7 +56,11 @@ export function TopBarPreview({ name, logo, motto, accent, tier = "Free" }: TopB
                                     className="h-full w-full object-contain p-1"
                                 />
                             ) : (
-                                <span className="text-2xl">🎓</span>
+                                <img
+                                    src="/visuals/auth-logo.png"
+                                    alt="Default Logo"
+                                    className="h-full w-full object-contain p-1"
+                                />
                             )}
                         </div>
 

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Activity, Stethoscope, Thermometer, Clock, FileText } from 'lucide-react';
+import { toast } from "sonner";
 
 interface MedicalRecord {
     id: string;
@@ -43,13 +44,13 @@ export const MedicalIncidentLog = ({ outcomes = [] }: { outcomes?: any[] }) => {
 
                                 <div className="flex justify-between items-start mb-2">
                                     <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${log.type === 'Injury' ? 'bg-rose-500/20 text-rose-300' :
-                                            log.type === 'Emergency' ? 'bg-red-500/20 text-red-400 animate-pulse' :
-                                                'bg-blue-500/20 text-blue-300'
+                                        log.type === 'Emergency' ? 'bg-red-500/20 text-red-400 animate-pulse' :
+                                            'bg-blue-500/20 text-blue-300'
                                         }`}>
                                         {log.type}
                                     </span>
                                     <span className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
-                                        <Clock size={10} /> {log.incident_date} • {log.incident_time}
+                                        <Clock size={10} /> {log.incident_date} &bull; {log.incident_time?.substring(0, 5) || ''}
                                     </span>
                                 </div>
 
@@ -81,7 +82,10 @@ export const MedicalIncidentLog = ({ outcomes = [] }: { outcomes?: any[] }) => {
                             </div>
                         ))}
 
-                        <button className="w-full py-3 text-[10px] text-slate-500 hover:text-white uppercase tracking-widest font-bold hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/5">
+                        <button
+                            onClick={() => toast.info("Premium Request Required", { description: "Please contact your Platinum Concierge agent to request a comprehensive medical history export." })}
+                            className="w-full py-3 text-[10px] text-slate-500 hover:text-white uppercase tracking-widest font-bold hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/5"
+                        >
                             View Complete Medical History
                         </button>
                     </>

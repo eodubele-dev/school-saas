@@ -21,6 +21,40 @@ export function OmniSearch({ role }: { role?: string }) {
     const router = useRouter()
 
     const isParent = role?.toLowerCase() === 'parent'
+    const isStudent = role?.toLowerCase() === 'student'
+
+    const [results, setResults] = React.useState<any[]>([])
+    const [isLoading, setIsLoading] = React.useState(false)
+
+    React.useEffect(() => {
+        if (!query || query.length < 2) {
+            setResults([])
+            return
+        }
+
+        const fetchResults = async () => {
+            setIsLoading(true)
+            try {
+                // If student role, use the student search API, else fallback to standard or generic search
+                const endpoint = isStudent ? `/api/student/search?q=${encodeURIComponent(query)}` : `/api/search?q=${encodeURIComponent(query)}`
+                const res = await fetch(endpoint)
+                if (res.ok) {
+                    const data = await res.json()
+                    setResults(data.results || [])
+                }
+            } catch (err) {
+                console.error("Search fetch error", err)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        const debounceId = setTimeout(() => {
+            fetchResults()
+        }, 300)
+
+        return () => clearTimeout(debounceId)
+    }, [query, isStudent])
 
     // Toggle on Ctrl+K
     React.useEffect(() => {
@@ -45,7 +79,7 @@ export function OmniSearch({ role }: { role?: string }) {
                         onValueChange={setQuery}
                         onFocus={() => setOpen(true)}
                         onBlur={() => setTimeout(() => setOpen(false), 200)}
-                        placeholder={isParent ? "Search fees, results, or messages..." : "Search students, staff, or finance..."}
+                        placeholder={isParent ? "Search fees, results, or messages..." : isStudent ? "Search assignments, results, or timetable..." : "Search students, staff, or finance..."}
                         className="flex h-10 w-full rounded-md bg-transparent py-3 text-xs outline-none placeholder:text-slate-600 disabled:cursor-not-allowed disabled:opacity-50 text-slate-200"
                     />
                     <div className="flex items-center gap-1">
@@ -74,6 +108,17 @@ export function OmniSearch({ role }: { role?: string }) {
                                             <span>Message School</span>
                                         </CommandItem>
                                     </>
+                                ) : isStudent ? (
+                                    <>
+                                        <CommandItem onSelect={() => router.push('/dashboard/student/assignments')}>
+                                            <CalendarIcon className="mr-2 h-3.5 w-3.5 text-indigo-500" />
+                                            <span>Pending Assignments</span>
+                                        </CommandItem>
+                                        <CommandItem onSelect={() => router.push('/dashboard/student/timetable')}>
+                                            <CalendarIcon className="mr-2 h-3.5 w-3.5 text-cyan-500" />
+                                            <span>My Timetable</span>
+                                        </CommandItem>
+                                    </>
                                 ) : (
                                     <>
                                         <CommandItem onSelect={() => console.log('New Admission')}>
@@ -88,7 +133,7 @@ export function OmniSearch({ role }: { role?: string }) {
                                 )}
                             </CommandPrimitive.Group>
 
-                            <CommandPrimitive.Group heading={isParent ? "My Children" : "Records"} className="text-[10px] uppercase tracking-wider font-bold text-slate-500 px-2 py-1.5 mt-2">
+                            <CommandPrimitive.Group heading={isParent ? "My Children" : isStudent ? "My Academics" : "Records"} className="text-[10px] uppercase tracking-wider font-bold text-slate-500 px-2 py-1.5 mt-2">
                                 {isParent ? (
                                     <>
                                         <CommandItem onSelect={() => router.push('/dashboard/academics/results')}>
@@ -98,6 +143,17 @@ export function OmniSearch({ role }: { role?: string }) {
                                         <CommandItem onSelect={() => router.push('/dashboard/academics/attendance')}>
                                             <Activity className="mr-2 h-3.5 w-3.5 text-rose-500" />
                                             <span>Check Attendance</span>
+                                        </CommandItem>
+                                    </>
+                                ) : isStudent ? (
+                                    <>
+                                        <CommandItem onSelect={() => router.push('/dashboard/student/results')}>
+                                            <FaceIcon className="mr-2 h-3.5 w-3.5 text-amber-500" />
+                                            <span>My Results</span>
+                                        </CommandItem>
+                                        <CommandItem onSelect={() => router.push('/dashboard/student/attendance')}>
+                                            <Activity className="mr-2 h-3.5 w-3.5 text-emerald-500" />
+                                            <span>My Attendance</span>
                                         </CommandItem>
                                     </>
                                 ) : (
@@ -116,10 +172,32 @@ export function OmniSearch({ role }: { role?: string }) {
 
                             {query.length > 0 && (
                                 <CommandPrimitive.Group heading="Search Results" className="text-[10px] uppercase tracking-wider font-bold text-slate-500 px-2 py-1.5 mt-2">
-                                    <CommandItem>
-                                        <Search className="mr-2 h-3.5 w-3.5" />
-                                        <span>Search for "{query}"...</span>
-                                    </CommandItem>
+                                    {isLoading ? (
+                                        <div className="flex items-center justify-center py-4 text-xs text-slate-500">
+                                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                            Searching...
+                                        </div>
+                                    ) : results.length > 0 ? (
+                                        results.map(res => (
+                                            <CommandItem key={res.id} onSelect={() => { setOpen(false); router.push(res.url) }}>
+                                                {res.type === 'assignment' ? (
+                                                    <CalendarIcon className="mr-2 h-3.5 w-3.5 text-indigo-500" />
+                                                ) : res.type === 'timetable' ? (
+                                                    <CalendarIcon className="mr-2 h-3.5 w-3.5 text-cyan-500" />
+                                                ) : (
+                                                    <Search className="mr-2 h-3.5 w-3.5 text-slate-400" />
+                                                )}
+                                                <div className="flex flex-col flex-1 min-w-0">
+                                                    <span className="text-xs text-slate-200 leading-tight truncate">{res.title}</span>
+                                                    {res.subtitle && <span className="text-[10px] text-slate-500 leading-tight truncate">{res.subtitle}</span>}
+                                                </div>
+                                            </CommandItem>
+                                        ))
+                                    ) : (
+                                        <div className="py-4 text-center text-xs text-slate-500">
+                                            No results found for "{query}"
+                                        </div>
+                                    )}
                                 </CommandPrimitive.Group>
                             )}
                         </CommandPrimitive.List>

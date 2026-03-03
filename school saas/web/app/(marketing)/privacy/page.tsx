@@ -17,7 +17,7 @@ export default function PrivacyPolicy() {
                     <section className="space-y-4">
                         <h2 className="text-2xl font-semibold text-slate-900">1. Introduction</h2>
                         <p>
-                            Welcome to EduFlow ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our school management software-as-a-service (SaaS) platform.
+                            Welcome to EduFlow (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our school management software-as-a-service (SaaS) platform.
                         </p>
                     </section>
 

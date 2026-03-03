@@ -1,19 +1,47 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { format, isSameMonth, parseISO } from "date-fns"
 import { CalendarDays, MapPin, Trophy, BookOpen, Clock, Filter, PartyPopper } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { SchoolEvent } from "@/lib/actions/calendar"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
+import { useRouter } from "next/navigation"
 
 interface EventListProps {
     events: SchoolEvent[]
 }
 
-export function EventList({ events }: EventListProps) {
+export function EventList({ events: initialEvents }: EventListProps) {
+    const [events, setEvents] = useState(initialEvents)
     const [filter, setFilter] = useState<'all' | 'academic' | 'holiday' | 'sports' | 'exam'>('all')
+    const router = useRouter()
+
+    useEffect(() => {
+        setEvents(initialEvents)
+    }, [initialEvents])
+
+    useEffect(() => {
+        const supabase = createClient()
+
+        const channel = supabase
+            .channel('public:school_events')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'school_events' },
+                () => {
+                    // Trigger a refresh of the Next.js server component to fetch fresh events
+                    router.refresh()
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [router])
 
     const filteredEvents = events.filter(e => filter === 'all' || e.type === filter)
 

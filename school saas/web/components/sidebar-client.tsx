@@ -195,7 +195,7 @@ export function SidebarClient({
 
     if (!categories || categories.length === 0) {
         return (
-            <div className="flex flex-col h-full bg-slate-950 border-r border-white/5 p-4 text-slate-500 text-sm">
+            <div className="flex flex-col h-full bg-transparent border-r border-white/5 p-4 text-slate-500 text-sm">
                 <AlertCircle className="mb-2 h-6 w-6 text-red-500" />
                 No navigation items found for role: {role}
             </div>
@@ -320,7 +320,7 @@ export function SidebarClient({
 
                                 {/* Nested Links */}
                                 {isOpen && (
-                                    <div className="ml-9 mt-2 space-y-1 border-l border-white/10 pl-4 animate-in slide-in-from-top-2 duration-200">
+                                    <div className="ml-[1.1rem] mt-1 space-y-0.5 border-l-2 border-slate-800/80 hover:border-indigo-500/50 transition-colors pl-4 animate-in slide-in-from-top-2 duration-200">
                                         {cat.items.map((item) => {
                                             const ItemIcon = item.icon
                                             const isActive = pathname && (item.href === '/dashboard'
@@ -364,20 +364,16 @@ export function SidebarClient({
                                                     key={item.href}
                                                     href={item.href}
                                                     className={cn(
-                                                        "flex items-center gap-3 py-2 text-xs transition-all duration-200",
+                                                        "flex items-center gap-3 py-2 px-3 -ml-3 rounded-lg text-xs transition-all duration-200 group relative overflow-hidden",
                                                         isActive
-                                                            ? "font-bold tracking-wide"
-                                                            : "text-slate-500 hover:text-white"
+                                                            ? "bg-indigo-500/10 text-indigo-400 font-bold tracking-wide shadow-[inset_2px_0_0_0_rgba(99,102,241,1)]"
+                                                            : "text-slate-400 hover:text-indigo-300 hover:bg-indigo-500/5 hover:shadow-[inset_2px_0_0_0_rgba(99,102,241,0.5)]"
                                                     )}
-                                                    style={isActive ? {
-                                                        color: '#3b82f6', // Factory Blue
-                                                        textShadow: '0 0 12px rgba(59, 130, 246, 0.5)' // Glow
-                                                    } : undefined}
                                                 >
-                                                    {ItemIcon && <ItemIcon className="h-3.5 w-3.5" strokeWidth={1.5} />}
+                                                    {ItemIcon && <ItemIcon className={cn("h-4 w-4 transition-transform duration-200", !isActive && "group-hover:scale-110")} strokeWidth={isActive ? 2 : 1.5} />}
                                                     <span>{item.label}</span>
                                                     {item.href === '/dashboard/messages' && unreadCount > 0 && (
-                                                        <span className="ml-auto bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-slate-950">
+                                                        <span className="ml-auto bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-slate-950 shadow-[0_0_10px_rgba(59,130,246,0.5)]">
                                                             {unreadCount}
                                                         </span>
                                                     )}
@@ -395,13 +391,36 @@ export function SidebarClient({
                 <div className="pt-4 px-4 border-t border-white/5 space-y-4 pb-4">
                     {/* 🏦 Family Financial Summary (Parent Only) */}
                     {role === 'parent' && (
-                        <div className="bg-slate-900/50 border border-white/5 rounded-xl p-3 mb-2 shadow-[0_0_20px_rgba(6,182,212,0.05)]">
-                            <p className="text-[10px] font-black text-cyan-600 uppercase tracking-tighter mb-1 leading-none italic">
-                                Total Family Balance
-                            </p>
-                            <p className="text-xl font-black text-white tabular-nums tracking-tighter">
-                                ₦{(linkedStudents?.reduce((sum, s) => sum + (s.school_fees_debt || 0), 0) || 0).toLocaleString()}
-                            </p>
+                        <div className="relative overflow-hidden rounded-2xl mb-4 group transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]">
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-indigo-600/20 to-purple-600/20 opacity-30 group-hover:opacity-50 transition-opacity" />
+                            <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-xl" />
+                            <div className="relative p-4 border border-white/10 rounded-2xl bg-gradient-to-b from-white/5 to-transparent">
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="flex items-center gap-2">
+                                        <div className="p-1.5 bg-blue-500/20 rounded-md">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400"><rect width="20" height="14" x="2" y="5" rx="2" /><line x1="2" x2="22" y1="10" y2="10" /></svg>
+                                        </div>
+                                        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+                                            Family Balance
+                                        </p>
+                                    </div>
+                                    <span className="flex h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)] animate-pulse" />
+                                </div>
+                                <div className="mt-1">
+                                    <p className="text-2xl font-black text-white tabular-nums tracking-tight">
+                                        ₦{Math.max(0, (linkedStudents?.reduce((sum, s) => sum + (s.school_fees_debt || 0), 0) || 0)).toLocaleString()}
+                                    </p>
+                                </div>
+                                {((linkedStudents?.reduce((sum, s) => sum + (s.school_fees_debt || 0), 0) || 0) > 0) ? (
+                                    <Link href="/dashboard/billing/family" className="mt-4 flex w-full items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)] py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-[1.02]">
+                                        Pay Fees Now
+                                    </Link>
+                                ) : (
+                                    <div className="mt-4 flex w-full items-center justify-center gap-2 bg-emerald-500/10 text-emerald-400 py-1.5 rounded-lg text-xs font-bold ring-1 ring-emerald-500/20">
+                                        All Fees Cleared
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
 
@@ -447,18 +466,20 @@ export function SidebarClient({
 
 
 
-                    <button
-                        onClick={() => {
-                            toast.info("Support Protocol Initiated", {
-                                description: "Connecting to Platinum Support Terminal...",
-                            })
-                            setIsSupportOpen(true)
-                        }}
-                        className="w-full flex items-center gap-3 p-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
-                    >
-                        <HelpCircle size={18} strokeWidth={1.5} />
-                        <span className="text-sm">Help & Support</span>
-                    </button>
+                    {role !== 'student' && role !== 'parent' && (
+                        <button
+                            onClick={() => {
+                                toast.info("Support Protocol Initiated", {
+                                    description: "Connecting to Platinum Support Terminal...",
+                                })
+                                setIsSupportOpen(true)
+                            }}
+                            className="w-full flex items-center gap-3 p-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                        >
+                            <HelpCircle size={18} strokeWidth={1.5} />
+                            <span className="text-sm">Help & Support</span>
+                        </button>
+                    )}
                 </div>
             </div>
         </TooltipProvider>
