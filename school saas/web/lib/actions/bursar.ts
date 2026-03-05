@@ -84,13 +84,31 @@ export async function getBursaryAuditTrail(month: string, year: number) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
-    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, full_name').eq('id', user.id).single()
     if (!profile) return { success: false, error: "Profile not found" }
 
     const monthIndex = new Date(`${month} 1, 2000`).getMonth() + 1
     const monthStr = monthIndex.toString().padStart(2, '0')
     const startDate = `${year}-${monthStr}-01`
     const endDate = `${year}-${monthStr}-31`
+
+    const { data: tenant } = await supabase
+        .from('tenants')
+        .select('name')
+        .eq('id', profile.tenant_id)
+        .single()
+    const institutionName = tenant?.name || "Unknown Institution"
+
+    // Fetch Proprietor/Admin Name
+    const { data: adminProfile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('tenant_id', profile.tenant_id)
+        .eq('role', 'admin')
+        .limit(1)
+        .maybeSingle()
+    const proprietorName = adminProfile?.full_name || "System Administrator"
+    const bursarName = profile.full_name || "Bursar (Unassigned)"
 
     // 1. Fetch Statistics
     // Total Pings
@@ -178,6 +196,9 @@ export async function getBursaryAuditTrail(month: string, year: number) {
     return {
         success: true,
         data: {
+            institutionName,
+            bursarName,
+            proprietorName,
             stats: {
                 totalPings: totalPings || 0,
                 successRate: totalPings ? ((geofenceSuccess || 0) / totalPings * 100).toFixed(1) : "0",
@@ -270,6 +291,33 @@ export async function getLiveReconciliationStats() {
         timestamp: new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     })) || []
 
+    // 5. Calculate Weekly Compliance Trend (Last 5 days)
+    const trendData = []
+
+    // Fetch last 5 days of attendance
+    const fiveDaysAgo = new Date()
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5)
+
+    const { data: trendAttendance } = await supabase
+        .from('staff_attendance')
+        .select('date, verification_method')
+        .eq('tenant_id', profile.tenant_id)
+        .gte('date', fiveDaysAgo.toISOString().split('T')[0])
+        .order('date', { ascending: true })
+
+    // Group by date, get last 5 dates
+    for (let i = 4; i >= 0; i--) {
+        const d = new Date()
+        d.setDate(d.getDate() - i)
+        const dateStr = d.toISOString().split('T')[0]
+
+        const dayData = trendAttendance?.filter(a => a.date === dateStr) || []
+        const total = dayData.length
+        const auto = dayData.filter(a => a.verification_method === 'geofence').length
+
+        trendData.push(total ? Math.round((auto / total) * 100) : 100)
+    }
+
     return {
         success: true,
         data: {
@@ -277,7 +325,7 @@ export async function getLiveReconciliationStats() {
             pendingApprovals: pendingApprovals || 0,
             integrityScore: parseFloat(integrityScore),
             recentOverrides,
-            trendData: [70, 85, 98, 92, 88] // Compliance trend mockup
+            trendData
         }
     }
 }

@@ -53,20 +53,51 @@ export async function getTenants(): Promise<TenantOption[]> {
 }
 
 export async function getGlobalStats(): Promise<GlobalStats> {
-    // Mock aggregated data
-    // In production, this would use an admin client to sum(revenue) across all tenants
+    const supabase = createClient()
+
+    const { data: tenants } = await supabase.from('tenants').select('*')
+
+    if (!tenants || tenants.length === 0) {
+        return {
+            totalRevenue: 0,
+            totalStudents: 0,
+            totalStaff: 0,
+            campusCount: 0,
+            campuses: []
+        }
+    }
+
+    const { data: students } = await supabase.from('students').select('tenant_id')
+    const { data: staff } = await supabase.from('profiles').select('tenant_id').in('role', ['teacher', 'admin', 'principal', 'bursar'])
+    const { data: transactions } = await supabase.from('transactions').select('tenant_id, amount').eq('status', 'success')
+
+    let totalRevenue = 0
+    let totalStudents = students?.length || 0
+    let totalStaff = staff?.length || 0
+
+    const campuses = tenants.map(tenant => {
+        const studentCount = students?.filter(s => s.tenant_id === tenant.id).length || 0
+        const tenantTransactions = transactions?.filter(t => t.tenant_id === tenant.id) || []
+        const revenue = tenantTransactions.reduce((sum, t) => sum + (Number(t.amount) || 0), 0)
+
+        totalRevenue += revenue
+
+        return {
+            id: tenant.id,
+            name: tenant.name,
+            slug: tenant.slug,
+            studentCount,
+            revenue,
+            status: 'active' as const
+        }
+    })
 
     return {
-        totalRevenue: 15420000,
-        totalStudents: 1250,
-        totalStaff: 145,
-        campusCount: 4,
-        campuses: [
-            { id: 'demo', name: 'Demo School', slug: 'demo-school', studentCount: 450, revenue: 5200000, status: 'active' },
-            { id: 'lekki', name: 'Lekki Campus', slug: 'lekki', studentCount: 350, revenue: 4800000, status: 'active' },
-            { id: 'ikeja', name: 'Ikeja Campus', slug: 'ikeja', studentCount: 300, revenue: 3100000, status: 'maintenance' },
-            { id: 'vi', name: 'Victoria Island', slug: 'vi', studentCount: 150, revenue: 2320000, status: 'active' }
-        ]
+        totalRevenue,
+        totalStudents,
+        totalStaff,
+        campusCount: tenants.length,
+        campuses
     }
 }
 

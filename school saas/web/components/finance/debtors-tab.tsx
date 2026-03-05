@@ -22,9 +22,19 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { getDebtorsList, sendPaymentReminder } from "@/lib/actions/collections"
+import { getDebtorsList, sendPaymentReminder, flagInvoiceAsInvalid } from "@/lib/actions/collections"
 import { exportDebtorsReport } from "@/lib/actions/export-debtors"
 import { ManualPaymentModal } from "@/components/finance/manual-payment-modal"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
 
 export function DebtorsTab({ initialData, sessions }: { initialData: any[], sessions: any[] }) {
@@ -32,10 +42,12 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
     const [loading, setLoading] = useState(false)
     const [search, setSearch] = useState("")
     const [statusFilter, setStatusFilter] = useState<'pending' | 'partial' | 'all'>('all')
+    const [invalidatingId, setInvalidatingId] = useState<string | null>(null)
 
-    const refreshData = async () => {
+    const refreshData = async (overrideQuery?: string) => {
         setLoading(true)
-        const results = await getDebtorsList({ query: search, status: statusFilter === 'all' ? undefined : statusFilter })
+        const currentQuery = overrideQuery !== undefined ? overrideQuery : search
+        const results = await getDebtorsList({ query: currentQuery, status: statusFilter === 'all' ? undefined : statusFilter })
         setData(results)
         setLoading(false)
     }
@@ -69,6 +81,17 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
         })
     }
 
+    const handleFlagInvalid = async (id: string) => {
+        toast.promise(flagInvoiceAsInvalid(id), {
+            loading: "Flagging invoice as invalid...",
+            success: () => {
+                refreshData()
+                return "Invoice invalidated"
+            },
+            error: "Failed to update invoice"
+        })
+    }
+
     return (
         <div className="space-y-4">
             {/* Control Bar */}
@@ -79,7 +102,11 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                         placeholder="Search student, parent phone or ID..."
                         className="pl-9 bg-slate-900 border-white/10 text-white focus:ring-[var(--school-accent)]"
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) => {
+                            const val = e.target.value
+                            setSearch(val)
+                            if (val === '') refreshData('')
+                        }}
                         onKeyDown={(e) => e.key === 'Enter' && refreshData()}
                     />
                 </div>
@@ -131,7 +158,7 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                                 <TableCell className="text-right">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white">
+                                            <Button variant="outline" size="icon" className="h-8 w-8 bg-slate-800 border-white/10 text-slate-200 hover:bg-slate-700 hover:text-white">
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
@@ -144,7 +171,7 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                                                 <Send className="h-4 w-4 mr-2 text-blue-500" />
                                                 SMS Reminder
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem className="text-rose-400">
+                                            <DropdownMenuItem className="text-rose-400" onClick={() => setInvalidatingId(row.id)}>
                                                 Flag as Invalid
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
@@ -162,6 +189,26 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                     </div>
                 )}
             </Card>
+
+            <AlertDialog open={!!invalidatingId} onOpenChange={(open) => !open && setInvalidatingId(null)}>
+                <AlertDialogContent className="bg-slate-900 border-white/10 text-slate-200">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Flag Invoice as Invalid?</AlertDialogTitle>
+                        <AlertDialogDescription className="text-slate-400">
+                            This action cannot be undone. This will permanently remove the debtor from the pending collection list and mark the invoice as cancelled.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel className="bg-transparent border-white/10 hover:bg-white/5 hover:text-white">Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => {
+                            if (invalidatingId) handleFlagInvalid(invalidatingId)
+                            setInvalidatingId(null)
+                        }} className="bg-rose-600 hover:bg-rose-700 text-white border border-rose-600">
+                            Flag as Invalid
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

@@ -7,16 +7,15 @@ export default async function BursarReconciliationLivePage() {
 
     if (!res.success || !res.data) {
         return (
-            <div className="p-8 text-center min-h-[60vh] flex flex-col items-center justify-center bg-[#050505] text-white">
-                <ShieldAlert className="h-12 w-12 text-slate-800 mb-4" />
-                <h2 className="font-black uppercase tracking-widest text-lg">Live_Oversight_Offline</h2>
+            <div className="p-8 text-center min-h-[60vh] flex flex-col items-center justify-center text-white">
+                <h2 className="font-bold uppercase tracking-widest text-lg text-slate-300">Live Oversight Offline</h2>
                 <p className="text-slate-500 text-sm mt-2">Could not synchronize with the System Audit Log.</p>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-[#050505]">
+        <div className="min-h-screen">
             <BursarReconciliationDashboard liveStats={res.data} />
         </div>
     )

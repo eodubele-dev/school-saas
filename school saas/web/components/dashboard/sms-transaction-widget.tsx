@@ -49,7 +49,7 @@ export function SMSTransactionWidget({ transactions }: SMSTransactionWidgetProps
     }
 
     return (
-        <div className="w-full bg-black/40 backdrop-blur-xl rounded-3xl border border-white/10 p-6 flex flex-col h-full">
+        <div className="w-full bg-slate-900 rounded-xl border border-white/10 p-6 flex flex-col h-full shadow-sm">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
@@ -62,13 +62,13 @@ export function SMSTransactionWidget({ transactions }: SMSTransactionWidgetProps
                 </div>
                 <button onClick={handleExport} className="text-[10px] font-mono text-cyan-400 border border-cyan-400/30 px-3 py-1.5 rounded-lg hover:bg-cyan-400/10 transition-all uppercase tracking-widest flex items-center gap-2">
                     <Download className="h-3 w-3" />
-                    Export_CSV
+                    Export CSV
                 </button>
             </div>
 
             <div className="overflow-y-auto flex-1 custom-scrollbar">
                 <table className="w-full text-left border-collapse">
-                    <thead className="sticky top-0 bg-[#0A0A0B] text-[10px] font-mono text-slate-500 uppercase tracking-widest z-10">
+                    <thead className="sticky top-0 bg-slate-900 text-[10px] font-mono text-slate-500 uppercase tracking-widest z-10 shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.05)]">
                         <tr>
                             <th className="pb-3 px-2 font-bold">Recipient</th>
                             <th className="pb-3 px-2 text-center font-bold">Status</th>
@@ -113,7 +113,7 @@ export function SMSTransactionWidget({ transactions }: SMSTransactionWidgetProps
             </div>
 
             <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
-                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">System_Verified_Log</p>
+                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">System Verified Log</p>
                 <p className="text-xs text-white">
                     Total Spent (24h): <span className="font-bold text-cyan-400">₦{total24h.toFixed(2)}</span>
                 </p>

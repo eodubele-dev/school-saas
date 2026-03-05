@@ -17,11 +17,14 @@ export async function getAdminStats() {
         // Let's rely on RLS. If RLS is working, 'select count' on students 
         // will only return students for this tenant.
 
-        const [studentsResult, teachersResult, classesResult] = await Promise.all([
+        const [studentsResult, teachersResult, classesResult, transactionsResult] = await Promise.all([
             supabase.from('students').select('*', { count: 'exact', head: true }),
             supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'teacher'),
-            supabase.from('classes').select('*', { count: 'exact', head: true })
+            supabase.from('classes').select('*', { count: 'exact', head: true }),
+            supabase.from('transactions').select('amount').eq('status', 'success')
         ])
+
+        const totalRevenue = (transactionsResult.data || []).reduce((sum, trx) => sum + (Number(trx.amount) || 0), 0)
 
         // Fetch recent 5 items across tables to simulate "Activity"
         // In a real dedicated system we'd have an 'events' table.
@@ -67,8 +70,7 @@ export async function getAdminStats() {
             totalStudents: studentsResult.count || 0,
             totalTeachers: teachersResult.count || 0,
             totalClasses: classesResult.count || 0,
-            // Mock revenue for now as we don't have payments table
-            totalRevenue: 45231.89,
+            totalRevenue,
             recentActivity: activities
         }
 

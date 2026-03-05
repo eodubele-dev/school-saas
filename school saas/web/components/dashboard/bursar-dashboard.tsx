@@ -243,9 +243,9 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                 </Card>
 
                 {/* Quick Actions & Recent Transactions */}
-                <div className="space-y-6">
+                <div className="flex flex-col gap-6">
                     {/* Recent Transactions */}
-                    <Card className="bg-slate-900 border-white/10 h-full">
+                    <Card className="flex-1 overflow-hidden bg-slate-900 border-white/10 flex flex-col min-h-[250px]">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-white text-base">Recent Payments</CardTitle>
                         </CardHeader>
@@ -282,28 +282,43 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                     </Card>
 
                     {/* Quick Tools */}
-                    <Card className="bg-gradient-to-br from-slate-900 to-slate-950 border-white/10">
-                        <CardHeader>
-                            <CardTitle className="text-white text-sm">Quick Reports</CardTitle>
+                    <Card className="shrink-0 bg-slate-900 border-white/10">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-white text-base">Quick Reports</CardTitle>
                         </CardHeader>
-                        <CardContent className="grid grid-cols-2 gap-2">
-                            <Link href="/dashboard/bursar/finance/collections" className="w-full">
-                                <Button variant="ghost" className="h-16 w-full flex flex-col items-center justify-center gap-1 bg-white/5 border border-white/5 hover:border-[var(--school-accent)]/50">
-                                    <FileText className="h-4 w-4 text-red-400" />
-                                    <span className="text-[10px] text-slate-400">Debtors List</span>
-                                </Button>
+                        <CardContent className="space-y-3">
+                            <Link href="/dashboard/bursar/finance/collections" className="block w-full">
+                                <div className="p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/10 transition-all flex items-center justify-between group">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-8 w-8 rounded-md bg-rose-500/10 flex items-center justify-center">
+                                            <FileText className="h-4 w-4 text-rose-500" />
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-200">Debtors List</span>
+                                    </div>
+                                    <ArrowUpRight className="h-4 w-4 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
                             </Link>
-                            <Link href="/dashboard/bursar/finance/reconciliation" className="w-full">
-                                <Button variant="ghost" className="h-16 w-full flex flex-col items-center justify-center gap-1 bg-amber-500/5 border border-amber-500/10 hover:border-amber-500/50 group">
-                                    <Zap className="h-4 w-4 text-amber-500 group-hover:animate-bounce" />
-                                    <span className="text-[10px] text-amber-200/50 uppercase font-black tracking-widest">Live Oversight</span>
-                                </Button>
+                            <Link href="/dashboard/bursar/finance/reconciliation" className="block w-full">
+                                <div className="p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/10 transition-all flex items-center justify-between group">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-8 w-8 rounded-md bg-amber-500/10 flex items-center justify-center">
+                                            <Zap className="h-4 w-4 text-amber-500" />
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-200">Live Oversight</span>
+                                    </div>
+                                    <ArrowUpRight className="h-4 w-4 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
                             </Link>
-                            <Link href="/dashboard/bursar/finance/audit" className="w-full">
-                                <Button variant="ghost" className="h-16 w-full flex flex-col items-center justify-center gap-1 bg-cyan-500/5 border border-cyan-500/10 hover:border-cyan-500/50 group">
-                                    <ShieldAlert className="h-4 w-4 text-cyan-500 group-hover:animate-pulse" />
-                                    <span className="text-[10px] text-cyan-200/50 uppercase font-black tracking-widest">Audit Transcript</span>
-                                </Button>
+                            <Link href="/dashboard/bursar/finance/audit" className="block w-full">
+                                <div className="p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/10 transition-all flex items-center justify-between group">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-8 w-8 rounded-md bg-cyan-500/10 flex items-center justify-center">
+                                            <ShieldAlert className="h-4 w-4 text-cyan-500" />
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-200">Audit Transcript</span>
+                                    </div>
+                                    <ArrowUpRight className="h-4 w-4 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
                             </Link>
                         </CardContent>
                     </Card>

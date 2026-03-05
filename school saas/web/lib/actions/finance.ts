@@ -439,19 +439,58 @@ export async function getPendingReconciliations() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, count: 0 }
 
-    // Assuming we have a 'transactions' table with status 'pending' or 'unverified'
-    // For now, let's look for transactions where status = 'pending'
-    // If column doesn't exist, we might fail, so let's check schema or just mock if unsure.
-    return { success: true, count: 3 }
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, count: 0 }
+
+    const { count, error } = await supabase
+        .from('transactions')
+        .select('*', { count: 'exact', head: true })
+        .eq('tenant_id', profile.tenant_id)
+        .eq('status', 'pending')
+
+    if (error) return { success: false, count: 0 }
+
+    return { success: true, count: count || 0 }
 }
 
-/**
- * MOCK: Get Debtor Students
- * Needed to bypass build error from finance/analytics/page.tsx
- */
 export async function getDebtorStudents() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, data: [] }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, data: [] }
+
+    const { data, error } = await supabase
+        .from('invoices')
+        .select(`
+            id,
+            amount,
+            amount_paid,
+            term,
+            student:students (
+                id,
+                full_name,
+                admission_number,
+                classes(name)
+            )
+        `)
+        .eq('tenant_id', profile.tenant_id)
+        .neq('status', 'paid')
+
+    if (error) return { success: false, data: [] }
+
+    const debtors = (data || []).map(inv => ({
+        id: (inv.student as any)?.id,
+        name: (inv.student as any)?.full_name,
+        admission_number: (inv.student as any)?.admission_number,
+        class: Array.isArray((inv.student as any)?.classes) && (inv.student as any)?.classes.length > 0 ? (inv.student as any).classes[0].name : "N/A",
+        amount_due: Number(inv.amount) - (Number(inv.amount_paid) || 0),
+        term: inv.term
+    })).filter(d => d.amount_due > 0)
+
     return {
         success: true,
-        data: []
+        data: debtors
     }
 }

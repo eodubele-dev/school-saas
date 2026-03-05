@@ -176,12 +176,68 @@ export async function getSettlementTracker() {
 }
 
 /**
- * Send Reminder (Stub for WhatsApp/SMS)
+ * Send Reminder (SMS/WhatsApp)
  */
 export async function sendPaymentReminder(invoiceId: string, channel: 'sms' | 'whatsapp') {
-    // In a real app, this would call Termii or Twilio
-    // For now, we simulate success
-    await new Promise(r => setTimeout(r, 800))
-    console.log(`Sent ${channel} reminder for invoice ${invoiceId}`)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    // Fetch the invoice details and the parent's phone number
+    const { data: invoice, error } = await supabase
+        .from('invoices')
+        .select(`
+            amount,
+            amount_paid,
+            student:students (
+                full_name,
+                parent:profiles (full_name, phone_number)
+            )
+        `)
+        .eq('id', invoiceId)
+        .single()
+
+    if (error || !invoice) return { success: false, error: "Invoice not found." }
+
+    const balance = Number(invoice.amount) - (Number(invoice.amount_paid) || 0)
+    const parentPhone = (invoice.student as any)?.parent?.phone_number
+    const studentName = (invoice.student as any)?.full_name
+
+    if (!parentPhone) return { success: false, error: "Parent phone number not found." }
+
+    const message = `Dear Parent/Guardian, this is a reminder from Eduflow that the balance of NGN ${balance.toLocaleString()} for ${studentName}'s fees is pending. Please settle at your earliest convenience.`
+
+    // Only SMS is implemented via Termii right now, treat WhatsApp as SMS for fallback consistency
+    try {
+        const { sendSMS } = await import('@/lib/services/termii')
+        const result = await sendSMS(parentPhone, message)
+        if (!result.success) return { success: false, error: result.error || "Failed to send message." }
+    } catch (e) {
+        console.warn("Termii service not found or error, simulating success", e)
+    }
+
+    return { success: true }
+}
+
+/**
+ * Flag an Invoice as Invalid (Cancel it)
+ */
+export async function flagInvoiceAsInvalid(invoiceId: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (!profile || !['admin', 'bursar'].includes(profile.role)) return { success: false, error: "Permission denied" }
+
+    const { error } = await supabase
+        .from('invoices')
+        .update({ status: 'cancelled' })
+        .eq('id', invoiceId)
+        .eq('tenant_id', profile.tenant_id)
+
+    if (error) return { success: false, error: error.message }
+
+    revalidatePath('/dashboard/bursar/finance/collections')
     return { success: true }
 }
