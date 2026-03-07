@@ -27,6 +27,11 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
     const router = useRouter()
     const { register, handleSubmit, reset, formState: { isValid, isSubmitting } } = useForm({ mode: "onChange" })
     const [loading, setLoading] = useState(false)
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 5
+
+    const totalPages = Math.max(1, Math.ceil(categories.length / itemsPerPage))
+    const currentCategories = categories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
     const onSubmit = async (data: any) => {
         setLoading(true)
@@ -90,7 +95,7 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {categories.map((cat) => (
+                            {currentCategories.map((cat) => (
                                 <TableRow key={cat.id} className="border-white/5 hover:bg-white/5">
                                     <TableCell className="font-medium text-slate-200">{cat.name}</TableCell>
                                     <TableCell>
@@ -127,6 +132,35 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
                             ))}
                         </TableBody>
                     </Table>
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between px-4 py-3 bg-slate-950 border-t border-white/5">
+                            <div className="text-sm text-slate-400">
+                                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, categories.length)} of {categories.length} categories
+                            </div>
+                            <div className="flex gap-1">
+                                <Button
+                                    variant="outline"
+                                    type="button"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800"
+                                >
+                                    Previous
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    type="button"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800"
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </CardContent>
         </Card>

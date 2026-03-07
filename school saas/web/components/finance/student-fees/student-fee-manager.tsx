@@ -40,13 +40,23 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
         setLoading(false)
     }
 
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 8
+
     useEffect(() => {
         fetchOverrides()
     }, [selectedClass])
 
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [searchQuery, selectedClass])
+
     const filteredStudents = students.filter(s =>
         s.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
     )
+
+    const totalPages = Math.max(1, Math.ceil(filteredStudents.length / itemsPerPage))
+    const currentStudents = filteredStudents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
     const handleToggle = async (studentId: string, categoryId: string, isCurrentlyActive: boolean, isMandatory: boolean) => {
         setIsSaving(true)
@@ -176,9 +186,16 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                                 <TableCell colSpan={5} className="text-center py-20 text-slate-500">No students found.</TableCell>
                             </TableRow>
                         ) : (
-                            filteredStudents.map(student => (
+                            currentStudents.map(student => (
                                 <TableRow key={student.id} className="border-white/5 hover:bg-white/[0.02] cursor-pointer" onClick={() => setSelectedStudent(student)}>
-                                    <TableCell className="font-semibold text-slate-200 pl-6">{student.full_name}</TableCell>
+                                    <TableCell className="font-semibold text-slate-200 pl-6 flex items-center gap-2 pt-4">
+                                        {student.full_name}
+                                        {student.has_sibling_waiver && (
+                                            <span className="text-[9px] uppercase tracking-wider bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20" title="Automated Family Discount Applied">
+                                                Sibling Waiver
+                                            </span>
+                                        )}
+                                    </TableCell>
                                     <TableCell className="text-slate-400">{student.class?.name || 'Unassigned'}</TableCell>
                                     <TableCell className="text-center">
                                         {student.addons?.length > 0
@@ -202,6 +219,35 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                         )}
                     </TableBody>
                 </Table>
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-between px-6 py-4 bg-slate-950/80 backdrop-blur-md border-t border-white/10 mt-auto">
+                        <div className="text-sm text-slate-400">
+                            Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredStudents.length)} of {filteredStudents.length} students
+                        </div>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                type="button"
+                                size="sm"
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800"
+                            >
+                                Previous
+                            </Button>
+                            <Button
+                                variant="outline"
+                                type="button"
+                                size="sm"
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800"
+                            >
+                                Next
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </CardContent>
 
             {/* Assignment Modal */}

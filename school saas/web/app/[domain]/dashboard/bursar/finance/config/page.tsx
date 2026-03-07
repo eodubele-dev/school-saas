@@ -4,11 +4,9 @@ import { FeeCategoryManager } from "@/components/finance/fee-category-manager"
 import { SmartFeeMatrix } from "@/components/finance/smart-fee-matrix"
 import { InvoiceGenerationPanel } from "@/components/finance/invoice-gen-panel"
 import { StudentFeeManager } from "@/components/finance/student-fees/student-fee-manager" // Added this import
+import { BursarDiscountRules } from "@/components/bursar/finance/bursar-discount-rules" // Sibling waiver rule UI
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-// The following imports were in the instruction but not in the original code, and are not directly used in the provided snippet.
-// Keeping them commented out or omitting them as they are not explicitly part of the functional change for the UI.
-// import { getFeeCategories, getFeeSchedule, getAcademicSession } from "@/lib/actions/finance"
-// import { getClasses } from "@/lib/actions/classes"
+import { getDiscountRules } from "@/lib/actions/discounts"
 
 export default async function BursarFinancialConfigPage({ params }: { params: { domain: string } }) {
     const supabase = createClient()
@@ -30,11 +28,12 @@ export default async function BursarFinancialConfigPage({ params }: { params: { 
     // Fetch Data
     if (!profile?.tenant_id) return <div className="p-8 text-center text-red-500">Error: No Tenant Found</div>
 
-    const [categoriesRes, classesRes, scheduleRes, sessionRes] = await Promise.all([
+    const [categoriesRes, classesRes, scheduleRes, sessionRes, rulesRes] = await Promise.all([
         supabase.from('fee_categories').select('*').eq('tenant_id', profile.tenant_id).order('created_at'),
         supabase.from('classes').select('id, name').eq('tenant_id', profile.tenant_id).order('name'),
         supabase.from('fee_schedule').select('*').eq('tenant_id', profile.tenant_id),
-        supabase.from('academic_sessions').select('*').eq('tenant_id', profile.tenant_id).eq('is_active', true).single()
+        supabase.from('academic_sessions').select('*').eq('tenant_id', profile.tenant_id).eq('is_active', true).single(),
+        getDiscountRules()
     ])
 
     return (
@@ -67,6 +66,7 @@ export default async function BursarFinancialConfigPage({ params }: { params: { 
                             <TabsTrigger value="matrix" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 text-slate-400 transition-colors duration-200">Fee Matrix</TabsTrigger>
                             <TabsTrigger value="categories" className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 text-slate-400 transition-colors duration-200">Fee Categories</TabsTrigger>
                             <TabsTrigger value="exceptions" className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-400 text-slate-400 transition-colors duration-200">Student Exceptions</TabsTrigger>
+                            <TabsTrigger value="discounts" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 text-slate-400 transition-colors duration-200">Family Waivers</TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="matrix" className="m-0 border-0 outline-none">
@@ -87,6 +87,10 @@ export default async function BursarFinancialConfigPage({ params }: { params: { 
 
                         <TabsContent value="exceptions" className="m-0 border-0 outline-none">
                             <StudentFeeManager domain={params.domain} classes={classesRes.data || []} />
+                        </TabsContent>
+
+                        <TabsContent value="discounts" className="m-0 border-0 outline-none">
+                            <BursarDiscountRules initialRules={rulesRes.data || []} />
                         </TabsContent>
                     </Tabs>
                 </div>

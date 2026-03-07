@@ -105,10 +105,10 @@ export async function generateTermlyInvoices(domain: string) {
         }
     })
 
-    // 3. Get Active Students (with Class)
+    // 3. Get Active Students (with Class and Parent)
     const { data: students } = await supabase
         .from('students')
-        .select('id, class_id')
+        .select('id, class_id, parent_id')
         .eq('tenant_id', profile.tenant_id)
         .eq('status', 'active') // Assuming active status column exists or we just take all
 
@@ -124,9 +124,14 @@ export async function generateTermlyInvoices(domain: string) {
 
     const existingStudentIds = new Set((existingInvoices || []).map(inv => inv.student_id))
 
-    // 5. Generate Invoices
-    const invoices = []
-    let skipCount = 0
+    // 5. Fetch Family Discount Rules
+    const { data: rawDiscountRules } = await supabase
+        .from('tenant_discount_rules')
+        .select('*')
+        .eq('tenant_id', profile.tenant_id)
+        .eq('is_active', true)
+
+    const discountRules = rawDiscountRules || []
 
     // Fetch Addons and Exemptions for the current tenant
     const { data: addons } = await supabase.from('student_fee_addons').select('student_id, category_id').eq('tenant_id', profile.tenant_id)
@@ -144,42 +149,121 @@ export async function generateTermlyInvoices(domain: string) {
         exemptionsMap[e.student_id].add(e.category_id)
     })
 
-    for (const student of students) {
-        if (!student.class_id || !feesByClass[student.class_id] || existingStudentIds.has(student.id)) {
-            skipCount++
-            continue
+    // Grouping Students by Parent ID for Sibling Engine
+    const parentGroups: Record<string, typeof students> = {}
+    students.forEach(s => {
+        if (!s.parent_id) return
+        if (!parentGroups[s.parent_id]) parentGroups[s.parent_id] = []
+        parentGroups[s.parent_id].push(s)
+    })
+
+    const invoices = []
+    let skipCount = 0
+
+    // Core Generation Loop (Iterating over Parent/Family units)
+    for (const [parentId, siblings] of Object.entries(parentGroups)) {
+
+        let siblingInvoicesData: { studentId: string, items: { description: string, amount: number }[], total: number }[] = []
+
+        for (const student of siblings) {
+            if (!student.class_id || !feesByClass[student.class_id] || existingStudentIds.has(student.id)) {
+                skipCount++
+                continue
+            }
+
+            const classFees = feesByClass[student.class_id]
+            const studentSpecificItems = classFees.filter(fee => {
+                const isExempt = exemptionsMap[student.id]?.has(fee.category_id)
+                if (isExempt) return false
+
+                const isAddon = addonsMap[student.id]?.has(fee.category_id)
+                if (fee.is_mandatory) return true
+                if (isAddon) return true
+
+                return false
+            })
+
+            if (studentSpecificItems.length === 0) {
+                skipCount++
+                continue
+            }
+
+            const finalItems = studentSpecificItems.map(f => ({ description: f.description, amount: f.amount }))
+            const total = finalItems.reduce((sum, item) => sum + item.amount, 0)
+
+            siblingInvoicesData.push({ studentId: student.id, items: finalItems, total })
         }
 
-        const classFees = feesByClass[student.class_id]
+        // --- Sibling Discount Engine Evaluation ---
+        if (siblingInvoicesData.length > 0 && discountRules.length > 0) {
+            const activeSiblingCount = siblingInvoicesData.length
 
-        // Filter fees based on mandatory rules, addons, and exemptions
-        const studentSpecificItems = classFees.filter(fee => {
-            const isExempt = exemptionsMap[student.id]?.has(fee.category_id)
-            if (isExempt) return false // Skip if specifically waived
+            // Find the most aggressive matching rule for this family
+            const matchedRule = discountRules
+                .filter(r => activeSiblingCount >= r.trigger_count)
+                .sort((a, b) => b.trigger_count - a.trigger_count)[0] // Pick the highest trigger echelon they qualify for
 
-            const isAddon = addonsMap[student.id]?.has(fee.category_id)
-            if (fee.is_mandatory) return true // Bill if mandatory (and not waived)
-            if (isAddon) return true // Bill if optional but opted-in
+            if (matchedRule) {
+                // Sort siblings by fee cost descending (most expensive first)
+                siblingInvoicesData.sort((a, b) => b.total - a.total)
 
-            return false // Skip if optional and not opted-in
-        }) // We map the result below to strip out backend keys before insertion
+                if (matchedRule.target_rule === 'cheapest_child') {
+                    const targetChild = siblingInvoicesData[siblingInvoicesData.length - 1]
+                    const deduction = matchedRule.discount_type === 'percentage'
+                        ? (targetChild.total * (matchedRule.discount_value / 100))
+                        : Math.min(matchedRule.discount_value, targetChild.total)
 
-        if (studentSpecificItems.length === 0) {
-            skipCount++
-            continue
+                    targetChild.items.push({
+                        description: `Sibling Discount Waiver (${matchedRule.name})`,
+                        amount: -Math.abs(deduction)
+                    })
+                    targetChild.total -= deduction
+                }
+                else if (matchedRule.target_rule === 'all_after_trigger') {
+                    // Start discounting at the trigger index (0-indexed).
+                    // Example: trigger=3. Array has indices 0, 1, 2, 3.
+                    // Elements 0 and 1 are the two MOST expensive. They pay full price.
+                    // Elements 2 and 3 get discounted.
+                    for (let i = matchedRule.trigger_count - 1; i < siblingInvoicesData.length; i++) {
+                        const targetChild = siblingInvoicesData[i]
+                        const deduction = matchedRule.discount_type === 'percentage'
+                            ? (targetChild.total * (matchedRule.discount_value / 100))
+                            : Math.min(matchedRule.discount_value, targetChild.total)
+
+                        targetChild.items.push({
+                            description: `Sibling Discount Waiver (${matchedRule.name})`,
+                            amount: -Math.abs(deduction)
+                        })
+                        targetChild.total -= deduction
+                    }
+                }
+                else if (matchedRule.target_rule === 'all_children') {
+                    for (const targetChild of siblingInvoicesData) {
+                        const deduction = matchedRule.discount_type === 'percentage'
+                            ? (targetChild.total * (matchedRule.discount_value / 100))
+                            : Math.min(matchedRule.discount_value, targetChild.total)
+
+                        targetChild.items.push({
+                            description: `Sibling Discount Waiver (${matchedRule.name})`,
+                            amount: -Math.abs(deduction)
+                        })
+                        targetChild.total -= deduction
+                    }
+                }
+            }
         }
 
-        const finalItems = studentSpecificItems.map(f => ({ description: f.description, amount: f.amount }))
-        const total = finalItems.reduce((sum, item) => sum + item.amount, 0)
-
-        invoices.push({
-            tenant_id: profile.tenant_id,
-            student_id: student.id,
-            term: `${session.session} ${session.term}`,
-            amount: total,
-            status: 'pending',
-            items: finalItems // JSONB Array
-        })
+        // Push calculated family results to master batch
+        for (const data of siblingInvoicesData) {
+            invoices.push({
+                tenant_id: profile.tenant_id,
+                student_id: data.studentId,
+                term: `${session.session} ${session.term}`,
+                amount: Math.max(0, data.total), // Prevent negative total invoices
+                status: 'pending',
+                items: data.items
+            })
+        }
     }
 
     if (invoices.length === 0) return { success: false, error: "No invoices generated. Check student classes and fee configuration." }
@@ -528,7 +612,8 @@ export async function getStudentFeeOverrides(classId?: string) {
             class_id,
             class:classes(name),
             addons:student_fee_addons(category_id),
-            exemptions:student_fee_exemptions(category_id)
+            exemptions:student_fee_exemptions(category_id),
+            invoices(items)
         `)
         .eq('tenant_id', profile.tenant_id)
 
@@ -536,8 +621,29 @@ export async function getStudentFeeOverrides(classId?: string) {
         studentQuery = studentQuery.eq('class_id', classId)
     }
 
-    const { data: students, error } = await studentQuery
+    const { data: rawStudents, error } = await studentQuery
     if (error) return { success: false, error: error.message }
+
+    // Map students to detect if they currently have a Sibling Waiver applied on any recent invoice
+    const students = rawStudents?.map(s => {
+        let hasSiblingWaiver = false;
+        if (s.invoices && Array.isArray(s.invoices)) {
+            // Check if any invoice items contain the Sibling Waiver string
+            for (const inv of s.invoices) {
+                if (inv.items && Array.isArray(inv.items)) {
+                    if (inv.items.some((item: any) => typeof item.description === 'string' && item.description.includes("Sibling Discount Waiver"))) {
+                        hasSiblingWaiver = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return {
+            ...s,
+            invoices: undefined, // Strip full invoice history to keep payload small
+            has_sibling_waiver: hasSiblingWaiver
+        }
+    })
 
     // Fetch active categories
     const { data: categories } = await supabase
