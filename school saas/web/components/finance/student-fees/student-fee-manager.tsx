@@ -165,60 +165,62 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
             </CardHeader>
 
             {/* Content Table */}
-            <CardContent className="p-0">
-                <Table>
-                    <TableHeader className="bg-slate-950/80 backdrop-blur-md sticky top-0 z-20">
-                        <TableRow className="border-b border-white/10 hover:bg-transparent">
-                            <TableHead className="text-white font-bold pl-6">Student Name</TableHead>
-                            <TableHead className="text-slate-300">Class</TableHead>
-                            <TableHead className="text-slate-300 text-center">Active Add-ons</TableHead>
-                            <TableHead className="text-slate-300 text-center">Active Exemptions</TableHead>
-                            <TableHead className="text-right pr-6">Action</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="text-center py-20 text-slate-500">Loading student directory...</TableCell>
+            <CardContent className="p-0 flex flex-col justify-between min-h-[650px]">
+                <div className="flex-1">
+                    <Table>
+                        <TableHeader className="bg-slate-950/80 backdrop-blur-md sticky top-0 z-20">
+                            <TableRow className="border-b border-white/10 hover:bg-transparent">
+                                <TableHead className="text-white font-bold pl-6">Student Name</TableHead>
+                                <TableHead className="text-slate-300">Class</TableHead>
+                                <TableHead className="text-slate-300 text-center">Active Add-ons</TableHead>
+                                <TableHead className="text-slate-300 text-center">Active Exemptions</TableHead>
+                                <TableHead className="text-right pr-6">Action</TableHead>
                             </TableRow>
-                        ) : filteredStudents.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="text-center py-20 text-slate-500">No students found.</TableCell>
-                            </TableRow>
-                        ) : (
-                            currentStudents.map(student => (
-                                <TableRow key={student.id} className="border-white/5 hover:bg-white/[0.02] cursor-pointer" onClick={() => setSelectedStudent(student)}>
-                                    <TableCell className="font-semibold text-slate-200 pl-6 flex items-center gap-2 pt-4">
-                                        {student.full_name}
-                                        {student.has_sibling_waiver && (
-                                            <span className="text-[9px] uppercase tracking-wider bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20" title="Automated Family Discount Applied">
-                                                Sibling Waiver
-                                            </span>
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="text-slate-400">{student.class?.name || 'Unassigned'}</TableCell>
-                                    <TableCell className="text-center">
-                                        {student.addons?.length > 0
-                                            ? <span className="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-full text-xs border border-emerald-500/20">{student.addons.length} Add-on{student.addons.length > 1 ? 's' : ''}</span>
-                                            : <span className="text-slate-600">-</span>
-                                        }
-                                    </TableCell>
-                                    <TableCell className="text-center">
-                                        {student.exemptions?.length > 0
-                                            ? <span className="bg-rose-500/10 text-rose-400 px-2 py-1 rounded-full text-xs border border-rose-500/20">{student.exemptions.length} Waived</span>
-                                            : <span className="text-slate-600">-</span>
-                                        }
-                                    </TableCell>
-                                    <TableCell className="text-right pr-6">
-                                        <Button variant="outline" size="sm" className="bg-white/5 border-white/10 hover:bg-orange-500/20 hover:text-orange-400 hover:border-orange-500/30 text-slate-300">
-                                            Configure
-                                        </Button>
-                                    </TableCell>
+                        </TableHeader>
+                        <TableBody>
+                            {loading ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="text-center py-20 text-slate-500">Loading student directory...</TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                            ) : filteredStudents.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="text-center py-20 text-slate-500">No students found.</TableCell>
+                                </TableRow>
+                            ) : (
+                                currentStudents.map(student => (
+                                    <TableRow key={student.id} className="border-white/5 hover:bg-white/[0.02] cursor-pointer" onClick={() => setSelectedStudent(student)}>
+                                        <TableCell className="font-semibold text-slate-200 pl-6 flex items-center gap-2 pt-4">
+                                            {student.full_name}
+                                            {student.has_sibling_waiver && (
+                                                <span className="text-[9px] uppercase tracking-wider bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20" title="Automated Family Discount Applied">
+                                                    Sibling Waiver
+                                                </span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-slate-400">{student.class?.name || 'Unassigned'}</TableCell>
+                                        <TableCell className="text-center">
+                                            {student.addons?.length > 0
+                                                ? <span className="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-full text-xs border border-emerald-500/20">{student.addons.length} Add-on{student.addons.length > 1 ? 's' : ''}</span>
+                                                : <span className="text-slate-600">-</span>
+                                            }
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            {student.exemptions?.length > 0
+                                                ? <span className="bg-rose-500/10 text-rose-400 px-2 py-1 rounded-full text-xs border border-rose-500/20">{student.exemptions.length} Waived</span>
+                                                : <span className="text-slate-600">-</span>
+                                            }
+                                        </TableCell>
+                                        <TableCell className="text-right pr-6">
+                                            <Button variant="outline" size="sm" className="bg-white/5 border-white/10 hover:bg-orange-500/20 hover:text-orange-400 hover:border-orange-500/30 text-slate-300">
+                                                Configure
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
                 {totalPages > 1 && (
                     <div className="flex items-center justify-between px-6 py-4 bg-slate-950/80 backdrop-blur-md border-t border-white/10 mt-auto">
                         <div className="text-sm text-slate-400">
@@ -231,7 +233,7 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                                 size="sm"
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800"
+                                className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white"
                             >
                                 Previous
                             </Button>
@@ -241,7 +243,7 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                                 size="sm"
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
-                                className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800"
+                                className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white"
                             >
                                 Next
                             </Button>

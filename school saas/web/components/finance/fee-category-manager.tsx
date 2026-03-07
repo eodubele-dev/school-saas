@@ -85,53 +85,55 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
                     </Button>
                 </form>
 
-                <div className="rounded-md border border-white/10 overflow-hidden">
-                    <Table>
-                        <TableHeader className="bg-slate-950">
-                            <TableRow className="border-white/10 hover:bg-transparent">
-                                <TableHead className="text-slate-400">Name</TableHead>
-                                <TableHead className="text-slate-400">Type</TableHead>
-                                <TableHead className="w-10"></TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {currentCategories.map((cat) => (
-                                <TableRow key={cat.id} className="border-white/5 hover:bg-white/5">
-                                    <TableCell className="font-medium text-slate-200">{cat.name}</TableCell>
-                                    <TableCell>
-                                        <span className={`text-xs px-2 py-1 rounded-full ${cat.is_mandatory ? 'bg-red-500/10 text-red-400' : 'bg-blue-500/10 text-blue-400'}`}>
-                                            {cat.is_mandatory ? 'Mandatory' : 'Optional'}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell>
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-red-500">
-                                                    <Trash2 className="h-3 w-3" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent className="bg-slate-950 border-white/10">
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle className="text-white text-left">Delete Category?</AlertDialogTitle>
-                                                    <AlertDialogDescription className="text-slate-400 text-left">
-                                                        Are you sure you want to delete <span className="text-white font-bold">{cat.name}</span>?
-                                                        <br />
-                                                        This will also remove all associated fee entries from the matrix. This action cannot be undone.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel className="bg-transparent text-slate-400 border-white/10 hover:bg-white/5 hover:text-white">Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDelete(cat.id)} className="bg-red-600 hover:bg-red-700 text-white font-bold">
-                                                        Delete
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    </TableCell>
+                <div className="rounded-md border border-white/10 overflow-hidden flex flex-col justify-between min-h-[420px]">
+                    <div className="flex-1">
+                        <Table>
+                            <TableHeader className="bg-slate-950">
+                                <TableRow className="border-white/10 hover:bg-transparent">
+                                    <TableHead className="text-slate-400">Name</TableHead>
+                                    <TableHead className="text-slate-400">Type</TableHead>
+                                    <TableHead className="w-10"></TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {currentCategories.map((cat) => (
+                                    <TableRow key={cat.id} className="border-white/5 hover:bg-white/5">
+                                        <TableCell className="font-medium text-slate-200">{cat.name}</TableCell>
+                                        <TableCell>
+                                            <span className={`text-xs px-2 py-1 rounded-full ${cat.is_mandatory ? 'bg-red-500/10 text-red-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                                                {cat.is_mandatory ? 'Mandatory' : 'Optional'}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-red-500">
+                                                        <Trash2 className="h-3 w-3" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent className="bg-slate-950 border-white/10">
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle className="text-white text-left">Delete Category?</AlertDialogTitle>
+                                                        <AlertDialogDescription className="text-slate-400 text-left">
+                                                            Are you sure you want to delete <span className="text-white font-bold">{cat.name}</span>?
+                                                            <br />
+                                                            This will also remove all associated fee entries from the matrix. This action cannot be undone.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel className="bg-transparent text-slate-400 border-white/10 hover:bg-white/5 hover:text-white">Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDelete(cat.id)} className="bg-red-600 hover:bg-red-700 text-white font-bold">
+                                                            Delete
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                     {totalPages > 1 && (
                         <div className="flex items-center justify-between px-4 py-3 bg-slate-950 border-t border-white/5">
                             <div className="text-sm text-slate-400">
@@ -144,7 +146,7 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
                                     size="sm"
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                     disabled={currentPage === 1}
-                                    className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800"
+                                    className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white"
                                 >
                                     Previous
                                 </Button>
@@ -154,7 +156,7 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
                                     size="sm"
                                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800"
+                                    className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white"
                                 >
                                     Next
                                 </Button>
