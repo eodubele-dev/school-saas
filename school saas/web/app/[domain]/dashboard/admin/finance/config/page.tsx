@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { FeeCategoryManager } from "@/components/finance/fee-category-manager"
 import { SmartFeeMatrix } from "@/components/finance/smart-fee-matrix"
 import { InvoiceGenerationPanel } from "@/components/finance/invoice-gen-panel"
+import { StudentFeeManager } from "@/components/finance/student-fees/student-fee-manager"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default async function FinancialConfigPage({ params }: { params: { domain: string } }) {
@@ -23,6 +24,8 @@ export default async function FinancialConfigPage({ params }: { params: { domain
     }
 
     // Fetch Data
+    if (!profile?.tenant_id) return <div className="p-8 text-center text-red-500">Error: No Tenant Found</div>
+
     const [categoriesRes, classesRes, scheduleRes, sessionRes] = await Promise.all([
         supabase.from('fee_categories').select('*').eq('tenant_id', profile.tenant_id).order('created_at'),
         supabase.from('classes').select('id, name').eq('tenant_id', profile.tenant_id).order('name'),
@@ -54,14 +57,15 @@ export default async function FinancialConfigPage({ params }: { params: { domain
                 </div>
 
                 {/* Right: Config Tabs */}
-                <div className="xl:col-span-3 h-[700px]">
-                    <Tabs defaultValue="matrix" className="h-full flex flex-col">
-                        <TabsList className="bg-slate-900 border border-white/10 w-fit">
-                            <TabsTrigger value="matrix">Smart Fee Matrix</TabsTrigger>
-                            <TabsTrigger value="categories">Fee Categories</TabsTrigger>
+                <div className="xl:col-span-3 min-h-[700px]">
+                    <Tabs defaultValue="matrix" className="w-full flex-1">
+                        <TabsList className="bg-slate-900 border border-white/10 w-fit mb-6">
+                            <TabsTrigger value="matrix" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 text-slate-400 transition-colors duration-200">Smart Fee Matrix</TabsTrigger>
+                            <TabsTrigger value="categories" className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 text-slate-400 transition-colors duration-200">Fee Categories</TabsTrigger>
+                            <TabsTrigger value="exceptions" className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-400 text-slate-400 transition-colors duration-200">Student Exceptions</TabsTrigger>
                         </TabsList>
 
-                        <TabsContent value="matrix" className="flex-1 mt-4 h-full">
+                        <TabsContent value="matrix" className="m-0 border-0 outline-none">
                             <SmartFeeMatrix
                                 classes={classesRes.data || []}
                                 categories={categoriesRes.data || []}
@@ -70,11 +74,15 @@ export default async function FinancialConfigPage({ params }: { params: { domain
                             />
                         </TabsContent>
 
-                        <TabsContent value="categories" className="flex-1 mt-4 h-full">
+                        <TabsContent value="categories" className="m-0 border-0 outline-none">
                             <FeeCategoryManager
                                 categories={categoriesRes.data || []}
                                 domain={params.domain}
                             />
+                        </TabsContent>
+
+                        <TabsContent value="exceptions" className="m-0 border-0 outline-none">
+                            <StudentFeeManager domain={params.domain} classes={classesRes.data || []} />
                         </TabsContent>
                     </Tabs>
                 </div>

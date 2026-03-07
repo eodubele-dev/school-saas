@@ -44,11 +44,16 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
     const [statusFilter, setStatusFilter] = useState<'pending' | 'partial' | 'all'>('all')
     const [invalidatingId, setInvalidatingId] = useState<string | null>(null)
 
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 10
+
     const refreshData = async (overrideQuery?: string) => {
         setLoading(true)
         const currentQuery = overrideQuery !== undefined ? overrideQuery : search
         const results = await getDebtorsList({ query: currentQuery, status: statusFilter === 'all' ? undefined : statusFilter })
         setData(results)
+        setCurrentPage(1) // Reset to first page on new search
         setLoading(false)
     }
 
@@ -92,6 +97,11 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
         })
     }
 
+    // Pagination Logic
+    const totalPages = Math.ceil(data.length / itemsPerPage)
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const paginatedData = data.slice(startIndex, startIndex + itemsPerPage)
+
     return (
         <div className="space-y-4">
             {/* Control Bar */}
@@ -111,7 +121,7 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                     />
                 </div>
                 <div className="flex items-center gap-2 w-full md:w-auto">
-                    <Button variant="outline" className="bg-slate-900 border-white/10 text-slate-300" onClick={refreshData}>
+                    <Button variant="outline" className="bg-slate-900 border-white/10 text-slate-300" onClick={() => refreshData()}>
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search"}
                     </Button>
                     <ManualPaymentModal onSuccess={refreshData} />
@@ -132,12 +142,13 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                             <TableHead className="text-slate-400">Amount</TableHead>
                             <TableHead className="text-slate-400">Paid</TableHead>
                             <TableHead className="text-slate-400">Balance</TableHead>
+                            <TableHead className="text-slate-400">Term</TableHead>
                             <TableHead className="text-slate-400">Status</TableHead>
                             <TableHead className="text-right text-slate-400">Action</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {data.map((row) => (
+                        {paginatedData.map((row) => (
                             <TableRow key={row.id} className="border-white/5 hover:bg-white/5 transition-colors">
                                 <TableCell>
                                     <div>
@@ -149,6 +160,11 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                                 <TableCell className="text-slate-300">₦{row.amount.toLocaleString()}</TableCell>
                                 <TableCell className="text-emerald-400">₦{row.paid.toLocaleString()}</TableCell>
                                 <TableCell className="text-rose-400 font-bold">₦{row.balance.toLocaleString()}</TableCell>
+                                <TableCell>
+                                    <Badge variant="outline" className="border-indigo-500/30 text-indigo-400 bg-indigo-500/10 whitespace-nowrap">
+                                        {row.term || 'Unknown Term'}
+                                    </Badge>
+                                </TableCell>
                                 <TableCell>
                                     <Badge variant={row.status === 'partial' ? 'outline' : 'destructive'}
                                         className={row.status === 'partial' ? "border-amber-500/50 text-amber-500" : ""}>
@@ -189,6 +205,38 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                     </div>
                 )}
             </Card>
+
+            {/* Pagination Controls */}
+            {data.length > 0 && (
+                <div className="flex items-center justify-between text-sm text-slate-400 mt-4">
+                    <div>
+                        Showing <span className="text-white font-medium">{startIndex + 1}</span> to <span className="text-white font-medium">{Math.min(startIndex + itemsPerPage, data.length)}</span> of <span className="text-white font-medium">{data.length}</span> students
+                    </div>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="bg-slate-900 border-white/10 hover:bg-slate-800 text-slate-300"
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                        >
+                            Previous
+                        </Button>
+                        <div className="flex items-center px-4 bg-slate-900 border border-white/10 rounded-md text-slate-300">
+                            Page {currentPage} of {totalPages}
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="bg-slate-900 border-white/10 hover:bg-slate-800 text-slate-300"
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                        >
+                            Next
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             <AlertDialog open={!!invalidatingId} onOpenChange={(open) => !open && setInvalidatingId(null)}>
                 <AlertDialogContent className="bg-slate-900 border-white/10 text-slate-200">

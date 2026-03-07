@@ -46,6 +46,7 @@ export interface ResultData {
     term_info: {
         term: string
         session: string
+        session_id: string
         next_term_begins: string
         date_issued: string
     }

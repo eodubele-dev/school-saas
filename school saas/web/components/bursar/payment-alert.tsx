@@ -1,5 +1,12 @@
-import React from 'react';
-import { Landmark, ArrowUpRight, User, Hash, ExternalLink } from 'lucide-react';
+"use client";
+
+import React, { useState } from 'react';
+import { Landmark, Check, ChevronRight, Loader2, CheckCircle2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { reconcileTransaction } from '@/lib/actions/finance';
+import { toast } from 'sonner';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface TransactionItem {
     student: string;
@@ -7,61 +14,101 @@ interface TransactionItem {
     amount: number;
 }
 
-interface BursarPaymentAlertProps {
-    transaction: {
-        timestamp: string;
-        total: number;
-        familyName: string;
-        items: TransactionItem[];
-    }
+interface TransactionAlert {
+    id: string;
+    timestamp: string;
+    total: number;
+    familyName: string;
+    items: TransactionItem[];
 }
 
-export const BursarPaymentAlert = ({ transaction }: BursarPaymentAlertProps) => {
+interface BursarPaymentAlertProps {
+    transactions: TransactionAlert[];
+}
+
+const PaymentCard = ({ tx, index }: { tx: TransactionAlert, index: number }) => {
+    const [isReconciling, setIsReconciling] = useState(false);
+    const router = useRouter();
+
+    const handleReconcile = async () => {
+        setIsReconciling(true);
+        try {
+            const res = await reconcileTransaction(tx.id);
+            if (res.success) {
+                toast.success("Payment Reconciled", { description: "The transaction has been cleared from the alert stack." });
+                router.refresh();
+            } else {
+                toast.error("Reconciliation Failed", { description: res.error });
+                setIsReconciling(false);
+            }
+        } catch (error) {
+            toast.error("Internal Error", { description: "Failed to reach the server." });
+            setIsReconciling(false);
+        }
+    };
+
     return (
-        <div className="bg-[#0A0A0B] border-l-4 border-emerald-500 rounded-r-3xl p-6 shadow-2xl animate-in fade-in slide-in-from-right-8">
+        <div className="w-[380px] shrink-0 bg-gradient-to-br from-emerald-950/30 via-slate-900/80 to-slate-900/80 border border-emerald-500/20 backdrop-blur-xl rounded-2xl p-5 shadow-2xl animate-in fade-in slide-in-from-right-8" style={{ animationDelay: `${index * 100}ms` }}>
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                    <div className="bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20">
-                        <Landmark className="text-emerald-400" size={20} />
+                    <div className="bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                        <Check className="text-emerald-400" size={18} />
                     </div>
                     <div>
-                        <h3 className="text-sm font-black text-white uppercase tracking-tighter italic">Payment_Inbound_Alert</h3>
-                        <p className="text-[10px] text-gray-500 font-mono">Status: AWAITING_BANK_SETTLEMENT</p>
+                        <h3 className="text-sm font-bold text-white tracking-tight">Payment Received</h3>
+                        <p className="text-xs text-emerald-400/80 font-medium">Auto-Reconciling</p>
                     </div>
                 </div>
-                <span className="text-[10px] bg-white/5 px-2 py-1 rounded-full text-gray-400 font-mono italic">
-                    {transaction.timestamp}
-                </span>
+                <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10 text-[10px] uppercase tracking-wider">
+                    {tx.timestamp}
+                </Badge>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                    <p className="text-[9px] text-gray-600 uppercase mb-1">Total_Amount</p>
-                    <p className="text-lg font-bold text-emerald-400">₦{transaction.total.toLocaleString()}</p>
+            <div className="grid grid-cols-2 gap-4 mb-5">
+                <div>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Total Amount</p>
+                    <p className="text-2xl font-black text-white">₦{tx.total.toLocaleString()}</p>
                 </div>
-                <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                    <p className="text-[9px] text-gray-600 uppercase mb-1">Family_Payer</p>
-                    <p className="text-sm font-bold text-white truncate">{transaction.familyName}</p>
+                <div>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Payer Family</p>
+                    <p className="text-sm font-bold text-slate-200 truncate">{tx.familyName}</p>
                 </div>
             </div>
 
-            {/* 🧩 Forensic Breakdown */}
-            <div className="space-y-2 mb-6">
-                {transaction.items.map((item, idx) => (
-                    <div key={idx} className="flex justify-between text-[10px] font-mono border-b border-white/5 pb-2">
-                        <span className="text-gray-500">{item.student} ({item.category})</span>
-                        <span className="text-white">₦{item.amount.toLocaleString()}</span>
+            <div className="space-y-2 mb-5">
+                {tx.items.map((item, idx) => (
+                    <div key={idx} className="flex justify-between text-xs border-b border-white/5 pb-2">
+                        <span className="text-slate-400 truncate pr-2">{item.student} <span className="text-slate-500 text-[10px] capitalize">({item.category})</span></span>
+                        <span className="text-slate-200 font-medium">₦{item.amount.toLocaleString()}</span>
                     </div>
                 ))}
             </div>
 
-            <div className="flex gap-3">
-                <button className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-black text-[10px] font-black py-2 rounded-lg uppercase transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_20px_rgba(16,185,129,0.5)]">
-                    RECONCILE <ArrowUpRight size={12} />
+            <div className="flex gap-2">
+                <button
+                    onClick={handleReconcile}
+                    disabled={isReconciling}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-black text-xs font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {isReconciling ? <Loader2 size={16} className="animate-spin" /> : <><CheckCircle2 size={16} /> Mark Reconciled</>}
                 </button>
-                <button className="px-3 border border-white/10 rounded-lg hover:bg-white/5 transition-all">
-                    <ExternalLink size={14} className="text-gray-500" />
-                </button>
+                <Link href="/dashboard/bursar/finance/collections" className="px-4 bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 text-slate-300 hover:text-emerald-400 text-xs font-bold py-2.5 rounded-xl transition-all flex items-center justify-center group">
+                    Ledger <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform ml-1" />
+                </Link>
+            </div>
+        </div>
+    );
+};
+
+export const BursarPaymentAlert = ({ transactions }: BursarPaymentAlertProps) => {
+    if (!transactions || transactions.length === 0) return null;
+
+    return (
+        <div className="w-full overflow-x-auto pb-4 hide-scrollbar">
+            <div className="flex gap-4 w-max">
+                {transactions.map((tx, i) => (
+                    <PaymentCard key={tx.id || i} tx={tx} index={i} />
+                ))}
             </div>
         </div>
     );

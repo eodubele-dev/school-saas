@@ -53,17 +53,17 @@ export async function getStudentResultPortalData(studentId: string, term: string
 
     // 3. Billing Status (Fallback for Lock)
     const { data: billing } = await supabase
-        .from('billing')
-        .select('status, balance, total_fees')
+        .from('invoices')
+        .select('status, amount, amount_paid')
         .eq('student_id', studentId)
-        .eq('term', term)
-        .eq('session', session)
+        .eq('term', `${session} ${term}`)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .single()
 
     // Logic: Locked if reportCard.is_locked is true.
-    // (If report card doesn't exist, we likely show 'No Result Yet' or similar, but for demo we assume it exists)
     const isLocked = reportCard?.is_locked ?? true
-    const balance = billing?.balance || (billing?.status === 'paid' ? 0 : 50000)
+    const balance = billing ? (Number(billing.amount) - (Number(billing.amount_paid) || 0)) : 0
 
     // 4. Grades
     const { data: grades } = await supabase
@@ -129,19 +129,18 @@ export async function getParentChildren() {
     }
 
     // Enhance students with billing data
-    // We need to fetch the latest billing record for each student to get their balance
     const studentsWithFinance = await Promise.all(students.map(async (student) => {
-        const { data: billing } = await supabase
-            .from('billing')
-            .select('balance')
+        const { data: invoices } = await supabase
+            .from('invoices')
+            .select('amount, amount_paid')
             .eq('student_id', student.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single()
+            .neq('status', 'paid')
+
+        const balance = invoices ? invoices.reduce((sum, inv) => sum + (Number(inv.amount) - (Number(inv.amount_paid) || 0)), 0) : 0
 
         return {
             ...student,
-            school_fees_debt: billing?.balance || 0
+            school_fees_debt: balance
         }
     }))
 
@@ -211,47 +210,60 @@ export async function getFamilyBillingLedger() {
         .select('*, class:classes(name)')
         .eq('parent_id', user.id)
 
-    if (error || !students) {
+    if (error || !students || students.length === 0) {
         return { success: false, error: 'Failed to fetch students', debug: error }
     }
+
+    const tenantId = students[0].tenant_id
+
+    // Get Active Session
+    const { data: session } = await supabase
+        .from('academic_sessions')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .eq('is_active', true)
+        .single()
+
+    const currentTermString = session ? `${session.session} ${session.term}` : null
 
     // 2. Fetch and Aggregate Billing
     let totalFamilyBalance = 0;
 
     const childrenLedger = await Promise.all(students.map(async (student) => {
-        const { data: billing } = await supabase
-            .from('billing')
-            .select('*')
-            .eq('student_id', student.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single()
+        let balance = 0;
+        let fees: any[] = [];
+        let status = 'paid';
 
-        let balance = billing?.balance || 0;
+        if (currentTermString) {
+            const { data: invoice } = await supabase
+                .from('invoices')
+                .select('*')
+                .eq('student_id', student.id)
+                .eq('term', currentTermString)
+                .single()
 
+            if (invoice) {
+                balance = Number(invoice.amount) - (Number(invoice.amount_paid) || 0)
+                status = invoice.status
 
+                const items = invoice.items as any[] || []
+
+                items.forEach(item => {
+                    const desc = item.description?.toLowerCase() || ""
+                    let icon = 'GraduationCap'
+                    if (desc.includes('bus') || desc.includes('transport')) icon = 'Bus'
+                    else if (desc.includes('dev') || desc.includes('levy') || desc.includes('tech')) icon = 'Cpu'
+
+                    fees.push({
+                        label: item.description || 'Fee',
+                        amount: item.amount,
+                        icon
+                    })
+                })
+            }
+        }
 
         totalFamilyBalance += balance;
-
-        // 3. Mock Itemized Breakdown (Platinum Algorithm)
-        // We distribute the balance into intuitive categories for the UI
-        let fees = []
-        if (balance > 0) {
-            const tuition = Math.floor(balance * 0.7)
-            const bus = Math.floor(balance * 0.2)
-            const tech = balance - tuition - bus
-
-            fees = [
-                { label: 'Tuition & Academic Fees', amount: tuition, icon: 'GraduationCap' },
-                { label: 'Transport & Logistics', amount: bus, icon: 'Bus' },
-                { label: 'ICT & Technology Levy', amount: tech, icon: 'Cpu' }
-            ]
-        } else {
-            // Should not be reached in Demo Mode
-            fees = [
-                { label: 'Tuition & Academic Fees', amount: 0, icon: 'GraduationCap' }
-            ]
-        }
 
         return {
             id: student.id,
@@ -260,7 +272,7 @@ export async function getFamilyBillingLedger() {
             avatar: student.passport_url,
             balance,
             fees,
-            status: billing?.status || 'Active'
+            status
         }
     }))
 

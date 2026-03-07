@@ -100,13 +100,26 @@ export function BulkUploader({ domain, classes }: { domain: string, classes: any
             const res = await bulkAdmitStudents(validStudents)
 
             if (res.success) {
-                toast.success(`Successfully imported ${res.count} students!`)
-                toast.info("Invoices generated & Welcome SMS sent.")
-                setFile(null)
-                setRawRows([])
-                setStep('upload')
+                if (res.errors && res.errors.length > 0) {
+                    if (res.count === 0) {
+                        toast.error(`Import failed completely. 0 imported, ${res.errors.length} errors.`)
+                        console.error("Bulk Import Errors:", res.errors)
+                    } else {
+                        toast.warning(`Imported ${res.count} students, but ${res.errors.length} rows failed. Check console.`)
+                        console.error("Bulk Import Partial Failures:", res.errors)
+                        setFile(null)
+                        setRawRows([])
+                        setStep('upload')
+                    }
+                } else {
+                    toast.success(`Successfully imported ${res.count} students!`)
+                    toast.info("Invoices generated & Welcome SMS sent.")
+                    setFile(null)
+                    setRawRows([])
+                    setStep('upload')
+                }
             } else {
-                toast.error("Import failed partially")
+                toast.error("Critical Import Failure.")
             }
         } catch (e) {
             toast.error("System Error")
@@ -117,14 +130,16 @@ export function BulkUploader({ domain, classes }: { domain: string, classes: any
 
     const handleDownloadTemplate = () => {
         const headers = REQUIRED_FIELDS.map(f => f.label)
-        const csvContent = "data:text/csv;charset=utf-8," + headers.join(",")
-        const encodedUri = encodeURI(csvContent)
+        const csvContent = headers.join(",") + "\n"
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const url = URL.createObjectURL(blob)
         const link = document.createElement("a")
-        link.setAttribute("href", encodedUri)
+        link.setAttribute("href", url)
         link.setAttribute("download", "student_upload_template.csv")
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
+        setTimeout(() => URL.revokeObjectURL(url), 100)
     }
 
     return (

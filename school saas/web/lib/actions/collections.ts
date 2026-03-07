@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 
 /**
@@ -100,15 +101,17 @@ export async function recordManualCollection(data: {
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
     if (!profile || !['admin', 'bursar'].includes(profile.role)) return { success: false, error: "Permission denied" }
 
+    const adminClient = createAdminClient()
+
     // 1. Double check current invoice state
-    const { data: invoice } = await supabase.from('invoices').select('amount, amount_paid').eq('id', data.invoiceId).single()
+    const { data: invoice } = await adminClient.from('invoices').select('amount, amount_paid').eq('id', data.invoiceId).single()
     if (!invoice) return { success: false, error: "Invoice not found" }
 
     const newPaid = Number(invoice.amount_paid) + Number(data.amount)
     const isPaid = newPaid >= Number(invoice.amount)
 
     // 2. Perform updates in a partial transaction-like way (Supabase doesn't have cross-table transactions in client, but we can do it in order)
-    const { error: trxError } = await supabase.from('transactions').insert({
+    const { error: trxError } = await adminClient.from('transactions').insert({
         tenant_id: profile.tenant_id,
         invoice_id: data.invoiceId,
         student_id: data.studentId,
@@ -122,13 +125,21 @@ export async function recordManualCollection(data: {
 
     if (trxError) return { success: false, error: trxError.message }
 
-    const { error: invError } = await supabase.from('invoices').update({
+    const { data: updatedInvoice, error: invError } = await adminClient.from('invoices').update({
         amount_paid: newPaid,
         status: isPaid ? 'paid' : 'partial',
         updated_at: new Date().toISOString()
-    }).eq('id', data.invoiceId)
+    }).eq('id', data.invoiceId).select()
 
-    if (invError) return { success: false, error: invError.message }
+    if (invError) {
+        console.error("Invoice Update Error:", invError)
+        return { success: false, error: invError.message }
+    }
+
+    if (!updatedInvoice || updatedInvoice.length === 0) {
+        console.error("Invoice Update returned 0 rows! Missing RLS permissions or ID mismatch. Invoice ID:", data.invoiceId)
+        return { success: false, error: "System failed to save the updated balance. Contact support." }
+    }
 
     revalidatePath('/dashboard/bursar/finance/collections')
     return { success: true }
@@ -230,7 +241,9 @@ export async function flagInvoiceAsInvalid(invoiceId: string) {
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
     if (!profile || !['admin', 'bursar'].includes(profile.role)) return { success: false, error: "Permission denied" }
 
-    const { error } = await supabase
+    const adminClient = createAdminClient()
+
+    const { error } = await adminClient
         .from('invoices')
         .update({ status: 'cancelled' })
         .eq('id', invoiceId)

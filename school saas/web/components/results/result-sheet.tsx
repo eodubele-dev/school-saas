@@ -43,7 +43,7 @@ export function ResultSheet({ data }: { data: ResultData }) {
     }, [data.student.id])
 
     return (
-        <div className="w-[210mm] min-h-[297mm] mx-auto bg-white p-10 text-slate-900 relative overflow-hidden shadow-2xl printable-sheet"
+        <div id="result-sheet-node" className="w-[210mm] min-h-[297mm] mx-auto bg-white p-10 text-slate-900 relative overflow-hidden shadow-2xl printable-sheet"
             style={{ '--primary': theme.primary_color, '--secondary': theme.secondary_color, '--accent': theme.accent_color } as React.CSSProperties}
         >
             {/* Watermark */}

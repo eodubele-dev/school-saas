@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 import { logActivity } from "./audit"
 
@@ -70,7 +71,7 @@ export async function generateTermlyInvoices(domain: string) {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (!['admin', 'bursar'].includes(profile?.role)) return { success: false, error: "Permission denied" }
+    if (!profile || !['admin', 'bursar'].includes(profile.role)) return { success: false, error: "Permission denied" }
 
     // 1. Get Active Session
     const { data: session } = await supabase
@@ -85,19 +86,21 @@ export async function generateTermlyInvoices(domain: string) {
     // 2. Get Fee Categories & Schedule
     const { data: schedule } = await supabase
         .from('fee_schedule')
-        .select('class_id, amount, category:fee_categories(name)')
+        .select('class_id, amount, category_id, category:fee_categories(name, is_mandatory)')
         .eq('tenant_id', profile.tenant_id)
 
     if (!schedule || schedule.length === 0) return { success: false, error: "Fee schedule is empty. Configure fees first." }
 
     // Group fees by class
-    const feesByClass: Record<string, any[]> = {} // class_id -> [{ name, amount }]
+    const feesByClass: Record<string, any[]> = {} // class_id -> [{ name, amount, is_mandatory, id }]
     schedule.forEach((item: any) => {
         if (!feesByClass[item.class_id]) feesByClass[item.class_id] = []
         if (item.amount > 0) {
             feesByClass[item.class_id].push({
+                category_id: item.category_id,
                 description: item.category.name,
-                amount: Number(item.amount)
+                amount: Number(item.amount),
+                is_mandatory: item.category.is_mandatory
             })
         }
     })
@@ -111,18 +114,63 @@ export async function generateTermlyInvoices(domain: string) {
 
     if (!students || students.length === 0) return { success: false, error: "No active students found." }
 
-    // 4. Generate Invoices
+    // 4. Fetch Existing Invoices to prevent duplicates
+    const currentTermString = `${session.session} ${session.term}`
+    const { data: existingInvoices } = await supabase
+        .from('invoices')
+        .select('student_id')
+        .eq('tenant_id', profile.tenant_id)
+        .eq('term', currentTermString)
+
+    const existingStudentIds = new Set((existingInvoices || []).map(inv => inv.student_id))
+
+    // 5. Generate Invoices
     const invoices = []
     let skipCount = 0
 
+    // Fetch Addons and Exemptions for the current tenant
+    const { data: addons } = await supabase.from('student_fee_addons').select('student_id, category_id').eq('tenant_id', profile.tenant_id)
+    const { data: exemptions } = await supabase.from('student_fee_exemptions').select('student_id, category_id').eq('tenant_id', profile.tenant_id)
+
+    // Build Maps for O(1) lookups
+    const addonsMap: Record<string, Set<string>> = {}
+    addons?.forEach(a => {
+        if (!addonsMap[a.student_id]) addonsMap[a.student_id] = new Set()
+        addonsMap[a.student_id].add(a.category_id)
+    })
+    const exemptionsMap: Record<string, Set<string>> = {}
+    exemptions?.forEach(e => {
+        if (!exemptionsMap[e.student_id]) exemptionsMap[e.student_id] = new Set()
+        exemptionsMap[e.student_id].add(e.category_id)
+    })
+
     for (const student of students) {
-        if (!student.class_id || !feesByClass[student.class_id]) {
+        if (!student.class_id || !feesByClass[student.class_id] || existingStudentIds.has(student.id)) {
             skipCount++
             continue
         }
 
-        const items = feesByClass[student.class_id]
-        const total = items.reduce((sum, item) => sum + item.amount, 0)
+        const classFees = feesByClass[student.class_id]
+
+        // Filter fees based on mandatory rules, addons, and exemptions
+        const studentSpecificItems = classFees.filter(fee => {
+            const isExempt = exemptionsMap[student.id]?.has(fee.category_id)
+            if (isExempt) return false // Skip if specifically waived
+
+            const isAddon = addonsMap[student.id]?.has(fee.category_id)
+            if (fee.is_mandatory) return true // Bill if mandatory (and not waived)
+            if (isAddon) return true // Bill if optional but opted-in
+
+            return false // Skip if optional and not opted-in
+        }) // We map the result below to strip out backend keys before insertion
+
+        if (studentSpecificItems.length === 0) {
+            skipCount++
+            continue
+        }
+
+        const finalItems = studentSpecificItems.map(f => ({ description: f.description, amount: f.amount }))
+        const total = finalItems.reduce((sum, item) => sum + item.amount, 0)
 
         invoices.push({
             tenant_id: profile.tenant_id,
@@ -130,7 +178,7 @@ export async function generateTermlyInvoices(domain: string) {
             term: `${session.session} ${session.term}`,
             amount: total,
             status: 'pending',
-            items: items // JSONB Array
+            items: finalItems // JSONB Array
         })
     }
 
@@ -211,6 +259,7 @@ export async function getBursarStats() {
     const trendLabel = trendValue > 0 ? `+${trendValue}%` : `${trendValue}%`
 
     // 2. Fetch Recent Transactions
+    // Only fetch un-reconciled transactions for the alerts panel
     const { data: recentTransactions } = await supabase
         .from('transactions')
         .select(`
@@ -222,6 +271,7 @@ export async function getBursarStats() {
             students (full_name)
         `)
         .eq('tenant_id', tenantId)
+        .is('is_reconciled', false)
         .order('date', { ascending: false })
         .limit(5)
 
@@ -268,13 +318,8 @@ export async function getBursarStats() {
 
     // 5. Get SMS Wallet Balance
     let smsBalance = 0
-    try {
-        const { getWalletBalance } = await import("@/lib/services/termii")
-        const balRes = await getWalletBalance()
-        if (balRes.success) smsBalance = balRes.balance
-    } catch (e) {
-        console.error("Termii service not found, defaulting to 0")
-    }
+    const { data: tenant } = await supabase.from('tenants').select('sms_balance').eq('id', tenantId).single()
+    smsBalance = tenant?.sms_balance || 0
 
     return {
         metrics: {
@@ -304,12 +349,13 @@ export async function recordManualPayment(data: {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (!['admin', 'bursar'].includes(profile?.role)) return { success: false, error: "Permission denied" }
+    if (!profile || !['admin', 'bursar'].includes(profile.role)) return { success: false, error: "Permission denied" }
 
     const tenantId = profile.tenant_id
+    const adminClient = createAdminClient()
 
     // 1. Record Transaction
-    const { error: trxError } = await supabase.from('transactions').insert({
+    const { error: trxError } = await adminClient.from('transactions').insert({
         tenant_id: tenantId,
         invoice_id: data.invoiceId,
         student_id: data.studentId,
@@ -323,16 +369,43 @@ export async function recordManualPayment(data: {
     if (trxError) return { success: false, error: trxError.message }
 
     // 2. Update Invoice amount_paid
-    const { data: invoice } = await supabase.from('invoices').select('amount, amount_paid').eq('id', data.invoiceId).single()
+    const { data: invoice } = await adminClient.from('invoices').select('amount, amount_paid').eq('id', data.invoiceId).single()
     if (invoice) {
         const newPaid = Number(invoice.amount_paid) + Number(data.amount)
         const isPaid = newPaid >= Number(invoice.amount)
 
-        await supabase.from('invoices').update({
+        const { error: invoiceUpdateError } = await adminClient.from('invoices').update({
             amount_paid: newPaid,
             status: isPaid ? 'paid' : 'partial'
         }).eq('id', data.invoiceId)
+
+        if (invoiceUpdateError) {
+            console.error("[recordManualPayment] Invoice Update Failed:", invoiceUpdateError);
+            return { success: false, error: "Payment recorded but invoice sync failed: " + invoiceUpdateError.message }
+        }
     }
+
+    revalidatePath(`/dashboard/bursar`)
+    return { success: true }
+}
+
+export async function reconcileTransaction(transactionId: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (!profile || !['admin', 'bursar'].includes(profile.role)) return { success: false, error: "Permission denied" }
+
+    const tenantId = profile.tenant_id
+    const adminClient = createAdminClient()
+
+    const { error } = await adminClient.from('transactions')
+        .update({ is_reconciled: true })
+        .eq('id', transactionId)
+        .eq('tenant_id', tenantId)
+
+    if (error) return { success: false, error: error.message }
 
     revalidatePath(`/dashboard/bursar`)
     return { success: true }
@@ -368,13 +441,15 @@ export async function getStudentBilling(studentId: string, session: string, term
 
     // Parse items for breakdown if JSONB
     const items = invoice.items as any[] || []
-    const breakdown: Record<string, number> = { tuition: 0, bus: 0, uniform: 0 }
+    const breakdown: Record<string, number> = { tuition: 0, bus: 0, uniform: 0, development: 0, books: 0 }
 
     items.forEach(item => {
         const desc = item.description?.toLowerCase() || ""
         if (desc.includes('tuition')) breakdown.tuition += item.amount
         else if (desc.includes('bus') || desc.includes('transport')) breakdown.bus += item.amount
         else if (desc.includes('uniform')) breakdown.uniform += item.amount
+        else if (desc.includes('dev') || desc.includes('levy')) breakdown.development += item.amount
+        else if (desc.includes('book')) breakdown.books += item.amount
     })
 
     return {
@@ -423,15 +498,82 @@ export async function generatePaystackLink(userType: string, amount: number, ema
 // --- Bursar Utilities ---
 
 export async function getSMSWalletBalance() {
-    const { getWalletBalance } = await import("@/lib/services/termii")
-    const result = await getWalletBalance()
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, balance: 0, error: "Unauthorized" }
 
-    if (result.success) {
-        return { success: true, balance: result.balance }
-    } else {
-        // Fallback or error state
-        return { success: false, balance: 0, error: result.error }
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, balance: 0, error: "Profile not found" }
+
+    const { data: tenant } = await supabase.from('tenants').select('sms_balance').eq('id', profile.tenant_id).single()
+    return { success: true, balance: tenant?.sms_balance || 0 }
+}
+
+// --- Optional Fee Overrides ---
+
+export async function getStudentFeeOverrides(classId?: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Profile not found" }
+
+    // Fetch students
+    let studentQuery = supabase
+        .from('students')
+        .select(`
+            id,
+            full_name,
+            class_id,
+            class:classes(name),
+            addons:student_fee_addons(category_id),
+            exemptions:student_fee_exemptions(category_id)
+        `)
+        .eq('tenant_id', profile.tenant_id)
+
+    if (classId && classId !== 'all') {
+        studentQuery = studentQuery.eq('class_id', classId)
     }
+
+    const { data: students, error } = await studentQuery
+    if (error) return { success: false, error: error.message }
+
+    // Fetch active categories
+    const { data: categories } = await supabase
+        .from('fee_categories')
+        .select('id, name, is_mandatory')
+        .eq('tenant_id', profile.tenant_id)
+
+    return { success: true, students, categories }
+}
+
+export async function toggleFeeOverride(studentId: string, categoryId: string, type: 'addon' | 'exemption', isActive: boolean) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Profile not found" }
+
+    const tableName = type === 'addon' ? 'student_fee_addons' : 'student_fee_exemptions'
+
+    if (isActive) {
+        const { error } = await supabase.from(tableName).upsert({
+            tenant_id: profile.tenant_id,
+            student_id: studentId,
+            category_id: categoryId
+        })
+        if (error) return { success: false, error: error.message }
+    } else {
+        const { error } = await supabase.from(tableName)
+            .delete()
+            .eq('student_id', studentId)
+            .eq('category_id', categoryId)
+        if (error) return { success: false, error: error.message }
+    }
+
+    return { success: true }
 }
 
 export async function getPendingReconciliations() {

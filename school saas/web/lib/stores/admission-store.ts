@@ -14,6 +14,7 @@ export type AdmissionData = {
 
     // Academic
     classId: string
+    className: string
     house: string
     admissionNumber: string
 
@@ -52,6 +53,7 @@ const initialData: AdmissionData = {
     genotype: '',
     passportUrl: null,
     classId: '',
+    className: '',
     house: '',
     admissionNumber: '',
     parentId: null,

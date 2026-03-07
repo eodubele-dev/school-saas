@@ -63,22 +63,29 @@ export default async function BillingPage({
 
     if (!student) return <div className="p-8 text-center text-slate-400">No student linked to this account.</div>
 
-    // Fetch Data
-    const currentSession = "2023/2024"
-    const currentTerm = "2nd Term"
+    // Fetch Active Session
+    const { data: activeSession } = await supabase
+        .from('academic_sessions')
+        .select('*')
+        .eq('tenant_id', tenant?.id)
+        .eq('is_active', true)
+        .single()
+
+    const currentSession = activeSession?.session || "N/A"
+    const currentTerm = activeSession?.term || "N/A"
 
     const billing = await getStudentBilling(student.id, currentSession, currentTerm)
     const history = await getPaymentHistory(student.id)
 
     const balance = billing?.balance || 0
     const totalFees = billing?.total_fees || 0
-    const isPaid = balance <= 0
+    const isPaid = balance <= 0 && totalFees > 0
 
-    // Adjust breakdown for UI if needed (mapping DB fields used in finance.ts to UI requirements)
+    // Adjust breakdown for UI (dynamically parsing from the DB)
     const breakdown = {
         tuition: billing?.breakdown?.tuition || 0,
-        development: billing?.breakdown?.bus || 0, // Mapping existing DB field to new Label
-        books: 15000, // Mock for "Books"
+        development: billing?.breakdown?.development || billing?.breakdown?.bus || 0,
+        books: billing?.breakdown?.books || 0,
         uniforms: billing?.breakdown?.uniform || 0
     }
 
@@ -116,7 +123,9 @@ export default async function BillingPage({
                         <div className="space-y-2">
                             <div className="flex items-center gap-3 mb-2">
                                 <p className="text-emerald-400/80 font-bold uppercase tracking-wider text-xs">Outstanding Balance</p>
-                                {isPaid ? (
+                                {totalFees === 0 ? (
+                                    <Badge className="bg-slate-500/20 text-slate-400 border-slate-500/50 shadow-[0_0_10px_rgba(100,116,139,0.3)] hover:bg-slate-500/30">No Invoice</Badge>
+                                ) : isPaid ? (
                                     <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.3)] hover:bg-emerald-500/30">Paid</Badge>
                                 ) : (
                                     <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/50 shadow-[0_0_10px_rgba(245,158,11,0.3)] hover:bg-amber-500/30 animate-pulse">Pending</Badge>
@@ -131,7 +140,12 @@ export default async function BillingPage({
                         </div>
 
                         <div className="flex flex-col gap-3 min-w-[200px] w-full md:w-auto">
-                            {isPaid ? (
+                            {totalFees === 0 ? (
+                                <div className="flex flex-col items-center justify-center p-4 bg-slate-500/10 rounded-xl border border-slate-500/20 text-slate-400">
+                                    <CheckCircle2 className="h-8 w-8 mb-2" />
+                                    <span className="font-bold">No Invoice Yet</span>
+                                </div>
+                            ) : isPaid ? (
                                 <div className="flex flex-col items-center justify-center p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-emerald-400">
                                     <CheckCircle2 className="h-8 w-8 mb-2" />
                                     <span className="font-bold">Fees Cleared</span>

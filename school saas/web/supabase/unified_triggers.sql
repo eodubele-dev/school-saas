@@ -41,8 +41,7 @@ BEGIN
         SET is_locked = FALSE,
             updated_at = NOW()
         WHERE student_id = NEW.student_id
-          AND term = NEW.term 
-          AND session = NEW.session;
+          AND term = NEW.term;
           
         -- (Optional) Log this system action
         INSERT INTO public.audit_logs (tenant_id, action, category, entity_type, entity_id, details, actor_name)

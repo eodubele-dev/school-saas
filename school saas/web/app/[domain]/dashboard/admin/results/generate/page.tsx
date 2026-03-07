@@ -6,13 +6,16 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, Loader2, Printer, Search } from "lucide-react"
+import { Calendar, Loader2, Printer, Search, Link2 } from "lucide-react"
 import { ResultSheet } from "@/components/results/result-sheet"
 import { getStudentResultData, getBulkClassResults, getClassesForSelection, getStudentsForSelection } from "@/lib/actions/results"
 import { ResultData } from "@/types/results"
 import { toast } from "sonner"
 import { useReactToPrint } from "react-to-print"
 import { useRef, useEffect } from "react"
+import html2canvas from "html2canvas"
+import jsPDF from "jspdf"
+import { createUploadUrl, registerSnapshot, verifyExistingSnapshot, SnapshotData } from "@/lib/actions/snapshots"
 
 export default function GenerateResultsPage() {
     const [loading, setLoading] = useState(false)
@@ -120,6 +123,103 @@ export default function GenerateResultsPage() {
         contentRef: printRef,
         documentTitle: resultDataList.length > 1 ? `Results_Class_${session}` : `Result_${resultDataList[0]?.student.full_name || 'Student'}`,
     } as any)
+
+    const [freezing, setFreezing] = useState(false)
+    const [freezeProgress, setFreezeProgress] = useState({ current: 0, total: 0 })
+
+    const handleFreezeResults = async () => {
+        if (resultDataList.length === 0) return
+        setFreezing(true)
+        setFreezeProgress({ current: 0, total: resultDataList.length })
+
+        let successCount = 0
+
+        try {
+            // Give React a moment to render exactly before capture
+            await new Promise(r => setTimeout(r, 100))
+
+            const resultNodes = printRef.current?.querySelectorAll('#result-sheet-node')
+            if (!resultNodes || resultNodes.length !== resultDataList.length) {
+                toast.error("DOM mismatch. Cannot capture results.")
+                setFreezing(false)
+                return
+            }
+
+            for (let i = 0; i < resultDataList.length; i++) {
+                const data = resultDataList[i]
+                const node = resultNodes[i] as HTMLElement
+
+                setFreezeProgress({ current: i + 1, total: resultDataList.length })
+
+                // 1. Capture HTML to Canvas
+                const canvas = await html2canvas(node, {
+                    scale: 2, // High resolution
+                    useCORS: true,
+                    logging: false,
+                    windowWidth: node.scrollWidth,
+                    windowHeight: node.scrollHeight
+                })
+
+                // 2. Convert Canvas to A4 PDF
+                const imgData = canvas.toDataURL('image/jpeg', 0.95)
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                })
+
+                const pdfWidth = pdf.internal.pageSize.getWidth()
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight)
+                const pdfBlob = pdf.output('blob')
+
+                // 3. Request Storage URL using Server Action
+                const meta: SnapshotData = {
+                    studentId: data.student.id,
+                    sessionId: data.term_info.session_id,
+                    term: data.term_info.term,
+                    documentType: 'result_sheet'
+                }
+
+                const urlRes = await createUploadUrl(meta, pdfBlob.size)
+                if (!urlRes.success || !urlRes.uploadUrl || !urlRes.filePath) {
+                    console.error("Failed to get URL for student:", data.student.full_name, urlRes.error)
+                    continue
+                }
+
+                // 4. PUT Blob actively to Supabase Bucket Storage directly from Client
+                const uploadRes = await fetch(urlRes.uploadUrl, {
+                    method: 'PUT',
+                    body: pdfBlob,
+                    headers: { 'Content-Type': 'application/pdf' }
+                })
+
+                if (!uploadRes.ok) {
+                    console.error("Failed to upload Blob to storage:", uploadRes.statusText)
+                    continue
+                }
+
+                // 5. Register finalized metadata link in relational database
+                const regRes = await registerSnapshot(meta, urlRes.filePath)
+                if (regRes.success) {
+                    successCount++
+                }
+            }
+
+            if (successCount === resultDataList.length) {
+                toast.success(`Successfully archived ${successCount} Result Sheets instantly.`)
+            } else {
+                toast.warning(`Archived ${successCount}/${resultDataList.length} results. Check console.`)
+            }
+
+        } catch (err) {
+            console.error(err)
+            toast.error("An unexpected error occurred during snapshot processing.")
+        } finally {
+            setFreezing(false)
+        }
+    }
 
     return (
         <div className="p-8 space-y-8 min-h-screen bg-slate-950 text-white">
@@ -240,10 +340,22 @@ export default function GenerateResultsPage() {
                     <div className="flex justify-between items-center bg-slate-900 border border-white/10 p-4 rounded-xl">
                         <div className="text-slate-300">
                             Generated <span className="font-bold text-white">{resultDataList.length}</span> result{resultDataList.length !== 1 && 's'}.
+                            {freezing && <span className="ml-4 text-sky-400 text-sm animate-pulse">Archiving {freezeProgress.current} of {freezeProgress.total}...</span>}
                         </div>
-                        <Button onClick={handlePrint} className="bg-green-600 hover:bg-green-500 text-white">
-                            <Printer className="mr-2 h-4 w-4" /> {resultDataList.length > 1 ? "Print All" : "Print Result"}
-                        </Button>
+                        <div className="flex gap-3">
+                            <Button
+                                onClick={handleFreezeResults}
+                                disabled={freezing}
+                                variant="outline"
+                                className="bg-transparent border-sky-500/50 text-sky-400 hover:bg-sky-500/20 hover:text-sky-300"
+                            >
+                                {freezing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Link2 className="mr-2 h-4 w-4" />}
+                                Archive & Freeze
+                            </Button>
+                            <Button onClick={handlePrint} disabled={freezing} className="bg-green-600 hover:bg-green-500 text-white">
+                                <Printer className="mr-2 h-4 w-4" /> {resultDataList.length > 1 ? "Print All" : "Print Result"}
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="overflow-auto bg-slate-800/50 p-2 md:p-8 rounded-xl border border-white/5 flex justify-center">

@@ -18,7 +18,7 @@ export const AdmissionLetter = React.forwardRef<HTMLDivElement, AdmissionLetterP
     return (
         <div
             ref={ref}
-            className="bg-white text-slate-900 p-[20mm] w-[210mm] min-h-[297mm] mx-auto relative overflow-hidden print:m-0 print:shadow-none shadow-2xl"
+            className="bg-white text-slate-900 p-[15mm] w-[210mm] h-[297mm] mx-auto relative overflow-hidden print:m-0 print:shadow-none shadow-2xl"
             style={{
                 fontFamily: "'Inter', sans-serif",
                 '--school-accent': primaryColor
@@ -37,7 +37,7 @@ export const AdmissionLetter = React.forwardRef<HTMLDivElement, AdmissionLetterP
             )}
 
             {/* Header Area */}
-            <header className="relative z-10 text-center space-y-4 mb-12 pt-8">
+            <header className="relative z-10 text-center space-y-3 mb-6 pt-4">
                 {logoUrl && (
                     <img
                         src={logoUrl}
@@ -49,15 +49,18 @@ export const AdmissionLetter = React.forwardRef<HTMLDivElement, AdmissionLetterP
                     <h1 className="text-4xl font-bold tracking-tight text-[var(--school-accent)] uppercase" style={{ fontFamily: "'Playfair Display', serif" }}>
                         {schoolName}
                     </h1>
-                    <p className="text-lg italic text-slate-500 font-medium">
+                    <p className="text-lg italic text-slate-500 font-medium mb-1">
                         {motto}
+                    </p>
+                    <p className="text-sm font-medium text-slate-600">
+                        {tenant?.address || ''} {tenant?.settings?.school_phone ? `| ${tenant.settings.school_phone}` : ''}
                     </p>
                 </div>
                 <div className="w-32 h-1 bg-[var(--school-accent)] mx-auto mt-4" />
             </header>
 
             {/* Reference & Date */}
-            <div className="relative z-10 flex justify-end mb-12 text-sm font-medium">
+            <div className="relative z-10 flex justify-end mb-6 text-sm font-medium">
                 <div className="text-right">
                     <p>Ref: <span className="uppercase">{data.admissionNumber}</span></p>
                     <p>{format(new Date(), 'do MMMM, yyyy')}</p>
@@ -65,19 +68,19 @@ export const AdmissionLetter = React.forwardRef<HTMLDivElement, AdmissionLetterP
             </div>
 
             {/* Subject */}
-            <div className="relative z-10 text-center mb-10">
+            <div className="relative z-10 text-center mb-6">
                 <h2 className="text-2xl font-black uppercase underline decoration-2 underline-offset-8 decoration-[var(--school-accent)]">
                     Provisional Letter of Admission
                 </h2>
             </div>
 
             {/* Salutation & Body */}
-            <div className="relative z-10 space-y-6 text-[11pt] leading-relaxed text-justify">
+            <div className="relative z-10 space-y-4 text-[11pt] leading-relaxed text-justify">
                 <p className="font-bold">Dear Parent/Guardian of {data.firstName} {data.lastName},</p>
 
                 <p>
                     We are pleased to offer <strong>{data.firstName} {data.lastName}</strong> provisional admission into
-                    <strong> {data.classId}</strong> for the <strong>2025/2026</strong> academic session.
+                    <strong> {data.className || data.classId}</strong> for the <strong>2025/2026</strong> academic session.
                     This offer is a recognition of the potential demonstrated during our assessment process and is
                     subject to the verification of all original documents and fulfillment of the initial financial obligations.
                 </p>
@@ -90,7 +93,7 @@ export const AdmissionLetter = React.forwardRef<HTMLDivElement, AdmissionLetterP
             </div>
 
             {/* Data Grid */}
-            <div className="relative z-10 my-12 bg-slate-50 border border-slate-200 p-6 rounded-lg grid grid-cols-2 gap-8">
+            <div className="relative z-10 my-6 bg-slate-50 border border-slate-200 p-5 rounded-lg grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                     <p className="text-[9pt] uppercase text-slate-500 font-bold">Student ID</p>
                     <p className="font-mono text-lg font-bold">{data.admissionNumber}</p>
@@ -105,22 +108,22 @@ export const AdmissionLetter = React.forwardRef<HTMLDivElement, AdmissionLetterP
                 </div>
                 <div className="space-y-1">
                     <p className="text-[9pt] uppercase text-slate-500 font-bold">Class</p>
-                    <p className="text-lg font-bold">{data.classId}</p>
+                    <p className="text-lg font-bold">{data.className || data.classId}</p>
                 </div>
             </div>
 
             {/* Signature Area */}
-            <div className="relative z-10 pt-20 flex justify-end">
+            <div className="relative z-10 pt-10 flex justify-end">
                 <div className="w-64 relative text-center">
                     {/* Seal overlapping */}
                     <div className="absolute -top-16 -left-12 w-32 h-32 opacity-80 pointer-events-none">
                         <svg viewBox="0 0 100 100" className="w-full h-full text-cyan-500">
                             <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
                             <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" strokeWidth="2" />
-                            <path id="curve" fill="transparent" d="M 20 50 A 30 30 0 1 1 80 50" />
-                            <text className="text-[6px] font-bold fill-current">
-                                <textPath xlinkHref="#curve" startOffset="50%" textAnchor="middle">
-                                    OFFICIAL VERIFIED SEAL
+                            <path id="curve" fill="transparent" d="M 18 50 a 32 32 0 1 1 64 0 a 32 32 0 1 1 -64 0" />
+                            <text className="text-[4.5px] font-bold fill-current tracking-widest">
+                                <textPath xlinkHref="#curve" startOffset="25%" textAnchor="middle">
+                                    {schoolName.toUpperCase()} • PROVISIONAL ADMISSION •
                                 </textPath>
                             </text>
                             <g transform="translate(35, 35) scale(0.3)">
@@ -129,8 +132,15 @@ export const AdmissionLetter = React.forwardRef<HTMLDivElement, AdmissionLetterP
                         </svg>
                     </div>
 
-                    <div className="border-t-2 border-slate-900 pt-2">
-                        <p className="font-serif italic text-lg mb-1">Dr. S. A. Okonkwo</p>
+                    <div className="border-t-2 border-slate-900 pt-2 relative">
+                        {tenant?.settings?.principal_signature && (
+                            <img
+                                src={tenant.settings.principal_signature}
+                                alt="Principal Signature"
+                                className="absolute bottom-10 left-1/2 -translate-x-1/2 max-h-16 w-auto object-contain z-10 opacity-90 contrast-125 mix-blend-multiply"
+                            />
+                        )}
+                        <p className="font-serif italic text-lg mb-1">{tenant?.settings?.principal_name || 'The Principal'}</p>
                         <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Principal's Signature</p>
                     </div>
                 </div>
@@ -148,6 +158,8 @@ export const AdmissionLetter = React.forwardRef<HTMLDivElement, AdmissionLetterP
                 @media print {
                     body {
                         background: white !important;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
                     }
                     .no-print {
                         display: none !important;
@@ -156,8 +168,13 @@ export const AdmissionLetter = React.forwardRef<HTMLDivElement, AdmissionLetterP
                         size: A4;
                         margin: 0;
                     }
+                    html, body {
+                        width: 210mm;
+                        height: 297mm;
+                    }
                     div {
                         box-shadow: none !important;
+                        page-break-inside: avoid;
                     }
                 }
             `}</style>

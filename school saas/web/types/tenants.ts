@@ -12,5 +12,6 @@ export interface Tenant {
         secondary: string
         accent: string
     }
+    settings?: Record<string, any>
     created_at: string
 }

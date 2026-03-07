@@ -29,10 +29,14 @@ export function ParentLinkingStep() {
             .from('profiles') // Changed from 'parents' to 'profiles' assuming parents are in profiles table with role='parent'
             .select('id, full_name, phone')
             .eq('role', 'parent')
-            .ilike('phone', `%${data.parentSearchQuery}%`)
+            .or(`phone.ilike.%${data.parentSearchQuery}%,full_name.ilike.%${data.parentSearchQuery}%`)
             .limit(5)
 
-        if (results) setSearchResults(results)
+        if (error) {
+            toast.error("Failed to connect to parent database: " + error.message)
+        } else if (results) {
+            setSearchResults(results)
+        }
         setSearching(false)
     }
 
@@ -87,7 +91,7 @@ export function ParentLinkingStep() {
                     </div>
                     <div className="flex gap-2">
                         <Input
-                            placeholder="Search by Phone Number..."
+                            placeholder="Search by Parent Name or Phone Number..."
                             value={parentSearchQuery}
                             onChange={(e) => setData({ parentSearchQuery: e.target.value })}
                             className="bg-slate-900 border-white/10 text-white"

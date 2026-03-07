@@ -1,10 +1,11 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getStudentResultPortalData } from "@/lib/actions/parent-portal"
+import { verifyExistingSnapshot } from "@/lib/actions/snapshots"
 import { ResultGatekeeper } from "@/components/student/results/result-gatekeeper"
 import { ResultSheet } from "@/components/results/result-sheet"
 import { Button } from "@/components/ui/button"
-import { Download, Share2 } from "lucide-react"
+import { Download, Share2, FileCheck } from "lucide-react"
 import Image from "next/image"
 
 export default async function VerifiedResultPortal({ params }: { params: { domain: string, student_id: string } }) {
@@ -22,6 +23,13 @@ export default async function VerifiedResultPortal({ params }: { params: { domai
     }
 
     const { student, grades, billing, attendance, tenant, reportCard } = data
+
+    // Check if an official frozen snapshot exists
+    // The exact session UUID must be fetched or matched. We use the mapped session string as fallback here if the DB requires strict UUIDs,
+    // but in a real portal, the session UUID should be passed from the parent's dashboard menu. We'll utilize the string format temporarily.
+    const snapshotCheck = await verifyExistingSnapshot(student.id, session, term, 'result_sheet')
+    const hasSnapshot = snapshotCheck.exists && snapshotCheck.snapshot?.file_url
+    const officialPdfUrl = snapshotCheck.snapshot?.file_url
 
     // Construct ResultData shape for the ResultSheet component
     // We reuse existing component but will wrap it in the new Portal UI
@@ -152,13 +160,35 @@ export default async function VerifiedResultPortal({ params }: { params: { domai
             </div>
 
             {/* 3. The Result Sheet (Gated) */}
-            <div className="max-w-[210mm] mx-auto mt-8 px-4 md:px-0">
+            <div className="max-w-[210mm] mx-auto mt-8 px-4 md:px-0 flex flex-col items-center">
                 <ResultGatekeeper isPaid={billing.isPaid} balance={billing.balance} email={student.email || "parent@example.com"}>
-                    <div className="transform transition-all active:scale-[0.99]">
-                        <ResultSheet
-                            data={resultSheetData as any}
-                        />
-                    </div>
+
+                    {hasSnapshot ? (
+                        <div className="w-full bg-slate-900 border border-emerald-500/30 rounded-2xl p-12 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl" />
+                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl" />
+
+                            <FileCheck className="w-20 h-20 text-emerald-400 mb-6 relative z-10" />
+                            <h2 className="text-2xl font-bold text-white mb-2 relative z-10">Official Academic Transcript</h2>
+                            <p className="text-slate-400 max-w-md mb-8 relative z-10">
+                                This result has been officially verified and archived by the school administration. It is permanently stored as a secure PDF.
+                            </p>
+
+                            <a href={officialPdfUrl} target="_blank" rel="noopener noreferrer" className="relative z-10">
+                                <Button size="lg" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-8 shadow-lg shadow-emerald-500/20">
+                                    <Download className="w-5 h-5 mr-3" />
+                                    Download Secure PDF
+                                </Button>
+                            </a>
+                        </div>
+                    ) : (
+                        <div className="transform transition-all active:scale-[0.99] w-full flex justify-center">
+                            <ResultSheet
+                                data={resultSheetData as any}
+                            />
+                        </div>
+                    )}
+
                 </ResultGatekeeper>
             </div>
         </div>

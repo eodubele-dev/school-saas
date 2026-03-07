@@ -141,14 +141,15 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
             {stats.recentTransactions.length > 0 && (
                 <div className="mb-6">
                     <BursarPaymentAlert
-                        transaction={{
-                            timestamp: "Now",
-                            total: stats.recentTransactions[0].amount,
-                            familyName: stats.recentTransactions[0].students.full_name.split(' ').pop() || 'Parent',
+                        transactions={stats.recentTransactions.slice(0, 5).map((tx: any) => ({
+                            id: tx.id,
+                            timestamp: "Just Now",
+                            total: tx.amount,
+                            familyName: tx.students.full_name.split(' ').pop() || 'Parent',
                             items: [
-                                { student: stats.recentTransactions[0].students.full_name, category: "Tuition & Fees", amount: stats.recentTransactions[0].amount }
+                                { student: tx.students.full_name, category: "Tuition & Fees", amount: tx.amount }
                             ]
-                        }}
+                        }))}
                     />
                 </div>
             )}

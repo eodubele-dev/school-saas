@@ -31,6 +31,14 @@ export async function getStudentResultData(studentId: string, term: string, sess
             .eq('id', student.tenant_id)
             .single()
 
+        // 1c. Fetch Exact Session ID
+        const { data: sessionDoc } = await supabase
+            .from('academic_sessions')
+            .select('id')
+            .eq('tenant_id', student.tenant_id)
+            .eq('session', session)
+            .single()
+
         // 2. Fetch Grades
         const { data: grades } = await supabase
             .from('student_grades')
@@ -121,6 +129,7 @@ export async function getStudentResultData(studentId: string, term: string, sess
             term_info: {
                 term,
                 session,
+                session_id: sessionDoc?.id || 'unknown',
                 next_term_begins: nextTermBegins,
                 date_issued: dateIssued
             }

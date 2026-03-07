@@ -33,7 +33,10 @@ export function AcademicStep({ classes, houses }: { classes: any[], houses: stri
             <div className="space-y-4 max-w-lg">
                 <div className="space-y-2">
                     <Label className="text-slate-300">Assign Class <span className="text-red-500">*</span></Label>
-                    <Select value={classId} onValueChange={(val) => setData({ classId: val })}>
+                    <Select value={classId} onValueChange={(val) => {
+                        const selectedClass = classes.find(c => c.id === val);
+                        setData({ classId: val, className: selectedClass?.name || val });
+                    }}>
                         <SelectTrigger className="bg-slate-950 border-white/10 text-white">
                             <SelectValue placeholder="Select Class" />
                         </SelectTrigger>

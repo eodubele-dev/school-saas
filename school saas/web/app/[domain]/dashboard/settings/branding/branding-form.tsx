@@ -26,6 +26,7 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
     const [motto, setMotto] = useState(tenant?.motto || "")
     const [address, setAddress] = useState(tenant?.address || "")
     const [logo, setLogo] = useState<string | null>(tenant?.logo_url || null)
+    const [signature, setSignature] = useState<string | null>(tenant?.settings?.principal_signature || null)
 
     // Default colors
     const defaultPrimary = tenant?.theme_config?.primary || "#2563eb"
@@ -36,6 +37,7 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
     const [secondary, setSecondary] = useState(defaultSecondary)
     const [accent, setAccent] = useState(defaultAccent)
     const [uploading, setUploading] = useState(false)
+    const [uploadingSignature, setUploadingSignature] = useState(false)
 
     // Helper to upload Logo to Supabase Storage via Server Action (RLS Bypass)
     const uploadLogoToStorage = async (file: File): Promise<string | null> => {
@@ -75,6 +77,10 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                     secondary,
                     accent
                 },
+                settings: {
+                    ...tenant?.settings,
+                    principal_signature: signature
+                },
                 logo_path: logo // Allow null to be passed to delete the logo
             })
 
@@ -84,7 +90,7 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                 name,
                 motto,
                 address,
-                logo_url: logo, // Pass null instead of undefined
+                logo_url: logo || undefined, // Fallback to undefined to satisfy TypeScript strict null checking
                 theme_config: {
                     primary,
                     secondary,
@@ -126,6 +132,27 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
             toast.success("Logo uploaded & ready to save")
         }
         setUploading(false)
+    }
+
+    const handleSignatureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        // 1. Immediate Preview
+        const reader = new FileReader()
+        reader.onload = (readEvent) => {
+            setSignature(readEvent.target?.result as string)
+        }
+        reader.readAsDataURL(file)
+
+        // 2. Background Upload
+        setUploadingSignature(true)
+        const publicUrl = await uploadLogoToStorage(file)
+        if (publicUrl) {
+            setSignature(publicUrl)
+            toast.success("Signature uploaded & ready to save")
+        }
+        setUploadingSignature(false)
     }
 
     return (
@@ -243,6 +270,50 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                             accept="image/*"
                             className="absolute inset-0 opacity-0 cursor-pointer z-10"
                             onChange={handleLogoUpload}
+                        />
+                    </div>
+                </div>
+
+                <div className="space-y-4 pt-6 border-t border-white/5">
+                    <div className="flex justify-between items-center">
+                        <Label className="text-slate-400">Principal's Digital Signature</Label>
+                        <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider px-2 py-1 bg-amber-500/10 rounded">Used on Admission Letters</span>
+                    </div>
+                    <div className="relative group overflow-hidden rounded-xl border-2 border-dashed border-white/10 bg-slate-950/50 p-8 transition-colors hover:border-[var(--school-accent)]/30">
+                        {uploadingSignature && (
+                            <div className="absolute inset-0 z-20 bg-black/60 flex items-center justify-center">
+                                <Loader2 className="h-6 w-6 text-[var(--school-accent)] animate-spin" />
+                            </div>
+                        )}
+                        {signature ? (
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="relative h-24 w-64 border border-white/10 bg-white/5 rounded-lg p-2 flex items-center justify-center">
+                                    <img src={signature} className="h-full w-full object-contain filter contrast-125" />
+                                    <button
+                                        onClick={() => setSignature(null)}
+                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:bg-red-400 transition-colors z-30"
+                                    >
+                                        <X className="h-3 w-3" />
+                                    </button>
+                                </div>
+                                <span className="text-xs text-slate-500">Signature applied. Transparent PNG recommended.</span>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center gap-3">
+                                <div className="p-4 rounded-full bg-slate-900 border border-white/5 text-slate-400">
+                                    <Upload className="h-6 w-6" />
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-sm text-white font-medium">Upload Transparent Signature</p>
+                                    <p className="text-xs text-slate-500">PNG Format only</p>
+                                </div>
+                            </div>
+                        )}
+                        <input
+                            type="file"
+                            accept="image/png"
+                            className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                            onChange={handleSignatureUpload}
                         />
                     </div>
                 </div>

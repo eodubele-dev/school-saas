@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { sendSMS } from '@/lib/services/termii'
 
@@ -34,8 +35,14 @@ export async function admitStudent(data: AdmissionData) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: 'Unauthorized' }
 
-    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
     const tenantId = profile?.tenant_id
+
+    if (!profile || !['admin', 'bursar', 'teacher'].includes(profile.role)) {
+        return { success: false, error: 'Permission denied: Insufficient privileges.' }
+    }
+
+    const adminClient = createAdminClient()
 
     // 1. Get Active Session
     const { data: session } = await supabase
@@ -63,10 +70,32 @@ export async function admitStudent(data: AdmissionData) {
         if (existingParent) {
             parentId = existingParent.id
         } else {
+            // Create root Auth User to satisfy `profiles_id_fkey` constraint
+            const dummyEmail = data.parentEmail || `parent_${data.parentPhone.replace(/\D/g, '')}@eduflow.local`;
+            
+            const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
+                email: dummyEmail,
+                password: 'password123',
+                email_confirm: true,
+                user_metadata: {
+                    full_name: data.parentName || `Parent of ${data.firstName}`,
+                    phone: data.parentPhone,
+                    role: 'parent',
+                    tenant_id: tenantId
+                }
+            });
+
+            if (authError && authError.message !== 'User already registered') {
+                return { success: false, error: "Failed to provision parent account: " + authError.message }
+            }
+
             // Create new parent profile
-            const { data: newParent, error: parentError } = await supabase
+            const authId = authData?.user?.id || crypto.randomUUID(); // Fallback conceptually, but shouldn't be reached on error
+            
+            const { data: newParent, error: parentError } = await adminClient
                 .from('profiles')
                 .insert({
+                    id: authId,
                     tenant_id: tenantId,
                     role: 'parent',
                     full_name: data.parentName || `Parent of ${data.firstName}`,
@@ -76,15 +105,20 @@ export async function admitStudent(data: AdmissionData) {
                 .select('id')
                 .single()
 
-            if (parentError) return { success: false, error: "Failed to create parent: " + parentError.message }
-            parentId = newParent.id
+            if (parentError) {
+                // Ignore duplicate key errors if the user somehow already existed in profiles but not found above
+                if (parentError.code !== '23505') { 
+                    return { success: false, error: "Failed to link parent profile: " + parentError.message }
+                }
+            }
+            parentId = newParent?.id || authId
         }
     }
 
     // 3. Create Student
     const admissionNumber = data.admissionNumber || `ADM/${new Date().getFullYear()}/${Math.floor(Math.random() * 10000)}`
 
-    const { data: student, error: studentError } = await supabase
+    const { data: student, error: studentError } = await adminClient
         .from('students')
         .insert({
             tenant_id: tenantId,
@@ -118,7 +152,7 @@ export async function admitStudent(data: AdmissionData) {
 
     const tuitionAmount = feeParams?.amount || 50000
 
-    const { data: invoice, error: invoiceError } = await supabase
+    const { data: invoice, error: invoiceError } = await adminClient
         .from('invoices')
         .insert({
             tenant_id: tenantId,
@@ -132,7 +166,7 @@ export async function admitStudent(data: AdmissionData) {
         .single()
 
     if (invoice && !invoiceError) {
-        await supabase.from('invoice_items').insert({
+        await adminClient.from('invoice_items').insert({
             tenant_id: tenantId,
             invoice_id: invoice.id,
             description: feeParams?.name || 'Tuition Fees',
