@@ -6,6 +6,7 @@ import { DynamicTopBar } from "@/components/layout/dynamic-top-bar"
 import { getNextClass } from "@/lib/actions/schedule"
 
 export async function Navbar({ domain }: { domain?: string }) {
+    noStore()
     const supabase = createClient()
 
     // Fetch authenticated user
@@ -192,7 +193,6 @@ export async function Navbar({ domain }: { domain?: string }) {
     }
 
     // 5. Fetch Active Session
-    noStore()
     let activeSessionDisplay = ""
     if (user) {
         if (profile?.tenant_id) {

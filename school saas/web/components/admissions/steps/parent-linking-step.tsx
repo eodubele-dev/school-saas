@@ -1,11 +1,12 @@
 import { useAdmissionStore } from "@/lib/stores/admission-store"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, CheckCircle, Search, UserPlus } from "lucide-react"
+import { ArrowLeft, CheckCircle, Search, UserPlus, AlertTriangle } from "lucide-react"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { admitStudent } from "@/lib/actions/onboarding"
+import { verifyAdmissionClearance } from "@/lib/actions/debt-network"
 
 export function ParentLinkingStep() {
     const isNewParent = useAdmissionStore(state => state.data.isNewParent)
@@ -18,6 +19,10 @@ export function ParentLinkingStep() {
     const [loading, setLoading] = useState(false)
     const [searching, setSearching] = useState(false)
     const [searchResults, setSearchResults] = useState<any[]>([])
+
+    // Debt Network States
+    const [debtWarning, setDebtWarning] = useState<{ isWarning: boolean, type: string | null, details: any }>({ isWarning: false, type: null, details: null })
+    const [bypassDebtFlag, setBypassDebtFlag] = useState(false)
 
     const supabase = createClient()
 
@@ -47,6 +52,39 @@ export function ParentLinkingStep() {
         }
 
         setLoading(true)
+
+        // Pre-Flight Debt Clearance Check (only run if warning hasn't been shown and bypassed)
+        if (!debtWarning.isWarning) {
+            try {
+                const phone = data.parentData?.phone || searchResults.find(p => p.id === data.parentId)?.phone || ""
+                const email = data.parentData?.email || ""
+                const pName = data.parentData?.lastName ? `${data.parentData.firstName} ${data.parentData.lastName}` : (searchResults.find(p => p.id === data.parentId)?.full_name || "")
+                const sName = `${data.firstName || ''} ${data.lastName || ''}`.trim()
+
+                const clearance = await verifyAdmissionClearance(phone, email, sName, pName)
+
+                if (clearance?.warning) {
+                    setDebtWarning({
+                        isWarning: true,
+                        type: clearance.data?.confidence || 'unknown',
+                        details: clearance.data
+                    })
+                    setLoading(false)
+                    toast.warning("Global Debt Alert Network flag detected! Please review.")
+                    return // Halts admission 
+                }
+            } catch (err) {
+                console.error("Debt check failed, allowing admission to proceed smoothly.", err)
+            }
+        }
+
+        // If warning is active BUT they haven't explicitly checked the bypass box
+        if (debtWarning.isWarning && !bypassDebtFlag) {
+            toast.error("You must explicitly acknowledge the debt risk to proceed.")
+            setLoading(false)
+            return
+        }
+
         try {
             const res = await admitStudent({
                 firstName: data.firstName,
@@ -140,18 +178,20 @@ export function ParentLinkingStep() {
                 </div>
 
                 {/* Create New Mode Toggle */}
-                <Button
-                    type="button"
-                    className="w-full border-2 border-dashed border-white/20 bg-slate-800 text-white hover:border-[var(--school-accent)] hover:bg-slate-700 transition-all duration-300 antialiased font-bold py-8 group shadow-lg"
-                    onClick={() => {
-                        setData({ isNewParent: !isNewParent, parentId: null }); // Clear parentId if creating new
-                    }}
-                >
-                    <UserPlus className="mr-3 h-5 w-5 group-hover:scale-110 transition-transform text-[var(--school-accent)]" />
-                    <span className="text-base tracking-wide">
-                        {isNewParent ? "Cancel New Parent Creation" : "Register a New Parent"}
-                    </span>
-                </Button>
+                {!debtWarning.isWarning && (
+                    <Button
+                        type="button"
+                        className="w-full border-2 border-dashed border-white/20 bg-slate-800 text-white hover:border-[var(--school-accent)] hover:bg-slate-700 transition-all duration-300 antialiased font-bold py-8 group shadow-lg"
+                        onClick={() => {
+                            setData({ isNewParent: !isNewParent, parentId: null });
+                        }}
+                    >
+                        <UserPlus className="mr-3 h-5 w-5 group-hover:scale-110 transition-transform text-[var(--school-accent)]" />
+                        <span className="text-base tracking-wide">
+                            {isNewParent ? "Cancel New Parent Creation" : "Register a New Parent"}
+                        </span>
+                    </Button>
+                )}
 
                 {isNewParent && (
                     <div className="p-4 border border-white/10 rounded-lg space-y-4 bg-slate-900/30">
@@ -179,6 +219,39 @@ export function ParentLinkingStep() {
                             value={data.parentData?.email || ''}
                             onChange={(e) => setData({ parentData: { ...data.parentData!, email: e.target.value } })}
                         />
+                    </div>
+                )}
+
+                {/* Debt Network Warning Alert */}
+                {debtWarning.isWarning && (
+                    <div className="mt-6 p-5 bg-red-950/40 border-2 border-red-500/50 rounded-xl space-y-4 animate-in fade-in zoom-in duration-300">
+                        <div className="flex items-start gap-4">
+                            <div className="p-2 bg-red-500/10 rounded-full shrink-0">
+                                <AlertTriangle className="h-6 w-6 text-red-500" />
+                            </div>
+                            <div className="space-y-1">
+                                <h3 className="text-lg font-bold text-red-400">
+                                    HIGH ALERT: Outstanding Debt Flag Found
+                                </h3>
+                                <p className="text-sm text-red-200/80 leading-relaxed font-medium">
+                                    The Global Debt Alert System has found a {debtWarning.type === 'high' ? 'High Confidence (Direct Contact Match)' : 'Medium Confidence (Fuzzy Parent/Student Name Match)'} record linking this family to an outstanding fee at another institution.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="pt-2">
+                            <label className="flex items-start gap-3 p-3 bg-red-900/20 border border-red-500/30 rounded-lg cursor-pointer hover:bg-red-900/30 transition-colors">
+                                <input
+                                    type="checkbox"
+                                    className="mt-1 h-4 w-4 rounded border-red-500/50 bg-slate-900 accent-red-500"
+                                    checked={bypassDebtFlag}
+                                    onChange={(e) => setBypassDebtFlag(e.target.checked)}
+                                />
+                                <span className="text-sm text-red-100 font-medium">
+                                    I acknowledge this debt warning and assume responsibility for admitting this student.
+                                </span>
+                            </label>
+                        </div>
                     </div>
                 )}
             </div>

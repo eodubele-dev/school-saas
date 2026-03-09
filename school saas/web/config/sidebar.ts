@@ -58,6 +58,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
                 { icon: CreditCard, label: "Revenue & Collections", href: "/dashboard/bursar/finance/collections" },
                 { icon: NairaIcon, label: "Financial Config", href: "/dashboard/admin/finance/config" },
                 { icon: Package, label: "Inventory Hub", href: "/dashboard/admin/inventory" },
+                { icon: ShieldCheck, label: "Debt Network", href: "/dashboard/bursar/debt-network", badge: "Live" },
             ]
         },
         {
@@ -124,6 +125,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
                 { icon: CreditCard, label: "Revenue & Collections", href: "/dashboard/bursar/finance/collections" },
                 { icon: NairaIcon, label: "Financial Config", href: "/dashboard/admin/finance/config" },
                 { icon: Package, label: "Inventory Hub", href: "/dashboard/admin/inventory" },
+                { icon: ShieldCheck, label: "Debt Network", href: "/dashboard/bursar/debt-network", badge: "Live" },
             ]
         },
         {
@@ -166,6 +168,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
                 { icon: NairaIcon, label: "Financial Config", href: "/dashboard/bursar/finance/config" },
                 { icon: FileText, label: "Invoices", href: "/dashboard/bursar/finance/invoices" },
                 { icon: CreditCard, label: "Transactions", href: "/dashboard/bursar/finance/transactions" },
+                { icon: ShieldCheck, label: "Debt Network", href: "/dashboard/bursar/debt-network", badge: "Live" },
             ]
         },
         {

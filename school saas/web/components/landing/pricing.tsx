@@ -53,7 +53,7 @@ export function PricingTable() {
                 "Automated Report Cards",
                 "Parent Portal Access",
                 "Basic Fee Tracking",
-                "Attendance Registers",
+                "Global Debt Alert System",
                 "Basic Email Broadcasts"
             ],
             cta: "Get Started",
@@ -70,7 +70,7 @@ export function PricingTable() {
                 "Complete Finance & Bursary",
                 "CBT & Online Exams",
                 "Advanced SMS Communications",
-                "Inventory Management",
+                "Global Debt Alert System",
                 "Staff Payroll Module"
             ],
             cta: "Get Professional",
@@ -87,7 +87,7 @@ export function PricingTable() {
                 "Gemini AI Lesson Planner",
                 "AI Behavioral Remarks",
                 "Proprietor 'God-Mode' App",
-                "Priority 24/7 Support",
+                "Global Debt Alert System",
                 "Forensic Fraud & Audit Logs"
             ],
             cta: "Start Setup",
@@ -128,8 +128,9 @@ export function PricingTable() {
             ]
         },
         {
-            category: "Security & Support",
+            category: "Network & Security",
             features: [
+                { name: "Global Debt Alert System", pilot: true, starter: true, pro: true, platinum: true },
                 { name: "Role-Based Access", pilot: true, starter: true, pro: true, platinum: true },
                 { name: "Basic Audit Logs", pilot: true, starter: true, pro: true, platinum: true },
                 { name: "Forensic Fraud Detection", pilot: false, starter: false, pro: false, platinum: true },

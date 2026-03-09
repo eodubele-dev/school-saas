@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { headers } from "next/headers"
+import { unstable_noStore as noStore } from 'next/cache'
+
+export const dynamic = 'force-dynamic'
 import {
     User,
     School,
@@ -28,6 +31,7 @@ import { EditRequestButton } from "./edit-request-button"
 import { ProfileEditDialog } from "@/components/profile-edit-dialog"
 
 export default async function ChildProfilePage({ params }: { params: { domain: string } }) {
+    noStore()
     const supabase = createClient()
 
     // 1. Auth & Context Validation

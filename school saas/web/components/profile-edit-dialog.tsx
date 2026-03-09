@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -17,7 +17,7 @@ import { Edit, Loader2, Upload, User } from "lucide-react"
 import { toast } from "sonner"
 import { updateProfile } from "@/app/actions/profile"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 interface ProfileEditDialogProps {
     profile: any // Typed as any for flexibility, ideally proper Type
@@ -26,8 +26,10 @@ interface ProfileEditDialogProps {
 export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
     const [open, setOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [isPending, startTransition] = useTransition()
     const [previewUrl, setPreviewUrl] = useState<string | null>(profile?.avatar_url || null)
     const pathname = usePathname()
+    const router = useRouter()
 
     // Handle File Preview
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,12 +46,16 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
 
         const result = await updateProfile(formData)
 
-        setIsLoading(false)
         if (result.error) {
             toast.error(result.error)
+            setIsLoading(false)
         } else {
             toast.success("Profile updated successfully")
-            setOpen(false)
+            startTransition(() => {
+                router.refresh()
+                setIsLoading(false)
+                setOpen(false)
+            })
         }
     }
 
@@ -102,6 +108,7 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
                         <div className="space-y-2">
                             <Label htmlFor="fullName" className="text-slate-300">Full Name</Label>
                             <Input
+                                key={profile?.full_name || 'initial'}
                                 id="fullName"
                                 name="fullName"
                                 defaultValue={profile?.full_name}

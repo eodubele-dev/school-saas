@@ -11,40 +11,55 @@ export async function updateProfile(formData: FormData) {
         return { error: "Not authenticated" }
     }
 
-    const fullName = formData.get('fullName') as string
-    const phone = formData.get('phone') as string
+    const fullNameValue = formData.get('fullName')
+    const phoneValue = formData.get('phone')
     const avatarFile = formData.get('avatar') as File | null
     const base_path = formData.get('base_path') as string || "/dashboard"
 
+    const fullName = typeof fullNameValue === 'string' ? fullNameValue.trim() : ""
+    const phone = typeof phoneValue === 'string' ? phoneValue.trim() : ""
+
+    if (!fullName) {
+        return { error: "Full name is required" }
+    }
+
+    console.log(`[updateProfile] Attempting update for user ${user.id}. New Name: "${fullName}"`)
+
     try {
+        // 1. Sync to Auth Metadata FIRST
+        const { error: authError } = await supabase.auth.updateUser({
+            data: { full_name: fullName }
+        })
+
+        if (authError) {
+            console.error("[updateProfile] Auth Metadata Sync Error:", authError)
+            // We continue anyway as profiles table is the primary source for the UI
+        } else {
+            console.log("[updateProfile] Auth Metadata synced successfully")
+        }
+
         const updateData: any = {
             full_name: fullName,
-            phone: phone, // Assuming 'phone' column exists, otherwise it might error if strict. 
-            // If 'phone' doesn't exist, we might need to check schema.
-            // Safest to try generic 'metadata' or assume common columns.
-            // 'profiles' usually has 'full_name', 'avatar_url', 'updated_at'.
+            phone: phone,
             updated_at: new Date().toISOString()
         }
 
-        // Handle File Upload
+        // 2. Handle File Upload
         if (avatarFile && avatarFile.size > 0) {
-            // 1. Upload to Supabase Storage
+            console.log(`[updateProfile] Processing avatar upload for ${user.id}`)
             const fileExt = avatarFile.name.split('.').pop()
-            const fileName = `${user.id}-${Math.random()}.${fileExt}`
+            const fileName = `${user.id}-${Date.now()}.${fileExt}`
             const filePath = `${fileName}`
 
-            // Ensure 'avatars' bucket exists manually or via migrations.
-            // Using 'avatars' as standard convention.
             const { error: uploadError } = await supabase.storage
                 .from('avatars')
                 .upload(filePath, avatarFile)
 
             if (uploadError) {
-                console.error("Upload Error:", uploadError)
-                throw new Error("Failed to upload image")
+                console.error("[updateProfile] Storage Upload Error:", uploadError)
+                throw new Error("Failed to upload image to storage")
             }
 
-            // 2. Get Public URL
             const { data: { publicUrl } } = supabase.storage
                 .from('avatars')
                 .getPublicUrl(filePath)
@@ -52,19 +67,29 @@ export async function updateProfile(formData: FormData) {
             updateData.avatar_url = publicUrl
         }
 
-        // Update Check: confirm columns exist?
-        // We'll proceed optimistically.
-        const { error: updateError } = await supabase
+        // 3. Update Database Profile
+        const { data, error: updateError } = await supabase
             .from('profiles')
             .update(updateData)
             .eq('id', user.id)
+            .select()
 
         if (updateError) {
-            console.error("Profile Update Error:", updateError)
-            return { error: `Failed to update profile database: ${updateError.message} - ${updateError.details || ''}` }
+            console.error("[updateProfile] Database Update Error:", updateError)
+            return { error: `Database error: ${updateError.message}` }
         }
 
-        revalidatePath(base_path, 'layout') // Revalidate everything
+        if (!data || data.length === 0) {
+            console.error(`[updateProfile] No rows updated for user ${user.id}. Possible RLS or ID mismatch.`)
+            return { error: "Failed to update profile: Record not found or permission denied." }
+        }
+
+        console.log(`[updateProfile] Successfully updated profiles table. Rows affected: ${data.length}`)
+
+        // 4. Clear Caches
+        revalidatePath('/', 'layout')
+        revalidatePath(base_path, 'page')
+
         return { success: true }
 
     } catch (error: any) {

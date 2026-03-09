@@ -7,6 +7,7 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { unstable_noStore as noStore } from 'next/cache'
 import { createClient } from "@/lib/supabase/server"
 import { getParentChildren } from "@/lib/actions/parent-portal"
 import { LogoutButton } from "./logout-button"
@@ -16,6 +17,7 @@ import { SIDEBAR_LINKS } from "@/config/sidebar"
 // Static items removed in favor of RBAC config
 
 export async function Sidebar({ className, domain }: { className?: string, domain?: string }) {
+    noStore()
     const supabase = createClient()
     const headersList = headers()
     const hostname = headersList.get('host') || ''

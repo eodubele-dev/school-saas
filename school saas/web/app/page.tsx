@@ -11,6 +11,7 @@ import { GlobalCommandCenter } from "@/components/landing/global-command-center"
 import { ForensicFAQ } from "@/components/landing/forensic-faq"
 import { FinalCloserCta } from "@/components/landing/final-closer-cta"
 import { SocialProofBento } from "@/components/landing/social-proof-bento" // Replaced Testimonials
+import { AntiEvasionFeature } from "@/components/landing/anti-evasion-feature"
 import { Footer } from "@/components/landing/footer"
 import { GlowCursor } from "@/components/landing/ui/glow-cursor"
 import type { Metadata } from "next"
@@ -46,6 +47,7 @@ export default function LandingPage() {
         <FeeCalculator />
         <ResultVideo />
         <SocialProofBento />
+        <AntiEvasionFeature />
         <PricingTable />
         <GlobalCommandCenter />
         <ForensicFAQ />
