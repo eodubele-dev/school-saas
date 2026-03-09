@@ -4,22 +4,27 @@ import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { User, Mail, Lock, Loader2, ArrowRight, ShieldCheck, Eye, EyeOff } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 interface StepAccountProps {
     data: any
     updateData: (key: string, value: any) => void
     onNext: () => void
+    acceptedTerms: boolean
+    setAcceptedTerms: (val: boolean) => void
 }
 
-export function StepAccount({ data, updateData, onNext }: StepAccountProps) {
+export function StepAccount({ data, updateData, onNext, acceptedTerms, setAcceptedTerms }: StepAccountProps) {
     const [isLoading, setIsLoading] = useState(false)
     const [mode, setMode] = useState<'signup' | 'login'>('signup')
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
     const supabase = createClient()
+    const router = useRouter()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -42,10 +47,20 @@ export function StepAccount({ data, updateData, onNext }: StepAccountProps) {
                 })
                 if (error) throw error
                 if (authData.user) {
-                    toast.success("Identity Established", {
-                        description: "Your administrator account has been created."
-                    })
-                    onNext()
+                    // Check if a session was established (i.e. email confirmation not required or auto-confirmed)
+                    if (authData.session) {
+                        toast.success("Identity Established", {
+                            description: "Your administrator account has been created."
+                        })
+                        router.refresh()
+                        setTimeout(onNext, 500)
+                    } else {
+                        // Email confirmation is required
+                        toast.info("Verification Required", {
+                            description: "Please check your email to verify your account before continuing."
+                        })
+                        // Don't call onNext() yet.
+                    }
                 }
             } else {
                 const { data: authData, error } = await supabase.auth.signInWithPassword({
@@ -53,12 +68,17 @@ export function StepAccount({ data, updateData, onNext }: StepAccountProps) {
                     password: password,
                 })
                 if (error) throw error
-                if (authData.user) {
+                if (authData.user && authData.session) {
                     toast.success("Welcome Back", {
                         description: "Authenticated successfully."
                     })
                     updateData('fullName', authData.user.user_metadata?.full_name || '')
-                    onNext()
+                    router.refresh()
+                    setTimeout(onNext, 500)
+                } else if (!authData.session) {
+                    toast.error("Login Failed", {
+                        description: "Could not establish a secure session. Please check your credentials or verify your email."
+                    })
                 }
             }
         } catch (error: any) {
@@ -75,7 +95,7 @@ export function StepAccount({ data, updateData, onNext }: StepAccountProps) {
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-[#0A0A0B] p-8 rounded-3xl border border-white/10">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-white/[0.03] backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl">
             <div className="text-center">
                 <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center mb-4">
                     <ShieldCheck className="h-6 w-6 text-cyan-400" />
@@ -149,11 +169,33 @@ export function StepAccount({ data, updateData, onNext }: StepAccountProps) {
                     </div>
                 </div>
 
+                {mode === 'signup' && (
+                    <div className="flex items-start space-x-3 pt-2">
+                        <Checkbox
+                            id="terms"
+                            checked={acceptedTerms}
+                            onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
+                            className="mt-1 border-white/20 data-[state=checked]:bg-cyan-500 data-[state=checked]:text-black"
+                        />
+                        <div className="grid gap-1.5 leading-none">
+                            <label
+                                htmlFor="terms"
+                                className="text-sm font-medium text-slate-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                            >
+                                Accept terms and conditions
+                            </label>
+                            <p className="text-xs text-slate-500">
+                                You agree to our Terms of Service and Privacy Policy.
+                            </p>
+                        </div>
+                    </div>
+                )}
+
                 <div className="pt-4">
                     <Button
                         type="submit"
-                        disabled={isLoading}
-                        className="w-full bg-[#0066FF] hover:bg-blue-600 h-12 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2 group"
+                        disabled={isLoading || (mode === 'signup' && !acceptedTerms)}
+                        className="w-full bg-[#0066FF] hover:bg-blue-600 h-12 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
                     >
                         {isLoading ? (
                             <Loader2 className="h-5 w-5 animate-spin" />

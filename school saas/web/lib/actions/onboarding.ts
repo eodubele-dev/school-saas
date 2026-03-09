@@ -72,7 +72,7 @@ export async function admitStudent(data: AdmissionData) {
         } else {
             // Create root Auth User to satisfy `profiles_id_fkey` constraint
             const dummyEmail = data.parentEmail || `parent_${data.parentPhone.replace(/\D/g, '')}@eduflow.local`;
-            
+
             const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
                 email: dummyEmail,
                 password: 'password123',
@@ -91,7 +91,7 @@ export async function admitStudent(data: AdmissionData) {
 
             // Create new parent profile
             const authId = authData?.user?.id || crypto.randomUUID(); // Fallback conceptually, but shouldn't be reached on error
-            
+
             const { data: newParent, error: parentError } = await adminClient
                 .from('profiles')
                 .insert({
@@ -107,7 +107,7 @@ export async function admitStudent(data: AdmissionData) {
 
             if (parentError) {
                 // Ignore duplicate key errors if the user somehow already existed in profiles but not found above
-                if (parentError.code !== '23505') { 
+                if (parentError.code !== '23505') {
                     return { success: false, error: "Failed to link parent profile: " + parentError.message }
                 }
             }
@@ -235,19 +235,20 @@ export async function createTenant(data: OnboardingData) {
             .insert({
                 name: data.schoolName,
                 slug: data.subdomain,
-                type: 'school',
-                subscription_tier: data.plan,
-                is_active: true,
-                sms_balance: data.initialDeposit || 0, // Recorded during onboarding for Pilot activation
-                pilot_ends_at: data.plan === 'pilot'
-                    ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
-                    : null,
-                settings: {
-                    brand_color: data.brandColor,
+                theme_config: {
+                    primary: data.brandColor,
+                    accent: '#0ea5e9',
+                    type: 'school',
+                    subscription_tier: data.plan,
+                    is_active: true,
+                    sms_balance: data.initialDeposit || 0,
+                    pilot_ends_at: data.plan === 'pilot'
+                        ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+                        : null,
                     levels: data.levels,
                     features: {
                         waec_integration: data.waecStats,
-                        ai_enabled: data.plan === 'platinum' || data.plan === 'pilot' // Pilot gets AI to prove worth
+                        ai_enabled: data.plan === 'platinum' || data.plan === 'pilot'
                     }
                 }
             })

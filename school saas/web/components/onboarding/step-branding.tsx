@@ -34,7 +34,7 @@ export function StepBranding({ data, updateData, onNext, onBack }: StepBrandingP
     }, [data.subdomain])
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-[#0A0A0B] p-8 rounded-3xl border border-white/10">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-white/[0.03] backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl">
             <div className="text-center">
                 <h2 className="text-2xl font-bold text-white mb-2">Establish Your Identity</h2>
                 <p className="text-gray-400">Upload your school crest and define your brand colors.</p>

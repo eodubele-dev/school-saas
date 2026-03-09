@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Check, Sparkles, Zap, Shield } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Loader2 } from "lucide-react"
 
 interface StepPlanProps {
@@ -15,13 +15,35 @@ interface StepPlanProps {
 }
 
 export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: StepPlanProps) {
+    const [isPaying, setIsPaying] = useState(false)
+    const [locationState, setLocationState] = useState('Lagos')
+
+    useEffect(() => {
+        // Fetch user location dynamically (No API key required, generous rate limits)
+        fetch('https://get.geojs.io/v1/ip/geo.json')
+            .then(res => res.json())
+            .then(data => {
+                if (data.region) {
+                    // Clean up common suffixes for cleaner display
+                    const stateName = data.region
+                        .replace(' State', '')
+                        .replace(' Federal Capital Territory', 'Abuja')
+                        .trim()
+                    if (stateName) setLocationState(stateName)
+                }
+            })
+            .catch((err) => {
+                console.warn('Could not detect location, defaulting to Lagos', err)
+            })
+    }, [])
+
     const plans = [
         {
             id: 'pilot',
-            name: 'Lagos Pilot',
+            name: `${locationState} Pilot`,
             price: '₦0',
             period: '/ Term 1',
-            description: 'Free entry for Lagos Schools. prove value early.',
+            description: `Free entry for ${locationState} Schools. prove value early.`,
             features: [
                 'Forensic Audit Logs',
                 'Bento Dashboard',
@@ -64,29 +86,25 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
         }
     ]
 
-    const [isPaying, setIsPaying] = useState(false)
-
     const handleAction = async () => {
         if (data.plan === 'pilot' && !isPaying) {
             setIsPaying(true)
-            // Mock Paystack Handshake
-            setTimeout(() => {
-                onSubmit(10000) // Trigger creation with 10k balance
-            }, 2500)
+            // Pilot activation grants an automatic 10k SMS deposit
+            onSubmit(10000)
             return
         }
         onSubmit()
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4" >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {plans.map((plan) => (
                     <div
                         key={plan.id}
                         className={`p-6 rounded-3xl cursor-pointer transition-all relative border ${data.plan === plan.id
                             ? 'bg-blue-600/10 border-blue-500 shadow-[0_0_30px_rgba(37,99,235,0.2)]'
-                            : 'bg-[#0A0A0B] border-white/10 hover:border-white/20 hover:bg-white/[0.02]'
+                            : 'bg-white/[0.03] backdrop-blur-md border-white/10 hover:border-white/20 hover:bg-white/[0.05]'
                             }`}
                         onClick={() => {
                             if (!isPaying && !isSubmitting) updateData('plan', plan.id)
@@ -126,7 +144,7 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
                 <Shield className="h-5 w-5 text-cyan-500 shrink-0" />
                 <p>
                     {data.plan === 'pilot'
-                        ? "Lagos Pilot activation requires a minimum ₦10,000 SMS deposit. This credit is yours to use for all institutional communications."
+                        ? `${locationState} Pilot activation requires a minimum ₦10,000 SMS deposit. This credit is yours to use for all institutional communications.`
                         : "Payments are securely processed by Paystack. You can cancel or upgrade your plan at any time."
                     }
                 </p>
@@ -158,6 +176,6 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
                     )}
                 </button>
             </div>
-        </div>
+        </div >
     )
 }

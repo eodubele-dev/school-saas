@@ -13,7 +13,7 @@ interface StepImportProps {
 
 export function StepImport({ data, updateData, onNext, onBack }: StepImportProps) {
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-[#0A0A0B] p-8 rounded-3xl border border-white/10">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-white/[0.03] backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl">
             <div className="text-center">
                 <h2 className="text-2xl font-bold text-white mb-2">Student Registry Migration</h2>
                 <p className="text-gray-400">Import your existing student records to auto-populate the command center.</p>

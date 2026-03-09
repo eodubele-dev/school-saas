@@ -10,6 +10,16 @@ import { createTenant } from "@/lib/actions/onboarding"
 import { toast } from "sonner"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogFooter,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Check } from "lucide-react"
 
 export default function OnboardingWizard() {
     const router = useRouter()
@@ -19,6 +29,9 @@ export default function OnboardingWizard() {
     const [step, setStep] = useState(1) // 1: Account, 2: Branding, 3: Import, 4: Launch
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [showSuccess, setShowSuccess] = useState(false)
+    const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
+    const [isTermsOpen, setIsTermsOpen] = useState(false)
+    const [acceptedTerms, setAcceptedTerms] = useState(false)
     const [data, setData] = useState({
         schoolName: '',
         subdomain: '',
@@ -77,9 +90,9 @@ export default function OnboardingWizard() {
                 ...data,
                 initialDeposit,
                 levels: ['nursery', 'primary', 'jss', 'sss'],
-                waecStats: {},
-                nerdcPresets: {}
-            } as any // Temporary bypass if structure is more complex
+                waecStats: true,
+                nerdcPresets: true
+            }
 
             const res = await createTenant(payload)
             if (res.success && res.redirectUrl) {
@@ -140,6 +153,8 @@ export default function OnboardingWizard() {
                         data={data}
                         updateData={updateData}
                         onNext={handleNext}
+                        acceptedTerms={acceptedTerms}
+                        setAcceptedTerms={setAcceptedTerms}
                     />
                 )}
                 {step === 2 && (
@@ -174,6 +189,127 @@ export default function OnboardingWizard() {
                 subdomain={data.subdomain}
                 isVisible={showSuccess}
             />
+
+            {/* Legal Links */}
+            <div className="pt-6 pb-8 flex items-center justify-center gap-6 text-xs text-slate-500 font-medium">
+                <Dialog open={isPrivacyOpen} onOpenChange={setIsPrivacyOpen}>
+                    <DialogTrigger asChild>
+                        <button type="button" className="hover:text-cyan-400 transition-colors">Privacy Policy</button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl bg-white/[0.02] backdrop-blur-3xl border-white/10 text-slate-300 p-0 overflow-hidden flex flex-col max-h-[80vh]">
+                        <DialogHeader className="p-6 border-b border-white/5 bg-black/20">
+                            <DialogTitle className="text-xl text-white">Privacy Policy</DialogTitle>
+                        </DialogHeader>
+
+                        <div className="p-6 overflow-y-auto space-y-6 text-sm leading-relaxed custom-scrollbar">
+                            <p className="text-slate-400"><strong>Effective Date:</strong> {new Date().toLocaleDateString()}</p>
+
+                            <p>At EduFlow, we take the privacy and security of educational records with the utmost seriousness. This policy describes how we collect, use, and handle your school's information.</p>
+
+                            <div className="space-y-2">
+                                <h4 className="text-white font-semibold text-base">1. Information We Collect</h4>
+                                <p>We collect information you provide directly to us when setting up your school (tenant data), as well as student, parent, and staff data entered by your users during normal operations. This includes personal identifiers, academic performance metrics, and financial transaction records.</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <h4 className="text-white font-semibold text-base">2. How We Use Your Data</h4>
+                                <p>The information is used exclusively to provide, maintain, and improve the EduFlow services for your specific institution. We do not sell your data to third parties. Data is used to generate report cards, send SMS broadcasts on your behalf, and calculate financial statements.</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <h4 className="text-white font-semibold text-base">3. Data Protection & Security</h4>
+                                <p>We implement industry-standard security measures, including AES-256 encryption at rest and TLS 1.3 in transit, to protect your school's data. Our infrastructure runs on secure, isolated cloud instances.</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <h4 className="text-white font-semibold text-base">4. Compliance</h4>
+                                <p>Our data handling processes align with the Nigeria Data Protection Regulation (NDPR) and international equivalents like GDPR to ensure your student's records meet federal privacy standards.</p>
+                            </div>
+                        </div>
+
+                        <DialogFooter className="p-4 border-t border-white/5 bg-black/40 flex-row justify-end space-x-3 items-center">
+                            <Button
+                                variant="ghost"
+                                onClick={() => setIsPrivacyOpen(false)}
+                                className="text-slate-400 hover:text-white hover:bg-white/5"
+                            >
+                                Decline
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    setAcceptedTerms(true)
+                                    setIsPrivacyOpen(false)
+                                }}
+                                className="bg-[#0066FF] hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                            >
+                                {acceptedTerms ? (
+                                    <span className="flex items-center gap-2"><Check className="w-4 h-4" /> Accepted</span>
+                                ) : "I Agree"}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                <div className="w-1 h-1 rounded-full bg-slate-700"></div>
+
+                <Dialog open={isTermsOpen} onOpenChange={setIsTermsOpen}>
+                    <DialogTrigger asChild>
+                        <button type="button" className="hover:text-cyan-400 transition-colors">Terms of Service</button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl bg-white/[0.02] backdrop-blur-3xl border-white/10 text-slate-300 p-0 overflow-hidden flex flex-col max-h-[80vh]">
+                        <DialogHeader className="p-6 border-b border-white/5 bg-black/20">
+                            <DialogTitle className="text-xl text-white">Terms of Service</DialogTitle>
+                        </DialogHeader>
+
+                        <div className="p-6 overflow-y-auto space-y-6 text-sm leading-relaxed custom-scrollbar">
+                            <p className="text-slate-400"><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</p>
+
+                            <p>Welcome to EduFlow Platinum. By accessing or using our platform, you agree to be bound by these Terms of Service. Please read them carefully.</p>
+
+                            <div className="space-y-2">
+                                <h4 className="text-white font-semibold text-base">1. Account Security & Administration</h4>
+                                <p>You are responsible for safeguarding the credentials used to access the service. The institution's "Proprietor" or designated Administrator is fully responsible for all activities occurring under their tenant account, including the actions of staff and students granted access.</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <h4 className="text-white font-semibold text-base">2. Acceptable Use</h4>
+                                <p>You agree not to misuse the EduFlow platform. This includes, but is not limited to: probing security vulnerabilities, sending unsolicited commercial SMS messages through our API, or storing illicit materials. This platform is intended strictly for authorized educational and administrative purposes.</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <h4 className="text-white font-semibold text-base">3. Data Ownership</h4>
+                                <p>Your school retains full rights to the data you upload and generate on the platform. EduFlow holds no ownership claim over your student records, financial data, or lesson plans. You may export your data at any time.</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <h4 className="text-white font-semibold text-base">4. Service Availability</h4>
+                                <p>While we strive for 99.9% uptime, we do not guarantee uninterrupted service. We perform regular maintenance windows, typically scheduled during off-peak hours (weekends/nights), and will notify administrators in advance of significant planned downtime.</p>
+                            </div>
+                        </div>
+
+                        <DialogFooter className="p-4 border-t border-white/5 bg-black/40 flex-row justify-end space-x-3 items-center">
+                            <Button
+                                variant="ghost"
+                                onClick={() => setIsTermsOpen(false)}
+                                className="text-slate-400 hover:text-white hover:bg-white/5"
+                            >
+                                Decline
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    setAcceptedTerms(true)
+                                    setIsTermsOpen(false)
+                                }}
+                                className="bg-[#0066FF] hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                            >
+                                {acceptedTerms ? (
+                                    <span className="flex items-center gap-2"><Check className="w-4 h-4" /> Accepted</span>
+                                ) : "I Agree"}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
         </div>
     )
 }

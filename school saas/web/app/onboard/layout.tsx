@@ -7,19 +7,34 @@ export default function OnboardingLayout({
     children: React.ReactNode
 }) {
     return (
-        <div className="h-screen bg-[#000000] flex flex-col overflow-hidden relative">
-            {/* Background: Geometric Texture (Faint Grid) */}
-            <div
-                className="absolute inset-0 opacity-[0.15] pointer-events-none"
-                style={{
-                    backgroundImage: `linear-gradient(#3B82F6 1px, transparent 1px), linear-gradient(90deg, #3B82F6 1px, transparent 1px)`,
-                    backgroundSize: '40px 40px',
-                    WebkitMaskImage: 'radial-gradient(circle at center, black 30%, transparent 90%)',
-                    maskImage: 'radial-gradient(circle at center, black 30%, transparent 90%)'
-                }}
-            />
+        <div className="min-h-screen bg-[#000000] flex flex-col overflow-y-auto relative">
+            {/* 1. Background: 'Blue Obsidian' Canvas */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
 
-            <header className="h-20 border-b border-white/5 bg-black/40 backdrop-blur-md flex items-center justify-between px-10 relative z-20">
+                {/* Geometric Texture: Faint Grid (10% opacity for visibility) */}
+                <div
+                    className="absolute inset-0 opacity-[0.1]"
+                    style={{
+                        backgroundImage: `linear-gradient(#3B82F6 1px, transparent 1px), linear-gradient(90deg, #3B82F6 1px, transparent 1px)`,
+                        backgroundSize: '40px 40px',
+                        maskImage: 'radial-gradient(circle at center, black 40%, transparent 100%)' // Fade edges only
+                    }}
+                />
+
+                {/* Atmospheric Lighting 1: Behind Central Text */}
+                <div
+                    className="absolute top-[20%] left-[10%] w-[50vw] h-[50vw] rounded-full blur-[120px] opacity-40 pointer-events-none"
+                    style={{ background: 'radial-gradient(circle, #0066FF 0%, transparent 70%)' }}
+                />
+
+                {/* Atmospheric Lighting 2: Behind Right-Side Widgets */}
+                <div
+                    className="absolute top-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full blur-[120px] opacity-40 pointer-events-none"
+                    style={{ background: 'radial-gradient(circle, #0066FF 0%, transparent 70%)' }}
+                />
+            </div>
+
+            <header className="h-20 border-b border-white/5 bg-black/40 backdrop-blur-md flex items-center justify-between px-10 fixed top-0 w-full z-50">
                 <div className="flex items-center gap-4">
                     <Link href="/" className="flex items-center gap-0 group relative z-10 transition-transform duration-300 hover:scale-[1.02]">
                         <img
@@ -40,13 +55,13 @@ export default function OnboardingLayout({
                         className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors border border-white/5 hover:border-red-500/50 px-3 py-1.5 rounded-lg bg-white/5"
                     >
                         <X className="w-3.5 h-3.5" />
-                        QUIT_SETUP
+                        QUIT SETUP
                     </Link>
                 </div>
             </header>
-            <main className="flex-1 flex items-center justify-center p-6 relative">
+            <main className="flex-1 flex flex-col items-center justify-start p-6 pt-[104px] pb-24 relative min-h-max">
                 {/* Background Glow */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(30,58,138,0.1)_0%,transparent_70%)] pointer-events-none" />
+                {/* Removed original radial gradient since new background is applied */}
                 <div className="relative z-10 w-full flex justify-center">
                     {children}
                 </div>
