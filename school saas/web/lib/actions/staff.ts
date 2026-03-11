@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
+import { sendSMS } from "@/lib/services/termii"
 
 export async function getTeachersForAssignment() {
     const supabase = createClient()
@@ -167,7 +168,8 @@ export async function createStaff(formData: any) {
     // To send custom Termii SMS, we would generate the link manually or use a password reset flow.
     // For this prototype, we will create the user with a temporary password and "Simulate" the SMS.
 
-    const tempPassword = "TempPassword123!" // In prod, generate random
+    // For credentials delivery, we create a secure random password
+    const tempPassword = Math.random().toString(36).slice(-8) + "!" // 8 chars + !
 
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
         email: formData.email,
@@ -226,9 +228,71 @@ export async function createStaff(formData: any) {
 
     if (permError) {
         console.error("Permission Error", permError)
-        // Non-fatal, return success with warning
     }
+
+    // 5. Send Credentials via SMS
+    const loginMessage = `Welcome to the ${adminProfile.tenant_id.split('-')[0].toUpperCase()} Team! Your EduFlow login is: ${formData.email}. Password: ${tempPassword}. Login at: ${process.env.NEXT_PUBLIC_SITE_URL || 'eduflow.ng'}/login`
+    await sendSMS(formData.phone, loginMessage)
 
     revalidatePath('/[domain]/dashboard/admin/staff', 'page')
     return { success: true, tempPassword }
+}
+export async function updateStaffProfile(userId: string, data: {
+    firstName: string,
+    lastName: string,
+    phone: string,
+    department: string,
+    designation: string,
+    signature?: string | null
+}) {
+    const supabase = createClient()
+    const supabaseAdmin = createAdminClient()
+
+    // 1. Auth & Admin Check
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: adminProfile } = await supabase
+        .from('profiles')
+        .select('tenant_id, role')
+        .eq('id', user.id)
+        .single()
+
+    if (!adminProfile || adminProfile.role !== 'admin') {
+        return { success: false, error: "Only admins can edit staff profiles" }
+    }
+
+    // 2. Update Profile
+    const { error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .update({
+            full_name: `${data.firstName} ${data.lastName}`,
+            phone: data.phone,
+            department: data.department
+        })
+        .eq('id', userId)
+        .eq('tenant_id', adminProfile.tenant_id)
+
+    if (profileError) return { success: false, error: profileError.message }
+
+    // 3. Update Staff Permissions (Using Upsert for robustness)
+    const permUpdates: any = {
+        staff_id: userId,
+        tenant_id: adminProfile.tenant_id,
+        designation: data.designation
+    }
+    if (data.signature) {
+        permUpdates.signature_url = data.signature
+    }
+
+    const { error: permError } = await supabaseAdmin
+        .from('staff_permissions')
+        .upsert(permUpdates, { onConflict: 'tenant_id, staff_id' })
+
+    if (permError) {
+        return { success: false, error: permError.message }
+    }
+
+    revalidatePath('/[domain]/dashboard/admin/staff', 'page')
+    return { success: true }
 }

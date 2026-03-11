@@ -48,9 +48,15 @@ export function StaffIDCard({ user, tenant }: { user: any, tenant: any }) {
                                     </div>
                                 )}
                             </div>
-                            <div className="text-center">
-                                <p className="text-[6px] font-bold uppercase tracking-wider text-muted-foreground">Authorized Signature</p>
-                                <div className="h-6 w-full mt-1 border-b border-slate-300"></div>
+                            <div className="text-center w-full px-2">
+                                <p className="text-[6px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">Authorized Signature</p>
+                                <div className="h-7 w-full flex items-center justify-center border-b border-slate-300 overflow-hidden">
+                                    {tenant?.theme_config?.settings?.principal_signature ? (
+                                        <img src={tenant.theme_config.settings.principal_signature} className="h-7 w-full object-contain filter contrast-125 brightness-90" alt="" />
+                                    ) : (
+                                        <div className="w-full" />
+                                    )}
+                                </div>
                             </div>
                         </div>
 
@@ -62,7 +68,7 @@ export function StaffIDCard({ user, tenant }: { user: any, tenant: any }) {
                                     <img src={tenant.logo_url} className="h-8 w-8 object-contain" alt="" />
                                 )}
                                 <div className="leading-tight">
-                                    <h2 className="text-[9pt] font-black uppercase text-slate-900 leading-none">{tenant?.name || "School Name"}</h2>
+                                    <h2 className="text-[9pt] font-black uppercase text-slate-900 leading-none">{tenant?.name || "Your School"}</h2>
                                     <p className="text-[6pt] text-muted-foreground font-medium tracking-wide">STAFF IDENTITY CARD</p>
                                 </div>
                             </div>

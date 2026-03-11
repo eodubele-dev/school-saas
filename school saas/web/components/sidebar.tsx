@@ -20,17 +20,22 @@ export async function Sidebar({ className, domain }: { className?: string, domai
     noStore()
     const supabase = createClient()
     const headersList = headers()
+    // Extract subdomain/slug with high priority on provided domain prop or middleware header
     const hostname = headersList.get('host') || ''
+    const tenantSlug = headersList.get('x-tenant-slug') || ''
 
-    // Extract subdomain/slug from hostname OR use provided domain prop
-    let slug = domain
+    let slug = domain || tenantSlug
 
     if (!slug) {
+        // Fallback for direct access scenarios on localhost
         slug = hostname.replace('.localhost:3000', '').replace('.localhost:3002', '').replace('.localhost:3003', '')
-        slug = slug.replace('.eduflow.ng', '')
+        slug = slug.replace('.eduflow.ng', '').replace('localhost:3000', '').replace('localhost:3001', '')
     }
 
-    console.log('[Sidebar] Generated slug:', slug)
+    // Clean slug of any trailing port or dots
+    slug = slug?.split(':')[0]?.split('.')[0] || 'eduflow'
+
+    console.log('[Sidebar] Resolved Tenant Slug:', slug, { source: domain ? 'prop' : 'header' })
 
     // Fetch tenant information
     let tenantName = "EduFlow"
@@ -38,8 +43,11 @@ export async function Sidebar({ className, domain }: { className?: string, domai
     let userRole = 'student' // Default fallback
     let userName = 'Guest User'
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _slug = domain // Keeping domain prop usage for linting but ignoring it for links
+    // 4. Determine domain prefix for routing
+    // Subdomain mode: school1.eduflow.ng -> prefix is empty (path starts at /dashboard)
+    // Localhost/Path mode: localhost:3000/school1/dashboard -> prefix is /school1
+    const isSubdomain = slug && (hostname.startsWith(`${slug}.`) || hostname.includes(`.${slug}.`))
+    const domainPrefix = (slug && !isSubdomain && slug !== 'localhost' && slug !== 'eduflow') ? `/${slug}` : ''
 
     // Parallelize Tenant and Auth Fetches to avoid waterfalls
     const [tenantRes, authRes] = await Promise.all([
@@ -84,34 +92,29 @@ export async function Sidebar({ className, domain }: { className?: string, domai
     }
 
     const accentRgb = hexToRgb(primaryColor)
+    let linkedStudents: any[] = []
 
-    // Fetch User Profile if authenticated
+    // 3. Authenticated Data Fetching (Parallelized Phase 2)
+    let permissions = null
     if (user) {
         try {
-            const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('role, full_name')
-                .eq('id', user.id)
-                .single()
+            const [profileRes, permissionsRes, students] = await Promise.all([
+                supabase.from('profiles').select('role, full_name').eq('id', user.id).single(),
+                supabase.from('staff_permissions').select('can_view_financials, can_edit_results, can_send_bulk_sms').eq('staff_id', user.id).single(),
+                userRole === 'parent' ? getParentChildren() : Promise.resolve([])
+            ])
 
-            if (profileError) {
-                console.error("[Sidebar] Profile Fetch Error:", profileError)
-            }
-
+            const profile = profileRes.data
             if (profile) {
                 if (profile.role) userRole = profile.role.toLowerCase().trim()
                 if (profile.full_name) userName = profile.full_name
             }
+            permissions = permissionsRes.data
+            linkedStudents = students as any[]
         } catch (error) {
             console.error("[Sidebar] Profile Critical Error:", error)
-            userRole = 'admin' // Final fallback to allow dashboard visibility
+            userRole = 'admin'
         }
-    }
-
-    // Fetch Linked Students if Parent
-    let linkedStudents: any[] = []
-    if (userRole === 'parent') {
-        linkedStudents = await getParentChildren()
     }
 
 
@@ -134,6 +137,8 @@ export async function Sidebar({ className, domain }: { className?: string, domai
                 tier={tenantTier}
                 tenantLogo={tenantLogo}
                 linkedStudents={linkedStudents}
+                permissions={permissions}
+                basePath={domainPrefix}
             />
         </div>
     )

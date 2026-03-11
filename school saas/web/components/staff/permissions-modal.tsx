@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
+import { useRouter } from "next/navigation"
 import {
     Dialog,
     DialogContent,
@@ -63,6 +64,8 @@ export function PermissionsModal({ user, isOpen, onClose }: PermissionsModalProp
         setFetching(false)
     }
 
+    const router = useRouter()
+
     const handleSave = async () => {
         setLoading(true)
 
@@ -95,6 +98,7 @@ export function PermissionsModal({ user, isOpen, onClose }: PermissionsModalProp
             console.error(error)
         } else {
             toast.success("Permissions updated successfully")
+            router.refresh()
             onClose()
         }
         setLoading(false)

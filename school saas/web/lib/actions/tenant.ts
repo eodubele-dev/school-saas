@@ -79,8 +79,15 @@ export async function updateTenantBranding(tenantId: string, data: {
     if (data.name) updates.name = data.name
     if (data.motto) updates.motto = data.motto
     if (data.address) updates.address = data.address
-    if (data.theme_config) updates.theme_config = data.theme_config
-    if (data.settings) updates.settings = data.settings
+
+    // Merge settings into theme_config to avoid missing column issues
+    if (data.theme_config || data.settings) {
+        updates.theme_config = {
+            ...(data.theme_config || {}),
+            settings: data.settings
+        }
+    }
+
     if (data.logo_path !== undefined) updates.logo_url = data.logo_path // Accept null explicitly
     console.log('[updateTenantBranding] Attempting update for:', tenantId)
     console.log('[updateTenantBranding] Updates:', updates)

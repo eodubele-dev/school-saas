@@ -16,12 +16,20 @@ import {
     Filter,
     MoreHorizontal
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { getDebtorsList, sendPaymentReminder, flagInvoiceAsInvalid } from "@/lib/actions/collections"
 import { exportDebtorsReport } from "@/lib/actions/export-debtors"
 import { ManualPaymentModal } from "@/components/finance/manual-payment-modal"
@@ -48,10 +56,15 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 10
 
-    const refreshData = async (overrideQuery?: string) => {
+    const refreshData = async (overrideQuery?: string, overrideStatus?: 'pending' | 'partial' | 'paid' | 'all') => {
         setLoading(true)
         const currentQuery = overrideQuery !== undefined ? overrideQuery : search
-        const results = await getDebtorsList({ query: currentQuery, status: statusFilter === 'all' ? undefined : statusFilter })
+        const currentStatus = overrideStatus !== undefined ? overrideStatus : statusFilter
+
+        const results = await getDebtorsList({
+            query: currentQuery,
+            status: currentStatus === 'all' ? 'all' : currentStatus as any
+        })
         setData(results)
         setCurrentPage(1) // Reset to first page on new search
         setLoading(false)
@@ -120,11 +133,32 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                         onKeyDown={(e) => e.key === 'Enter' && refreshData()}
                     />
                 </div>
-                <div className="flex items-center gap-2 w-full md:w-auto">
+                <div className="grid grid-cols-2 md:flex md:items-center gap-2 w-full md:w-auto">
+                    <Select
+                        value={statusFilter}
+                        onValueChange={(val: any) => {
+                            setStatusFilter(val)
+                            refreshData(search, val)
+                        }}
+                    >
+                        <SelectTrigger className="w-full md:w-[140px] bg-card border-border text-slate-300">
+                            <Filter className="h-4 w-4 mr-2 opacity-50" />
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card text-card-foreground border-border text-slate-200">
+                            <SelectItem value="all">All Status</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="partial">Partial</SelectItem>
+                            <SelectItem value="paid">Paid</SelectItem>
+                        </SelectContent>
+                    </Select>
+
                     <Button variant="outline" className="bg-card text-card-foreground border-border text-slate-300" onClick={() => refreshData()}>
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search"}
                     </Button>
+
                     <ManualPaymentModal onSuccess={refreshData} />
+
                     <Button variant="outline" className="bg-card text-card-foreground border-border text-slate-300" onClick={handleExport}>
                         <Download className="h-4 w-4 mr-2" />
                         Export
@@ -133,7 +167,7 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
             </div>
 
             {/* Debtors Table */}
-            <Card className="bg-card text-card-foreground border-border/50 overflow-hidden">
+            < Card className="bg-card text-card-foreground border-border/50 overflow-hidden" >
                 <Table>
                     <TableHeader className="bg-slate-800/50">
                         <TableRow className="border-border/50 hover:bg-transparent">
@@ -166,8 +200,14 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant={row.status === 'partial' ? 'outline' : 'destructive'}
-                                        className={row.status === 'partial' ? "border-amber-500/50 text-amber-500" : ""}>
+                                    <Badge
+                                        variant={row.status === 'paid' ? 'default' : row.status === 'partial' ? 'outline' : 'destructive'}
+                                        className={cn(
+                                            "capitalize",
+                                            row.status === 'paid' && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20",
+                                            row.status === 'partial' && "border-amber-500/50 text-amber-500 bg-amber-500/10"
+                                        )}
+                                    >
                                         {row.status}
                                     </Badge>
                                 </TableCell>
@@ -197,46 +237,50 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                         ))}
                     </TableBody>
                 </Table>
-                {data.length === 0 && (
-                    <div className="p-12 text-center">
-                        <Wallet className="h-12 w-12 text-slate-800 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-muted-foreground">No Debtors Found</h3>
-                        <p className="text-sm text-slate-600">Try adjusting your filters or search query.</p>
-                    </div>
-                )}
-            </Card>
+                {
+                    data.length === 0 && (
+                        <div className="p-12 text-center">
+                            <Wallet className="h-12 w-12 text-slate-800 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-muted-foreground">No Debtors Found</h3>
+                            <p className="text-sm text-slate-600">Try adjusting your filters or search query.</p>
+                        </div>
+                    )
+                }
+            </Card >
 
             {/* Pagination Controls */}
-            {data.length > 0 && (
-                <div className="flex items-center justify-between text-sm text-muted-foreground mt-4">
-                    <div>
-                        Showing <span className="text-foreground font-medium">{startIndex + 1}</span> to <span className="text-foreground font-medium">{Math.min(startIndex + itemsPerPage, data.length)}</span> of <span className="text-foreground font-medium">{data.length}</span> students
-                    </div>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="bg-card text-card-foreground border-border hover:bg-slate-800 text-slate-300"
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                        >
-                            Previous
-                        </Button>
-                        <div className="flex items-center px-4 bg-card text-card-foreground border border-border rounded-md text-slate-300">
-                            Page {currentPage} of {totalPages}
+            {
+                data.length > 0 && (
+                    <div className="flex items-center justify-between text-sm text-muted-foreground mt-4">
+                        <div>
+                            Showing <span className="text-foreground font-medium">{startIndex + 1}</span> to <span className="text-foreground font-medium">{Math.min(startIndex + itemsPerPage, data.length)}</span> of <span className="text-foreground font-medium">{data.length}</span> students
                         </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="bg-card text-card-foreground border-border hover:bg-slate-800 text-slate-300"
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                        >
-                            Next
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="bg-card text-card-foreground border-border hover:bg-slate-800 text-slate-300"
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                            >
+                                Previous
+                            </Button>
+                            <div className="flex items-center px-4 bg-card text-card-foreground border border-border rounded-md text-slate-300">
+                                Page {currentPage} of {totalPages}
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="bg-card text-card-foreground border-border hover:bg-slate-800 text-slate-300"
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             <AlertDialog open={!!invalidatingId} onOpenChange={(open) => !open && setInvalidatingId(null)}>
                 <AlertDialogContent className="bg-card text-card-foreground border-border text-slate-200">
@@ -257,6 +301,6 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </div >
     )
 }

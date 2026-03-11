@@ -1,9 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useTransition, useMemo } from "react"
 import {
     ChevronDown,
     Search,
@@ -46,7 +46,9 @@ export function SidebarClient({
     tenantMotto = 'Excellence in Education',
     tier = 'starter',
     tenantLogo = null,
-    linkedStudents = []
+    linkedStudents = [],
+    permissions = null,
+    basePath = ''
 }: {
     role?: string,
     userName?: string,
@@ -55,11 +57,40 @@ export function SidebarClient({
     tenantMotto?: string,
     tier?: string,
     tenantLogo?: string | null,
-    linkedStudents?: any[]
+    linkedStudents?: any[],
+    permissions?: any,
+    basePath?: string
 }) {
     const pathname = usePathname()
+    const searchParams = useSearchParams()
     const router = useRouter()
     const [unreadCount, setUnreadCount] = useState(0)
+    const [pendingHref, setPendingHref] = useState<string | null>(null)
+    const [isPending, startTransition] = useTransition()
+
+    // Sync transition state with global loading bar if needed
+    useEffect(() => {
+        if (!isPending) {
+            setPendingHref(null)
+            window.dispatchEvent(new CustomEvent('navigation-end'))
+        }
+    }, [isPending])
+
+    // Aggressively clear pending state when the URL changes (this is the most reliable method in Next.js App Router)
+    useEffect(() => {
+        setPendingHref(null)
+        window.dispatchEvent(new CustomEvent('navigation-end'))
+    }, [pathname, searchParams])
+
+    // Fail-safe: Clear visual loading state after 5 seconds if React transition hangs (rare, but good for UX)
+    useEffect(() => {
+        if (!pendingHref) return
+        const timer = setTimeout(() => {
+            console.warn('[SidebarClient] Fail-safe triggered: Clearing stuck pendingHref after 5s')
+            setPendingHref(null)
+        }, 5000)
+        return () => clearTimeout(timer)
+    }, [pendingHref])
 
     // Normalize role string
     const normalizedRole = (initialRole || 'student').trim().toLowerCase()
@@ -69,7 +100,32 @@ export function SidebarClient({
     const role = roleKey
 
     // Cast to grouping type safely
-    const categories = SIDEBAR_LINKS[role] as SidebarCategory[]
+    const baseCategories = SIDEBAR_LINKS[role] as SidebarCategory[]
+
+    // Perspective Enforcement Logic (Memoized to prevent infinite useEffect triggers)
+    const categories = useMemo(() => {
+        const cats = [...baseCategories]
+
+        // 1. Financial Records for Staff
+        if (permissions?.can_view_financials && role !== 'admin' && role !== 'bursar' && role !== 'owner') {
+            const financialSuite = (SIDEBAR_LINKS['bursar'] as SidebarCategory[]).find(c => c.category === "Financial Suite")
+            if (financialSuite && !cats.find(c => c.category === "Financial Suite")) {
+                cats.push(financialSuite)
+            }
+        }
+
+        // 2. Results Editing (for Teachers - though they usually have it, this ensures it)
+        if (permissions?.can_edit_results && role === 'teacher') {
+            // Teachers already have assessments, but we could add specific admin result tools if needed.
+        }
+
+        // 3. Bulk SMS (Link to communication hub or specific tools)
+        if (permissions?.can_send_bulk_sms && !cats.find(c => c.items?.some(i => i.href.includes('messages')))) {
+            // Typically handled via role, but can be added here
+        }
+
+        return cats
+    }, [baseCategories, permissions, role])
 
     // State for Search
     const [openSearch, setOpenSearch] = useState(false)
@@ -151,15 +207,18 @@ export function SidebarClient({
 
         // Find active category based on current path (but never auto-open System)
         const activeCategory = categories.find(cat =>
-            cat.category !== "System" && cat.items?.some(item =>
-                pathname && (item.href === '/dashboard' ? pathname === item.href : pathname.startsWith(item.href))
-            )
+            cat.category !== "System" && cat.items?.some(item => {
+                const fullItemHref = basePath ? `${basePath}${item.href}` : item.href
+                const normalizedPath = pathname?.replace(/\/$/, '') || '/'
+                const normalizedHref = fullItemHref.replace(/\/$/, '') || '/'
+                return item.href === '/dashboard' ? normalizedPath === normalizedHref : normalizedPath.startsWith(normalizedHref)
+            })
         )
 
         if (activeCategory && openHub !== activeCategory.category) {
             setOpenHub(activeCategory.category)
         }
-    }, [pathname, categories]) // Removed openHub to prevent loop
+    }, [pathname, categories])
 
     // Toggle Hub
     const toggleHub = (hubName: string) => {
@@ -324,9 +383,15 @@ export function SidebarClient({
                                     <div className="ml-[1.1rem] mt-1 space-y-0.5 border-l-2 border-border/80 hover:border-indigo-500/50 transition-colors pl-4 animate-in slide-in-from-top-2 duration-200">
                                         {cat.items.map((item) => {
                                             const ItemIcon = item.icon
-                                            const isActive = pathname && (item.href === '/dashboard'
-                                                ? pathname === item.href
-                                                : pathname.startsWith(item.href))
+                                            const fullHref = basePath ? `${basePath}${item.href}` : item.href
+
+                                            // Normalize paths for more robust active/click comparison
+                                            const normalizedPath = pathname?.replace(/\/$/, '') || '/'
+                                            const normalizedHref = fullHref.replace(/\/$/, '') || '/'
+
+                                            const isActive = pathname && (fullHref === (basePath ? `${basePath}/dashboard` : '/dashboard')
+                                                ? normalizedPath === normalizedHref
+                                                : normalizedPath.startsWith(normalizedHref))
 
                                             const isPremiumFeature = item.badge === 'Premium'
 
@@ -362,16 +427,40 @@ export function SidebarClient({
 
                                             return (
                                                 <Link
-                                                    key={item.href}
-                                                    href={item.href}
+                                                    key={fullHref}
+                                                    href={fullHref}
+                                                    prefetch={false}
+                                                    onClick={(e) => {
+                                                        const normalizedPath = pathname?.replace(/\/$/, '') || '/'
+                                                        const normalizedHref = fullHref.replace(/\/$/, '') || '/'
+
+                                                        if (normalizedHref !== normalizedPath) {
+                                                            e.preventDefault() // Stop default link behavior
+                                                            e.stopPropagation() // Stop event bubbling
+                                                            setPendingHref(fullHref)
+                                                            window.dispatchEvent(new CustomEvent('navigation-start'))
+                                                            startTransition(() => {
+                                                                router.push(fullHref)
+                                                            })
+                                                        } else {
+                                                            // If we are already on this path, ensure we aren't stuck loading
+                                                            setPendingHref(null)
+                                                            window.dispatchEvent(new CustomEvent('navigation-end'))
+                                                        }
+                                                    }}
                                                     className={cn(
                                                         "flex items-center gap-3 py-2 px-3 -ml-3 rounded-lg text-xs transition-all duration-200 group relative overflow-hidden",
                                                         isActive
                                                             ? "bg-indigo-500/10 text-indigo-400 font-bold tracking-wide shadow-[inset_2px_0_0_0_rgba(99,102,241,1)]"
-                                                            : "text-muted-foreground hover:text-indigo-300 hover:bg-indigo-500/5 hover:shadow-[inset_2px_0_0_0_rgba(99,102,241,0.5)]"
+                                                            : "text-muted-foreground hover:text-indigo-300 hover:bg-indigo-500/5 hover:shadow-[inset_2px_0_0_0_rgba(99,102,241,0.5)]",
+                                                        pendingHref === fullHref && "opacity-70 animate-pulse"
                                                     )}
                                                 >
-                                                    {ItemIcon && <ItemIcon className={cn("h-4 w-4 transition-transform duration-200", !isActive && "group-hover:scale-110")} strokeWidth={isActive ? 2 : 1.5} />}
+                                                    {pendingHref === fullHref ? (
+                                                        <div className="h-4 w-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+                                                    ) : (
+                                                        ItemIcon && <ItemIcon className={cn("h-4 w-4 transition-transform duration-200", !isActive && "group-hover:scale-110")} strokeWidth={isActive ? 2 : 1.5} />
+                                                    )}
                                                     <span>{t(item.label)}</span>
                                                     {item.href === '/dashboard/messages' && unreadCount > 0 && (
                                                         <span className="ml-auto bg-blue-500 text-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-slate-950 shadow-[0_0_10px_rgba(59,130,246,0.5)]">
@@ -413,7 +502,21 @@ export function SidebarClient({
                                     </p>
                                 </div>
                                 {((linkedStudents?.reduce((sum, s) => sum + (s.school_fees_debt || 0), 0) || 0) > 0) ? (
-                                    <Link href="/dashboard/billing/family" className="mt-4 flex w-full items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-foreground shadow-[0_0_15px_rgba(59,130,246,0.4)] py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-[1.02]">
+                                    <Link href="/dashboard/billing/family" prefetch={false} onClick={(e) => {
+                                        const normalizedPath = pathname?.replace(/\/$/, '') || '/'
+                                        const targetPath = '/dashboard/billing/family'
+                                        if (normalizedPath !== targetPath) {
+                                            e.preventDefault()
+                                            e.stopPropagation()
+                                            setPendingHref(targetPath)
+                                            window.dispatchEvent(new CustomEvent('navigation-start'))
+                                            startTransition(() => {
+                                                router.push(targetPath)
+                                            })
+                                        } else {
+                                            setPendingHref(null)
+                                        }
+                                    }} className="mt-4 flex w-full items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-foreground shadow-[0_0_15px_rgba(59,130,246,0.4)] py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-[1.02]">
                                         Pay Fees Now
                                     </Link>
                                 ) : (
@@ -447,6 +550,23 @@ export function SidebarClient({
                             <Link
                                 key={item.href}
                                 href={item.href}
+                                prefetch={false}
+                                onClick={(e) => {
+                                    const normalizedPath = pathname?.replace(/\/$/, '') || '/'
+                                    const normalizedHref = item.href.replace(/\/$/, '') || '/'
+
+                                    if (normalizedHref !== normalizedPath) {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        setPendingHref(item.href)
+                                        window.dispatchEvent(new CustomEvent('navigation-start'))
+                                        startTransition(() => {
+                                            router.push(item.href)
+                                        })
+                                    } else {
+                                        setPendingHref(null)
+                                    }
+                                }}
                                 className={cn(
                                     "w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200",
                                     isActive

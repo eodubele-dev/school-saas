@@ -9,15 +9,14 @@ export default async function BursarDashboardPage({ params }: { params: { domain
 
     if (!user) redirect(`/${params.domain}/login`)
 
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
+    const [{ data: profile }, { data: permission }] = await Promise.all([
+        supabase.from('profiles').select('role, tenant_id').eq('id', user.id).single(),
+        supabase.from('staff_permissions').select('can_view_financials').eq('staff_id', user.id).single()
+    ])
 
-    const userRole = profile?.role?.toLowerCase()
+    const hasAccess = ['admin', 'bursar', 'owner'].includes(profile?.role) || permission?.can_view_financials
 
-    if (!['admin', 'bursar'].includes(userRole)) {
+    if (!hasAccess) {
         return (
             <div className="p-8 text-center text-red-500">
                 Access Denied: Bursar only. <br />

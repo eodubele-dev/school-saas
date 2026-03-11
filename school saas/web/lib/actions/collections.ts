@@ -39,10 +39,11 @@ export async function getDebtorsList(filters: {
 
     // Filter by status (Unpaid/Partial)
     if (filters.status === 'all') {
-        // all
+        // No status filter applied, fetch all for the tenant
     } else if (filters.status) {
         query = query.eq('status', filters.status)
     } else {
+        // Default restricted view for "Active Debtors"
         query = query.in('status', ['pending', 'partial'])
     }
 

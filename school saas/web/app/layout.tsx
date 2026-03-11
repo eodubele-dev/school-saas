@@ -30,6 +30,7 @@ import { ExecutiveFocusGlow } from "@/components/landing/executive-focus-glow"
 
 import { UserPreferencesProvider } from "@/components/providers/user-preferences-provider";
 import { RealtimeNotifications } from "@/components/layout/realtime-notifications";
+import { LoadingBar } from "@/components/layout/loading-bar";
 
 export default function RootLayout({
   children,
@@ -38,10 +39,30 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+                try {
+                  let isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  const store = localStorage.getItem('preferences-storage');
+                  if (store) {
+                    const parsed = JSON.parse(store);
+                    const theme = parsed?.state?.theme;
+                    if (theme === 'dark') isDark = true;
+                    if (theme === 'light') isDark = false;
+                  }
+                  if (isDark) document.documentElement.classList.add('dark');
+                } catch (e) {}
+              `,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ReactQueryProvider>
+          <LoadingBar />
           <UserPreferencesProvider>
             <RealtimeNotifications />
             <ExecutiveConversionProvider>

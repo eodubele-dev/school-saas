@@ -38,6 +38,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { TeacherMappingModal } from "@/components/staff/teacher-mapping-modal"
 import { StaffIDCard } from "@/components/staff/staff-id-card"
 import { PermissionsModal } from "@/components/staff/permissions-modal"
+import { StaffEditModal } from "@/components/staff/staff-edit-modal"
 
 export function StaffList({ initialData, domain, classes, tenant, totalPages = 1 }: { initialData: any[], domain: string, classes: any[], tenant: any, totalPages?: number }) {
     const router = useRouter()
@@ -57,6 +58,7 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
     const [searchQuery, setSearchQuery] = useState(searchParams.get('query') || "")
     const [selectedUser, setSelectedUser] = useState<any>(null)
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false)
     const [newRole, setNewRole] = useState("")
     const [loading, setLoading] = useState(false)
@@ -189,6 +191,13 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-56 bg-card text-card-foreground border-border text-slate-200">
                                                 <DropdownMenuLabel>Manage Staff</DropdownMenuLabel>
+
+                                                <DropdownMenuItem onClick={() => {
+                                                    setSelectedUser(user)
+                                                    setIsEditModalOpen(true)
+                                                }} className="hover:bg-secondary/50 cursor-pointer">
+                                                    <UserCog className="mr-2 h-4 w-4" /> Edit Profile
+                                                </DropdownMenuItem>
 
                                                 <DropdownMenuItem onClick={() => {
                                                     setSelectedUser(user)
@@ -344,6 +353,12 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                 user={selectedUser}
                 isOpen={isPermissionsModalOpen}
                 onClose={() => setIsPermissionsModalOpen(false)}
+            />
+
+            <StaffEditModal
+                user={selectedUser}
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
             />
         </div >
     )

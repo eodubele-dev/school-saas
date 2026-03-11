@@ -5,8 +5,10 @@ import { StaffInviteModal } from "@/components/staff/staff-invite-modal"
 import { getStaffList } from "@/lib/actions/staff"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
+import { unstable_noStore as noStore } from 'next/cache'
 
 export default async function StaffPage({ params, searchParams }: { params: { domain: string }, searchParams: { page?: string, query?: string } }) {
+    noStore()
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -15,7 +17,7 @@ export default async function StaffPage({ params, searchParams }: { params: { do
     // Admin Check
     const { data: profile } = await supabase
         .from('profiles')
-        .select('role, tenant_id') // Added tenant_id
+        .select('role, tenant_id')
         .eq('id', user.id)
         .single()
 
@@ -33,15 +35,19 @@ export default async function StaffPage({ params, searchParams }: { params: { do
     const { data: classes } = await supabase
         .from('classes')
         .select('id, name')
-        .eq('tenant_id', profile.tenant_id as any) // Type assertion due to join complexity
+        .eq('tenant_id', profile.tenant_id as any)
         .order('name')
 
-    // Fetch Branding
-    const { data: tenant } = await supabase
+    // Fetch Branding using tenant_id (Most reliable since we already verified the admin profile)
+    const { data: tenant, error: tenantError } = await supabase
         .from('tenants')
         .select('name, logo_url, theme_config')
         .eq('id', profile.tenant_id as any)
         .single()
+
+    if (tenantError) {
+        console.error("[StaffPage] Tenant Branding Fetch Error:", tenantError.message)
+    }
 
     return (
         <div className="flex flex-col h-full bg-slate-950 p-6 space-y-6">

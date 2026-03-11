@@ -8,8 +8,13 @@ export default async function CollectionsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect("/login")
 
-    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (!profile || !['admin', 'bursar'].includes(profile.role)) redirect("/dashboard")
+    const [{ data: profile }, { data: permission }] = await Promise.all([
+        supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single(),
+        supabase.from('staff_permissions').select('can_view_financials').eq('staff_id', user.id).single()
+    ])
+
+    const hasAccess = ['admin', 'bursar', 'owner'].includes(profile?.role) || permission?.can_view_financials
+    if (!profile || !hasAccess) redirect("/dashboard")
 
     // Initial Data Fetch
     const [debtors, settlements, sessions] = await Promise.all([

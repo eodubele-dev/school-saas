@@ -174,13 +174,31 @@ export async function admitStudent(data: AdmissionData) {
         })
     }
 
-    // 5. Send Welcome SMS
-    const smsMessage = `Welcome to Blue-Horizon High! Your child ${data.firstName} is enrolled. Admission No: ${admissionNumber}. Portal Login: ${data.parentPhone}`
+    // 5. Student Dashboard Provisioning
+    // Standard student email based on admission number: student_[adm_no]@eduflow.local
+    const studentAuthEmail = `student_${admissionNumber.replace(/\//g, '_').toLowerCase()}@eduflow.local`;
+    const studentPassword = Math.random().toString(36).slice(-8) + "!";
+
+    await adminClient.auth.admin.createUser({
+        email: studentAuthEmail,
+        password: studentPassword,
+        email_confirm: true,
+        user_metadata: {
+            full_name: student.full_name,
+            role: 'student',
+            tenant_id: tenantId,
+            admission_number: admissionNumber
+        }
+    });
+
+    // 6. Send Welcome SMS to Parent
+    const parentPassword = 'password123'; // Matches the legacy dummy password for parents
+    const smsMessage = `Welcome to Blue-Horizon! Child: ${data.firstName} (${admissionNumber}). Parent Portal: Log in with your Phone Number (${data.parentPhone}). Password: ${parentPassword}. Link: eduflow.ng/login`
     await sendSMS(data.parentPhone, smsMessage)
 
     revalidatePath('/dashboard/admin/students')
     revalidatePath('/dashboard/admin/admissions') // Ensure wizard state might refresh if needed
-    return { success: true, message: 'Student admitted successfully' }
+    return { success: true, message: 'Student admitted and accounts provisioned' }
 }
 
 /**

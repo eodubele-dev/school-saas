@@ -173,7 +173,18 @@ export default async function middleware(req: NextRequest) {
       }
     }
 
-    if (isTryingBursar && role !== 'bursar' && role !== 'admin' && role !== 'owner') isViolation = true
+    if (isTryingBursar && role !== 'bursar' && role !== 'admin' && role !== 'owner') {
+      // Permission-based "Sub-Role" bypass
+      const { data: perm } = await supabase
+        .from('staff_permissions')
+        .select('can_view_financials')
+        .eq('staff_id', user.id)
+        .single()
+
+      if (!perm?.can_view_financials) {
+        isViolation = true
+      }
+    }
 
     if (role === 'student' || role === 'parent') {
       if (isTryingAdmin || isTryingBursar) isViolation = true
