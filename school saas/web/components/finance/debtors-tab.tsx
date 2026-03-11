@@ -107,10 +107,10 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
             {/* Control Bar */}
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                 <div className="relative flex-1 w-full md:max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search student, parent phone or ID..."
-                        className="pl-9 bg-slate-900 border-white/10 text-white focus:ring-[var(--school-accent)]"
+                        className="pl-9 bg-card text-card-foreground border-border text-foreground focus:ring-[var(--school-accent)]"
                         value={search}
                         onChange={(e) => {
                             const val = e.target.value
@@ -121,11 +121,11 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                     />
                 </div>
                 <div className="flex items-center gap-2 w-full md:w-auto">
-                    <Button variant="outline" className="bg-slate-900 border-white/10 text-slate-300" onClick={() => refreshData()}>
+                    <Button variant="outline" className="bg-card text-card-foreground border-border text-slate-300" onClick={() => refreshData()}>
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search"}
                     </Button>
                     <ManualPaymentModal onSuccess={refreshData} />
-                    <Button variant="outline" className="bg-slate-900 border-white/10 text-slate-300" onClick={handleExport}>
+                    <Button variant="outline" className="bg-card text-card-foreground border-border text-slate-300" onClick={handleExport}>
                         <Download className="h-4 w-4 mr-2" />
                         Export
                     </Button>
@@ -133,27 +133,27 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
             </div>
 
             {/* Debtors Table */}
-            <Card className="bg-slate-900 border-white/5 overflow-hidden">
+            <Card className="bg-card text-card-foreground border-border/50 overflow-hidden">
                 <Table>
                     <TableHeader className="bg-slate-800/50">
-                        <TableRow className="border-white/5 hover:bg-transparent">
-                            <TableHead className="text-slate-400">Student</TableHead>
-                            <TableHead className="text-slate-400">Class</TableHead>
-                            <TableHead className="text-slate-400">Amount</TableHead>
-                            <TableHead className="text-slate-400">Paid</TableHead>
-                            <TableHead className="text-slate-400">Balance</TableHead>
-                            <TableHead className="text-slate-400">Term</TableHead>
-                            <TableHead className="text-slate-400">Status</TableHead>
-                            <TableHead className="text-right text-slate-400">Action</TableHead>
+                        <TableRow className="border-border/50 hover:bg-transparent">
+                            <TableHead className="text-muted-foreground">Student</TableHead>
+                            <TableHead className="text-muted-foreground">Class</TableHead>
+                            <TableHead className="text-muted-foreground">Amount</TableHead>
+                            <TableHead className="text-muted-foreground">Paid</TableHead>
+                            <TableHead className="text-muted-foreground">Balance</TableHead>
+                            <TableHead className="text-muted-foreground">Term</TableHead>
+                            <TableHead className="text-muted-foreground">Status</TableHead>
+                            <TableHead className="text-right text-muted-foreground">Action</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {paginatedData.map((row) => (
-                            <TableRow key={row.id} className="border-white/5 hover:bg-white/5 transition-colors">
+                            <TableRow key={row.id} className="border-border/50 hover:bg-secondary/50 transition-colors">
                                 <TableCell>
                                     <div>
                                         <p className="font-medium text-slate-200">{row.studentName}</p>
-                                        <p className="text-[10px] text-slate-500">ID: {row.studentId || "N/A"}</p>
+                                        <p className="text-[10px] text-muted-foreground">ID: {row.studentId || "N/A"}</p>
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-slate-300">{row.className}</TableCell>
@@ -174,11 +174,11 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                                 <TableCell className="text-right">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="outline" size="icon" className="h-8 w-8 bg-slate-800 border-white/10 text-slate-200 hover:bg-slate-700 hover:text-white">
+                                            <Button variant="outline" size="icon" className="h-8 w-8 bg-slate-800 border-border text-slate-200 hover:bg-slate-700 hover:text-foreground">
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="bg-slate-900 border-white/10 text-slate-200">
+                                        <DropdownMenuContent align="end" className="bg-card text-card-foreground border-border text-slate-200">
                                             <DropdownMenuItem onClick={() => handleSendReminder(row.id, 'whatsapp')}>
                                                 <MessageSquare className="h-4 w-4 mr-2 text-emerald-500" />
                                                 WhatsApp Reminder
@@ -200,7 +200,7 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
                 {data.length === 0 && (
                     <div className="p-12 text-center">
                         <Wallet className="h-12 w-12 text-slate-800 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-slate-400">No Debtors Found</h3>
+                        <h3 className="text-lg font-medium text-muted-foreground">No Debtors Found</h3>
                         <p className="text-sm text-slate-600">Try adjusting your filters or search query.</p>
                     </div>
                 )}
@@ -208,27 +208,27 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
 
             {/* Pagination Controls */}
             {data.length > 0 && (
-                <div className="flex items-center justify-between text-sm text-slate-400 mt-4">
+                <div className="flex items-center justify-between text-sm text-muted-foreground mt-4">
                     <div>
-                        Showing <span className="text-white font-medium">{startIndex + 1}</span> to <span className="text-white font-medium">{Math.min(startIndex + itemsPerPage, data.length)}</span> of <span className="text-white font-medium">{data.length}</span> students
+                        Showing <span className="text-foreground font-medium">{startIndex + 1}</span> to <span className="text-foreground font-medium">{Math.min(startIndex + itemsPerPage, data.length)}</span> of <span className="text-foreground font-medium">{data.length}</span> students
                     </div>
                     <div className="flex gap-2">
                         <Button
                             variant="outline"
                             size="sm"
-                            className="bg-slate-900 border-white/10 hover:bg-slate-800 text-slate-300"
+                            className="bg-card text-card-foreground border-border hover:bg-slate-800 text-slate-300"
                             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                             disabled={currentPage === 1}
                         >
                             Previous
                         </Button>
-                        <div className="flex items-center px-4 bg-slate-900 border border-white/10 rounded-md text-slate-300">
+                        <div className="flex items-center px-4 bg-card text-card-foreground border border-border rounded-md text-slate-300">
                             Page {currentPage} of {totalPages}
                         </div>
                         <Button
                             variant="outline"
                             size="sm"
-                            className="bg-slate-900 border-white/10 hover:bg-slate-800 text-slate-300"
+                            className="bg-card text-card-foreground border-border hover:bg-slate-800 text-slate-300"
                             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                             disabled={currentPage === totalPages}
                         >
@@ -239,19 +239,19 @@ export function DebtorsTab({ initialData, sessions }: { initialData: any[], sess
             )}
 
             <AlertDialog open={!!invalidatingId} onOpenChange={(open) => !open && setInvalidatingId(null)}>
-                <AlertDialogContent className="bg-slate-900 border-white/10 text-slate-200">
+                <AlertDialogContent className="bg-card text-card-foreground border-border text-slate-200">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Flag Invoice as Invalid?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-slate-400">
+                        <AlertDialogDescription className="text-muted-foreground">
                             This action cannot be undone. This will permanently remove the debtor from the pending collection list and mark the invoice as cancelled.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-transparent border-white/10 hover:bg-white/5 hover:text-white">Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="bg-transparent border-border hover:bg-secondary/50 hover:text-foreground">Cancel</AlertDialogCancel>
                         <AlertDialogAction onClick={() => {
                             if (invalidatingId) handleFlagInvalid(invalidatingId)
                             setInvalidatingId(null)
-                        }} className="bg-rose-600 hover:bg-rose-700 text-white border border-rose-600">
+                        }} className="bg-rose-600 hover:bg-rose-700 text-foreground border border-rose-600">
                             Flag as Invalid
                         </AlertDialogAction>
                     </AlertDialogFooter>

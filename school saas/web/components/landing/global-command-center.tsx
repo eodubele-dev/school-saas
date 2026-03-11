@@ -23,19 +23,19 @@ export function GlobalCommandCenter() {
                         <Globe className="w-3 h-3" />
                         MULTI_TENANT_ARCHITECTURE
                     </div>
-                    <h2 className="text-3xl md:text-5xl font-bold text-white">
+                    <h2 className="text-3xl md:text-5xl font-bold text-foreground">
                         Scale Your Legacy, <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">Not Your Stress.</span>
                     </h2>
-                    <p className="text-slate-400 max-w-2xl mx-auto text-lg">
+                    <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
                         Manage multiple campuses from one dashboard. Unified financials, centralized security, and campus-specific logistics—all in one Platinum environment.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center bento-card p-2 md:p-8 bg-[#0F1115]/50 border-white/5">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center bento-card p-2 md:p-8 bg-[#0F1115]/50 border-border/50">
 
                     {/* LEFT: The Empire Map */}
-                    <div className="relative aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 group">
+                    <div className="relative aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden border border-border group">
                         <img
                             src="/visuals/lagos-empire-map.png"
                             alt="Lagos Command Center Map"
@@ -48,15 +48,15 @@ export function GlobalCommandCenter() {
                             initial={{ y: 20, opacity: 0 }}
                             whileInView={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            className="absolute bottom-6 left-6 right-6 bg-black/60 backdrop-blur-xl border border-white/10 p-4 rounded-xl flex items-center justify-between"
+                            className="absolute bottom-6 left-6 right-6 bg-black/60 backdrop-blur-xl border border-border p-4 rounded-xl flex items-center justify-between"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center">
                                     <TrendingUp className="w-5 h-5 text-blue-400" />
                                 </div>
                                 <div>
-                                    <div className="text-xs text-slate-400 uppercase font-bold">Total Group Revenue</div>
-                                    <div className="text-xl font-bold text-white tracking-widest">₦925,000,000</div>
+                                    <div className="text-xs text-muted-foreground uppercase font-bold">Total Group Revenue</div>
+                                    <div className="text-xl font-bold text-foreground tracking-widest">₦925,000,000</div>
                                 </div>
                             </div>
                         </motion.div>
@@ -71,8 +71,8 @@ export function GlobalCommandCenter() {
                     {/* RIGHT: Campus Switcher Logic */}
                     <div className="space-y-8 p-4">
                         <div className="space-y-2">
-                            <h3 className="text-2xl font-bold text-white">Centralized Command</h3>
-                            <p className="text-slate-400 text-sm">
+                            <h3 className="text-2xl font-bold text-foreground">Centralized Command</h3>
+                            <p className="text-muted-foreground text-sm">
                                 Switch between campus databases instantly. Each branch runs on an isolated partition, ensuring zero data leakage between Surulere and Lekki.
                             </p>
                         </div>
@@ -84,17 +84,17 @@ export function GlobalCommandCenter() {
                                     onClick={() => setSelectedCampus(campus)}
                                     className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all duration-300 ${selectedCampus.id === campus.id
                                             ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_20px_rgba(37,99,235,0.1)]"
-                                            : "bg-white/5 border-white/5 hover:bg-white/10"
+                                            : "bg-secondary/50 border-border/50 hover:bg-white/10"
                                         }`}
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedCampus.id === campus.id ? "bg-blue-500 text-white" : "bg-slate-800 text-slate-500"
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedCampus.id === campus.id ? "bg-blue-500 text-foreground" : "bg-slate-800 text-muted-foreground"
                                             }`}>
                                             <Building2 className="w-4 h-4" />
                                         </div>
                                         <div className="text-left">
-                                            <div className="text-white font-bold">{campus.name}</div>
-                                            <div className="text-xs font-mono text-slate-500">{campus.subdomain}</div>
+                                            <div className="text-foreground font-bold">{campus.name}</div>
+                                            <div className="text-xs font-mono text-muted-foreground">{campus.subdomain}</div>
                                         </div>
                                     </div>
 
@@ -108,10 +108,10 @@ export function GlobalCommandCenter() {
                             ))}
                         </div>
 
-                        <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800/50 flex items-center gap-3">
+                        <div className="p-4 rounded-lg bg-card text-card-foreground/50 border border-border/50 flex items-center gap-3">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-xs text-slate-400 font-mono">
-                                SYSTEM STATUS: <span className="text-white">FORENSIC LOGS SYNCING ACROSS ALL NODES</span>
+                            <span className="text-xs text-muted-foreground font-mono">
+                                SYSTEM STATUS: <span className="text-foreground">FORENSIC LOGS SYNCING ACROSS ALL NODES</span>
                             </span>
                         </div>
                     </div>

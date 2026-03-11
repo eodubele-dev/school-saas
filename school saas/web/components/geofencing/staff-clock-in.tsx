@@ -163,12 +163,12 @@ export function StaffClockIn() {
                     <div className="flex flex-col items-center justify-center py-6 space-y-4">
                         <div className={`
                             relative flex items-center justify-center w-32 h-32 rounded-full border-4 
-                            ${status?.clockedIn ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900'}
+                            ${status?.clockedIn ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-slate-200 dark:border-border bg-slate-50 dark:bg-card text-card-foreground'}
                         `}>
                             {status?.clockedIn ? (
                                 <CheckCircle className="h-12 w-12 text-green-500" />
                             ) : (
-                                <MapPin className="h-12 w-12 text-slate-400" />
+                                <MapPin className="h-12 w-12 text-muted-foreground" />
                             )}
                         </div>
 

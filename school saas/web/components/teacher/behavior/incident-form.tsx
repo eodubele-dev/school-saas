@@ -44,24 +44,24 @@ export function IncidentForm({ students }: { students: any[] }) {
     }
 
     return (
-        <Card className="p-6 bg-slate-900 border-white/5 max-w-2xl">
+        <Card className="p-6 bg-card text-card-foreground border-border/50 max-w-2xl">
             <div className="mb-6">
-                <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                <h3 className="text-foreground font-bold text-lg flex items-center gap-2">
                     <Flag className="h-5 w-5 text-amber-500" />
                     Incident & Remarks Log
                 </h3>
-                <p className="text-slate-400 text-sm">Securely log disciplinary issues or noteworthy praise.</p>
+                <p className="text-muted-foreground text-sm">Securely log disciplinary issues or noteworthy praise.</p>
             </div>
 
             <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-xs font-medium text-slate-400">Student</label>
+                        <label className="text-xs font-medium text-muted-foreground">Student</label>
                         <Select value={studentId} onValueChange={setStudentId}>
-                            <SelectTrigger className="bg-slate-950 border-white/10 text-white">
+                            <SelectTrigger className="bg-slate-950 border-border text-foreground">
                                 <SelectValue placeholder="Select student" />
                             </SelectTrigger>
-                            <SelectContent className="bg-slate-900 text-white border-white/10">
+                            <SelectContent className="bg-card text-card-foreground text-foreground border-border">
                                 {students.map(s => (
                                     <SelectItem key={s.id} value={s.id}>{s.full_name}</SelectItem>
                                 ))}
@@ -70,12 +70,12 @@ export function IncidentForm({ students }: { students: any[] }) {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-medium text-slate-400">Log Type</label>
+                        <label className="text-xs font-medium text-muted-foreground">Log Type</label>
                         <Select value={type} onValueChange={(v: any) => setType(v)}>
-                            <SelectTrigger className="bg-slate-950 border-white/10 text-white">
+                            <SelectTrigger className="bg-slate-950 border-border text-foreground">
                                 <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-slate-900 text-white border-white/10">
+                            <SelectContent className="bg-card text-card-foreground text-foreground border-border">
                                 <SelectItem value="disciplinary" className="text-amber-400">
                                     <div className="flex items-center gap-2"><AlertTriangle className="h-3 w-3" /> Disciplinary</div>
                                 </SelectItem>
@@ -88,9 +88,9 @@ export function IncidentForm({ students }: { students: any[] }) {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-xs font-medium text-slate-400">Title / Headline</label>
+                    <label className="text-xs font-medium text-muted-foreground">Title / Headline</label>
                     <input
-                        className="w-full h-10 rounded-md border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[var(--school-accent)]/20"
+                        className="w-full h-10 rounded-md border border-border bg-slate-950 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[var(--school-accent)]/20"
                         placeholder="e.g., Late to Assembly"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
@@ -98,9 +98,9 @@ export function IncidentForm({ students }: { students: any[] }) {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-xs font-medium text-slate-400">Detailed Description</label>
+                    <label className="text-xs font-medium text-muted-foreground">Detailed Description</label>
                     <Textarea
-                        className="bg-slate-950 border-white/10 text-white min-h-[100px]"
+                        className="bg-slate-950 border-border text-foreground min-h-[100px]"
                         placeholder="Provide context and details..."
                         value={desc}
                         onChange={(e) => setDesc(e.target.value)}
@@ -110,7 +110,7 @@ export function IncidentForm({ students }: { students: any[] }) {
                 <Button
                     onClick={handleLog}
                     disabled={!studentId || !title || submitting}
-                    className={`w-full font-bold ${type === 'disciplinary' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-cyan-600 hover:bg-cyan-700'} text-white shadow-lg`}
+                    className={`w-full font-bold ${type === 'disciplinary' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-cyan-600 hover:bg-cyan-700'} text-foreground shadow-lg`}
                 >
                     {submitting ? "Submitting for Approval..." : "Log Entry"}
                 </Button>

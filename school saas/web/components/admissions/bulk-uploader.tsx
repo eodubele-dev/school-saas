@@ -145,7 +145,7 @@ export function BulkUploader({ domain, classes }: { domain: string, classes: any
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-white">Bulk Student Upload</h2>
+                <h2 className="text-xl font-bold text-foreground">Bulk Student Upload</h2>
                 {step === 'upload' && (
                     <Button
                         variant="outline"
@@ -162,32 +162,32 @@ export function BulkUploader({ domain, classes }: { domain: string, classes: any
             {step === 'upload' && (
                 <div
                     {...getRootProps()}
-                    className={`border-2 border-dashed rounded-xl p-12 flex flex-col items-center justify-center cursor-pointer transition-colors ${isDragActive ? 'border-[var(--school-accent)] bg-[var(--school-accent)]/5' : 'border-white/10 hover:border-white/20'}`}
+                    className={`border-2 border-dashed rounded-xl p-12 flex flex-col items-center justify-center cursor-pointer transition-colors ${isDragActive ? 'border-[var(--school-accent)] bg-[var(--school-accent)]/5' : 'border-border hover:border-white/20'}`}
                 >
                     <input {...getInputProps()} />
-                    <UploadCloud className={`h-12 w-12 mb-4 ${isDragActive ? 'text-[var(--school-accent)]' : 'text-slate-500'}`} />
-                    <p className="text-lg text-white font-medium">Drag & Drop CSV File here</p>
-                    <p className="text-sm text-slate-500 mt-2">or click to browse computer</p>
+                    <UploadCloud className={`h-12 w-12 mb-4 ${isDragActive ? 'text-[var(--school-accent)]' : 'text-muted-foreground'}`} />
+                    <p className="text-lg text-foreground font-medium">Drag & Drop CSV File here</p>
+                    <p className="text-sm text-muted-foreground mt-2">or click to browse computer</p>
                 </div>
             )}
 
             {/* STEP 2: MAPPING */}
             {step === 'map' && (
-                <div className="bg-slate-900 border border-white/10 rounded-lg p-6 space-y-6">
+                <div className="bg-card text-card-foreground border border-border rounded-lg p-6 space-y-6">
                     <div className="flex items-center gap-3 mb-4">
                         <Wand2 className="text-[var(--school-accent)] h-5 w-5" />
-                        <h3 className="text-white font-medium">Map CSV Columns</h3>
+                        <h3 className="text-foreground font-medium">Map CSV Columns</h3>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         {REQUIRED_FIELDS.map(field => (
                             <div key={field.key} className="space-y-2">
-                                <label className="text-xs text-slate-400 uppercase font-bold">{field.label} <span className="text-red-500">*</span></label>
+                                <label className="text-xs text-muted-foreground uppercase font-bold">{field.label} <span className="text-red-500">*</span></label>
                                 <Select
                                     value={mapping[field.key]}
                                     onValueChange={(val) => setMapping(prev => ({ ...prev, [field.key]: val }))}
                                 >
-                                    <SelectTrigger className="bg-slate-950 border-white/10 text-white">
+                                    <SelectTrigger className="bg-slate-950 border-border text-foreground">
                                         <SelectValue placeholder="Select CSV Header" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -200,7 +200,7 @@ export function BulkUploader({ domain, classes }: { domain: string, classes: any
 
                     <div className="flex justify-between pt-4">
                         <Button variant="ghost" onClick={() => { setFile(null); setStep('upload'); }}>Cancel</Button>
-                        <Button onClick={() => setStep('validate')} className="bg-[var(--school-accent)] text-white">
+                        <Button onClick={() => setStep('validate')} className="bg-[var(--school-accent)] text-foreground">
                             Next: Validate Data <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                     </div>
@@ -210,16 +210,16 @@ export function BulkUploader({ domain, classes }: { domain: string, classes: any
             {/* STEP 3: VALIDATION & IMPORT */}
             {step === 'validate' && (
                 <div className="space-y-4">
-                    <div className="flex items-center gap-4 bg-slate-900 p-4 rounded-lg border border-white/10">
+                    <div className="flex items-center gap-4 bg-card text-card-foreground p-4 rounded-lg border border-border">
                         <div className="flex-1">
-                            <h3 className="text-white font-bold">Review & Import</h3>
-                            <p className="text-sm text-slate-400 mt-1">
+                            <h3 className="text-foreground font-bold">Review & Import</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
                                 <span className="text-green-400">{validCount} valid rows</span> ready.
                                 <span className="text-red-400 ml-2">{errorCount} errors</span> to fix.
                             </p>
                         </div>
                         <Select value={targetClass} onValueChange={setTargetClass}>
-                            <SelectTrigger className="w-[200px] bg-slate-950 border-white/10 text-white">
+                            <SelectTrigger className="w-[200px] bg-slate-950 border-border text-foreground">
                                 <SelectValue placeholder="Select Target Class" />
                             </SelectTrigger>
                             <SelectContent>
@@ -228,19 +228,19 @@ export function BulkUploader({ domain, classes }: { domain: string, classes: any
                         </Select>
                     </div>
 
-                    <div className="border border-white/10 rounded-lg overflow-hidden max-h-[400px] overflow-y-auto">
+                    <div className="border border-border rounded-lg overflow-hidden max-h-[400px] overflow-y-auto">
                         <Table>
-                            <TableHeader className="bg-slate-900">
-                                <TableRow className="border-white/5">
-                                    <TableHead className="text-slate-400">First Name</TableHead>
-                                    <TableHead className="text-slate-400">Last Name</TableHead>
-                                    <TableHead className="text-slate-400">Phone</TableHead>
-                                    <TableHead className="text-right text-slate-400">Status</TableHead>
+                            <TableHeader className="bg-card text-card-foreground">
+                                <TableRow className="border-border/50">
+                                    <TableHead className="text-muted-foreground">First Name</TableHead>
+                                    <TableHead className="text-muted-foreground">Last Name</TableHead>
+                                    <TableHead className="text-muted-foreground">Phone</TableHead>
+                                    <TableHead className="text-right text-muted-foreground">Status</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {validatedData.map((row, idx) => (
-                                    <TableRow key={idx} className="border-white/5 hover:bg-white/5">
+                                    <TableRow key={idx} className="border-border/50 hover:bg-secondary/50">
                                         <TableCell className={!row.mapped.firstName ? "text-red-400 bg-red-500/10" : "text-slate-300"}>
                                             {row.mapped.firstName || "MISSING"}
                                         </TableCell>
@@ -269,7 +269,7 @@ export function BulkUploader({ domain, classes }: { domain: string, classes: any
                         <Button
                             onClick={handleFinalImport}
                             disabled={uploading || validCount === 0 || !targetClass}
-                            className="bg-[var(--school-accent)] hover:bg-[var(--school-accent)]/90 text-white min-w-[200px] shadow-lg shadow-blue-500/20"
+                            className="bg-[var(--school-accent)] hover:bg-[var(--school-accent)]/90 text-foreground min-w-[200px] shadow-lg shadow-blue-500/20"
                         >
                             {uploading ? "Importing..." : `Import ${validCount} Students`}
                         </Button>

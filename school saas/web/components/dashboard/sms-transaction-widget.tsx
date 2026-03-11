@@ -4,6 +4,7 @@ import React from 'react'
 import { Download, MessageSquare } from 'lucide-react'
 import { exportSMSReport } from "@/lib/actions/export-sms"
 import { toast } from "sonner"
+import { FinancialText } from "@/components/ui/financial-text"
 
 interface SMSTransaction {
     id: string
@@ -49,15 +50,15 @@ export function SMSTransactionWidget({ transactions }: SMSTransactionWidgetProps
     }
 
     return (
-        <div className="w-full bg-slate-900 rounded-xl border border-white/10 p-6 flex flex-col h-full shadow-sm">
+        <div className="w-full bg-card text-card-foreground rounded-xl border border-border p-6 flex flex-col h-full shadow-sm">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
                         <MessageSquare className="h-5 w-5 text-cyan-400" />
                     </div>
                     <div>
-                        <h3 className="text-white font-bold text-lg tracking-tight">Communication Ledger</h3>
-                        <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Forensic SMS Audit</p>
+                        <h3 className="text-foreground font-bold text-lg tracking-tight">Communication Ledger</h3>
+                        <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">Forensic SMS Audit</p>
                     </div>
                 </div>
                 <button onClick={handleExport} className="text-[10px] font-mono text-cyan-400 border border-cyan-400/30 px-3 py-1.5 rounded-lg hover:bg-cyan-400/10 transition-all uppercase tracking-widest flex items-center gap-2">
@@ -68,7 +69,7 @@ export function SMSTransactionWidget({ transactions }: SMSTransactionWidgetProps
 
             <div className="overflow-y-auto flex-1 custom-scrollbar">
                 <table className="w-full text-left border-collapse">
-                    <thead className="sticky top-0 bg-slate-900 text-[10px] font-mono text-slate-500 uppercase tracking-widest z-10 shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.05)]">
+                    <thead className="sticky top-0 bg-card text-card-foreground text-[10px] font-mono text-muted-foreground uppercase tracking-widest z-10 shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.05)]">
                         <tr>
                             <th className="pb-3 px-2 font-bold">Recipient</th>
                             <th className="pb-3 px-2 text-center font-bold">Status</th>
@@ -78,10 +79,10 @@ export function SMSTransactionWidget({ transactions }: SMSTransactionWidgetProps
                     <tbody className="text-sm">
                         {transactions.length > 0 ? (
                             transactions.map((tx) => (
-                                <tr key={tx.id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                                <tr key={tx.id} className="border-b border-border/50 hover:bg-secondary/50 transition-colors group">
                                     <td className="py-4 px-2">
-                                        <p className="text-white font-medium text-sm">{tx.parentName}</p>
-                                        <p className="text-[10px] text-slate-500 font-mono mt-0.5">
+                                        <p className="text-foreground font-medium text-sm">{tx.parentName}</p>
+                                        <p className="text-[10px] text-muted-foreground font-mono mt-0.5">
                                             {tx.phone} <span className="opacity-30">//</span> {tx.type}
                                         </p>
                                     </td>
@@ -95,8 +96,8 @@ export function SMSTransactionWidget({ transactions }: SMSTransactionWidgetProps
                                             {tx.status}
                                         </span>
                                     </td>
-                                    <td className="py-4 px-2 text-right font-mono text-white/80 text-sm">
-                                        -₦{tx.cost.toFixed(2)}
+                                    <td className="py-4 px-2 text-right font-mono text-foreground/80 text-sm">
+                                        -<FinancialText value={`₦${tx.cost.toFixed(2)}`} />
                                     </td>
                                 </tr>
                             ))
@@ -104,7 +105,7 @@ export function SMSTransactionWidget({ transactions }: SMSTransactionWidgetProps
                             <tr>
                                 <td colSpan={3} className="py-12 text-center">
                                     <MessageSquare className="h-8 w-8 text-slate-800 mx-auto mb-2" />
-                                    <p className="text-xs text-slate-500">No SMS transactions recorded</p>
+                                    <p className="text-xs text-muted-foreground">No SMS transactions recorded</p>
                                 </td>
                             </tr>
                         )}
@@ -112,10 +113,10 @@ export function SMSTransactionWidget({ transactions }: SMSTransactionWidgetProps
                 </table>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
-                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">System Verified Log</p>
-                <p className="text-xs text-white">
-                    Total Spent (24h): <span className="font-bold text-cyan-400">₦{total24h.toFixed(2)}</span>
+            <div className="mt-4 pt-4 border-t border-border flex justify-between items-center">
+                <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">System Verified Log</p>
+                <p className="text-xs text-foreground">
+                    Total Spent (24h): <span className="font-bold text-cyan-400"><FinancialText value={`₦${total24h.toFixed(2)}`} /></span>
                 </p>
             </div>
         </div>

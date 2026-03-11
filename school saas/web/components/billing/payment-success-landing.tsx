@@ -12,7 +12,7 @@ interface PaymentSuccessLandingProps {
 
 export const PaymentSuccessLanding = ({ transactionData, onReturn, onDownloadReceipt }: PaymentSuccessLandingProps) => {
     return (
-        <div className="fixed inset-0 z-50 bg-[#0A0A0B] flex items-center justify-center p-6 text-white font-sans animate-in fade-in duration-500 overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-[#0A0A0B] flex items-center justify-center p-6 text-foreground font-sans animate-in fade-in duration-500 overflow-hidden">
             {/* 🕸️ Background Grid Pattern */}
             <div
                 className="absolute inset-0 pointer-events-none"
@@ -41,8 +41,8 @@ export const PaymentSuccessLanding = ({ transactionData, onReturn, onDownloadRec
                 </p>
 
                 {/* 📊 Transaction Summary Card */}
-                <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 mb-10 backdrop-blur-xl">
-                    <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-4">
+                <div className="bg-secondary/50 border border-border rounded-[2.5rem] p-8 mb-10 backdrop-blur-xl">
+                    <div className="flex justify-between items-center border-b border-border/50 pb-4 mb-4">
                         <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">Amount_Paid</span>
                         <span className="text-2xl font-bold text-emerald-400">₦{transactionData.total.toLocaleString()}</span>
                     </div>
@@ -63,7 +63,7 @@ export const PaymentSuccessLanding = ({ transactionData, onReturn, onDownloadRec
 
                     <button
                         onClick={onReturn}
-                        className="w-full bg-white/5 border border-white/10 text-gray-400 py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-white/10 transition-all active:scale-[0.98]"
+                        className="w-full bg-secondary/50 border border-border text-gray-400 py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-white/10 transition-all active:scale-[0.98]"
                     >
                         RETURN TO DASHBOARD <ArrowRight size={16} />
                     </button>

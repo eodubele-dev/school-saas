@@ -22,12 +22,12 @@ export const GeofenceFailureAlert: React.FC<GeofenceFailureAlertProps> = ({ dist
                     </div>
 
                     <div className="space-y-3 mb-8">
-                        <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic">
+                        <h2 className="text-3xl font-black text-foreground tracking-tighter uppercase italic">
                             Verification <span className="text-red-500">Failed</span>
                         </h2>
-                        <p className="text-slate-400 text-sm leading-relaxed font-medium">
+                        <p className="text-muted-foreground text-sm leading-relaxed font-medium">
                             You are currently <span className="text-red-400 font-bold underline decoration-red-500/30 underline-offset-4">{distance}m</span> away from the school gate.
-                            Smart Attendance requires you to be within a <span className="text-white font-bold">{requiredRadius}m radius</span>.
+                            Smart Attendance requires you to be within a <span className="text-foreground font-bold">{requiredRadius}m radius</span>.
                         </p>
                     </div>
 
@@ -38,7 +38,7 @@ export const GeofenceFailureAlert: React.FC<GeofenceFailureAlertProps> = ({ dist
                             <span className="text-[10px] font-black text-red-500 uppercase tracking-widest block">
                                 Institutional Security Warning
                             </span>
-                            <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest leading-normal">
+                            <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest leading-normal">
                                 Unauthorized_Distance_Detected // Forensic_Flag: Active // GPS_Pin: Logged_to_Audit
                             </span>
                         </div>
@@ -55,7 +55,7 @@ export const GeofenceFailureAlert: React.FC<GeofenceFailureAlertProps> = ({ dist
 
                         <button
                             onClick={onDispute}
-                            className="w-full bg-white/5 border border-white/10 text-slate-400 font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-white/10 transition-all active:scale-[0.98] uppercase tracking-widest text-[9px]"
+                            className="w-full bg-secondary/50 border border-border text-muted-foreground font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-white/10 transition-all active:scale-[0.98] uppercase tracking-widest text-[9px]"
                         >
                             Initiate Professional Dispute
                         </button>

@@ -30,13 +30,13 @@ export const BursarReconciliationDashboard: React.FC<BursarReconciliationDashboa
         <div className="font-sans animate-in fade-in duration-1000 space-y-6">
             {/* 🚀 Top Command Vitals */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                <Card className="bg-slate-900 border-white/10 relative overflow-hidden group">
+                <Card className="bg-card text-card-foreground border-border relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-full h-1 bg-red-500" />
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-400">Current Month Leakage</CardTitle>
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Current Month Leakage</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white mb-2">
+                        <div className="text-3xl font-bold text-foreground mb-2">
                             ₦{liveStats.leakage.toLocaleString()}
                         </div>
                         <div className="flex items-center gap-2">
@@ -44,38 +44,38 @@ export const BursarReconciliationDashboard: React.FC<BursarReconciliationDashboa
                             <span className="text-xs text-red-500">Estimated Revenue Leakage</span>
                         </div>
                         <div className="absolute -bottom-4 -right-4 p-6 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                            <TrendingDown size={120} className="text-white" />
+                            <TrendingDown size={120} className="text-foreground" />
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="bg-slate-900 border-white/10 relative overflow-hidden group">
+                <Card className="bg-card text-card-foreground border-border relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500" />
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-400">Pending Dispute Payload</CardTitle>
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Pending Dispute Payload</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white mb-2 flex items-baseline gap-2">
+                        <div className="text-3xl font-bold text-foreground mb-2 flex items-baseline gap-2">
                             {liveStats.pendingApprovals}
-                            <span className="text-sm font-normal text-slate-500">Files</span>
+                            <span className="text-sm font-normal text-muted-foreground">Files</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Target className="h-4 w-4 text-cyan-500" />
                             <span className="text-xs text-cyan-500">Awaiting Forensic Review</span>
                         </div>
                         <div className="absolute -bottom-4 -right-4 p-6 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                            <Target size={120} className="text-white" />
+                            <Target size={120} className="text-foreground" />
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="bg-slate-900 border-white/10 relative overflow-hidden group">
+                <Card className="bg-card text-card-foreground border-border relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500" />
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-400">System Integrity Score</CardTitle>
+                        <CardTitle className="text-sm font-medium text-muted-foreground">System Integrity Score</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white mb-2 flex items-baseline gap-2">
+                        <div className="text-3xl font-bold text-foreground mb-2 flex items-baseline gap-2">
                             {liveStats.integrityScore}%
                         </div>
                         <div className="flex items-center gap-2">
@@ -83,7 +83,7 @@ export const BursarReconciliationDashboard: React.FC<BursarReconciliationDashboa
                             <span className="text-xs text-emerald-500">Protocol Compliance Rate</span>
                         </div>
                         <div className="absolute -bottom-4 -right-4 p-6 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                            <Activity size={120} className="text-white" />
+                            <Activity size={120} className="text-foreground" />
                         </div>
                     </CardContent>
                 </Card>
@@ -91,9 +91,9 @@ export const BursarReconciliationDashboard: React.FC<BursarReconciliationDashboa
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* 🚨 Live Override Pulse */}
-                <Card className="bg-slate-900 border-white/10 shadow-sm flex flex-col h-[450px]">
+                <Card className="bg-card text-card-foreground border-border shadow-sm flex flex-col h-[450px]">
                     <CardHeader className="flex flex-row justify-between items-center pb-2 shrink-0">
-                        <CardTitle className="text-xl font-bold text-white flex items-center gap-3">
+                        <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
                             <Zap size={20} className="text-amber-400 fill-amber-400/20" /> Recent Manual Overrides
                         </CardTitle>
                         <div className="bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
@@ -102,14 +102,14 @@ export const BursarReconciliationDashboard: React.FC<BursarReconciliationDashboa
                     </CardHeader>
                     <CardContent className="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-2 mt-4">
                         {liveStats.recentOverrides.map((log) => (
-                            <div key={log.id} className="bg-white/[0.02] p-4 rounded-xl border border-white/5 flex justify-between items-center group hover:bg-white/[0.04] hover:border-amber-500/30 transition-all duration-500">
+                            <div key={log.id} className="bg-white/[0.02] p-4 rounded-xl border border-border/50 flex justify-between items-center group hover:bg-white/[0.04] hover:border-amber-500/30 transition-all duration-500">
                                 <div className="flex items-center gap-5">
-                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 flex items-center justify-center font-black text-slate-400 text-sm group-hover:scale-110 transition-transform">
+                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-border flex items-center justify-center font-black text-muted-foreground text-sm group-hover:scale-110 transition-transform">
                                         {log.initials}
                                     </div>
                                     <div>
-                                        <p className="text-slate-200 font-black text-base uppercase tracking-tight group-hover:text-white transition-colors">{log.staffName}</p>
-                                        <p className="text-[10px] font-mono text-slate-500 uppercase mt-0.5 tracking-widest">REF: {log.reason}</p>
+                                        <p className="text-slate-200 font-black text-base uppercase tracking-tight group-hover:text-foreground transition-colors">{log.staffName}</p>
+                                        <p className="text-[10px] font-mono text-muted-foreground uppercase mt-0.5 tracking-widest">REF: {log.reason}</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
@@ -124,16 +124,16 @@ export const BursarReconciliationDashboard: React.FC<BursarReconciliationDashboa
                         {liveStats.recentOverrides.length === 0 && (
                             <div className="p-20 text-center">
                                 <ShieldAlert size={48} className="text-slate-800 mx-auto mb-4" />
-                                <p className="text-slate-500 font-mono uppercase tracking-[0.1em] text-xs">No Recent Override Events</p>
+                                <p className="text-muted-foreground font-mono uppercase tracking-[0.1em] text-xs">No Recent Override Events</p>
                             </div>
                         )}
                     </CardContent>
                 </Card>
 
                 {/* 📊 Attendance compliance Trend */}
-                <Card className="bg-slate-900 border-white/10 shadow-sm flex flex-col h-[450px]">
+                <Card className="bg-card text-card-foreground border-border shadow-sm flex flex-col h-[450px]">
                     <CardHeader className="flex flex-row justify-between items-center pb-2 shrink-0">
-                        <CardTitle className="text-xl font-bold text-white flex items-center gap-3">
+                        <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
                             <BarChart3 size={20} className="text-cyan-400" /> Weekly Compliance Trend
                         </CardTitle>
                         <div className="flex gap-1.5">
@@ -156,13 +156,13 @@ export const BursarReconciliationDashboard: React.FC<BursarReconciliationDashboa
                                     'from-violet-500/80 to-violet-500/10 group-hover:from-violet-400 group-hover:shadow-[0_0_20px_rgba(139,92,246,0.3)]'
                                 ];
                                 return (
-                                    <div key={i} className="flex-1 bg-white/5 rounded-2xl relative group overflow-hidden h-full border border-white/5">
+                                    <div key={i} className="flex-1 bg-secondary/50 rounded-2xl relative group overflow-hidden h-full border border-border/50">
                                         <div
                                             style={{ height: `${height}%` }}
                                             className={`absolute bottom-0 w-full bg-gradient-to-t ${chartColors[i % chartColors.length]} transition-all duration-700`}
                                         />
                                         <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <span className="text-[10px] font-bold text-white font-mono">{height}%</span>
+                                            <span className="text-[10px] font-bold text-foreground font-mono">{height}%</span>
                                         </div>
                                     </div>
                                 );
@@ -170,17 +170,17 @@ export const BursarReconciliationDashboard: React.FC<BursarReconciliationDashboa
                         </div>
                         <div className="flex justify-between px-6 mt-4">
                             {['MON', 'TUE', 'WED', 'THU', 'FRI'].map(day => (
-                                <span key={day} className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{day}</span>
+                                <span key={day} className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{day}</span>
                             ))}
                         </div>
 
-                        <div className="mt-6 bg-white/5 p-4 rounded-xl border border-white/5 flex items-center gap-4 shrink-0">
+                        <div className="mt-6 bg-secondary/50 p-4 rounded-xl border border-border/50 flex items-center gap-4 shrink-0">
                             <div className="h-10 w-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
                                 <ShieldAlert className="text-emerald-500" size={20} />
                             </div>
                             <div>
                                 <p className="text-xs text-slate-200 font-bold uppercase tracking-tight">System Integrity Peak</p>
-                                <p className="text-[10px] text-slate-400 mt-0.5">Auto-verification hit {Math.max(...liveStats.trendData)}% this week. Geofence performance is optimal.</p>
+                                <p className="text-[10px] text-muted-foreground mt-0.5">Auto-verification hit {Math.max(...liveStats.trendData)}% this week. Geofence performance is optimal.</p>
                             </div>
                         </div>
                     </CardContent>

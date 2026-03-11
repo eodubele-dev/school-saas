@@ -34,7 +34,7 @@ export function ViewFeedbackModal({ assignment, trigger, isOpen, onOpenChange }:
     return (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-            <DialogContent className="sm:max-w-[600px] bg-slate-950 border-white/10 text-white">
+            <DialogContent className="sm:max-w-[600px] bg-slate-950 border-border text-foreground">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <CheckCircle2 className="h-5 w-5 text-green-500" />
@@ -47,10 +47,10 @@ export function ViewFeedbackModal({ assignment, trigger, isOpen, onOpenChange }:
 
                 <div className="grid gap-6 py-4">
                     {/* Header Details */}
-                    <div className="flex items-start justify-between border-b border-white/10 pb-4">
+                    <div className="flex items-start justify-between border-b border-border pb-4">
                         <div>
-                            <h3 className="text-lg font-semibold text-white">{assignment.title}</h3>
-                            <div className="flex items-center gap-2 text-slate-400 text-sm mt-1">
+                            <h3 className="text-lg font-semibold text-foreground">{assignment.title}</h3>
+                            <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
                                 <User className="h-3.5 w-3.5" />
                                 <span>{assignment.teacher}</span>
                             </div>
@@ -66,27 +66,27 @@ export function ViewFeedbackModal({ assignment, trigger, isOpen, onOpenChange }:
                     {/* Feedback Section */}
                     <div className="space-y-3">
                         <h4 className="text-sm font-medium text-slate-300 uppercase tracking-wider">Teacher Feedback</h4>
-                        <div className="bg-slate-900/50 border border-white/5 rounded-xl p-4 min-h-[100px]">
+                        <div className="bg-card text-card-foreground/50 border border-border/50 rounded-xl p-4 min-h-[100px]">
                             {assignment.feedback ? (
                                 <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
                                     {assignment.feedback}
                                 </p>
                             ) : (
-                                <span className="text-slate-500 italic">No written feedback provided.</span>
+                                <span className="text-muted-foreground italic">No written feedback provided.</span>
                             )}
                         </div>
                     </div>
 
                     {/* Metadata */}
                     {assignment.submittedDate && (
-                        <div className="text-xs text-slate-500 text-right">
+                        <div className="text-xs text-muted-foreground text-right">
                             Submitted on {format(new Date(assignment.submittedDate), "PPP p")}
                         </div>
                     )}
                 </div>
 
                 <div className="flex justify-end">
-                    <Button variant="outline" onClick={() => handleOpenChange(false)} className="bg-transparent border-white/10 text-slate-400 hover:bg-white/5 hover:text-white">
+                    <Button variant="outline" onClick={() => handleOpenChange(false)} className="bg-transparent border-border text-muted-foreground hover:bg-secondary/50 hover:text-foreground">
                         Close
                     </Button>
                 </div>

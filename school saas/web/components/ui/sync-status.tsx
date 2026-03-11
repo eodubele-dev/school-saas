@@ -32,7 +32,7 @@ export function SyncStatus() {
             "fixed bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all shadow-sm border",
             !isOnline ? "bg-red-50 text-red-600 border-red-200" :
                 isSyncing ? "bg-blue-50 text-blue-600 border-blue-200" :
-                    "bg-slate-50 text-slate-500 border-slate-200 opacity-50 hover:opacity-100"
+                    "bg-slate-50 text-muted-foreground border-slate-200 opacity-50 hover:opacity-100"
         )}>
             {!isOnline ? (
                 <>

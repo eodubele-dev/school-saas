@@ -67,7 +67,7 @@ export function TeacherLessonPublisher({ classId, subject }: { classId?: string,
     }
 
     return (
-        <Card className="p-6 bg-slate-900 border-slate-800 text-slate-100">
+        <Card className="p-6 bg-card text-card-foreground border-border text-slate-100">
             <h3 className="text-lg font-bold flex items-center gap-2 mb-6">
                 <BookOpen className="h-5 w-5 text-indigo-400" />
                 Publish to Digital Locker
@@ -81,13 +81,13 @@ export function TeacherLessonPublisher({ classId, subject }: { classId?: string,
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="e.g. Introduction to Algebra"
-                            className="bg-slate-950 border-slate-800"
+                            className="bg-slate-950 border-border"
                         />
                     </div>
                     <div className="space-y-2">
                         <Label>Week</Label>
                         <Select value={week} onValueChange={setWeek}>
-                            <SelectTrigger className="bg-slate-950 border-slate-800">
+                            <SelectTrigger className="bg-slate-950 border-border">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -105,7 +105,7 @@ export function TeacherLessonPublisher({ classId, subject }: { classId?: string,
                         value={subtopics}
                         onChange={(e) => setSubtopics(e.target.value)}
                         placeholder="Variables, Constants, Expressions"
-                        className="bg-slate-950 border-slate-800"
+                        className="bg-slate-950 border-border"
                     />
                 </div>
 
@@ -115,7 +115,7 @@ export function TeacherLessonPublisher({ classId, subject }: { classId?: string,
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder="Enter detailed lesson notes here..."
-                        className="min-h-[200px] bg-slate-950 border-slate-800 font-mono text-sm"
+                        className="min-h-[200px] bg-slate-950 border-border font-mono text-sm"
                     />
                 </div>
 

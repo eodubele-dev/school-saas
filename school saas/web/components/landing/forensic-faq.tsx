@@ -63,14 +63,14 @@ export function ForensicFAQ() {
 
             <div className="container px-4 md:px-6 relative z-10 max-w-4xl mx-auto">
                 <div className="text-center mb-16 space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700/50 text-slate-400 text-xs font-mono">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700/50 text-muted-foreground text-xs font-mono">
                         <Check className="w-3 h-3 text-cyan-500" />
                         SYSTEM_INTEGRITY_CHECK
                     </div>
-                    <h2 className="text-3xl md:text-5xl font-bold text-white">
+                    <h2 className="text-3xl md:text-5xl font-bold text-foreground">
                         Forensic <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Questions.</span>
                     </h2>
-                    <p className="text-slate-400 max-w-lg mx-auto">
+                    <p className="text-muted-foreground max-w-lg mx-auto">
                         Specific answers for proprietors running elite institutions in Lagos, Abuja, and Port Harcourt.
                     </p>
                 </div>
@@ -87,7 +87,7 @@ export function ForensicFAQ() {
                                 }}
                                 className={cn(
                                     "border rounded-2xl bg-black/40 backdrop-blur-sm overflow-hidden transition-all duration-300",
-                                    isOpen ? "shadow-[0_0_20px_rgba(6,182,212,0.1)]" : "hover:border-white/10"
+                                    isOpen ? "shadow-[0_0_20px_rgba(6,182,212,0.1)]" : "hover:border-border"
                                 )}
                             >
                                 <button
@@ -97,16 +97,16 @@ export function ForensicFAQ() {
                                     <div className="flex items-center gap-4">
                                         <div className={cn(
                                             "w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300",
-                                            isOpen ? "bg-cyan-500/10" : "bg-white/5"
+                                            isOpen ? "bg-cyan-500/10" : "bg-secondary/50"
                                         )}>
                                             {faq.icon}
                                         </div>
-                                        <span className="text-lg font-bold text-white">
+                                        <span className="text-lg font-bold text-foreground">
                                             {faq.question}
                                         </span>
                                     </div>
                                     <ChevronDown className={cn(
-                                        "w-5 h-5 text-slate-500 transition-transform duration-300",
+                                        "w-5 h-5 text-muted-foreground transition-transform duration-300",
                                         isOpen && "rotate-180 text-cyan-400"
                                     )} />
                                 </button>
@@ -120,7 +120,7 @@ export function ForensicFAQ() {
                                             transition={{ duration: 0.3 }}
                                         >
                                             <div className="px-6 pb-6 pl-[4.5rem]">
-                                                <p className="text-slate-400 leading-relaxed">
+                                                <p className="text-muted-foreground leading-relaxed">
                                                     {faq.answer}
                                                 </p>
                                             </div>

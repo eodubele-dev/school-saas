@@ -153,8 +153,8 @@ export function GradeEntryGrid({ initialGrades, classId, subjectId, userRole, do
         <div className="space-y-6" data-user-role={userRole} data-is-admin={isAdmin ? "true" : "false"}>
             <AnalyticsHeader grades={grades} />
 
-            <div className="flex justify-between items-center bg-slate-900 p-4 border border-white/5 rounded-t-lg">
-                <h3 className="text-lg font-bold text-white">Student Scores</h3>
+            <div className="flex justify-between items-center bg-card text-card-foreground p-4 border border-border/50 rounded-t-lg">
+                <h3 className="text-lg font-bold text-foreground">Student Scores</h3>
                 <div className="flex items-center gap-3">
                     {isLocked ? (
                         <div className="flex items-center gap-2 text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-full border border-amber-500/20 shadow-[0_0_15px_rgba(251,191,36,0.1)]">
@@ -180,9 +180,9 @@ export function GradeEntryGrid({ initialGrades, classId, subjectId, userRole, do
                 </div>
             </div>
 
-            <div className="overflow-x-auto border border-white/5 rounded-b-lg bg-slate-900">
+            <div className="overflow-x-auto border border-border/50 rounded-b-lg bg-card text-card-foreground">
                 <table className="w-full text-sm text-left">
-                    <thead className="text-xs text-slate-400 uppercase bg-slate-950">
+                    <thead className="text-xs text-muted-foreground uppercase bg-slate-950">
                         <tr>
                             <th className="px-4 py-3 sticky left-0 bg-slate-950 z-10 w-48 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)]">Student Name</th>
                             <th className="px-2 py-3 w-20 text-center">CA 1 (20)</th>
@@ -196,9 +196,9 @@ export function GradeEntryGrid({ initialGrades, classId, subjectId, userRole, do
                     <tbody className="divide-y divide-white/5">
                         {grades.map((grade, index) => (
                             <tr key={grade.student_id} className={cn("hover:bg-white/[0.02] group", isLocked && "opacity-70 pointer-events-none")}>
-                                <td className="px-4 py-2 font-medium text-slate-200 sticky left-0 bg-slate-900 group-hover:bg-slate-800/50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)] transition-colors">
+                                <td className="px-4 py-2 font-medium text-slate-200 sticky left-0 bg-card text-card-foreground group-hover:bg-slate-800/50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)] transition-colors">
                                     {grade.student_name}
-                                    {savingId === grade.student_id && <Loader2 className="h-3 w-3 animate-spin inline-block ml-2 text-slate-500" />}
+                                    {savingId === grade.student_id && <Loader2 className="h-3 w-3 animate-spin inline-block ml-2 text-muted-foreground" />}
                                 </td>
 
                                 {/* Inputs with Validation Glow */}
@@ -211,7 +211,7 @@ export function GradeEntryGrid({ initialGrades, classId, subjectId, userRole, do
                                         onKeyDown={(e) => handleKeyDown(e, index, 'ca1')}
                                         onChange={(e) => handleChange(grade.student_id, 'ca1', e.target.value)}
                                         className={cn(
-                                            "bg-transparent border-transparent hover:border-white/10 focus:bg-slate-950 focus:border-[var(--school-accent)] text-center h-8",
+                                            "bg-transparent border-transparent hover:border-border focus:bg-slate-950 focus:border-[var(--school-accent)] text-center h-8",
                                             grade.ca1 > 20 && "border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)] text-red-500"
                                         )}
                                     />
@@ -225,7 +225,7 @@ export function GradeEntryGrid({ initialGrades, classId, subjectId, userRole, do
                                         onKeyDown={(e) => handleKeyDown(e, index, 'ca2')}
                                         onChange={(e) => handleChange(grade.student_id, 'ca2', e.target.value)}
                                         className={cn(
-                                            "bg-transparent border-transparent hover:border-white/10 focus:bg-slate-950 focus:border-[var(--school-accent)] text-center h-8",
+                                            "bg-transparent border-transparent hover:border-border focus:bg-slate-950 focus:border-[var(--school-accent)] text-center h-8",
                                             grade.ca2 > 20 && "border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)] text-red-500"
                                         )}
                                     />
@@ -239,7 +239,7 @@ export function GradeEntryGrid({ initialGrades, classId, subjectId, userRole, do
                                         onKeyDown={(e) => handleKeyDown(e, index, 'exam')}
                                         onChange={(e) => handleChange(grade.student_id, 'exam', e.target.value)}
                                         className={cn(
-                                            "bg-transparent border-transparent hover:border-white/10 focus:bg-slate-950 focus:border-[var(--school-accent)] text-center h-8",
+                                            "bg-transparent border-transparent hover:border-border focus:bg-slate-950 focus:border-[var(--school-accent)] text-center h-8",
                                             grade.exam > 60 && "border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)] text-red-500"
                                         )}
                                     />
@@ -263,7 +263,7 @@ export function GradeEntryGrid({ initialGrades, classId, subjectId, userRole, do
                                             data-field="remarks"
                                             onKeyDown={(e) => handleKeyDown(e, index, 'remarks')}
                                             onChange={(e) => handleChange(grade.student_id, 'remarks', e.target.value)}
-                                            className="bg-transparent border-transparent hover:border-white/10 focus:bg-slate-950 focus:border-[var(--school-accent)] h-8 text-xs flex-1"
+                                            className="bg-transparent border-transparent hover:border-border focus:bg-slate-950 focus:border-[var(--school-accent)] h-8 text-xs flex-1"
                                             placeholder="Enter remark..."
                                         />
                                         {!isLocked && (

@@ -22,12 +22,12 @@ export function StaffIDCard({ user, tenant }: { user: any, tenant: any }) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <div className="flex items-center w-full cursor-pointer hover:bg-white/5 py-1.5 px-2 rounded-sm text-sm">
+                <div className="flex items-center w-full cursor-pointer hover:bg-secondary/50 py-1.5 px-2 rounded-sm text-sm">
                     <span className="mr-2 h-4 w-4 items-center justify-center flex border border-current rounded-sm text-[10px] font-bold">ID</span>
                     View Digital ID
                 </div>
             </DialogTrigger>
-            <DialogContent className="bg-transparent border-none shadow-none text-white max-w-sm p-0 flex flex-col items-center">
+            <DialogContent className="bg-transparent border-none shadow-none text-foreground max-w-sm p-0 flex flex-col items-center">
                 <div
                     ref={cardRef}
                     className="w-[85.6mm] h-[53.98mm] bg-white text-slate-900 overflow-hidden relative shadow-2xl rounded-xl print:rounded-none user-select-none"
@@ -43,13 +43,13 @@ export function StaffIDCard({ user, tenant }: { user: any, tenant: any }) {
                                 {user.avatar_url ? (
                                     <img src={user.avatar_url} className="w-full h-full object-cover" alt="" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold text-2xl">
+                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground font-bold text-2xl">
                                         {user.full_name?.charAt(0)}
                                     </div>
                                 )}
                             </div>
                             <div className="text-center">
-                                <p className="text-[6px] font-bold uppercase tracking-wider text-slate-500">Authorized Signature</p>
+                                <p className="text-[6px] font-bold uppercase tracking-wider text-muted-foreground">Authorized Signature</p>
                                 <div className="h-6 w-full mt-1 border-b border-slate-300"></div>
                             </div>
                         </div>
@@ -63,27 +63,27 @@ export function StaffIDCard({ user, tenant }: { user: any, tenant: any }) {
                                 )}
                                 <div className="leading-tight">
                                     <h2 className="text-[9pt] font-black uppercase text-slate-900 leading-none">{tenant?.name || "School Name"}</h2>
-                                    <p className="text-[6pt] text-slate-500 font-medium tracking-wide">STAFF IDENTITY CARD</p>
+                                    <p className="text-[6pt] text-muted-foreground font-medium tracking-wide">STAFF IDENTITY CARD</p>
                                 </div>
                             </div>
 
                             <div className="space-y-1.5 mt-1">
                                 <div>
-                                    <p className="text-[6pt] font-bold text-slate-400 uppercase">Name</p>
+                                    <p className="text-[6pt] font-bold text-muted-foreground uppercase">Name</p>
                                     <p className="text-[10pt] font-bold leading-none text-slate-900">{user.full_name}</p>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2">
                                     <div>
-                                        <p className="text-[6pt] font-bold text-slate-400 uppercase">Role</p>
+                                        <p className="text-[6pt] font-bold text-muted-foreground uppercase">Role</p>
                                         <p className="text-[8pt] font-bold leading-none capitalize" style={{ color: primaryColor }}>{user.role}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[6pt] font-bold text-slate-400 uppercase">Department</p>
+                                        <p className="text-[6pt] font-bold text-muted-foreground uppercase">Department</p>
                                         <p className="text-[8pt] font-bold leading-none capitalize">{user.department || "General"}</p>
                                     </div>
                                 </div>
                                 <div className="pt-2">
-                                    <p className="text-[6pt] font-bold text-slate-400 uppercase">ID Number</p>
+                                    <p className="text-[6pt] font-bold text-muted-foreground uppercase">ID Number</p>
                                     <p className="font-mono text-[8pt] font-bold">{user.id.substring(0, 8).toUpperCase()}</p>
                                 </div>
                             </div>

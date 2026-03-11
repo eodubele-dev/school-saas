@@ -92,16 +92,16 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-4xl h-[90vh] bg-slate-950 border-white/10 flex flex-col p-0 overflow-hidden">
-                <DialogHeader className="p-6 border-b border-white/10 bg-slate-900">
-                    <DialogTitle className="text-white flex items-center gap-2">
+            <DialogContent className="max-w-4xl h-[90vh] bg-slate-950 border-border flex flex-col p-0 overflow-hidden">
+                <DialogHeader className="p-6 border-b border-border bg-card text-card-foreground">
+                    <DialogTitle className="text-foreground flex items-center gap-2">
                         <UserCheck className="h-5 w-5 text-blue-400" />
                         Reviewing: <span className="text-blue-200">{item.title}</span>
                     </DialogTitle>
-                    <p className="text-xs text-slate-400">Submitted by {item.submitted_by} on {formatDate(item.submitted_at)}</p>
+                    <p className="text-xs text-muted-foreground">Submitted by {item.submitted_by} on {formatDate(item.submitted_at)}</p>
                 </DialogHeader>
 
-                <ScrollArea className="flex-1 p-8 bg-slate-900/50">
+                <ScrollArea className="flex-1 p-8 bg-card text-card-foreground/50">
                     <style>{contentStyles}</style>
                     <div className="bg-white text-slate-900 p-8 min-h-[600px] shadow-2xl relative max-w-3xl mx-auto rounded-sm lesson-content">
 
@@ -140,25 +140,25 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                                     <div className="flex flex-wrap gap-3 text-sm font-mono">
                                         {item.details?.class_name && (
                                             <span className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md border border-slate-200 flex items-center gap-2">
-                                                <span className="font-bold text-slate-400 text-xs uppercase">Class:</span>
+                                                <span className="font-bold text-muted-foreground text-xs uppercase">Class:</span>
                                                 {item.details.class_name}
                                             </span>
                                         )}
                                         {item.details?.subject && (
                                             <span className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md border border-slate-200 flex items-center gap-2">
-                                                <span className="font-bold text-slate-400 text-xs uppercase">Subject:</span>
+                                                <span className="font-bold text-muted-foreground text-xs uppercase">Subject:</span>
                                                 {item.details.subject}
                                             </span>
                                         )}
                                         {item.details?.week && (
                                             <span className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md border border-slate-200 flex items-center gap-2">
-                                                <span className="font-bold text-slate-400 text-xs uppercase">Week:</span>
+                                                <span className="font-bold text-muted-foreground text-xs uppercase">Week:</span>
                                                 {item.details.week}
                                             </span>
                                         )}
                                         {item.details?.term && (
                                             <span className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md border border-slate-200 flex items-center gap-2">
-                                                <span className="font-bold text-slate-400 text-xs uppercase">Term:</span>
+                                                <span className="font-bold text-muted-foreground text-xs uppercase">Term:</span>
                                                 {item.details.term}
                                             </span>
                                         )}
@@ -202,17 +202,17 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                                         </div>
                                         <div className="p-4 bg-slate-50 rounded text-xs text-left w-full max-w-md space-y-2 border border-slate-100">
                                             <div className="flex justify-between">
-                                                <span className="text-slate-500">Total Students:</span>
+                                                <span className="text-muted-foreground">Total Students:</span>
                                                 <span className="font-mono font-bold">{item.details.stats.studentCount}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-slate-500">Missing CA1:</span>
+                                                <span className="text-muted-foreground">Missing CA1:</span>
                                                 <span className={cn("font-mono font-bold", item.details.stats.missingCA1 > 0 ? "text-amber-600" : "text-slate-700")}>
                                                     {item.details.stats.missingCA1} students
                                                 </span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-slate-500">Missing Exam:</span>
+                                                <span className="text-muted-foreground">Missing Exam:</span>
                                                 <span className={cn("font-mono font-bold", item.details.stats.missingExam > 0 ? "text-amber-600" : "text-slate-700")}>
                                                     {item.details.stats.missingExam} students
                                                 </span>
@@ -220,7 +220,7 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                                         </div>
                                     </>
                                 ) : (
-                                    <p className="text-slate-400">Loading stats...</p>
+                                    <p className="text-muted-foreground">Loading stats...</p>
                                 )}
                             </div>
                         )}
@@ -229,10 +229,10 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
 
                 {/* Hide default footer for attendance disputes as it has its own action bar inside the notification view */}
                 {item.type !== 'attendance_dispute' && (
-                    <DialogFooter className="p-6 border-t border-white/10 bg-slate-900 flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+                    <DialogFooter className="p-6 border-t border-border bg-card text-card-foreground flex-col sm:flex-row gap-4 items-stretch sm:items-center">
                         <Textarea
                             placeholder="Add comments for rejection or notes..."
-                            className="flex-1 bg-slate-950 border-white/10 text-white min-h-[60px]"
+                            className="flex-1 bg-slate-950 border-border text-foreground min-h-[60px]"
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
                         />
@@ -240,7 +240,7 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                             <Button variant="destructive" onClick={handleReject} disabled={isProcessing || isStamped}>
                                 <XCircle className="h-4 w-4 mr-2" /> Needs Correction
                             </Button>
-                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleApprove} disabled={isProcessing || isStamped}>
+                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-foreground" onClick={handleApprove} disabled={isProcessing || isStamped}>
                                 <CheckCircle className="h-4 w-4 mr-2" /> Approve & Stamp
                             </Button>
                         </div>

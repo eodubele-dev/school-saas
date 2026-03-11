@@ -32,8 +32,8 @@ export function PerformanceRadar({ grades }: { grades: any[] }) {
     ]
 
     return (
-        <Card className="h-full p-6 bg-slate-900 border-white/5 flex flex-col items-center justify-center">
-            <h3 className="text-white font-bold mb-4 w-full text-left">Cognitive Profile</h3>
+        <Card className="h-full p-6 bg-card text-card-foreground border-border/50 flex flex-col items-center justify-center">
+            <h3 className="text-foreground font-bold mb-4 w-full text-left">Cognitive Profile</h3>
             <div className="h-[250px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
@@ -50,7 +50,7 @@ export function PerformanceRadar({ grades }: { grades: any[] }) {
                     </RadarChart>
                 </ResponsiveContainer>
             </div>
-            <p className="text-xs text-center text-slate-500 mt-2">
+            <p className="text-xs text-center text-muted-foreground mt-2">
                 Performance across key subjects
             </p>
         </Card>

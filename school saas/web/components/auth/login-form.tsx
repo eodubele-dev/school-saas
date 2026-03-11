@@ -77,7 +77,7 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
     const primaryGlow = primaryColor || '#00F5FF'
 
     return (
-        <div className="flex h-screen w-full items-center justify-center bg-[#0A0A0B] px-4 relative overflow-hidden font-sans selection:bg-cyan-900 selection:text-white">
+        <div className="flex h-screen w-full items-center justify-center bg-[#0A0A0B] px-4 relative overflow-hidden font-sans selection:bg-cyan-900 selection:text-foreground">
             {/* 1. Background Grid */}
             <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
 
@@ -89,10 +89,10 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
 
             {/* The Card Wrapper */}
             <div className="relative z-10 w-full max-w-md p-[1px] rounded-2xl bg-gradient-to-b from-white/10 to-transparent shadow-2xl">
-                <div className="w-full bg-black/60 backdrop-blur-xl border-none rounded-2xl text-white p-8">
+                <div className="w-full bg-black/60 backdrop-blur-xl border-none rounded-2xl text-foreground p-8">
                     {/* Header: School Logo & Name */}
                     <div className="text-center mb-8">
-                        <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.05)] overflow-hidden">
+                        <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-secondary/50 border border-border shadow-[0_0_30px_rgba(255,255,255,0.05)] overflow-hidden">
                             {logoUrl ? (
                                 <img src={logoUrl} alt={schoolName} className="w-full h-full object-cover" />
                             ) : (
@@ -103,10 +103,10 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
                                 />
                             )}
                         </div>
-                        <h2 className="text-2xl font-bold tracking-tight text-white mb-2">
+                        <h2 className="text-2xl font-bold tracking-tight text-foreground mb-2">
                             {schoolName || domain}
                         </h2>
-                        <p className="text-slate-500 text-sm">
+                        <p className="text-muted-foreground text-sm">
                             Command Center Access
                         </p>
                     </div>
@@ -116,20 +116,20 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
 
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="email" className="text-xs font-mono uppercase tracking-widest text-slate-500 ml-1">Official Email</Label>
+                                <Label htmlFor="email" className="text-xs font-mono uppercase tracking-widest text-muted-foreground ml-1">Official Email</Label>
                                 <Input
                                     id="email"
                                     name="email"
                                     type="email"
                                     defaultValue={initialEmail}
-                                    className="h-11 bg-[#050505] border-white/10 text-white placeholder:text-slate-600 focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500/50 rounded-lg transition-all"
+                                    className="h-11 bg-[#050505] border-border text-foreground placeholder:text-slate-600 focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500/50 rounded-lg transition-all"
                                     readOnly={!!initialEmail} // If coming from finding flow, arguably read-only or editable? Let's leave editable but styled.
                                 />
                             </div>
 
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="password" className="text-xs font-mono uppercase tracking-widest text-slate-500 ml-1">Password</Label>
+                                    <Label htmlFor="password" className="text-xs font-mono uppercase tracking-widest text-muted-foreground ml-1">Password</Label>
                                     <Link href="/forgot-password" className="text-xs text-cyan-500 hover:text-cyan-400">
                                         Recover Key?
                                     </Link>
@@ -140,12 +140,12 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
                                         name="password"
                                         type={showPassword ? "text" : "password"}
                                         required
-                                        className="h-11 bg-[#050505] border-white/10 text-white focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500/50 rounded-lg transition-all pr-10"
+                                        className="h-11 bg-[#050505] border-border text-foreground focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500/50 rounded-lg transition-all pr-10"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-0 top-0 h-full px-3 text-slate-500 hover:text-white transition-colors"
+                                        className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground transition-colors"
                                     >
                                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                     </button>
@@ -154,7 +154,7 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
                         </div>
 
                         <Button
-                            className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white font-bold tracking-wide shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] transition-all duration-300"
+                            className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-foreground font-bold tracking-wide shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] transition-all duration-300"
                             type="submit"
                             disabled={isLoading || isMagicLinkLoading}
                         >
@@ -163,7 +163,7 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
 
                         <div className="relative my-6">
                             <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-white/10" />
+                                <span className="w-full border-t border-border" />
                             </div>
                             <div className="relative flex justify-center text-[10px] uppercase">
                                 <span className="bg-[#0A0A0B] px-2 text-slate-600">Alternative Access</span>
@@ -171,7 +171,7 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
                         </div>
 
                         <Button
-                            className="w-full h-11 bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 font-medium rounded-lg transition-all"
+                            className="w-full h-11 bg-secondary/50 hover:bg-white/10 text-slate-300 border border-border font-medium rounded-lg transition-all"
                             variant="outline"
                             formAction={handleMagicLink}
                             disabled={isMagicLinkLoading}
@@ -186,7 +186,7 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
                     </form>
 
                     <p className="text-center text-xs text-slate-600 mt-8">
-                        Authorized Personnel Only • <Link href="/" className="hover:text-slate-400 transition-colors">Abort Session</Link>
+                        Authorized Personnel Only • <Link href="/" className="hover:text-muted-foreground transition-colors">Abort Session</Link>
                     </p>
                 </div>
             </div>

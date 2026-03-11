@@ -10,17 +10,17 @@ const stats = [
 
 export function StatsSection() {
     return (
-        <section className="py-12 border-y border-white/5 bg-white/5 backdrop-blur-sm">
+        <section className="py-12 border-y border-border/50 bg-secondary/50 backdrop-blur-sm">
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {stats.map((stat, idx) => (
                         <div key={idx} className="flex items-center justify-center gap-4">
-                            <div className={`p-3 rounded-xl bg-obsidian border border-white/10 ${stat.color}`}>
+                            <div className={`p-3 rounded-xl bg-obsidian border border-border ${stat.color}`}>
                                 <stat.icon className="h-6 w-6" />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-bold text-white">{stat.value}</h3>
-                                <p className="text-sm text-slate-400">{stat.label}</p>
+                                <h3 className="text-2xl font-bold text-foreground">{stat.value}</h3>
+                                <p className="text-sm text-muted-foreground">{stat.label}</p>
                             </div>
                         </div>
                     ))}

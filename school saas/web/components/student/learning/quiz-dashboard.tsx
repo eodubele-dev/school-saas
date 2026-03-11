@@ -11,14 +11,14 @@ export function QuizDashboard({ quizzes }: { quizzes: any[] }) {
 
     return (
         <div className="space-y-4">
-            <h3 className="text-white font-bold text-lg flex items-center gap-2">
+            <h3 className="text-foreground font-bold text-lg flex items-center gap-2">
                 <BrainCircuit className="h-5 w-5 text-purple-400" />
                 CBT Testing Center
             </h3>
 
             <div className="space-y-3">
                 {quizzes.length === 0 ? (
-                    <div className="p-8 text-center bg-slate-900 border border-white/5 rounded-lg text-slate-500 text-sm">
+                    <div className="p-8 text-center bg-card text-card-foreground border border-border/50 rounded-lg text-muted-foreground text-sm">
                         No active quizzes at the moment.
                     </div>
                 ) : (
@@ -35,7 +35,7 @@ export function QuizDashboard({ quizzes }: { quizzes: any[] }) {
                             : (quiz.total_questions > 0 ? Math.round((quiz.score / quiz.total_questions) * 100) : 0)
 
                         return (
-                            <Card key={quiz.id} className="p-4 bg-slate-900 border-white/5 flex items-center justify-between group hover:border-purple-500/50 transition-all">
+                            <Card key={quiz.id} className="p-4 bg-card text-card-foreground border-border/50 flex items-center justify-between group hover:border-purple-500/50 transition-all">
                                 <div className="flex items-center gap-4">
                                     <div className={cn(
                                         "h-12 w-12 rounded-lg flex items-center justify-center font-bold text-lg",
@@ -44,7 +44,7 @@ export function QuizDashboard({ quizzes }: { quizzes: any[] }) {
                                         {isCompleted ? <CheckCircle2 className="h-6 w-6" /> : quiz.subject?.substring(0, 2)}
                                     </div>
                                     <div>
-                                        <h4 className="text-white font-bold flex items-center gap-2">
+                                        <h4 className="text-foreground font-bold flex items-center gap-2">
                                             {quiz.title}
                                             {isCompleted && (
                                                 <span className="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded border border-green-500/20">
@@ -57,7 +57,7 @@ export function QuizDashboard({ quizzes }: { quizzes: any[] }) {
                                                 </span>
                                             )}
                                         </h4>
-                                        <div className="flex gap-3 text-xs text-slate-400 mt-1">
+                                        <div className="flex gap-3 text-xs text-muted-foreground mt-1">
                                             <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {quiz.duration_minutes}m</span>
                                             <span>•</span>
                                             <span>{quiz.date ? formatDate(quiz.date) : 'Available Now'}</span>
@@ -69,10 +69,10 @@ export function QuizDashboard({ quizzes }: { quizzes: any[] }) {
                                     onClick={() => router.push(`/dashboard/student/cbt/${quiz.id}`)}
                                     variant={isCompleted ? "outline" : "default"}
                                     className={cn(
-                                        "border border-white/10 transition-all",
+                                        "border border-border transition-all",
                                         isCompleted
-                                            ? "bg-transparent text-slate-400 hover:text-white hover:bg-white/5"
-                                            : "bg-white/5 hover:bg-white/10 text-white hover:border-purple-500"
+                                            ? "bg-transparent text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                                            : "bg-secondary/50 hover:bg-white/10 text-foreground hover:border-purple-500"
                                     )}
                                 >
                                     {isCompleted ? "Review Results" : (isInProgress ? "Resume Quiz" : "Start Quiz")}

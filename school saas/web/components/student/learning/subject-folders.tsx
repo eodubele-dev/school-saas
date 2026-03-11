@@ -31,7 +31,7 @@ export function SubjectFolders({ subjects }: { subjects: any[] }) {
 
     return (
         <div className="space-y-6">
-            <h3 className="text-white font-bold text-lg flex items-center gap-2">
+            <h3 className="text-foreground font-bold text-lg flex items-center gap-2">
                 <Folder className="h-5 w-5 text-[var(--school-accent)]" />
                 My Subjects (Digital Locker)
             </h3>
@@ -41,13 +41,13 @@ export function SubjectFolders({ subjects }: { subjects: any[] }) {
                     <Card
                         key={idx}
                         onClick={() => handleOpenSubject(sub)}
-                        className="group relative overflow-hidden bg-slate-900 border-white/5 hover:border-[var(--school-accent)] transition-all cursor-pointer h-32 flex flex-col items-center justify-center gap-3"
+                        className="group relative overflow-hidden bg-card text-card-foreground border-border/50 hover:border-[var(--school-accent)] transition-all cursor-pointer h-32 flex flex-col items-center justify-center gap-3"
                     >
                         <div className={`absolute top-0 w-full h-1 ${sub.color || 'bg-blue-500'}`} />
-                        <Folder className="h-8 w-8 text-slate-400 group-hover:text-white transition-colors" />
+                        <Folder className="h-8 w-8 text-muted-foreground group-hover:text-foreground transition-colors" />
                         <div className="text-center">
-                            <h4 className="text-sm font-bold text-white group-hover:text-[var(--school-accent)]">{sub.name}</h4>
-                            <span className="text-[10px] text-slate-500">{sub.lessonCount} Notes</span>
+                            <h4 className="text-sm font-bold text-foreground group-hover:text-[var(--school-accent)]">{sub.name}</h4>
+                            <span className="text-[10px] text-muted-foreground">{sub.lessonCount} Notes</span>
                         </div>
                     </Card>
                 ))}
@@ -60,14 +60,14 @@ export function SubjectFolders({ subjects }: { subjects: any[] }) {
                     setActiveLesson(null)
                 }
             }}>
-                <SheetContent className="w-full sm:max-w-[1200px] bg-slate-950 border-l border-white/10 text-white overflow-y-auto p-0 flex flex-col">
+                <SheetContent className="w-full sm:max-w-[1200px] bg-slate-950 border-l border-border text-foreground overflow-y-auto p-0 flex flex-col">
                     {!activeLesson && (
-                        <SheetHeader className="p-8 border-b border-white/5">
-                            <SheetTitle className="text-white flex items-center gap-2 text-2xl">
+                        <SheetHeader className="p-8 border-b border-border/50">
+                            <SheetTitle className="text-foreground flex items-center gap-2 text-2xl">
                                 <BookOpen className="h-6 w-6 text-[var(--school-accent)]" />
                                 {selectedSubject?.name}
                             </SheetTitle>
-                            <SheetDescription className="text-slate-400">
+                            <SheetDescription className="text-muted-foreground">
                                 Browse and read your published notes for this subject.
                             </SheetDescription>
                         </SheetHeader>
@@ -81,23 +81,23 @@ export function SubjectFolders({ subjects }: { subjects: any[] }) {
                         ) : (
                             <div className="p-8 space-y-3">
                                 {loading ? (
-                                    <div className="text-center py-8 text-slate-500">Loading notes...</div>
+                                    <div className="text-center py-8 text-muted-foreground">Loading notes...</div>
                                 ) : lessons.length === 0 ? (
-                                    <div className="text-center py-8 text-slate-500">No notes published yet.</div>
+                                    <div className="text-center py-8 text-muted-foreground">No notes published yet.</div>
                                 ) : (
                                     lessons.map((lesson) => (
                                         <div
                                             key={lesson.id}
                                             onClick={() => setActiveLesson(lesson)}
-                                            className="flex items-center justify-between p-4 rounded-lg bg-slate-900 border border-white/5 hover:bg-slate-800 cursor-pointer transition-colors"
+                                            className="flex items-center justify-between p-4 rounded-lg bg-card text-card-foreground border border-border/50 hover:bg-slate-800 cursor-pointer transition-colors"
                                         >
                                             <div className="flex gap-4">
-                                                <div className="h-10 w-10 rounded bg-white/5 flex items-center justify-center text-slate-400 font-mono text-xs">
+                                                <div className="h-10 w-10 rounded bg-secondary/50 flex items-center justify-center text-muted-foreground font-mono text-xs">
                                                     wk{lesson.week || 1}
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-bold text-sm text-white">{lesson.title}</h4>
-                                                    <p className="text-xs text-slate-400 line-clamp-1">
+                                                    <h4 className="font-bold text-sm text-foreground">{lesson.title}</h4>
+                                                    <p className="text-xs text-muted-foreground line-clamp-1">
                                                         {lesson.topics && lesson.topics.length > 0
                                                             ? lesson.topics.join(", ")
                                                             : "No description available"}

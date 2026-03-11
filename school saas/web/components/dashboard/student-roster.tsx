@@ -69,14 +69,14 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
     }
 
     return (
-        <Card className={`bg-slate-900 border-white/10 overflow-hidden flex flex-col ${className}`}>
+        <Card className={`bg-card text-card-foreground border-border overflow-hidden flex flex-col ${className}`}>
             {/* Header / Actions */}
-            <div className="p-4 border-b border-white/10 flex flex-col md:flex-row gap-4 justify-between items-center bg-slate-900/50">
+            <div className="p-4 border-b border-border flex flex-col md:flex-row gap-4 justify-between items-center bg-card text-card-foreground/50">
                 <div className="relative w-full md:w-72">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search by name or ID..."
-                        className="pl-9 bg-slate-900 border-white/5 h-9 text-sm text-white placeholder:text-slate-500 focus:bg-slate-800 transition-all border-white/10"
+                        className="pl-9 bg-card text-card-foreground border-border/50 h-9 text-sm text-foreground placeholder:text-muted-foreground focus:bg-slate-800 transition-all border-border"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -87,13 +87,13 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className={`h-9 border border-white/10 text-slate-400 hover:bg-white/10 hover:text-white transition-all ${statusFilter ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : ''}`}
+                                className={`h-9 border border-border text-muted-foreground hover:bg-white/10 hover:text-foreground transition-all ${statusFilter ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : ''}`}
                             >
                                 <Filter className="h-4 w-4 mr-2" />
                                 {statusFilter ? `Status: ${statusFilter}` : 'Filter'}
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-slate-900 border-white/10 text-slate-300">
+                        <DropdownMenuContent className="bg-card text-card-foreground border-border text-slate-300">
                             <DropdownMenuItem onClick={() => setStatusFilter(null)}>All Students</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setStatusFilter('active')}>Active Only</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setStatusFilter('inactive')}>Inactive Only</DropdownMenuItem>
@@ -104,7 +104,7 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
                     <Button
                         size="sm"
                         onClick={handleExport}
-                        className="h-9 bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 active:scale-95 transition-all"
+                        className="h-9 bg-blue-600 hover:bg-blue-500 text-foreground font-bold px-4 active:scale-95 transition-all"
                     >
                         Export List
                     </Button>
@@ -114,7 +114,7 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
             {/* Table */}
             <div className="flex-1 overflow-auto">
                 <table className="w-full text-left text-sm">
-                    <thead className="bg-slate-950/50 text-slate-500 font-medium border-b border-white/5 sticky top-0 z-10">
+                    <thead className="bg-slate-950/50 text-muted-foreground font-medium border-b border-border/50 sticky top-0 z-10">
                         <tr>
                             <th className="p-4 px-6 w-16">Profile</th>
                             <th className="p-4">Student Name</th>
@@ -126,25 +126,25 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
                     </thead>
                     <tbody className="divide-y divide-white/5">
                         {filteredStudents.map(student => (
-                            <tr key={student.id} className="hover:bg-white/5 group transition-colors">
+                            <tr key={student.id} className="hover:bg-secondary/50 group transition-colors">
                                 <td className="p-4 px-6">
-                                    <div className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-white/10">
+                                    <div className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-border">
                                         {student.avatar_url ? (
                                             <img src={student.avatar_url} alt={student.full_name} className="h-full w-full object-cover" />
                                         ) : (
-                                            <User className="h-5 w-5 text-slate-500" />
+                                            <User className="h-5 w-5 text-muted-foreground" />
                                         )}
                                     </div>
                                 </td>
                                 <td className="p-4">
                                     <div className="font-medium text-slate-200">{student.full_name}</div>
                                 </td>
-                                <td className="p-4 text-slate-500 font-mono text-xs">
+                                <td className="p-4 text-muted-foreground font-mono text-xs">
                                     {student.admission_number}
                                 </td>
                                 <td className="p-4">
                                     <Badge variant="outline" className={
-                                        student.status === 'active' ? "border-emerald-500/20 text-emerald-500 bg-emerald-500/10" : "border-slate-700 text-slate-500"
+                                        student.status === 'active' ? "border-emerald-500/20 text-emerald-500 bg-emerald-500/10" : "border-slate-700 text-muted-foreground"
                                     }>
                                         {student.status}
                                     </Badge>
@@ -168,7 +168,7 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
                                         <Button
                                             size="icon"
                                             variant="ghost"
-                                            className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                                            className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-white/10 transition-all"
                                             onClick={() => {
                                                 if (student.parent_phone) {
                                                     toast.info(`Contact Parent: ${student.parent_name || 'Guardian'}`, {
@@ -191,11 +191,11 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
 
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+                                                <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-white/10 transition-all">
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="bg-slate-900 border-white/10 text-slate-300 w-48">
+                                            <DropdownMenuContent align="end" className="bg-card text-card-foreground border-border text-slate-300 w-48">
                                                 <DropdownMenuItem
                                                     onClick={() => window.location.href = `/dashboard/teacher/behavior?studentId=${student.id}`}
                                                     className="cursor-pointer"
@@ -228,7 +228,7 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
                         ))}
                         {filteredStudents.length === 0 && (
                             <tr>
-                                <td colSpan={6} className="p-8 text-center text-slate-500">
+                                <td colSpan={6} className="p-8 text-center text-muted-foreground">
                                     No students found matching your search.
                                 </td>
                             </tr>
@@ -237,7 +237,7 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
                 </table>
             </div>
 
-            <div className="p-4 border-t border-white/5 bg-slate-950/30 text-xs text-slate-500 flex justify-between items-center">
+            <div className="p-4 border-t border-border/50 bg-slate-950/30 text-xs text-muted-foreground flex justify-between items-center">
                 <span>Showing {filteredStudents.length} of {students.length} students</span>
             </div>
         </Card>

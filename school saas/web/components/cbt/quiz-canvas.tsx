@@ -19,12 +19,12 @@ interface QuizCanvasProps {
 export function QuizCanvas({ questions, onRemove, onUpdate, onReorder }: QuizCanvasProps) {
     if (questions.length === 0) {
         return (
-            <div className="h-full border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center text-center p-12 bg-slate-900/40">
-                <div className="h-16 w-16 rounded-full bg-white/5 flex items-center justify-center mb-6">
+            <div className="h-full border-2 border-dashed border-border/50 rounded-2xl flex flex-col items-center justify-center text-center p-12 bg-card text-card-foreground/40">
+                <div className="h-16 w-16 rounded-full bg-secondary/50 flex items-center justify-center mb-6">
                     <MessageCircle className="h-8 w-8 text-slate-700" />
                 </div>
-                <h3 className="text-xl font-serif font-bold text-white mb-2">Your Assessment is Empty</h3>
-                <p className="text-slate-500 max-w-xs text-sm">
+                <h3 className="text-xl font-serif font-bold text-foreground mb-2">Your Assessment is Empty</h3>
+                <p className="text-muted-foreground max-w-xs text-sm">
                     Select a source from the left sidebar to start building your quiz. You can add questions manually, generate them with AI, or pull from the exam bank.
                 </p>
             </div>
@@ -77,7 +77,7 @@ function QuestionCard({ question, index, onRemove, onUpdate }: {
     }
 
     return (
-        <div className="group bg-slate-900/60 border border-white/5 rounded-2xl p-6 transition-all hover:bg-slate-900/80 hover:border-blue-500/20 relative">
+        <div className="group bg-card text-card-foreground/60 border border-border/50 rounded-2xl p-6 transition-all hover:bg-card text-card-foreground/80 hover:border-blue-500/20 relative">
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-hover:bg-blue-600 rounded-l-2xl transition-all" />
 
             <div className="flex items-start gap-4">
@@ -93,11 +93,11 @@ function QuestionCard({ question, index, onRemove, onUpdate }: {
                         <div className="flex items-center gap-2">
                             <Input
                                 type="number"
-                                className="w-16 h-8 bg-slate-950/50 border-white/10 text-center text-xs"
+                                className="w-16 h-8 bg-slate-950/50 border-border text-center text-xs"
                                 value={question.points}
                                 onChange={(e) => onUpdate(question.id, { points: parseInt(e.target.value) })}
                             />
-                            <span className="text-[10px] text-slate-600 uppercase font-bold pr-2 border-r border-white/5">Marks</span>
+                            <span className="text-[10px] text-slate-600 uppercase font-bold pr-2 border-r border-border/50">Marks</span>
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -110,11 +110,11 @@ function QuestionCard({ question, index, onRemove, onUpdate }: {
                     </div>
 
                     <div className="space-y-3">
-                        <Label className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Question Text</Label>
+                        <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Question Text</Label>
                         <Textarea
                             value={question.question_text}
                             onChange={(e) => onUpdate(question.id, { question_text: e.target.value })}
-                            className="bg-transparent border-white/10 text-white font-medium resize-none min-h-[80px]"
+                            className="bg-transparent border-border text-foreground font-medium resize-none min-h-[80px]"
                             placeholder="Enter your question here..."
                         />
                     </div>
@@ -127,14 +127,14 @@ function QuestionCard({ question, index, onRemove, onUpdate }: {
                                     <Input
                                         value={question.options[i]}
                                         onChange={(e) => updateOption(i, e.target.value)}
-                                        className={`bg-slate-950/30 border-white/5 text-sm transition-all focus:border-blue-500/50 ${question.correct_option === i ? 'ring-2 ring-emerald-500/50 border-emerald-500/50 bg-emerald-500/5' : ''
+                                        className={`bg-slate-950/30 border-border/50 text-sm transition-all focus:border-blue-500/50 ${question.correct_option === i ? 'ring-2 ring-emerald-500/50 border-emerald-500/50 bg-emerald-500/5' : ''
                                             }`}
                                     />
                                     <button
                                         onClick={() => onUpdate(question.id, { correct_option: i })}
                                         className={`px-3 rounded-lg border transition-all ${question.correct_option === i
-                                            ? 'bg-emerald-600 border-emerald-500 text-white shadow-lg shadow-emerald-500/20'
-                                            : 'bg-white/5 border-white/10 text-slate-600 hover:text-slate-400'
+                                            ? 'bg-emerald-600 border-emerald-500 text-foreground shadow-lg shadow-emerald-500/20'
+                                            : 'bg-secondary/50 border-border text-slate-600 hover:text-muted-foreground'
                                             }`}
                                     >
                                         <CheckCircle2 className="h-4 w-4" />
@@ -144,9 +144,9 @@ function QuestionCard({ question, index, onRemove, onUpdate }: {
                         ))}
                     </div>
 
-                    <div className="pt-4 border-t border-white/5 space-y-3">
+                    <div className="pt-4 border-t border-border/50 space-y-3">
                         <div className="flex items-center justify-between">
-                            <Label className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Explanation / Breakdown</Label>
+                            <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Explanation / Breakdown</Label>
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -161,7 +161,7 @@ function QuestionCard({ question, index, onRemove, onUpdate }: {
                         <Textarea
                             value={question.explanation || ""}
                             onChange={(e) => onUpdate(question.id, { explanation: e.target.value })}
-                            className="bg-transparent border-white/5 text-xs text-slate-400 font-serif italic min-h-[60px]"
+                            className="bg-transparent border-border/50 text-xs text-muted-foreground font-serif italic min-h-[60px]"
                             placeholder="Provide a breakdown for students..."
                         />
                     </div>

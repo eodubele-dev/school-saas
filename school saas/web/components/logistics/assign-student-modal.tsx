@@ -124,11 +124,11 @@ export function AssignStudentModal({ routeId, routeName }: { routeId: string, ro
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="bg-slate-800 border-white/10 hover:bg-slate-700 text-white hover:!text-white gap-2 transition-colors">
+                <Button variant="outline" size="sm" className="bg-slate-800 border-border hover:bg-slate-700 text-foreground hover:!text-foreground gap-2 transition-colors">
                     <UserPlus className="h-4 w-4" /> Manage
                 </Button>
             </DialogTrigger>
-            <DialogContent className="bg-slate-950 border-white/10 text-white sm:max-w-[500px] max-h-[80vh] flex flex-col p-0">
+            <DialogContent className="bg-slate-950 border-border text-foreground sm:max-w-[500px] max-h-[80vh] flex flex-col p-0">
                 <DialogHeader className="p-6 pb-0">
                     <DialogTitle>Manage Students: {routeName}</DialogTitle>
                 </DialogHeader>
@@ -136,20 +136,20 @@ export function AssignStudentModal({ routeId, routeName }: { routeId: string, ro
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Current Assignments */}
                     <div className="space-y-3">
-                        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Currently Assigned ({assignments.length})</h4>
+                        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Currently Assigned ({assignments.length})</h4>
                         <div className="space-y-2">
                             {assignments.map(a => (
-                                <div key={a.id} className="flex justify-between items-center p-3 rounded-lg bg-slate-900 border border-white/5">
+                                <div key={a.id} className="flex justify-between items-center p-3 rounded-lg bg-card text-card-foreground border border-border/50">
                                     <div>
                                         <div className="font-medium text-sm">{a.student.first_name} {a.student.last_name}</div>
-                                        <div className="text-[10px] text-slate-500 flex items-center gap-1">
+                                        <div className="text-[10px] text-muted-foreground flex items-center gap-1">
                                             <MapPin className="h-3 w-3" /> {a.stop_location || 'Default Route Stop'}
                                         </div>
                                     </div>
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-8 w-8 text-slate-500 hover:text-red-400 hover:bg-red-400/10"
+                                        className="h-8 w-8 text-muted-foreground hover:text-red-400 hover:bg-red-400/10"
                                         onClick={() => handleRemove(a.id)}
                                         disabled={loading}
                                     >
@@ -165,12 +165,12 @@ export function AssignStudentModal({ routeId, routeName }: { routeId: string, ro
 
                     {/* Search & Add */}
                     <div className="space-y-3 pt-2">
-                        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Assign New Student</h4>
+                        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Assign New Student</h4>
                         <div className="relative">
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder="Search students by name or admission number..."
-                                className="pl-9 bg-slate-900 border-white/10"
+                                className="pl-9 bg-card text-card-foreground border-border"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
@@ -182,18 +182,18 @@ export function AssignStudentModal({ routeId, routeName }: { routeId: string, ro
                                 return (
                                     <div key={s.id} className={cn(
                                         "p-2 rounded-lg transition-all border",
-                                        isSelected ? "bg-cyan-500/10 border-cyan-500/30" : "hover:bg-white/5 border-transparent hover:border-white/5"
+                                        isSelected ? "bg-cyan-500/10 border-cyan-500/30" : "hover:bg-secondary/50 border-transparent hover:border-border/50"
                                     )}>
                                         <div className="flex justify-between items-center">
                                             <div className="text-sm">
                                                 <div className="font-medium">{s.name}</div>
-                                                <div className="text-xs text-slate-500 font-mono">{s.admissionNo}</div>
+                                                <div className="text-xs text-muted-foreground font-mono">{s.admissionNo}</div>
                                             </div>
                                             {isSelected ? (
                                                 <Button size="sm" variant="ghost" onClick={() => {
                                                     setAssigningStudentId(null)
                                                     setStopLocation("")
-                                                }} className="text-slate-400">Cancel</Button>
+                                                }} className="text-muted-foreground">Cancel</Button>
                                             ) : (
                                                 <Button
                                                     size="sm"
@@ -211,18 +211,18 @@ export function AssignStudentModal({ routeId, routeName }: { routeId: string, ro
                                         </div>
 
                                         {isSelected ? (
-                                            <div className="mt-3 space-y-2 p-3 bg-slate-950/50 rounded-lg border border-white/5 animate-in fade-in zoom-in-95 duration-200">
-                                                <Label className="text-[10px] uppercase text-slate-500">Confirm Stop Location</Label>
+                                            <div className="mt-3 space-y-2 p-3 bg-slate-950/50 rounded-lg border border-border/50 animate-in fade-in zoom-in-95 duration-200">
+                                                <Label className="text-[10px] uppercase text-muted-foreground">Confirm Stop Location</Label>
                                                 <div className="flex gap-2">
                                                     <Input
                                                         placeholder="e.g. Admiralty Way, Gate 2"
-                                                        className="h-8 text-xs bg-slate-900 border-white/10"
+                                                        className="h-8 text-xs bg-card text-card-foreground border-border"
                                                         value={stopLocation}
                                                         onChange={(e) => setStopLocation(e.target.value)}
                                                     />
                                                     <Button
                                                         size="sm"
-                                                        className="h-8 bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-4"
+                                                        className="h-8 bg-cyan-600 hover:bg-cyan-500 text-foreground text-xs px-4"
                                                         onClick={() => handleAssign(s.id)}
                                                         disabled={loading}
                                                     >
@@ -242,7 +242,7 @@ export function AssignStudentModal({ routeId, routeName }: { routeId: string, ro
                 </div>
 
                 <div className="p-6 pt-0 mt-auto">
-                    <Button variant="ghost" className="w-full text-slate-400" onClick={() => setOpen(false)}>
+                    <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => setOpen(false)}>
                         Close
                     </Button>
                 </div>

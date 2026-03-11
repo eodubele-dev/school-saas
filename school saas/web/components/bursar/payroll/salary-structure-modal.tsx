@@ -53,7 +53,7 @@ export function SalaryStructureModal({ staff, onSuccess, children }: SalaryStruc
             <DialogTrigger asChild>
                 {children}
             </DialogTrigger>
-            <DialogContent className="bg-slate-900 border-white/5 text-white max-w-2xl">
+            <DialogContent className="bg-card text-card-foreground border-border/50 text-foreground max-w-2xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Lock className="h-4 w-4 text-amber-500" />
@@ -64,79 +64,79 @@ export function SalaryStructureModal({ staff, onSuccess, children }: SalaryStruc
                 <form onSubmit={handleSubmit} className="space-y-6 pt-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label className="text-slate-400">Base Salary (₦)</Label>
+                            <Label className="text-muted-foreground">Base Salary (₦)</Label>
                             <Input
                                 type="number"
-                                className="bg-slate-950 border-white/10 text-white"
+                                className="bg-slate-950 border-border text-foreground"
                                 value={formData.base_salary}
                                 onChange={e => setFormData({ ...formData, base_salary: Number(e.target.value) })}
                                 required
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-slate-400">Housing Allowance (₦)</Label>
+                            <Label className="text-muted-foreground">Housing Allowance (₦)</Label>
                             <Input
                                 type="number"
-                                className="bg-slate-950 border-white/10 text-white"
+                                className="bg-slate-950 border-border text-foreground"
                                 value={formData.housing_allowance}
                                 onChange={e => setFormData({ ...formData, housing_allowance: Number(e.target.value) })}
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-slate-400">Transport Allowance (₦)</Label>
+                            <Label className="text-muted-foreground">Transport Allowance (₦)</Label>
                             <Input
                                 type="number"
-                                className="bg-slate-950 border-white/10 text-white"
+                                className="bg-slate-950 border-border text-foreground"
                                 value={formData.transport_allowance}
                                 onChange={e => setFormData({ ...formData, transport_allowance: Number(e.target.value) })}
                             />
                         </div>
 
-                        <div className="col-span-2 border-t border-white/5 my-2"></div>
+                        <div className="col-span-2 border-t border-border/50 my-2"></div>
 
                         <div className="space-y-2">
-                            <Label className="text-slate-400">Tax Deduction (₦)</Label>
+                            <Label className="text-muted-foreground">Tax Deduction (₦)</Label>
                             <Input
                                 type="number"
-                                className="bg-slate-950 border-white/10 text-white"
+                                className="bg-slate-950 border-border text-foreground"
                                 value={formData.tax_deduction}
                                 onChange={e => setFormData({ ...formData, tax_deduction: Number(e.target.value) })}
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-slate-400">Pension Deduction (₦)</Label>
+                            <Label className="text-muted-foreground">Pension Deduction (₦)</Label>
                             <Input
                                 type="number"
-                                className="bg-slate-950 border-white/10 text-white"
+                                className="bg-slate-950 border-border text-foreground"
                                 value={formData.pension_deduction}
                                 onChange={e => setFormData({ ...formData, pension_deduction: Number(e.target.value) })}
                             />
                         </div>
 
-                        <div className="col-span-2 border-t border-white/5 my-2"></div>
+                        <div className="col-span-2 border-t border-border/50 my-2"></div>
 
                         <div className="col-span-2 grid grid-cols-3 gap-4">
                             <div className="space-y-2">
-                                <Label className="text-slate-400">Bank Name</Label>
+                                <Label className="text-muted-foreground">Bank Name</Label>
                                 <Input
-                                    className="bg-slate-950 border-white/10 text-white"
+                                    className="bg-slate-950 border-border text-foreground"
                                     value={formData.bank_name}
                                     onChange={e => setFormData({ ...formData, bank_name: e.target.value })}
                                     placeholder="e.g. GTBank"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-slate-400">Account Number</Label>
+                                <Label className="text-muted-foreground">Account Number</Label>
                                 <Input
-                                    className="bg-slate-950 border-white/10 text-white"
+                                    className="bg-slate-950 border-border text-foreground"
                                     value={formData.account_number}
                                     onChange={e => setFormData({ ...formData, account_number: e.target.value })}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-slate-400">Account Name</Label>
+                                <Label className="text-muted-foreground">Account Name</Label>
                                 <Input
-                                    className="bg-slate-950 border-white/10 text-white"
+                                    className="bg-slate-950 border-border text-foreground"
                                     value={formData.account_name}
                                     onChange={e => setFormData({ ...formData, account_name: e.target.value })}
                                 />

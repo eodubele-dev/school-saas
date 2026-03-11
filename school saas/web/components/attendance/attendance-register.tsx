@@ -236,7 +236,7 @@ export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
                 </div>
 
                 {loading ? (
-                    <div className="p-8 text-center text-slate-500">Loading students...</div>
+                    <div className="p-8 text-center text-muted-foreground">Loading students...</div>
                 ) : (
                     students.map(student => (
                         <Card key={student.id} className="overflow-hidden">

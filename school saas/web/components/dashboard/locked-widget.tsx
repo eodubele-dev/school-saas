@@ -43,7 +43,7 @@ export function LockedWidget({
             </div>
 
             {/* Lock Overlay - Modern Dashboard Glassmorphism */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0f172a]/90 backdrop-blur-lg z-20 p-4 text-center rounded-xl border border-white/5 shadow-2xl">
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0f172a]/90 backdrop-blur-lg z-20 p-4 text-center rounded-xl border border-border/50 shadow-2xl">
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     whileInView={{ scale: 1, opacity: 1 }}
@@ -53,17 +53,17 @@ export function LockedWidget({
                     <ShieldAlert className="h-6 w-6 text-cyan-400" />
                 </motion.div>
 
-                <h3 className="text-base font-bold text-white mb-1 tracking-tight">Access Restricted</h3>
-                <p className="text-[10px] text-slate-400 mb-5 max-w-[220px] leading-relaxed uppercase tracking-widest font-medium">
+                <h3 className="text-base font-bold text-foreground mb-1 tracking-tight">Access Restricted</h3>
+                <p className="text-[10px] text-muted-foreground mb-5 max-w-[220px] leading-relaxed uppercase tracking-widest font-medium">
                     {message}
                 </p>
 
                 <button
                     onClick={onUpgrade}
-                    className="group relative px-5 py-2.5 bg-blue-600 border border-blue-500/50 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all flex items-center gap-2 overflow-hidden"
+                    className="group relative px-5 py-2.5 bg-blue-600 border border-blue-500/50 text-foreground text-[10px] font-black uppercase tracking-widest rounded-lg hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all flex items-center gap-2 overflow-hidden"
                 >
                     <span className="relative z-10">Expand Command Center</span>
-                    <Zap className="h-3 w-3 fill-current relative z-10 text-white" />
+                    <Zap className="h-3 w-3 fill-current relative z-10 text-foreground" />
                     <div className="absolute inset-0 bg-blue-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                 </button>
 

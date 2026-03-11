@@ -66,14 +66,14 @@ export function MegaMenu() {
                         animate={{ opacity: 1, y: 0, scale: 1, x: "-50%" }}
                         exit={{ opacity: 0, y: -20, scale: 0.98, x: "-50%" }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className="fixed top-24 left-1/2 w-[95%] max-w-5xl bg-[#0A0A0B]/95 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] z-50 overflow-hidden"
+                        className="fixed top-24 left-1/2 w-[95%] max-w-5xl bg-[#0A0A0B]/95 backdrop-blur-2xl border border-border rounded-3xl shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] z-50 overflow-hidden"
                     >
                         <div className="grid md:grid-cols-4 h-full">
                             {/* Left Side: Module Highlights (Bento Style) */}
-                            <div className="md:col-span-3 p-8 border-r border-white/5">
+                            <div className="md:col-span-3 p-8 border-r border-border/50">
                                 <div className="flex items-center justify-between mb-8">
-                                    <h3 className="text-sm font-mono text-slate-500 uppercase tracking-widest">Ecosystem Highlights</h3>
-                                    <div className="h-px flex-1 mx-6 bg-white/5" />
+                                    <h3 className="text-sm font-mono text-muted-foreground uppercase tracking-widest">Ecosystem Highlights</h3>
+                                    <div className="h-px flex-1 mx-6 bg-secondary/50" />
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -84,13 +84,13 @@ export function MegaMenu() {
                                                 scrollToSection(mod.id, true)
                                                 closeMegaMenu()
                                             }}
-                                            className="flex flex-col items-start text-left p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-cyan-500/30 hover:bg-white/10 transition-all group"
+                                            className="flex flex-col items-start text-left p-4 rounded-2xl bg-secondary/50 border border-border/50 hover:border-cyan-500/30 hover:bg-white/10 transition-all group"
                                         >
                                             <div className="p-2 rounded-lg bg-black/40 mb-3 group-hover:scale-110 transition-transform">
                                                 {mod.icon}
                                             </div>
-                                            <div className="text-white font-bold text-sm mb-1">{mod.title}</div>
-                                            <div className="text-slate-500 text-xs leading-relaxed">{mod.desc}</div>
+                                            <div className="text-foreground font-bold text-sm mb-1">{mod.title}</div>
+                                            <div className="text-muted-foreground text-xs leading-relaxed">{mod.desc}</div>
                                         </button>
                                     ))}
                                 </div>
@@ -107,33 +107,33 @@ export function MegaMenu() {
                                         <Link
                                             href="/success-stories"
                                             onClick={closeMegaMenu}
-                                            className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 hover:border-cyan-500/30 hover:bg-white/10 transition-all group/item"
+                                            className="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 border border-border/50 hover:border-cyan-500/30 hover:bg-white/10 transition-all group/item"
                                         >
                                             <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                                                 <Quote className="w-4 h-4 text-emerald-400" />
                                             </div>
                                             <div>
-                                                <div className="text-white text-xs font-bold mb-0.5">Success Stories</div>
-                                                <div className="text-[10px] text-slate-500">₦142M+ Recovered</div>
+                                                <div className="text-foreground text-xs font-bold mb-0.5">Success Stories</div>
+                                                <div className="text-[10px] text-muted-foreground">₦142M+ Recovered</div>
                                             </div>
                                         </Link>
                                         <Link
                                             href="/about"
                                             onClick={closeMegaMenu}
-                                            className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 hover:border-blue-500/30 hover:bg-white/10 transition-all group/item"
+                                            className="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 border border-border/50 hover:border-blue-500/30 hover:bg-white/10 transition-all group/item"
                                         >
                                             <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
                                                 <Globe className="w-4 h-4 text-blue-400" />
                                             </div>
                                             <div>
-                                                <div className="text-white text-xs font-bold mb-0.5">About Us</div>
-                                                <div className="text-[10px] text-slate-500">Mission & Vision</div>
+                                                <div className="text-foreground text-xs font-bold mb-0.5">About Us</div>
+                                                <div className="text-[10px] text-muted-foreground">Mission & Vision</div>
                                             </div>
                                         </Link>
                                     </div>
                                 </div>
 
-                                <div className="mt-8 pt-8 border-t border-white/5">
+                                <div className="mt-8 pt-8 border-t border-border/50">
                                     <div className="text-slate-300 text-sm font-medium mb-4">Ready for Platinum?</div>
                                     <button
                                         onClick={() => {

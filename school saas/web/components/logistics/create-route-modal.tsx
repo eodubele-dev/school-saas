@@ -40,33 +40,33 @@ export function CreateRouteModal() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <button className="h-full min-h-[250px] w-full border border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center text-slate-500 hover:text-white hover:border-white/20 transition-colors gap-3 bg-transparent">
+                <button className="h-full min-h-[250px] w-full border border-dashed border-border rounded-xl flex flex-col items-center justify-center text-muted-foreground hover:text-foreground hover:border-white/20 transition-colors gap-3 bg-transparent">
                     <div className="h-12 w-12 rounded-full bg-slate-800 flex items-center justify-center">
                         <Plus className="h-6 w-6" />
                     </div>
                     <span className="font-medium">Add New Route</span>
                 </button>
             </DialogTrigger>
-            <DialogContent className="bg-slate-950 border-white/10 text-white">
+            <DialogContent className="bg-slate-950 border-border text-foreground">
                 <DialogHeader>
                     <DialogTitle>Add New Transport Route</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 py-4">
                     <div className="space-y-2">
                         <Label>Route Name</Label>
-                        <Input name="name" placeholder="e.g. Lekki Phase 1 - Bus A" required className="bg-slate-900 border-white/10" />
+                        <Input name="name" placeholder="e.g. Lekki Phase 1 - Bus A" required className="bg-card text-card-foreground border-border" />
                     </div>
                     <div className="space-y-2">
                         <Label>Vehicle Plate Number</Label>
-                        <Input name="vehicle" placeholder="e.g. KSF-123-LG" required className="bg-slate-900 border-white/10" />
+                        <Input name="vehicle" placeholder="e.g. KSF-123-LG" required className="bg-card text-card-foreground border-border" />
                     </div>
                     <div className="space-y-2">
                         <Label>Driver Name</Label>
-                        <Input name="driver" placeholder="e.g. Mr. Sunday" required className="bg-slate-900 border-white/10" />
+                        <Input name="driver" placeholder="e.g. Mr. Sunday" required className="bg-card text-card-foreground border-border" />
                     </div>
                     <div className="space-y-2">
                         <Label>Attendant Name</Label>
-                        <Input name="attendant" placeholder="e.g. Ms. Sarah" className="bg-slate-900 border-white/10" />
+                        <Input name="attendant" placeholder="e.g. Ms. Sarah" className="bg-card text-card-foreground border-border" />
                     </div>
                     <Button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-500" disabled={loading}>
                         {loading ? "Creating..." : "Create Route"}

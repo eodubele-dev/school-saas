@@ -47,10 +47,10 @@ export function RestockModal({ item, open, onOpenChange }: RestockModalProps) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="bg-slate-900 border-white/10 text-white sm:max-w-[400px]">
+            <DialogContent className="bg-card text-card-foreground border-border text-foreground sm:max-w-[400px]">
                 <DialogHeader>
                     <DialogTitle>Restock {item?.name}</DialogTitle>
-                    <DialogDescription className="text-slate-400">
+                    <DialogDescription className="text-muted-foreground">
                         Add new stock for this item. This will update the moving average cost.
                     </DialogDescription>
                 </DialogHeader>
@@ -64,7 +64,7 @@ export function RestockModal({ item, open, onOpenChange }: RestockModalProps) {
                             min="1"
                             value={qty}
                             onChange={(e) => setQty(e.target.value)}
-                            className="bg-slate-950 border-white/10"
+                            className="bg-slate-950 border-border"
                         />
                     </div>
                     <div className="space-y-2">
@@ -76,10 +76,10 @@ export function RestockModal({ item, open, onOpenChange }: RestockModalProps) {
                             step="0.01"
                             value={cost}
                             onChange={(e) => setCost(e.target.value)}
-                            className="bg-slate-950 border-white/10"
+                            className="bg-slate-950 border-border"
                             placeholder="Current market price"
                         />
-                        <p className="text-[10px] text-slate-500">Current Avg Cost: ₦{item?.unit_cost?.toLocaleString()}</p>
+                        <p className="text-[10px] text-muted-foreground">Current Avg Cost: ₦{item?.unit_cost?.toLocaleString()}</p>
                     </div>
 
                     <DialogFooter>

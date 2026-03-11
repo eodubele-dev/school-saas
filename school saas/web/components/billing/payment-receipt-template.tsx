@@ -73,7 +73,7 @@ export const PaymentReceiptTemplate = ({
                         ))}
                     </tbody>
                     <tfoot>
-                        <tr className="bg-black text-white">
+                        <tr className="bg-black text-foreground">
                             <td colSpan={2} className="py-4 px-4 font-bold text-right uppercase text-xs tracking-widest">Total Amount Received</td>
                             <td className="py-4 px-4 text-right font-mono font-black text-lg">₦{transactionData.total.toLocaleString()}</td>
                         </tr>

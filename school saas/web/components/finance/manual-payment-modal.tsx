@@ -109,15 +109,15 @@ export function ManualPaymentModal({ onSuccess }: { onSuccess: () => void }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-[var(--school-accent)] text-white hover:brightness-110">
+                <Button className="bg-[var(--school-accent)] text-foreground hover:brightness-110">
                     <PlusCircle className="h-4 w-4 mr-2" />
                     Record Payment
                 </Button>
             </DialogTrigger>
-            <DialogContent className="bg-slate-900 border-white/10 text-white sm:max-w-[500px]">
+            <DialogContent className="bg-card text-card-foreground border-border text-foreground sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle>Manual Payment Entry</DialogTitle>
-                    <DialogDescription className="text-slate-400">
+                    <DialogDescription className="text-muted-foreground">
                         Record cash or bank transfers received at the office.
                     </DialogDescription>
                 </DialogHeader>
@@ -132,9 +132,9 @@ export function ManualPaymentModal({ onSuccess }: { onSuccess: () => void }) {
                                     placeholder="Name or Admission ID..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="bg-slate-950 border-white/10"
+                                    className="bg-slate-950 border-border"
                                 />
-                                <Button size="icon" className="bg-slate-800 text-white border border-white/10 hover:bg-slate-700 shrink-0" onClick={handleSearch} disabled={searching}>
+                                <Button size="icon" className="bg-slate-800 text-foreground border border-border hover:bg-slate-700 shrink-0" onClick={handleSearch} disabled={searching}>
                                     {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                                 </Button>
                             </div>
@@ -147,10 +147,10 @@ export function ManualPaymentModal({ onSuccess }: { onSuccess: () => void }) {
                                             setSelectedInvoice(inv)
                                             setAmount(inv.balance.toString())
                                         }}
-                                        className="p-3 rounded-lg border border-white/5 bg-white/5 hover:bg-white/10 cursor-pointer transition-colors"
+                                        className="p-3 rounded-lg border border-border/50 bg-secondary/50 hover:bg-white/10 cursor-pointer transition-colors"
                                     >
                                         <p className="text-sm font-medium">{inv.studentName}</p>
-                                        <div className="flex justify-between text-[10px] text-slate-400">
+                                        <div className="flex justify-between text-[10px] text-muted-foreground">
                                             <span>{inv.className} • {inv.term}</span>
                                             <span className="text-rose-400">Bal: ₦{inv.balance.toLocaleString()}</span>
                                         </div>
@@ -162,10 +162,10 @@ export function ManualPaymentModal({ onSuccess }: { onSuccess: () => void }) {
                         <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between">
                             <div>
                                 <p className="text-xs text-emerald-400 uppercase font-bold">Selected Student</p>
-                                <p className="font-medium text-white">{selectedInvoice.studentName}</p>
-                                <p className="text-[10px] text-slate-400">{selectedInvoice.className} • {selectedInvoice.term}</p>
+                                <p className="font-medium text-foreground">{selectedInvoice.studentName}</p>
+                                <p className="text-[10px] text-muted-foreground">{selectedInvoice.className} • {selectedInvoice.term}</p>
                             </div>
-                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white" onClick={() => setSelectedInvoice(null)}>
+                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={() => setSelectedInvoice(null)}>
                                 Change
                             </Button>
                         </div>
@@ -178,16 +178,16 @@ export function ManualPaymentModal({ onSuccess }: { onSuccess: () => void }) {
                                 type="number"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
-                                className="bg-slate-950 border-white/10"
+                                className="bg-slate-950 border-border"
                             />
                         </div>
                         <div className="space-y-2">
                             <Label>Method</Label>
                             <Select value={method} onValueChange={setMethod}>
-                                <SelectTrigger className="bg-slate-950 border-white/10">
+                                <SelectTrigger className="bg-slate-950 border-border">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-slate-900 border-white/10 text-white">
+                                <SelectContent className="bg-card text-card-foreground border-border text-foreground">
                                     <SelectItem value="cash">Cash</SelectItem>
                                     <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
                                     <SelectItem value="pos">POS</SelectItem>
@@ -202,7 +202,7 @@ export function ManualPaymentModal({ onSuccess }: { onSuccess: () => void }) {
                             value={ref}
                             onChange={(e) => setRef(e.target.value)}
                             placeholder="Optional"
-                            className="bg-slate-950 border-white/10"
+                            className="bg-slate-950 border-border"
                         />
                     </div>
 
@@ -211,12 +211,12 @@ export function ManualPaymentModal({ onSuccess }: { onSuccess: () => void }) {
                         <div className="flex items-center gap-2">
                             <Label
                                 htmlFor="file-upload"
-                                className="flex-1 flex items-center justify-center gap-2 p-3 border-2 border-dashed border-white/10 rounded-lg cursor-pointer hover:bg-white/5 transition-colors"
+                                className="flex-1 flex items-center justify-center gap-2 p-3 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-secondary/50 transition-colors"
                             >
                                 {file ? (
                                     <span className="text-xs text-emerald-400 flex items-center gap-1"><Check className="h-3 w-3" /> {file.name}</span>
                                 ) : (
-                                    <small className="text-slate-500 flex items-center gap-2"><Upload className="h-3 w-3" /> Click to upload proof</small>
+                                    <small className="text-muted-foreground flex items-center gap-2"><Upload className="h-3 w-3" /> Click to upload proof</small>
                                 )}
                             </Label>
                             <Input
@@ -234,7 +234,7 @@ export function ManualPaymentModal({ onSuccess }: { onSuccess: () => void }) {
                     <Button
                         onClick={handleSubmit}
                         disabled={loading || !selectedInvoice}
-                        className="bg-[var(--school-accent)] text-white"
+                        className="bg-[var(--school-accent)] text-foreground"
                     >
                         {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : "Save Payment"}
                     </Button>

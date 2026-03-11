@@ -34,15 +34,15 @@ export function IdCardModal({ student, tenant, trigger }: { student: any, tenant
             <DialogTrigger asChild>
                 {trigger}
             </DialogTrigger>
-            <DialogContent className="max-w-md bg-slate-950 border-white/10">
+            <DialogContent className="max-w-md bg-slate-950 border-border">
                 <DialogHeader>
-                    <DialogTitle className="text-white">Student ID Card</DialogTitle>
-                    <DialogDescription className="text-slate-400">
+                    <DialogTitle className="text-foreground">Student ID Card</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
                         Preview and print your official student identification.
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="flex justify-center py-6 bg-slate-900/50 rounded-xl my-4">
+                <div className="flex justify-center py-6 bg-card text-card-foreground/50 rounded-xl my-4">
                     {/* The ID Card is visible here, solving the ref issue */}
                     <div ref={componentRef} className="scale-90 origin-top">
                         <IdCardView student={student} tenant={tenant} />
@@ -50,12 +50,12 @@ export function IdCardModal({ student, tenant, trigger }: { student: any, tenant
                 </div>
 
                 <DialogFooter className="gap-3">
-                    <Button variant="ghost" onClick={() => setOpen(false)} className="text-slate-400">
+                    <Button variant="ghost" onClick={() => setOpen(false)} className="text-muted-foreground">
                         Close
                     </Button>
                     <Button
                         onClick={handlePrint}
-                        className="bg-[var(--school-accent)] hover:bg-blue-600 text-white"
+                        className="bg-[var(--school-accent)] hover:bg-blue-600 text-foreground"
                     >
                         <Printer className="h-4 w-4 mr-2" />
                         Print Now

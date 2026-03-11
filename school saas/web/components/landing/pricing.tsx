@@ -141,93 +141,100 @@ export function PricingTable() {
 
     const renderValue = (val: string | boolean) => {
         if (typeof val === 'boolean') {
-            return val ? <Check className="h-5 w-5 text-cyan-500 mx-auto" /> : <Minus className="h-5 w-5 text-slate-700 mx-auto" />
+            return val ? <Check className="h-5 w-5 text-blue-500 mx-auto" /> : <Minus className="h-5 w-5 text-slate-700 mx-auto" />
         }
-        return <span className={`text-sm ${val.includes('AI') || val === 'Unlimited' ? 'text-cyan-400 font-medium' : 'text-slate-300'}`}>{val}</span>
+        return <span className={`text-sm ${val.includes('AI') || val === 'Unlimited' ? 'text-blue-400 font-medium' : 'text-slate-300'}`}>{val}</span>
     }
 
     return (
         <section id="pricing" className="py-24 bg-slate-950 px-6">
             <div className="max-w-[1400px] mx-auto">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl font-bold text-white mb-4">Transparent Pricing</h2>
-                    <p className="text-slate-400">No hidden fees. Pay only for active students.</p>
+                    <h2 className="text-3xl font-bold text-foreground mb-4">Transparent Pricing</h2>
+                    <p className="text-muted-foreground">No hidden fees. Pay only for active students.</p>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-                    {plans.map((plan, i) => (
-                        <div
-                            key={i}
-                            className={`
-                                relative rounded-3xl p-8 flex flex-col h-full transition-all duration-300
-                                ${plan.highlight
-                                    ? 'bg-[#0B1028] border border-cyan-500/50 shadow-[0_0_40px_rgba(0,245,255,0.15)] z-10 scale-105'
-                                    : 'bg-[#050B20]/50 border border-white/5 hover:border-white/10 hover:bg-[#050B20]'}
-                            `}
-                        >
-                            {plan.highlight && (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-cyan-500/20">
-                                    Best Value
-                                </div>
-                            )}
+                    {plans.map((plan, i) => {
+                        const isPopular = plan.highlight;
 
-                            <div className="mb-8">
-                                <h3 className={`text-xl font-bold mb-2 ${plan.highlight ? 'text-cyan-400' : 'text-white'}`}>{plan.name}</h3>
-                                <div className="flex items-baseline gap-1 mb-2">
-                                    <span className="text-sm text-slate-500">₦</span>
-                                    <span className="text-4xl font-extrabold text-white">{plan.price}</span>
-                                    <span className="text-sm text-slate-500">{plan.period}</span>
-                                </div>
-                                <p className="text-sm text-slate-400">{plan.desc}</p>
-                            </div>
-
-                            <div className="flex-1 space-y-4 mb-8">
-                                {plan.features.map(feat => (
-                                    <div key={feat} className="flex items-start gap-3 text-sm text-slate-300">
-                                        <div className={`mt-0.5 h-4 w-4 rounded-full flex items-center justify-center shrink-0 ${plan.highlight ? 'bg-cyan-500/20 text-cyan-400' : 'bg-slate-800 text-slate-500'}`}>
-                                            <Check className="h-2.5 w-2.5" />
-                                        </div>
-                                        {feat}
+                        return (
+                            <div
+                                key={i}
+                                className={`
+                                    relative flex flex-col p-6 md:p-8 rounded-2xl border transition-all duration-200
+                                    ${isPopular ? 'border-blue-500 bg-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.1)] ring-1 ring-blue-500' : 'border-border bg-card text-card-foreground/40 hover:border-blue-500/50 hover:bg-card text-card-foreground/50'}
+                                    h-full
+                                `}
+                            >
+                                {isPopular && (
+                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-foreground text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1 sm:py-1.5 rounded-full uppercase tracking-wider shadow-lg whitespace-nowrap">
+                                        Recommended
                                     </div>
-                                ))}
-                            </div>
+                                )}
 
-                            <Link href={`/onboard/setup?plan=${plan.id}`} className="w-full">
-                                <Button
-                                    className={`w-full h-12 rounded-xl font-semibold transition-all duration-300 ${plan.highlight
-                                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-[0_0_20px_rgba(0,245,255,0.4)]'
-                                        : 'bg-white/5 hover:bg-white/10 text-white border border-white/10 hover:border-cyan-500/30'
-                                        }`}
-                                >
-                                    {plan.cta}
-                                </Button>
-                            </Link>
-                        </div>
-                    ))}
+                                <div className="mb-6 flex-1">
+                                    <h3 className="text-xl font-semibold text-foreground mb-2">{plan.name}</h3>
+                                    <div className="flex items-baseline gap-1 mb-3">
+                                        <span className="text-sm text-muted-foreground font-medium">₦</span>
+                                        <span className="text-4xl font-bold text-foreground tracking-tight">{plan.price}</span>
+                                        <span className="text-sm text-muted-foreground font-medium">{plan.period}</span>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground leading-relaxed min-h-[40px]">
+                                        {plan.desc}
+                                    </p>
+                                </div>
+
+                                <ul className="space-y-4 mb-8 mt-auto">
+                                    {plan.features.map((feat, fIdx) => (
+                                        <li key={fIdx} className="flex items-start gap-3 text-sm text-slate-300">
+                                            <div className="mt-0.5 h-5 w-5 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0">
+                                                <Check className="h-3 w-3 text-blue-400" />
+                                            </div>
+                                            <span className="leading-snug">{feat}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                <div className="mt-auto">
+                                    <Link href={`/onboard/setup?plan=${plan.id}`} className="w-full block">
+                                        <Button
+                                            className={`w-full h-12 text-sm font-semibold rounded-lg transition-colors ${isPopular
+                                                ? 'bg-blue-600 hover:bg-blue-700 text-foreground shadow-md'
+                                                : 'bg-slate-800 hover:bg-slate-700 text-foreground'
+                                                }`}
+                                        >
+                                            {plan.cta}
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </div>
+                        )
+                    })}
                 </div>
 
                 {/* Comprehensive Feature Comparison Matrix */}
                 <div className="mt-32 max-w-[1200px] mx-auto hidden md:block">
                     <div className="text-center mb-12">
-                        <h3 className="text-3xl font-bold text-white mb-4">Compare All Features</h3>
-                        <p className="text-slate-400">Everything you need to run a world-class institution.</p>
+                        <h3 className="text-3xl font-bold text-foreground mb-4">Compare All Features</h3>
+                        <p className="text-muted-foreground">Everything you need to run a world-class institution.</p>
                     </div>
 
-                    <div className="bg-[#050B20]/50 border border-white/5 rounded-3xl overflow-hidden backdrop-blur-sm">
+                    <div className="bg-[#050B20]/50 border border-border/50 rounded-3xl overflow-hidden backdrop-blur-sm">
                         {/* Table Header */}
-                        <div className="grid grid-cols-5 border-b border-white/10 bg-white/5 p-6 sticky top-0 z-20">
-                            <div className="col-span-1 font-semibold text-white">Features</div>
-                            <div className="text-center font-semibold text-white">Pilot</div>
-                            <div className="text-center font-semibold text-white">Starter</div>
-                            <div className="text-center font-semibold text-white">Professional</div>
-                            <div className="text-center font-semibold text-cyan-400">Platinum</div>
+                        <div className="grid grid-cols-5 border-b border-border bg-secondary/50 p-6 sticky top-0 z-20">
+                            <div className="col-span-1 font-semibold text-foreground">Features</div>
+                            <div className="text-center font-semibold text-foreground">Pilot</div>
+                            <div className="text-center font-semibold text-foreground">Starter</div>
+                            <div className="text-center font-semibold text-foreground">Professional</div>
+                            <div className="text-center font-semibold text-blue-400">Platinum</div>
                         </div>
 
                         {/* Table Body */}
                         <div className="divide-y divide-white/5">
                             {comparisonFeatures.map((category, idx) => (
                                 <div key={idx} className="group">
-                                    <div className="bg-white/5 px-6 py-4 font-semibold text-slate-200 uppercase tracking-widest text-xs">
+                                    <div className="bg-secondary/50 px-6 py-4 font-semibold text-slate-200 uppercase tracking-widest text-xs">
                                         {category.category}
                                     </div>
                                     <div className="divide-y divide-white/[0.02]">

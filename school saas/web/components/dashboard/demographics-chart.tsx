@@ -3,19 +3,17 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-const data = [
-    { name: "Male", value: 450 },
-    { name: "Female", value: 520 },
-    { name: "Others", value: 30 },
-]
+interface DemographicsChartProps {
+    data: { name: string, value: number }[]
+}
 
 const COLORS = ["#3B82F6", "#EC4899", "#64748B"]
 
-export function DemographicsChart() {
+export function DemographicsChart({ data }: DemographicsChartProps) {
     return (
-        <Card className="bg-slate-900/90 border-white/10 backdrop-blur-xl shadow-2xl">
+        <Card className="bg-card text-card-foreground/90 border-border backdrop-blur-xl shadow-2xl">
             <CardHeader className="pb-2">
-                <CardTitle className="text-slate-400 font-medium text-xs uppercase tracking-wider">Student Demographics</CardTitle>
+                <CardTitle className="text-muted-foreground font-medium text-xs uppercase tracking-wider">Student Demographics</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="h-[240px] w-full flex items-center justify-center">

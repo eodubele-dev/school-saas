@@ -13,7 +13,7 @@ export function RoleBadge({ role }: RoleBadgeProps) {
         registrar: "bg-orange-500/10 text-orange-500 hover:bg-orange-500/20 border-orange-500/20",
     }
 
-    const defaultColor = "bg-slate-500/10 text-slate-500 hover:bg-slate-500/20 border-slate-500/20"
+    const defaultColor = "bg-slate-500/10 text-muted-foreground hover:bg-slate-500/20 border-slate-500/20"
 
     return (
         <Badge

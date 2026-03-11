@@ -37,7 +37,7 @@ export function AcademicStep({ classes, houses }: { classes: any[], houses: stri
                         const selectedClass = classes.find(c => c.id === val);
                         setData({ classId: val, className: selectedClass?.name || val });
                     }}>
-                        <SelectTrigger className="bg-slate-950 border-white/10 text-white">
+                        <SelectTrigger className="bg-slate-950 border-border text-foreground">
                             <SelectValue placeholder="Select Class" />
                         </SelectTrigger>
                         <SelectContent>
@@ -51,7 +51,7 @@ export function AcademicStep({ classes, houses }: { classes: any[], houses: stri
                 <div className="space-y-2">
                     <Label className="text-slate-300">Assign House</Label>
                     <Select value={house} onValueChange={(val) => setData({ house: val })}>
-                        <SelectTrigger className="bg-slate-950 border-white/10 text-white">
+                        <SelectTrigger className="bg-slate-950 border-border text-foreground">
                             <SelectValue placeholder="Select Sport House" />
                         </SelectTrigger>
                         <SelectContent>
@@ -69,11 +69,11 @@ export function AcademicStep({ classes, houses }: { classes: any[], houses: stri
                             key={admissionNumber}
                             defaultValue={admissionNumber}
                             onBlur={(e) => setData({ admissionNumber: e.target.value })}
-                            className="bg-slate-950 border-white/10 text-white font-mono"
+                            className="bg-slate-950 border-border text-foreground font-mono"
                         />
                         <Button
                             type="button"
-                            className="bg-slate-800 border border-white/10 text-white hover:bg-slate-700 hover:border-[var(--school-accent)] transition-all duration-300 antialiased font-semibold shadow-xl"
+                            className="bg-slate-800 border border-border text-foreground hover:bg-slate-700 hover:border-[var(--school-accent)] transition-all duration-300 antialiased font-semibold shadow-xl"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();
@@ -87,7 +87,7 @@ export function AcademicStep({ classes, houses }: { classes: any[], houses: stri
                             Regenerate
                         </Button>
                     </div>
-                    <p className="text-xs text-slate-500">Unique identifier for the student.</p>
+                    <p className="text-xs text-muted-foreground">Unique identifier for the student.</p>
                 </div>
             </div>
 
@@ -96,13 +96,13 @@ export function AcademicStep({ classes, houses }: { classes: any[], houses: stri
                     variant="ghost"
                     type="button"
                     onClick={() => setStep(1)}
-                    className="text-slate-300 hover:text-white hover:bg-white/5 transition-colors duration-200 antialiased"
+                    className="text-slate-300 hover:text-foreground hover:bg-secondary/50 transition-colors duration-200 antialiased"
                 >
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
                 <Button
                     onClick={handleNext}
-                    className="bg-[var(--school-accent)] hover:brightness-110 text-white"
+                    className="bg-[var(--school-accent)] hover:brightness-110 text-foreground"
                 >
                     Next Step <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>

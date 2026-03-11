@@ -114,35 +114,35 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
         <div className="space-y-4">
             {/* Search Bar */}
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                     placeholder="Search staff by name or email..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-slate-900/50 border-white/10"
+                    className="pl-10 bg-card text-card-foreground/50 border-border"
                 />
             </div>
 
             {/* Staff Table */}
-            <div className="rounded-md border border-white/10 bg-slate-900/50 overflow-hidden">
+            <div className="rounded-md border border-border bg-card text-card-foreground/50 overflow-hidden">
                 <Table>
-                    <TableHeader className="bg-slate-900">
-                        <TableRow className="border-white/10 hover:bg-transparent">
-                            <TableHead className="text-slate-400">Staff Member</TableHead>
-                            <TableHead className="text-slate-400">Role</TableHead>
-                            <TableHead className="text-slate-400">Department</TableHead>
-                            <TableHead className="text-slate-400">Status</TableHead>
-                            <TableHead className="text-slate-400">Signature</TableHead>
-                            <TableHead className="text-right text-slate-400">Actions</TableHead>
+                    <TableHeader className="bg-card text-card-foreground">
+                        <TableRow className="border-border hover:bg-transparent">
+                            <TableHead className="text-muted-foreground">Staff Member</TableHead>
+                            <TableHead className="text-muted-foreground">Role</TableHead>
+                            <TableHead className="text-muted-foreground">Department</TableHead>
+                            <TableHead className="text-muted-foreground">Status</TableHead>
+                            <TableHead className="text-muted-foreground">Signature</TableHead>
+                            <TableHead className="text-right text-muted-foreground">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {optimisticStaff.length > 0 ? (
                             optimisticStaff.map((user) => (
-                                <TableRow key={user.id} className="border-white/5 hover:bg-white/5 transition-colors">
+                                <TableRow key={user.id} className="border-border/50 hover:bg-secondary/50 transition-colors">
                                     <TableCell className="font-medium text-slate-200">
                                         <div className="flex items-center gap-3">
-                                            <Avatar className="h-8 w-8 border border-white/10">
+                                            <Avatar className="h-8 w-8 border border-border">
                                                 <AvatarImage src={user.avatar_url} />
                                                 <AvatarFallback className="bg-slate-800 text-slate-300">
                                                     {user.full_name?.charAt(0)}
@@ -150,7 +150,7 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                                             </Avatar>
                                             <div>
                                                 <div className="font-medium">{user.full_name}</div>
-                                                <div className="text-xs text-slate-500">{user.email}</div>
+                                                <div className="text-xs text-muted-foreground">{user.email}</div>
                                                 {user.phone && <div className="text-[10px] text-slate-600 flex items-center gap-1 mt-0.5"><span className="w-1 h-1 rounded-full bg-slate-700" />{user.phone}</div>}
                                             </div>
                                         </div>
@@ -158,7 +158,7 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                                     <TableCell>
                                         <RoleBadge role={user.role} />
                                     </TableCell>
-                                    <TableCell className="text-slate-400">
+                                    <TableCell className="text-muted-foreground">
                                         {user.department || "-"}
                                     </TableCell>
                                     <TableCell>
@@ -175,7 +175,7 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                                                 Signed
                                             </span>
                                         ) : (
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-800 text-slate-500 border border-slate-700">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-800 text-muted-foreground border border-slate-700">
                                                 Pending
                                             </span>
                                         )}
@@ -183,25 +183,25 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-slate-800">
                                                     <MoreVertical className="h-4 w-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-56 bg-slate-900 border-white/10 text-slate-200">
+                                            <DropdownMenuContent align="end" className="w-56 bg-card text-card-foreground border-border text-slate-200">
                                                 <DropdownMenuLabel>Manage Staff</DropdownMenuLabel>
 
                                                 <DropdownMenuItem onClick={() => {
                                                     setSelectedUser(user)
                                                     setNewRole(user.role)
                                                     setIsRoleModalOpen(true)
-                                                }} className="hover:bg-white/5 cursor-pointer">
+                                                }} className="hover:bg-secondary/50 cursor-pointer">
                                                     <UserCog className="mr-2 h-4 w-4" /> Change Role
                                                 </DropdownMenuItem>
 
                                                 <DropdownMenuItem onClick={() => {
                                                     setSelectedUser(user)
                                                     setIsPermissionsModalOpen(true)
-                                                }} className="hover:bg-white/5 cursor-pointer">
+                                                }} className="hover:bg-secondary/50 cursor-pointer">
                                                     <ShieldAlert className="mr-2 h-4 w-4" /> Permissions & Access
                                                 </DropdownMenuItem>
 
@@ -217,7 +217,7 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                                                         success: `Invite resent to ${user.email}`,
                                                         error: 'Failed to resend invite'
                                                     })
-                                                }} className="hover:bg-white/5 cursor-pointer">
+                                                }} className="hover:bg-secondary/50 cursor-pointer">
                                                     <Mail className="mr-2 h-4 w-4" /> Resend Invite
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-white/10" />
@@ -239,7 +239,7 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={6} className="h-24 text-center text-slate-500">
+                                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                                     No staff members found.
                                 </TableCell>
                             </TableRow>
@@ -256,11 +256,11 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                         size="sm"
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage <= 1}
-                        className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800"
+                        className="bg-card text-card-foreground border-border text-slate-300 hover:bg-slate-800"
                     >
                         <ChevronLeft className="h-4 w-4" />
                     </Button>
-                    <span className="text-sm text-slate-400">
+                    <span className="text-sm text-muted-foreground">
                         Page {currentPage} of {totalPages}
                     </span>
                     <Button
@@ -268,7 +268,7 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                         size="sm"
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage >= totalPages}
-                        className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800"
+                        className="bg-card text-card-foreground border-border text-slate-300 hover:bg-slate-800"
                     >
                         <ChevronRight className="h-4 w-4" />
                     </Button>
@@ -277,11 +277,11 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
 
             {/* Role Assignment Modal */}
             <Dialog open={isRoleModalOpen} onOpenChange={setIsRoleModalOpen}>
-                <DialogContent className="bg-slate-900 border-white/10 text-white sm:max-w-md">
+                <DialogContent className="bg-card text-card-foreground border-border text-foreground sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>Update Staff Role</DialogTitle>
-                        <DialogDescription className="text-slate-400">
-                            Change role and permissions for <span className="text-white font-medium">{selectedUser?.full_name}</span>.
+                        <DialogDescription className="text-muted-foreground">
+                            Change role and permissions for <span className="text-foreground font-medium">{selectedUser?.full_name}</span>.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -289,10 +289,10 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-300">Select Role</label>
                             <Select value={newRole} onValueChange={setNewRole}>
-                                <SelectTrigger className="bg-slate-950 border-white/10 text-white">
+                                <SelectTrigger className="bg-slate-950 border-border text-foreground">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-slate-900 border-white/10 text-white">
+                                <SelectContent className="bg-card text-card-foreground border-border text-foreground">
                                     <SelectItem value="admin">Admin</SelectItem>
                                     <SelectItem value="teacher">Teacher</SelectItem>
                                     <SelectItem value="bursar">Bursar</SelectItem>
@@ -327,11 +327,11 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                     </div>
 
                     <DialogFooter>
-                        <Button variant="ghost" onClick={() => setIsRoleModalOpen(false)} className="text-slate-400 hover:text-white">Cancel</Button>
+                        <Button variant="ghost" onClick={() => setIsRoleModalOpen(false)} className="text-muted-foreground hover:text-foreground">Cancel</Button>
                         <Button
                             onClick={handleRoleUpdate}
                             disabled={loading}
-                            className="bg-[var(--school-accent)] text-white hover:brightness-110"
+                            className="bg-[var(--school-accent)] text-foreground hover:brightness-110"
                         >
                             {loading ? "Updating..." : "Update Role"}
                         </Button>

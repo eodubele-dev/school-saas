@@ -127,25 +127,25 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
     }
 
     return (
-        <Card className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border-white/10 relative overflow-hidden shadow-2xl min-h-[600px]">
+        <Card className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border-border relative overflow-hidden shadow-2xl min-h-[600px]">
             {/* Header */}
-            <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-white/5 bg-slate-900/50 backdrop-blur-xl z-30">
+            <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-border/50 bg-card text-card-foreground/50 backdrop-blur-xl z-30">
                 <div>
-                    <CardTitle className="text-white text-xl flex items-center gap-2">
+                    <CardTitle className="text-foreground text-xl flex items-center gap-2">
                         <div className="h-8 w-8 rounded-lg bg-orange-500/20 flex items-center justify-center border border-orange-500/30">
                             <Users className="h-4 w-4 text-orange-400" />
                         </div>
                         Student Fee Exemptions & Add-ons
                     </CardTitle>
-                    <CardDescription className="text-slate-400 mt-1">Override specific mandatory or optional billing items per student.</CardDescription>
+                    <CardDescription className="text-muted-foreground mt-1">Override specific mandatory or optional billing items per student.</CardDescription>
                 </div>
 
                 <div className="flex gap-4">
                     <Select value={selectedClass} onValueChange={setSelectedClass}>
-                        <SelectTrigger className="w-[180px] bg-slate-950 border-white/10 text-white">
+                        <SelectTrigger className="w-[180px] bg-slate-950 border-border text-foreground">
                             <SelectValue placeholder="All Classes" />
                         </SelectTrigger>
-                        <SelectContent className="bg-slate-950 border-white/10 text-white">
+                        <SelectContent className="bg-slate-950 border-border text-foreground">
                             <SelectItem value="all">All Classes</SelectItem>
                             {classes.map(c => (
                                 <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
@@ -153,12 +153,12 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                         </SelectContent>
                     </Select>
                     <div className="relative w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="Search student..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="bg-slate-950/50 border-white/10 text-white pl-9 placeholder:text-slate-600 focus:border-orange-500"
+                            className="bg-slate-950/50 border-border text-foreground pl-9 placeholder:text-slate-600 focus:border-orange-500"
                         />
                     </div>
                 </div>
@@ -169,8 +169,8 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                 <div className="flex-1">
                     <Table>
                         <TableHeader className="bg-slate-950/80 backdrop-blur-md sticky top-0 z-20">
-                            <TableRow className="border-b border-white/10 hover:bg-transparent">
-                                <TableHead className="text-white font-bold pl-6">Student Name</TableHead>
+                            <TableRow className="border-b border-border hover:bg-transparent">
+                                <TableHead className="text-foreground font-bold pl-6">Student Name</TableHead>
                                 <TableHead className="text-slate-300">Class</TableHead>
                                 <TableHead className="text-slate-300 text-center">Active Add-ons</TableHead>
                                 <TableHead className="text-slate-300 text-center">Active Exemptions</TableHead>
@@ -180,15 +180,15 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                         <TableBody>
                             {loading ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="text-center py-20 text-slate-500">Loading student directory...</TableCell>
+                                    <TableCell colSpan={5} className="text-center py-20 text-muted-foreground">Loading student directory...</TableCell>
                                 </TableRow>
                             ) : filteredStudents.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="text-center py-20 text-slate-500">No students found.</TableCell>
+                                    <TableCell colSpan={5} className="text-center py-20 text-muted-foreground">No students found.</TableCell>
                                 </TableRow>
                             ) : (
                                 currentStudents.map(student => (
-                                    <TableRow key={student.id} className="border-white/5 hover:bg-white/[0.02] cursor-pointer" onClick={() => setSelectedStudent(student)}>
+                                    <TableRow key={student.id} className="border-border/50 hover:bg-white/[0.02] cursor-pointer" onClick={() => setSelectedStudent(student)}>
                                         <TableCell className="font-semibold text-slate-200 pl-6 flex items-center gap-2 pt-4">
                                             {student.full_name}
                                             {student.has_sibling_waiver && (
@@ -197,7 +197,7 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                                                 </span>
                                             )}
                                         </TableCell>
-                                        <TableCell className="text-slate-400">{student.class?.name || 'Unassigned'}</TableCell>
+                                        <TableCell className="text-muted-foreground">{student.class?.name || 'Unassigned'}</TableCell>
                                         <TableCell className="text-center">
                                             {student.addons?.length > 0
                                                 ? <span className="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-full text-xs border border-emerald-500/20">{student.addons.length} Add-on{student.addons.length > 1 ? 's' : ''}</span>
@@ -211,7 +211,7 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                                             }
                                         </TableCell>
                                         <TableCell className="text-right pr-6">
-                                            <Button variant="outline" size="sm" className="bg-white/5 border-white/10 hover:bg-orange-500/20 hover:text-orange-400 hover:border-orange-500/30 text-slate-300">
+                                            <Button variant="outline" size="sm" className="bg-secondary/50 border-border hover:bg-orange-500/20 hover:text-orange-400 hover:border-orange-500/30 text-slate-300">
                                                 Configure
                                             </Button>
                                         </TableCell>
@@ -222,8 +222,8 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                     </Table>
                 </div>
                 {totalPages > 1 && (
-                    <div className="flex items-center justify-between px-6 py-4 bg-slate-950/80 backdrop-blur-md border-t border-white/10 mt-auto">
-                        <div className="text-sm text-slate-400">
+                    <div className="flex items-center justify-between px-6 py-4 bg-slate-950/80 backdrop-blur-md border-t border-border mt-auto">
+                        <div className="text-sm text-muted-foreground">
                             Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredStudents.length)} of {filteredStudents.length} students
                         </div>
                         <div className="flex gap-2">
@@ -233,7 +233,7 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                                 size="sm"
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white"
+                                className="bg-card text-card-foreground border-border text-slate-300 hover:bg-slate-800 hover:text-foreground"
                             >
                                 Previous
                             </Button>
@@ -243,7 +243,7 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                                 size="sm"
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
-                                className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white"
+                                className="bg-card text-card-foreground border-border text-slate-300 hover:bg-slate-800 hover:text-foreground"
                             >
                                 Next
                             </Button>
@@ -254,10 +254,10 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
 
             {/* Assignment Modal */}
             <Dialog open={!!selectedStudent} onOpenChange={(open) => !open && setSelectedStudent(null)}>
-                <DialogContent className="bg-slate-950 border-white/10 max-w-2xl">
+                <DialogContent className="bg-slate-950 border-border max-w-2xl">
                     <DialogHeader>
-                        <DialogTitle className="text-xl text-white">Billing Configuration Configuration</DialogTitle>
-                        <DialogDescription className="text-slate-400 flex items-center gap-2 pt-2 pb-4">
+                        <DialogTitle className="text-xl text-foreground">Billing Configuration Configuration</DialogTitle>
+                        <DialogDescription className="text-muted-foreground flex items-center gap-2 pt-2 pb-4">
                             <span className="font-bold text-slate-200">{selectedStudent?.full_name}</span>
                             <span className="text-slate-600">•</span>
                             <span className="text-orange-400">{selectedStudent?.class?.name}</span>
@@ -277,10 +277,10 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                                     const isBilled = !isExempt
 
                                     return (
-                                        <div key={cat.id} className="flex items-center justify-between p-3 rounded-lg border border-white/10 bg-slate-900/50">
+                                        <div key={cat.id} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card text-card-foreground/50">
                                             <div>
                                                 <p className="text-sm font-medium text-slate-200">{cat.name}</p>
-                                                <p className="text-[10px] text-slate-500">{isBilled ? "Currently Billed" : "Waived (Exempt)"}</p>
+                                                <p className="text-[10px] text-muted-foreground">{isBilled ? "Currently Billed" : "Waived (Exempt)"}</p>
                                             </div>
                                             <Switch
                                                 checked={isBilled}
@@ -295,7 +295,7 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                         </div>
 
                         {/* Optional Fees (Addon Zone) */}
-                        <div className="space-y-3 pt-4 border-t border-white/5">
+                        <div className="space-y-3 pt-4 border-t border-border/50">
                             <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
                                 <CheckCircle2 className="h-4 w-4" /> Optional Fees (Add-ons)
                             </h3>
@@ -304,10 +304,10 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
                                     const isAddon = selectedStudent?.addons?.some((a: any) => a.category_id === cat.id)
 
                                     return (
-                                        <div key={cat.id} className="flex items-center justify-between p-3 rounded-lg border border-white/10 bg-slate-900/50">
+                                        <div key={cat.id} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card text-card-foreground/50">
                                             <div>
                                                 <p className="text-sm font-medium text-slate-200">{cat.name}</p>
-                                                <p className="text-[10px] text-slate-500">{isAddon ? "Opted In" : "Not Billed"}</p>
+                                                <p className="text-[10px] text-muted-foreground">{isAddon ? "Opted In" : "Not Billed"}</p>
                                             </div>
                                             <Switch
                                                 checked={isAddon}

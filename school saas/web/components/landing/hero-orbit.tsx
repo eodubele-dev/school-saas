@@ -40,7 +40,7 @@ export function HeroOrbit() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.1 }}
-                        className="text-5xl md:text-7xl font-bold tracking-tight text-white leading-[1.1] drop-shadow-[0_2px_10px_rgba(0,123,255,0.3)]"
+                        className="text-5xl md:text-7xl font-bold tracking-tight text-foreground leading-[1.1] drop-shadow-[0_2px_10px_rgba(0,123,255,0.3)]"
                     >
                         Unlock Your School's <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 animate-gradient-x">Full Potential.</span>
@@ -62,7 +62,7 @@ export function HeroOrbit() {
                         className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start"
                     >
                         {/* Primary CTA: Solid Blue with Cyan Glow */}
-                        <Button size="lg" className="bg-[#007BFF] hover:bg-[#0069D9] text-white rounded-full px-8 h-14 text-base shadow-[0_0_30px_rgba(0,123,255,0.4)] hover:shadow-[0_0_40px_rgba(0,245,255,0.5)] border-t border-white/20 transition-all hover:scale-105 duration-300 relative overflow-hidden group">
+                        <Button size="lg" className="bg-[#007BFF] hover:bg-[#0069D9] text-foreground rounded-full px-8 h-14 text-base shadow-[0_0_30px_rgba(0,123,255,0.4)] hover:shadow-[0_0_40px_rgba(0,245,255,0.5)] border-t border-white/20 transition-all hover:scale-105 duration-300 relative overflow-hidden group">
                             <span className="relative z-10 flex items-center">
                                 Start Free Pilot
                                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -71,7 +71,7 @@ export function HeroOrbit() {
                         </Button>
 
                         {/* Secondary CTA: Ghost with Cyan Border */}
-                        <Button size="lg" variant="outline" className="border-cyan-500/30 bg-cyan-950/10 hover:bg-cyan-900/20 text-cyan-100 hover:text-white rounded-full px-8 h-14 text-base backdrop-blur-md transition-all hover:border-cyan-400/50">
+                        <Button size="lg" variant="outline" className="border-cyan-500/30 bg-cyan-950/10 hover:bg-cyan-900/20 text-cyan-100 hover:text-foreground rounded-full px-8 h-14 text-base backdrop-blur-md transition-all hover:border-cyan-400/50">
                             Book Executive Demo
                         </Button>
                     </motion.div>
@@ -121,7 +121,7 @@ export function HeroOrbit() {
                             {/* Floating Data Badge */}
                             <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 bg-[#0B1028]/90 border border-cyan-500/20 px-4 py-2 rounded-xl whitespace-nowrap opacity-100 shadow-xl backdrop-blur-md">
                                 <div className="text-[10px] text-cyan-200 uppercase font-bold tracking-wider">Collected Today</div>
-                                <div className="text-lg font-bold text-white drop-shadow-[0_0_10px_rgba(0,245,255,0.5)]">₦2.5M</div>
+                                <div className="text-lg font-bold text-foreground drop-shadow-[0_0_10px_rgba(0,245,255,0.5)]">₦2.5M</div>
                             </div>
                         </div>
                     </motion.div>
@@ -139,7 +139,7 @@ export function HeroOrbit() {
                             </div>
                             <div className="absolute right-full top-1/2 -translate-y-1/2 mr-4 bg-[#0B1028]/90 border border-blue-500/20 px-4 py-2 rounded-xl whitespace-nowrap opacity-100 shadow-xl backdrop-blur-md text-right">
                                 <div className="text-[10px] text-blue-200 uppercase font-bold tracking-wider">Attendance</div>
-                                <div className="text-lg font-bold text-white drop-shadow-[0_0_10px_rgba(0,123,255,0.5)]">98%</div>
+                                <div className="text-lg font-bold text-foreground drop-shadow-[0_0_10px_rgba(0,123,255,0.5)]">98%</div>
                             </div>
                         </div>
                     </motion.div>

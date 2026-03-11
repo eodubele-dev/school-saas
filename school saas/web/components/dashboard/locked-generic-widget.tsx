@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { LockedWidget } from './locked-widget'
-import { toast } from 'sonner'
+import { useDashboardModals } from './dashboard-modal-provider'
 
 interface LockedGenericWidgetProps {
     children: React.ReactNode
@@ -17,18 +17,14 @@ export function LockedGenericWidget({
     requiredTier = 'platinum',
     message
 }: LockedGenericWidgetProps) {
-    const handleUpgrade = () => {
-        toast.info("Institutional Expansion", {
-            description: "This module is part of the Platinum expansion. Contact support to upgrade your institution."
-        })
-    }
+    const { openUpgradeModal } = useDashboardModals()
 
     return (
         <LockedWidget
             tier={tier}
             requiredTier={requiredTier}
             message={message}
-            onUpgrade={handleUpgrade}
+            onUpgrade={openUpgradeModal}
         >
             {children}
         </LockedWidget>

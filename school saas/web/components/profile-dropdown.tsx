@@ -73,10 +73,10 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
         <>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <div className={`flex items-center gap-3 pl-4 border-l border-white/10 cursor-pointer group select-none ${className}`}>
+                    <div className={`flex items-center gap-3 pl-4 border-l border-border cursor-pointer group select-none ${className}`}>
                         {/* Desktop View: Name & Role */}
                         <div className="text-right hidden md:block">
-                            <div className="text-sm font-bold text-slate-200 leading-tight group-hover:text-white transition-colors max-w-[150px] truncate">
+                            <div className="text-sm font-bold text-slate-200 leading-tight group-hover:text-foreground transition-colors max-w-[150px] truncate">
                                 {userName}
                             </div>
                             <div className={`text-[9px] font-black mt-0.5 uppercase tracking-widest ${config.color}`}>
@@ -100,9 +100,9 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
                     </div>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent className="w-72 bg-[#0A0A0B] border border-white/10 rounded-2xl shadow-2xl p-0 overflow-hidden" align="end" forceMount>
+                <DropdownMenuContent className="w-72 bg-[#0A0A0B] border border-border rounded-2xl shadow-2xl p-0 overflow-hidden" align="end" forceMount>
                     {/* 👤 Identity Header */}
-                    <div className="p-5 border-b border-white/5 relative overflow-hidden">
+                    <div className="p-5 border-b border-border/50 relative overflow-hidden">
                         {/* Background Glow */}
                         <div className={`absolute top-0 right-0 w-32 h-32 ${config.bg} blur-[50px] opacity-20 pointer-events-none rounded-full transform translate-x-10 -translate-y-10`} />
 
@@ -120,8 +120,8 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
                                 )}
                             </div>
                             <div>
-                                <p className="text-sm font-bold text-white leading-none">{userName}</p>
-                                <p className="text-[10px] text-slate-500 font-mono mt-1.5 flex items-center gap-1">
+                                <p className="text-sm font-bold text-foreground leading-none">{userName}</p>
+                                <p className="text-[10px] text-muted-foreground font-mono mt-1.5 flex items-center gap-1">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
                                     ID: {userId ? userId.split('-')[0].toUpperCase() : 'UNKNOWN'}
                                 </p>
@@ -158,7 +158,7 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
                         {/* Upgrade Button */}
                         {showUpgrade && (
                             <DropdownMenuItem
-                                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-white/5 transition-all cursor-pointer focus:bg-white/5 group"
+                                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-secondary/50 transition-all cursor-pointer focus:bg-secondary/50 group"
                                 onSelect={() => {
                                     toast.info("Institutional Expansion Protocols Active", {
                                         description: "Initializing Tier Selection Console...",
@@ -172,16 +172,16 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
                         )}
 
                         <DropdownMenuItem
-                            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-white/5 transition-all cursor-pointer focus:bg-white/5"
+                            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-secondary/50 transition-all cursor-pointer focus:bg-secondary/50"
                             onSelect={() => setPreferencesOpen(true)}
                         >
-                            <Settings size={14} className="text-slate-400" />
+                            <Settings size={14} className="text-muted-foreground" />
                             <span className="text-xs font-medium text-slate-300">Preferences</span>
                         </DropdownMenuItem>
                     </div>
 
                     {/* 🚪 Logout */}
-                    <div className="p-2 border-t border-white/5">
+                    <div className="p-2 border-t border-border/50">
                         <button
                             onClick={handleLogout}
                             className="w-full flex items-center gap-3 px-4 py-2.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-all group"
@@ -211,10 +211,10 @@ interface DropdownLinkProps {
     color?: string
 }
 
-function DropdownLink({ href, icon, label, color = "text-slate-400" }: DropdownLinkProps) {
+function DropdownLink({ href, icon, label, color = "text-muted-foreground" }: DropdownLinkProps) {
     return (
         <DropdownMenuItem asChild>
-            <Link href={href} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-white/5 transition-all text-left cursor-pointer focus:bg-white/5">
+            <Link href={href} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-secondary/50 transition-all text-left cursor-pointer focus:bg-secondary/50">
                 <span className={color}>{icon}</span>
                 <span className="text-xs font-medium text-slate-300">{label}</span>
             </Link>

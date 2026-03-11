@@ -53,10 +53,10 @@ export function FeeCalculator() {
 
                 {/* Section Header */}
                 <div className="text-center mb-16">
-                    <h2 className="text-4xl font-bold text-white mb-4 tracking-tight drop-shadow-md">
+                    <h2 className="text-4xl font-bold text-foreground mb-4 tracking-tight drop-shadow-md">
                         Calculate Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Lost Efficiency</span>
                     </h2>
-                    <p className="text-lg text-slate-400">
+                    <p className="text-lg text-muted-foreground">
                         See how much revenue EduFlow's automated debtor reminders could recover for you.
                     </p>
                 </div>
@@ -68,10 +68,10 @@ export function FeeCalculator() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
 
                         {/* LEFT: The 'Glass-Control' Calculator */}
-                        <div className="p-10 md:p-16 flex flex-col justify-center space-y-12 border-b lg:border-b-0 lg:border-r border-white/5 relative">
+                        <div className="p-10 md:p-16 flex flex-col justify-center space-y-12 border-b lg:border-b-0 lg:border-r border-border/50 relative">
                             {/* Input Section */}
                             <div className="flex flex-col gap-10">
-                                <div className="flex justify-between items-center text-white">
+                                <div className="flex justify-between items-center text-foreground">
                                     <span className="font-medium text-xl text-slate-300">Number of Students</span>
                                     <span className="font-bold text-3xl font-mono text-cyan-400 bg-cyan-950/40 px-6 py-2 rounded-2xl border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.1)]">
                                         {students === 2000 ? "2000+" : students}
@@ -100,14 +100,14 @@ export function FeeCalculator() {
                                     `}</style>
                                 </div>
 
-                                <div className="flex justify-between text-xs text-slate-500 font-mono uppercase tracking-widest font-bold">
+                                <div className="flex justify-between text-xs text-muted-foreground font-mono uppercase tracking-widest font-bold">
                                     <span>Small School (50)</span>
                                     <span>Enterprise (2000+)</span>
                                 </div>
                             </div>
 
                             {/* Dynamic Revenue Display */}
-                            <div className="pt-10 border-t border-white/5 space-y-4">
+                            <div className="pt-10 border-t border-border/50 space-y-4">
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
                                         <ShieldCheck className="h-5 w-5 text-cyan-400" />
@@ -115,12 +115,12 @@ export function FeeCalculator() {
                                     <span className="text-sm font-bold text-cyan-400 uppercase tracking-widest">Potential Recovery</span>
                                 </div>
 
-                                <div className="text-5xl md:text-7xl font-black text-white flex items-center drop-shadow-[0_0_30px_rgba(6,182,212,0.4)]">
+                                <div className="text-5xl md:text-7xl font-black text-foreground flex items-center drop-shadow-[0_0_30px_rgba(6,182,212,0.4)]">
                                     <span className="text-3xl md:text-5xl mr-2 text-cyan-500/80 font-medium">₦</span>
                                     {/* Digital Odometer */}
                                     <Counter value={recovered} />
                                 </div>
-                                <p className="text-sm text-slate-500 font-medium">
+                                <p className="text-sm text-muted-foreground font-medium">
                                     *Based on 12% fee leakage reduction via automated SMS nudges.
                                 </p>
                             </div>
@@ -133,22 +133,22 @@ export function FeeCalculator() {
 
                             {/* The 3D CSS Phone */}
                             <div
-                                className="relative w-[280px] h-[580px] bg-slate-900 rounded-[3rem] border-8 border-slate-800 shadow-2xl transform rotate-y-[-12deg] rotate-x-[5deg] hover:rotate-y-[0deg] transition-transform duration-700"
+                                className="relative w-[280px] h-[580px] bg-card text-card-foreground rounded-[3rem] border-8 border-border shadow-2xl transform rotate-y-[-12deg] rotate-x-[5deg] hover:rotate-y-[0deg] transition-transform duration-700"
                                 style={{
                                     boxShadow: '30px 30px 80px -20px rgba(0,0,0,0.6), 0 0 50px rgba(59, 130, 246, 0.1)',
                                 }}
                             >
                                 {/* Screen Content */}
-                                <div className="absolute inset-0 bg-black rounded-[2.5rem] overflow-hidden border border-white/5 flex flex-col">
+                                <div className="absolute inset-0 bg-black rounded-[2.5rem] overflow-hidden border border-border/50 flex flex-col">
 
                                     {/* Fake Header details */}
-                                    <div className="px-6 pt-10 pb-4 bg-slate-900/50 backdrop-blur-md border-b border-white/5 z-10 flex items-center justify-center">
+                                    <div className="px-6 pt-10 pb-4 bg-card text-card-foreground/50 backdrop-blur-md border-b border-border/50 z-10 flex items-center justify-center">
                                         <div className="flex flex-col items-center">
                                             <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mb-2">
                                                 <ShieldCheck className="w-6 h-6 text-blue-500" />
                                             </div>
-                                            <span className="text-white font-bold text-sm">EduFlow Alert</span>
-                                            <span className="text-slate-500 text-[10px]">Today 9:42 AM</span>
+                                            <span className="text-foreground font-bold text-sm">EduFlow Alert</span>
+                                            <span className="text-muted-foreground text-[10px]">Today 9:42 AM</span>
                                         </div>
                                     </div>
 
@@ -160,13 +160,13 @@ export function FeeCalculator() {
                                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                             whileInView={{ opacity: 1, y: 0, scale: 1 }}
                                             transition={{ delay: 0.5 }}
-                                            className="bg-[#2a2a2a] p-4 rounded-2xl rounded-tl-none border border-white/10 relative"
+                                            className="bg-[#2a2a2a] p-4 rounded-2xl rounded-tl-none border border-border relative"
                                         >
                                             <p className="text-slate-200 text-sm leading-relaxed">
                                                 Dear Parent, <br />
-                                                <span className="text-white font-bold">Chioma's Result is ready.</span>
+                                                <span className="text-foreground font-bold">Chioma's Result is ready.</span>
                                             </p>
-                                            <p className="text-slate-200 text-sm mt-3 pb-3 border-b border-white/10">
+                                            <p className="text-slate-200 text-sm mt-3 pb-3 border-b border-border">
                                                 Outstanding Balance: <span className="text-red-400 font-bold">₦45,000</span>
                                             </p>
                                             <div className="mt-3">

@@ -87,19 +87,19 @@ export function SubmitAssignmentModal({ assignment, trigger, onSuccess }: Submit
             <DialogTrigger asChild>
                 {trigger}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px] bg-slate-950 border-slate-800 text-white">
+            <DialogContent className="sm:max-w-[500px] bg-slate-950 border-border text-foreground">
                 <DialogHeader>
                     <DialogTitle>Submit Assignment</DialogTitle>
-                    <DialogDescription className="text-slate-400">
+                    <DialogDescription className="text-muted-foreground">
                         {assignment.title} • {assignment.subject}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="grid gap-4 py-4">
                     {assignment.description && (
-                        <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 max-h-[150px] overflow-y-auto">
+                        <div className="bg-card text-card-foreground/50 border border-border rounded-lg p-3 max-h-[150px] overflow-y-auto">
                             <div className="flex justify-between items-center mb-1">
-                                <Label className="text-[10px] uppercase tracking-wider text-slate-500 block">Instructions / Questions</Label>
+                                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground block">Instructions / Questions</Label>
                                 {assignment.fileUrl && (
                                     <Button
                                         variant="link"
@@ -123,7 +123,7 @@ export function SubmitAssignmentModal({ assignment, trigger, onSuccess }: Submit
                         <Textarea
                             id="content"
                             placeholder="Type your answer or add comments for your teacher here..."
-                            className="bg-slate-900 border-slate-700 min-h-[150px] text-white placeholder:text-slate-500"
+                            className="bg-card text-card-foreground border-slate-700 min-h-[150px] text-foreground placeholder:text-muted-foreground"
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                         />
@@ -132,32 +132,32 @@ export function SubmitAssignmentModal({ assignment, trigger, onSuccess }: Submit
                     <div className="grid gap-2">
                         <Label className="text-slate-300">Attachments</Label>
                         {!file ? (
-                            <div className="border border-dashed border-slate-700 rounded-lg p-6 flex flex-col items-center justify-center bg-slate-900/50 hover:bg-slate-900 transition-colors cursor-pointer relative">
+                            <div className="border border-dashed border-slate-700 rounded-lg p-6 flex flex-col items-center justify-center bg-card text-card-foreground/50 hover:bg-card text-card-foreground transition-colors cursor-pointer relative">
                                 <input
                                     type="file"
                                     className="absolute inset-0 opacity-0 cursor-pointer"
                                     onChange={handleFileChange}
                                 />
-                                <UploadCloud className="h-8 w-8 text-slate-500 mb-2" />
-                                <p className="text-sm text-slate-400 font-medium">Click to upload file</p>
+                                <UploadCloud className="h-8 w-8 text-muted-foreground mb-2" />
+                                <p className="text-sm text-muted-foreground font-medium">Click to upload file</p>
                                 <p className="text-xs text-slate-600">PDF, DOCX, JPG (Max 10MB)</p>
                             </div>
                         ) : (
-                            <div className="flex items-center justify-between p-3 bg-slate-900 border border-slate-700 rounded-lg">
+                            <div className="flex items-center justify-between p-3 bg-card text-card-foreground border border-slate-700 rounded-lg">
                                 <div className="flex items-center gap-3 overflow-hidden">
                                     <div className="h-10 w-10 bg-[var(--school-accent)]/10 rounded-lg flex items-center justify-center flex-shrink-0">
                                         <FileIcon className="h-5 w-5 text-[var(--school-accent)]" />
                                     </div>
                                     <div className="truncate">
-                                        <p className="text-sm font-medium text-white truncate">{file.name}</p>
-                                        <p className="text-xs text-slate-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                        <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
+                                        <p className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                                     </div>
                                 </div>
                                 <Button
                                     variant="ghost"
                                     size="icon"
                                     onClick={removeFile}
-                                    className="text-slate-400 hover:text-red-400"
+                                    className="text-muted-foreground hover:text-red-400"
                                 >
                                     <X className="h-4 w-4" />
                                 </Button>
@@ -167,10 +167,10 @@ export function SubmitAssignmentModal({ assignment, trigger, onSuccess }: Submit
                 </div>
 
                 <DialogFooter>
-                    <Button variant="ghost" onClick={() => setOpen(false)} className="text-slate-400 hover:text-white hover:bg-white/10">
+                    <Button variant="ghost" onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground hover:bg-white/10">
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit} disabled={isSubmitting} className="bg-[var(--school-accent)] text-white hover:bg-blue-600">
+                    <Button onClick={handleSubmit} disabled={isSubmitting} className="bg-[var(--school-accent)] text-foreground hover:bg-blue-600">
                         {isSubmitting ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

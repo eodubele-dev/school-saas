@@ -7,17 +7,17 @@ import { ArrowRight, BrainCircuit } from "lucide-react"
 
 export function ExamReadiness({ history }: { history: any[] }) {
     return (
-        <Card className="p-6 bg-slate-900 border-white/5 relative overflow-hidden">
+        <Card className="p-6 bg-card text-card-foreground border-border/50 relative overflow-hidden">
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 z-10 relative">
                 <div>
-                    <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                    <h3 className="text-foreground font-bold text-lg flex items-center gap-2">
                         <BrainCircuit className="h-5 w-5 text-amber-500" />
                         JAMB/WAEC Readiness
                     </h3>
-                    <p className="text-sm text-slate-400">Your practice test performance trend.</p>
+                    <p className="text-sm text-muted-foreground">Your practice test performance trend.</p>
                 </div>
-                <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white">
+                <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-foreground">
                     Start Practice Test <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </div>

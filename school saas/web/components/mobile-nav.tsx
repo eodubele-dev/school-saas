@@ -13,11 +13,11 @@ export function MobileNav({ children }: { children: ReactNode }) {
     return (
         <Sheet>
             <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden text-slate-400 hover:text-white transition-colors">
+                <Button variant="ghost" size="icon" className="md:hidden text-muted-foreground hover:text-foreground transition-colors">
                     <Menu className="h-6 w-6" />
                 </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-72 bg-slate-950 border-white/5">
+            <SheetContent side="left" className="p-0 w-72 bg-slate-950 border-border/50">
                 <div className="h-full overflow-y-auto">
                     {children}
                 </div>

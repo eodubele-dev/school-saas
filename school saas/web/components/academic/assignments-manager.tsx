@@ -58,12 +58,12 @@ export function AssignmentsManager({ classId, subjectId, assignments = [] }: Ass
     if (assignments.length === 0) {
         // ... existing empty state ...
         return (
-            <div className="flex flex-col items-center justify-center p-12 text-center border-2 border-dashed border-white/10 rounded-xl bg-slate-900/50">
+            <div className="flex flex-col items-center justify-center p-12 text-center border-2 border-dashed border-border rounded-xl bg-card text-card-foreground/50">
                 <div className="bg-blue-500/10 p-4 rounded-full mb-4">
                     <FileText className="h-8 w-8 text-blue-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">No Assignments Yet</h3>
-                <p className="text-slate-400 max-w-sm mb-6">
+                <h3 className="text-lg font-bold text-foreground mb-2">No Assignments Yet</h3>
+                <p className="text-muted-foreground max-w-sm mb-6">
                     Create manually graded assignments for homework, projects, or presentations.
                 </p>
                 <CreateAssignmentModal classId={classId} subjectId={subjectId} />
@@ -74,12 +74,12 @@ export function AssignmentsManager({ classId, subjectId, assignments = [] }: Ass
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium text-white">Active Assignments</h3>
+                <h3 className="text-lg font-medium text-foreground">Active Assignments</h3>
                 <CreateAssignmentModal
                     classId={classId}
                     subjectId={subjectId}
                     trigger={
-                        <Button className="bg-[var(--school-accent)] text-white">
+                        <Button className="bg-[var(--school-accent)] text-foreground">
                             <Plus className="h-4 w-4 mr-2" /> New Assignment
                         </Button>
                     }
@@ -88,18 +88,18 @@ export function AssignmentsManager({ classId, subjectId, assignments = [] }: Ass
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {assignments.map((assignment) => (
-                    <Card key={assignment.id} className="bg-slate-900 border-white/5 p-6 hover:border-blue-500/30 transition-all group">
+                    <Card key={assignment.id} className="bg-card text-card-foreground border-border/50 p-6 hover:border-blue-500/30 transition-all group">
                         <div className="flex justify-between items-start mb-4">
                             <div className="h-10 w-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
                                 <FileText className="h-5 w-5 text-blue-400" />
                             </div>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800">
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-slate-800">
                                         <MoreVertical className="h-4 w-4" />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="bg-slate-950 border-white/10 text-slate-300">
+                                <DropdownMenuContent align="end" className="bg-slate-950 border-border text-slate-300">
                                     <DropdownMenuItem onClick={() => setEditingAssignment(assignment)}>
                                         Edit Details
                                     </DropdownMenuItem>
@@ -116,12 +116,12 @@ export function AssignmentsManager({ classId, subjectId, assignments = [] }: Ass
                             </DropdownMenu>
                         </div>
 
-                        <h4 className="text-lg font-semibold text-white mb-2 line-clamp-1">{assignment.title}</h4>
-                        <p className="text-sm text-slate-400 mb-4 line-clamp-2 h-10">
+                        <h4 className="text-lg font-semibold text-foreground mb-2 line-clamp-1">{assignment.title}</h4>
+                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 h-10">
                             {assignment.description || "No description provided."}
                         </p>
 
-                        <div className="flex items-center justify-between text-xs text-slate-500 pt-4 border-t border-white/5">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border/50">
                             <div className="flex items-center gap-2">
                                 <Calendar className="h-3.5 w-3.5" />
                                 {assignment.due_date
@@ -159,24 +159,24 @@ export function AssignmentsManager({ classId, subjectId, assignments = [] }: Ass
 
             {/* Delete Confirmation Alert */}
             <AlertDialog open={!!deletingAssignment} onOpenChange={(open) => !open && setDeletingAssignment(null)}>
-                <AlertDialogContent className="bg-slate-950 border-white/10 text-white">
+                <AlertDialogContent className="bg-slate-950 border-border text-foreground">
                     <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center gap-2 text-red-500">
                             <AlertTriangle className="h-5 w-5" />
                             Delete Assignment?
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-slate-400">
-                            Are you sure you want to delete <span className="font-bold text-white">{deletingAssignment?.title}</span>? This action cannot be undone and all student submissions will be lost.
+                        <AlertDialogDescription className="text-muted-foreground">
+                            Are you sure you want to delete <span className="font-bold text-foreground">{deletingAssignment?.title}</span>? This action cannot be undone and all student submissions will be lost.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-transparent border-white/10 text-slate-300 hover:bg-white/5 hover:text-white">Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="bg-transparent border-border text-slate-300 hover:bg-secondary/50 hover:text-foreground">Cancel</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={(e) => {
                                 e.preventDefault()
                                 handleDelete()
                             }}
-                            className="bg-red-500 hover:bg-red-600 text-white border-none"
+                            className="bg-red-500 hover:bg-red-600 text-foreground border-none"
                             disabled={isDeleting}
                         >
                             {isDeleting ? (

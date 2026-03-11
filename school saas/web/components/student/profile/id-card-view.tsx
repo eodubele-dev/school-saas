@@ -24,12 +24,12 @@ export const IdCardView = forwardRef<HTMLDivElement, { student: any, tenant: any
             />
 
             {/* Header */}
-            <div className="bg-[#0f172a] text-white pt-6 px-4 pb-16 text-center z-10 relative print:bg-[#0f172a] print:text-white print-color-adjust-exact">
+            <div className="bg-[#0f172a] text-foreground pt-6 px-4 pb-16 text-center z-10 relative print:bg-[#0f172a] print:text-foreground print-color-adjust-exact">
                 <div className="h-12 w-12 bg-white/10 rounded-full mx-auto mb-2 flex items-center justify-center border border-white/20 overflow-hidden">
                     {tenant?.logo_url ? (
                         <img src={tenant.logo_url} alt="Logo" className="w-full h-full object-cover" />
                     ) : (
-                        <Shield className="h-6 w-6 text-white" />
+                        <Shield className="h-6 w-6 text-foreground" />
                     )}
                 </div>
                 <h1 className="text-lg font-bold uppercase tracking-wider leading-tight">{tenant?.name || "School SaaS"}</h1>
@@ -50,28 +50,28 @@ export const IdCardView = forwardRef<HTMLDivElement, { student: any, tenant: any
             {/* Content */}
             <div className="text-center mt-4 px-6 relative z-10">
                 <h2 className="text-xl font-bold text-slate-900 leading-tight">{student.full_name}</h2>
-                <span className="inline-block bg-[#0f172a] text-white text-xs font-bold px-3 py-1 rounded-full mt-2 mb-6 print:bg-[#0f172a] print:text-white print-color-adjust-exact">
+                <span className="inline-block bg-[#0f172a] text-foreground text-xs font-bold px-3 py-1 rounded-full mt-2 mb-6 print:bg-[#0f172a] print:text-foreground print-color-adjust-exact">
                     STUDENT
                 </span>
 
                 <div className="grid grid-cols-2 gap-y-4 text-left text-sm border-t border-slate-100 pt-4">
                     <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-bold">Class</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold">Class</p>
                         <p className="font-semibold text-slate-800">{student.class?.name || "N/A"}</p>
                     </div>
                     <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-bold">Admission No</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold">Admission No</p>
                         <p className="font-semibold text-slate-800">{student.metadata?.admission_number}</p>
                     </div>
                     <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-bold">House</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold">House</p>
                         <div className="flex items-center gap-1 font-semibold text-slate-800">
-                            <Tent className="h-3 w-3 text-slate-400" />
+                            <Tent className="h-3 w-3 text-muted-foreground" />
                             {student.metadata?.house || "N/A"}
                         </div>
                     </div>
                     <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-bold">Session</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold">Session</p>
                         <p className="font-semibold text-slate-800">2025 / 2026</p>
                     </div>
                 </div>
@@ -79,7 +79,7 @@ export const IdCardView = forwardRef<HTMLDivElement, { student: any, tenant: any
 
             {/* Footer / Barcode */}
             <div className="absolute bottom-0 left-0 right-0 p-6 bg-slate-50 text-left border-t border-slate-100 flex justify-between items-center">
-                <p className="text-[8px] text-slate-400 leading-tight">
+                <p className="text-[8px] text-muted-foreground leading-tight">
                     This card remains the property of<br />
                     <span className="font-bold text-slate-600">{tenant?.name || "School SaaS"}</span>.<br />
                     If found, please return to the school administration.

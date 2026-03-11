@@ -72,33 +72,33 @@ export function CashCountWizard({ sessionId, systemTotal, onComplete }: { sessio
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* 1. Input Side */}
-                <Card className="col-span-2 p-6 bg-slate-900 border-white/5">
+                <Card className="col-span-2 p-6 bg-card text-card-foreground border-border/50">
                     <div className="flex items-center gap-3 mb-6">
                         <Banknote className="text-[var(--school-accent)] h-6 w-6" />
-                        <h2 className="text-xl font-bold text-white">Cash Drawer Count</h2>
+                        <h2 className="text-xl font-bold text-foreground">Cash Drawer Count</h2>
                     </div>
 
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-white/5 hover:bg-transparent">
-                                <TableHead className="text-slate-400">Note (₦)</TableHead>
-                                <TableHead className="text-slate-400">Bundles (x100)</TableHead>
-                                <TableHead className="text-slate-400">Loose Notes</TableHead>
-                                <TableHead className="text-right text-slate-400">Value</TableHead>
+                            <TableRow className="border-border/50 hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Note (₦)</TableHead>
+                                <TableHead className="text-muted-foreground">Bundles (x100)</TableHead>
+                                <TableHead className="text-muted-foreground">Loose Notes</TableHead>
+                                <TableHead className="text-right text-muted-foreground">Value</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {DENOMINATIONS.map(denom => {
                                 const val = parseInt(denom) * ((counts[denom]?.bundles || 0) * 100 + (counts[denom]?.loose || 0))
                                 return (
-                                    <TableRow key={denom} className="border-white/5 hover:bg-white/5">
+                                    <TableRow key={denom} className="border-border/50 hover:bg-secondary/50">
                                         <TableCell className="font-bold text-lg text-slate-300">₦{denom}</TableCell>
                                         <TableCell>
                                             <Input
                                                 type="number"
                                                 value={counts[denom]?.bundles || ''}
                                                 onChange={e => handleChange(denom, 'bundles', e.target.value)}
-                                                className="bg-slate-950 border-white/10 text-right w-24"
+                                                className="bg-slate-950 border-border text-right w-24"
                                                 placeholder="0"
                                             />
                                         </TableCell>
@@ -107,7 +107,7 @@ export function CashCountWizard({ sessionId, systemTotal, onComplete }: { sessio
                                                 type="number"
                                                 value={counts[denom]?.loose || ''}
                                                 onChange={e => handleChange(denom, 'loose', e.target.value)}
-                                                className="bg-slate-950 border-white/10 text-right w-24"
+                                                className="bg-slate-950 border-border text-right w-24"
                                                 placeholder="0"
                                             />
                                         </TableCell>
@@ -123,13 +123,13 @@ export function CashCountWizard({ sessionId, systemTotal, onComplete }: { sessio
 
                 {/* 2. Validation Side */}
                 <div className="space-y-6">
-                    <Card className="p-6 bg-slate-900 border-white/5 flex flex-col gap-4">
+                    <Card className="p-6 bg-card text-card-foreground border-border/50 flex flex-col gap-4">
                         <div>
-                            <p className="text-sm text-slate-400 uppercase font-bold tracking-wider">System Expected</p>
-                            <p className="text-3xl font-bold text-white flex items-center"><NairaIcon className="h-6 w-6 mr-1" />{systemTotal.toLocaleString()}</p>
+                            <p className="text-sm text-muted-foreground uppercase font-bold tracking-wider">System Expected</p>
+                            <p className="text-3xl font-bold text-foreground flex items-center"><NairaIcon className="h-6 w-6 mr-1" />{systemTotal.toLocaleString()}</p>
                         </div>
-                        <div className="border-t border-white/10 pt-4">
-                            <p className="text-sm text-slate-400 uppercase font-bold tracking-wider">Your Count</p>
+                        <div className="border-t border-border pt-4">
+                            <p className="text-sm text-muted-foreground uppercase font-bold tracking-wider">Your Count</p>
                             <p className="text-3xl font-bold text-[var(--school-accent)] flex items-center"><NairaIcon className="h-6 w-6 mr-1" />{physicalTotal.toLocaleString()}</p>
                         </div>
 
@@ -147,7 +147,7 @@ export function CashCountWizard({ sessionId, systemTotal, onComplete }: { sessio
                         <div className="animate-in fade-in slide-in-from-bottom-2">
                             <label className="text-xs text-red-400 font-bold uppercase mb-2 block">Mandatory Variance Explanation</label>
                             <textarea
-                                className="w-full bg-slate-950 border-red-500/30 rounded-lg p-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                                className="w-full bg-slate-950 border-red-500/30 rounded-lg p-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-red-500"
                                 rows={3}
                                 placeholder="Why is the cash short/over?"
                                 value={varianceReason}

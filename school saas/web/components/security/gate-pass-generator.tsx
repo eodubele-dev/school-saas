@@ -35,19 +35,19 @@ export const GatePassGenerator = ({ studentId }: { studentId?: string }) => {
     };
 
     return (
-        <div className="bg-slate-950/40 backdrop-blur-md border border-white/10 rounded-3xl p-8 shadow-2xl animate-in fade-in duration-500">
+        <div className="bg-slate-950/40 backdrop-blur-md border border-border rounded-3xl p-8 shadow-2xl animate-in fade-in duration-500">
             <div className="flex justify-between items-start mb-8">
                 <div>
-                    <h2 className="text-2xl font-bold text-white uppercase tracking-tight italic">Digital Gate Pass</h2>
+                    <h2 className="text-2xl font-bold text-foreground uppercase tracking-tight italic">Digital Gate Pass</h2>
                     <p className="text-gray-500 text-sm">Generate temporary authorized exit/entry permits</p>
                 </div>
-                <div className="bg-white/5 p-2 rounded-xl">
-                    <QrCode className="text-white" size={24} />
+                <div className="bg-secondary/50 p-2 rounded-xl">
+                    <QrCode className="text-foreground" size={24} />
                 </div>
             </div>
 
             {/* Type Selector */}
-            <div className="flex bg-white/5 p-1 rounded-xl mb-8">
+            <div className="flex bg-secondary/50 p-1 rounded-xl mb-8">
                 <button
                     onClick={() => setActiveTab('early')}
                     className={cn(
@@ -79,7 +79,7 @@ export const GatePassGenerator = ({ studentId }: { studentId?: string }) => {
                         <textarea
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
-                            className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-colors h-24 resize-none"
+                            className="w-full bg-black/50 border border-border rounded-xl p-4 text-sm text-foreground focus:outline-none focus:border-cyan-500/50 transition-colors h-24 resize-none"
                             placeholder="Please state the reason for this exception..."
                         />
                     </div>
@@ -91,7 +91,7 @@ export const GatePassGenerator = ({ studentId }: { studentId?: string }) => {
                                 type="time"
                                 value={time}
                                 onChange={(e) => setTime(e.target.value)}
-                                className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                                className="w-full bg-black/50 border border-border rounded-xl p-3 text-sm text-foreground focus:outline-none focus:border-cyan-500/50"
                             />
                         </div>
                         <div className="flex-1 space-y-2">
@@ -100,7 +100,7 @@ export const GatePassGenerator = ({ studentId }: { studentId?: string }) => {
                                 type="text"
                                 value="Parent (Self)"
                                 disabled
-                                className="w-full bg-white/5 border border-white/5 rounded-xl p-3 text-sm text-gray-500 cursor-not-allowed"
+                                className="w-full bg-secondary/50 border border-border/50 rounded-xl p-3 text-sm text-gray-500 cursor-not-allowed"
                             />
                         </div>
                     </div>
@@ -116,7 +116,7 @@ export const GatePassGenerator = ({ studentId }: { studentId?: string }) => {
                     <button
                         onClick={handleGenerate}
                         disabled={isLoading || !reason || !time}
-                        className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-black py-4 rounded-xl uppercase tracking-widest shadow-lg shadow-amber-900/20 items-center justify-center flex gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-foreground font-black py-4 rounded-xl uppercase tracking-widest shadow-lg shadow-amber-900/20 items-center justify-center flex gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? <span className="animate-pulse">Generating...</span> : <><Ticket size={18} /> Generate Gate Pass</>}
                     </button>
@@ -127,7 +127,7 @@ export const GatePassGenerator = ({ studentId }: { studentId?: string }) => {
                         <div className="absolute inset-0 border-[3px] border-black/10 rounded-2xl m-1"></div>
                         <div className="w-48 h-48 bg-black flex items-center justify-center rounded-lg">
                             {/* Mock QR */}
-                            <QrCode className="text-white w-32 h-32" />
+                            <QrCode className="text-foreground w-32 h-32" />
                         </div>
                         <p className="font-mono text-black font-bold mt-4 text-lg">{generatedPass.pass_code}</p>
                         <p className="text-[10px] text-gray-500 uppercase tracking-widest">Valid until: {new Date(generatedPass.valid_until).toLocaleTimeString()}</p>
@@ -140,7 +140,7 @@ export const GatePassGenerator = ({ studentId }: { studentId?: string }) => {
 
                     <button
                         onClick={() => setGeneratedPass(null)}
-                        className="text-gray-500 hover:text-white text-xs underline decoration-gray-700 underline-offset-4"
+                        className="text-gray-500 hover:text-foreground text-xs underline decoration-gray-700 underline-offset-4"
                     >
                         Dismiss & Return
                     </button>

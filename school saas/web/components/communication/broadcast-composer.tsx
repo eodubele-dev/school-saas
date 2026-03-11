@@ -105,20 +105,20 @@ export function BroadcastComposer() {
     }
 
     return (
-        <Card className="bg-slate-900 border-white/5 p-6 h-full flex flex-col">
-            <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+        <Card className="bg-card text-card-foreground border-border/50 p-6 h-full flex flex-col">
+            <h3 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
                 <Send className="h-5 w-5 text-blue-400" />
                 Compose Broadcast
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-6 flex-1 flex flex-col">
                 <div className="space-y-2">
-                    <Label className="text-slate-400">Audience</Label>
+                    <Label className="text-muted-foreground">Audience</Label>
                     <Select name="audience" defaultValue="all_parents">
-                        <SelectTrigger className="bg-slate-950 border-white/10 text-white">
+                        <SelectTrigger className="bg-slate-950 border-border text-foreground">
                             <SelectValue placeholder={loadingAudience ? "Loading recipients..." : "Select Recipients"} />
                         </SelectTrigger>
-                        <SelectContent className="bg-slate-900 border-white/10 text-slate-200">
+                        <SelectContent className="bg-card text-card-foreground border-border text-slate-200">
                             <SelectItem value="all_parents">All Parents</SelectItem>
                             {classes.map(c => (
                                 <SelectItem key={c.id} value={c.id}>{c.name} Parents</SelectItem>
@@ -129,12 +129,12 @@ export function BroadcastComposer() {
                 </div>
 
                 <div className="space-y-2">
-                    <Label className="text-slate-400">Channel</Label>
+                    <Label className="text-muted-foreground">Channel</Label>
                     <div className="grid grid-cols-3 gap-2">
                         <Button
                             type="button"
                             variant={channel === 'sms' ? 'default' : 'outline'}
-                            className={`${channel === 'sms' ? 'bg-[var(--school-accent)]' : 'border-white/10 text-slate-400'}`}
+                            className={`${channel === 'sms' ? 'bg-[var(--school-accent)]' : 'border-border text-muted-foreground'}`}
                             onClick={() => setChannel('sms')}
                         >
                             <MessageSquare className="h-4 w-4 mr-2" /> SMS
@@ -142,7 +142,7 @@ export function BroadcastComposer() {
                         <Button
                             type="button"
                             variant={channel === 'whatsapp' ? 'default' : 'outline'}
-                            className={`${channel === 'whatsapp' ? 'bg-green-600 hover:bg-green-700' : 'border-white/10 text-slate-400'}`}
+                            className={`${channel === 'whatsapp' ? 'bg-green-600 hover:bg-green-700' : 'border-border text-muted-foreground'}`}
                             onClick={() => setChannel('whatsapp')}
                         >
                             <Phone className="h-4 w-4 mr-2" /> WhatsApp
@@ -150,7 +150,7 @@ export function BroadcastComposer() {
                         <Button
                             type="button"
                             variant={channel === 'email' ? 'default' : 'outline'}
-                            className={`${channel === 'email' ? 'bg-slate-100 text-slate-900' : 'border-white/10 text-slate-400'}`}
+                            className={`${channel === 'email' ? 'bg-slate-100 text-slate-900' : 'border-border text-muted-foreground'}`}
                             onClick={() => setChannel('email')}
                         >
                             <Mail className="h-4 w-4 mr-2" /> Email
@@ -160,7 +160,7 @@ export function BroadcastComposer() {
 
                 <div className="space-y-4 flex-1 flex flex-col min-h-0">
                     <div className="flex items-center justify-between">
-                        <Label className="text-slate-400">Message</Label>
+                        <Label className="text-muted-foreground">Message</Label>
                         <Button
                             type="button"
                             variant="ghost"
@@ -177,29 +177,29 @@ export function BroadcastComposer() {
                         required
                         value={messageDraft}
                         onChange={(e) => setMessageDraft(e.target.value)}
-                        className="bg-slate-950 border-white/10 text-white resize-none h-full min-h-[150px] flex-1 font-mono text-sm leading-relaxed"
+                        className="bg-slate-950 border-border text-foreground resize-none h-full min-h-[150px] flex-1 font-mono text-sm leading-relaxed"
                         placeholder="Type your message here or use AI to draft one..."
                     />
                 </div>
 
                 <div className="flex items-center justify-between pt-2">
-                    <Button type="button" variant="ghost" className="text-slate-400 hover:text-white hover:bg-white/10">
+                    <Button type="button" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-white/10">
                         <Paperclip className="h-4 w-4 mr-2" /> Attach File
                     </Button>
-                    <Button type="submit" disabled={sending || !messageDraft.trim()} className="bg-[var(--school-accent)] text-white w-32">
+                    <Button type="submit" disabled={sending || !messageDraft.trim()} className="bg-[var(--school-accent)] text-foreground w-32">
                         {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Now"}
                     </Button>
                 </div>
             </form>
 
             <Dialog open={isAIOpen} onOpenChange={setIsAIOpen}>
-                <DialogContent className="sm:max-w-[425px] bg-slate-950 border-white/5 text-white">
+                <DialogContent className="sm:max-w-[425px] bg-slate-950 border-border/50 text-foreground">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-amber-500">
                             <Sparkles className="h-5 w-5" />
                             AI Broadcast Writer
                         </DialogTitle>
-                        <DialogDescription className="text-slate-400">
+                        <DialogDescription className="text-muted-foreground">
                             Let Gemini draft your {channel.toUpperCase()} broadcast instantly.
                         </DialogDescription>
                     </DialogHeader>
@@ -210,7 +210,7 @@ export function BroadcastComposer() {
                             <Textarea
                                 id="ai-topic"
                                 placeholder="e.g., Tomorrow is a public holiday, school resumes on Thursday."
-                                className="bg-slate-900 border-white/10 text-white resize-none"
+                                className="bg-card text-card-foreground border-border text-foreground resize-none"
                                 value={aiTopic}
                                 onChange={(e) => setAiTopic(e.target.value)}
                             />
@@ -218,10 +218,10 @@ export function BroadcastComposer() {
                         <div className="space-y-2">
                             <Label htmlFor="ai-tone" className="text-slate-300">Tone</Label>
                             <Select value={aiTone} onValueChange={setAiTone}>
-                                <SelectTrigger className="bg-slate-900 border-white/10 text-white">
+                                <SelectTrigger className="bg-card text-card-foreground border-border text-foreground">
                                     <SelectValue placeholder="Select a tone" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-slate-800 border-white/10 text-white">
+                                <SelectContent className="bg-slate-800 border-border text-foreground">
                                     <SelectItem value="Professional">Professional (Standard)</SelectItem>
                                     <SelectItem value="Urgent">Urgent Warning</SelectItem>
                                     <SelectItem value="Friendly">Friendly & Enthusiastic</SelectItem>
@@ -231,13 +231,13 @@ export function BroadcastComposer() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="ghost" className="text-slate-400 hover:text-white hover:bg-white/5" onClick={() => setIsAIOpen(false)} disabled={aiGenerating}>
+                        <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-secondary/50" onClick={() => setIsAIOpen(false)} disabled={aiGenerating}>
                             Cancel
                         </Button>
                         <Button
                             onClick={handleAIGenerate}
                             disabled={aiGenerating || !aiTopic.trim()}
-                            className="bg-amber-500 hover:bg-amber-600 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                            className="bg-amber-500 hover:bg-amber-600 text-foreground shadow-[0_0_15px_rgba(245,158,11,0.3)]"
                         >
                             {aiGenerating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
                             {aiGenerating ? "Drafting..." : "Generate Draft"}

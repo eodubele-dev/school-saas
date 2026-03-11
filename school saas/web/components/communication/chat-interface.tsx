@@ -250,21 +250,21 @@ export function ChatInterface() {
     if (loading && threads.length === 0) return <div className="h-96 flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-blue-500" /></div>
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-white/5 rounded-xl bg-slate-900 overflow-hidden h-[600px] shadow-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-border/50 rounded-xl bg-card text-card-foreground overflow-hidden h-[600px] shadow-2xl">
             {/* Thread List */}
-            <div className="col-span-1 border-r border-white/5 flex flex-col bg-slate-900/50">
-                <div className="p-4 border-b border-white/5 flex items-center gap-2">
+            <div className="col-span-1 border-r border-border/50 flex flex-col bg-card text-card-foreground/50">
+                <div className="p-4 border-b border-border/50 flex items-center gap-2">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="Search chats..."
-                            className="bg-slate-950 border-white/10 pl-9 text-sm"
+                            className="bg-slate-950 border-border pl-9 text-sm"
                         />
                     </div>
                     <Button
                         size="icon"
                         variant="ghost"
-                        className="text-slate-500 hover:text-white hover:bg-white/10"
+                        className="text-muted-foreground hover:text-foreground hover:bg-white/10"
                         onClick={loadThreads}
                         title="Refresh chats"
                     >
@@ -283,14 +283,14 @@ export function ChatInterface() {
                     <div className="flex flex-col">
                         {showRecipients ? (
                             <>
-                                <div className="p-2 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 bg-white/[0.02] flex items-center justify-between">
+                                <div className="p-2 px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-white/[0.02] flex items-center justify-between">
                                     New Conversation
                                 </div>
                                 {recipients.map(recipient => (
                                     <button
                                         key={recipient.id}
                                         onClick={() => initiateChat(recipient.id)}
-                                        className="flex items-center gap-3 p-4 text-left transition-colors border-b border-white/5 hover:bg-white/5"
+                                        className="flex items-center gap-3 p-4 text-left transition-colors border-b border-border/50 hover:bg-secondary/50"
                                     >
                                         <Avatar className="h-8 w-8">
                                             <AvatarImage src={recipient.avatar_url} />
@@ -305,7 +305,7 @@ export function ChatInterface() {
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="m-2 text-xs text-slate-500 hover:text-white hover:bg-white/10"
+                                    className="m-2 text-xs text-muted-foreground hover:text-foreground hover:bg-white/10"
                                     onClick={() => setShowRecipients(false)}
                                 >
                                     Cancel
@@ -322,7 +322,7 @@ export function ChatInterface() {
                                             setActiveThreadId(thread.id)
                                         }
                                     }}
-                                    className={`flex items-start gap-3 p-4 text-left transition-colors border-b border-white/5 hover:bg-white/5 ${activeThreadId === thread.id ? 'bg-blue-500/10 border-l-2 border-l-blue-500' : ''}`}
+                                    className={`flex items-start gap-3 p-4 text-left transition-colors border-b border-border/50 hover:bg-secondary/50 ${activeThreadId === thread.id ? 'bg-blue-500/10 border-l-2 border-l-blue-500' : ''}`}
                                 >
                                     <Avatar>
                                         <AvatarImage src={thread.partner?.avatar_url} />
@@ -331,16 +331,16 @@ export function ChatInterface() {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-baseline mb-1">
                                             <p className="font-medium text-slate-200 truncate">{thread.partner?.full_name}</p>
-                                            <span className="text-[10px] text-slate-500">
+                                            <span className="text-[10px] text-muted-foreground">
                                                 {thread.lastMessage?.created_at && formatDistanceToNow(new Date(thread.lastMessage.created_at), { addSuffix: true })}
                                             </span>
                                         </div>
-                                        <p className="text-xs text-slate-400 truncate">
+                                        <p className="text-xs text-muted-foreground truncate">
                                             {thread.lastMessage?.content || "No messages yet"}
                                         </p>
                                     </div>
                                     {thread.unreadCount > 0 && activeThreadId !== thread.id && (
-                                        <span className="bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center">
+                                        <span className="bg-blue-500 text-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center">
                                             {thread.unreadCount}
                                         </span>
                                     )}
@@ -354,14 +354,14 @@ export function ChatInterface() {
             <div className="col-span-1 md:col-span-2 flex flex-col bg-slate-950/30 relative min-h-0">
                 {activeThread ? (
                     <>
-                        <div className="p-4 border-b border-white/5 flex items-center justify-between bg-slate-900 sticky top-0 z-10">
+                        <div className="p-4 border-b border-border/50 flex items-center justify-between bg-card text-card-foreground sticky top-0 z-10">
                             <div className="flex items-center gap-3">
                                 <Avatar className="h-10 w-10">
                                     <AvatarImage src={activeThread.partner?.avatar_url} />
                                     <AvatarFallback>{activeThread.partner?.full_name?.[0]}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <h3 className="font-bold text-white">{activeThread.partner?.full_name}</h3>
+                                    <h3 className="font-bold text-foreground">{activeThread.partner?.full_name}</h3>
                                     <p className="text-xs text-emerald-400 flex items-center gap-1">
                                         <span className="block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                         Active
@@ -375,7 +375,7 @@ export function ChatInterface() {
                                 {loadingMessages ? (
                                     <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-slate-700" /></div>
                                 ) : messages.length === 0 ? (
-                                    <div className="text-center text-slate-500 text-sm py-10">No messages yet. Say hello!</div>
+                                    <div className="text-center text-muted-foreground text-sm py-10">No messages yet. Say hello!</div>
                                 ) : (
                                     messages.map((m) => {
                                         const isMine = m.sender_id === currentUserId
@@ -384,7 +384,7 @@ export function ChatInterface() {
                                                 <div className={cn(
                                                     "p-3 rounded-2xl max-w-[80%] shadow-lg",
                                                     isMine
-                                                        ? "bg-blue-600 text-white rounded-tr-sm"
+                                                        ? "bg-blue-600 text-foreground rounded-tr-sm"
                                                         : "bg-slate-800 text-slate-100 rounded-tl-sm"
                                                 )}>
                                                     <p className="text-sm whitespace-pre-wrap">{m.content}</p>
@@ -404,26 +404,26 @@ export function ChatInterface() {
                             </div>
                         </ScrollArea>
 
-                        <div className="p-4 bg-slate-900 border-t border-white/5">
+                        <div className="p-4 bg-card text-card-foreground border-t border-border/50">
                             <form
                                 onSubmit={(e) => { e.preventDefault(); handleSend(); }}
                                 className="flex items-center gap-2"
                             >
                                 <Input
-                                    className="bg-slate-950 border-white/10 text-white focus-visible:ring-blue-500"
+                                    className="bg-slate-950 border-border text-foreground focus-visible:ring-blue-500"
                                     placeholder="Type a message..."
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
                                     autoFocus
                                 />
-                                <Button type="submit" size="icon" className="bg-blue-600 text-white hover:bg-blue-500" disabled={!newMessage.trim()}>
+                                <Button type="submit" size="icon" className="bg-blue-600 text-foreground hover:bg-blue-500" disabled={!newMessage.trim()}>
                                     <Send className="h-4 w-4" />
                                 </Button>
                             </form>
                         </div>
                     </>
                 ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-500">
+                    <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
                         <MessageSquare className="h-16 w-16 mb-4 opacity-10" />
                         <p className="text-lg font-medium opacity-40">Select a conversation</p>
                         <p className="text-sm opacity-20 mt-1">Chat securely with school staff and parents</p>

@@ -71,8 +71,8 @@ export function OmniSearch({ role }: { role?: string }) {
     return (
         <div className="relative w-full max-w-2xl">
             <CommandPrimitive className="relative rounded-lg border border-transparent" shouldFilter={false}>
-                <div className="flex items-center px-3 border border-white/10 bg-slate-900/50 rounded-xl focus-within:border-indigo-500/50 focus-within:bg-slate-900 transition-all">
-                    <Search className="mr-2 h-4 w-4 shrink-0 opacity-50 text-slate-400" />
+                <div className="flex items-center px-3 border border-border bg-card text-card-foreground/50 rounded-xl focus-within:border-indigo-500/50 focus-within:bg-card text-card-foreground transition-all">
+                    <Search className="mr-2 h-4 w-4 shrink-0 opacity-50 text-muted-foreground" />
                     <CommandPrimitive.Input
                         ref={inputRef}
                         value={query}
@@ -83,20 +83,20 @@ export function OmniSearch({ role }: { role?: string }) {
                         className="flex h-10 w-full rounded-md bg-transparent py-3 text-xs outline-none placeholder:text-slate-600 disabled:cursor-not-allowed disabled:opacity-50 text-slate-200"
                     />
                     <div className="flex items-center gap-1">
-                        <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-slate-800 bg-slate-950 px-1.5 font-mono text-[10px] font-medium text-slate-500 opacity-100">
+                        <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-slate-950 px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
                             <span className="text-xs">⌘</span>K
                         </kbd>
                     </div>
                 </div>
 
                 {open && (
-                    <div className="absolute top-full mt-2 w-full z-50 rounded-xl border border-white/10 bg-[#0d1117] shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200">
+                    <div className="absolute top-full mt-2 w-full z-50 rounded-xl border border-border bg-[#0d1117] shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200">
                         <CommandPrimitive.List className="max-h-[300px] overflow-y-auto overflow-x-hidden p-2">
-                            <CommandPrimitive.Empty className="py-6 text-center text-xs text-slate-500">
+                            <CommandPrimitive.Empty className="py-6 text-center text-xs text-muted-foreground">
                                 No results found.
                             </CommandPrimitive.Empty>
 
-                            <CommandPrimitive.Group heading="Quick Actions" className="text-[10px] uppercase tracking-wider font-bold text-slate-500 px-2 py-1.5">
+                            <CommandPrimitive.Group heading="Quick Actions" className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground px-2 py-1.5">
                                 {isParent ? (
                                     <>
                                         <CommandItem onSelect={() => router.push('/dashboard/billing/family')}>
@@ -133,7 +133,7 @@ export function OmniSearch({ role }: { role?: string }) {
                                 )}
                             </CommandPrimitive.Group>
 
-                            <CommandPrimitive.Group heading={isParent ? "My Children" : isStudent ? "My Academics" : "Records"} className="text-[10px] uppercase tracking-wider font-bold text-slate-500 px-2 py-1.5 mt-2">
+                            <CommandPrimitive.Group heading={isParent ? "My Children" : isStudent ? "My Academics" : "Records"} className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground px-2 py-1.5 mt-2">
                                 {isParent ? (
                                     <>
                                         <CommandItem onSelect={() => router.push('/dashboard/academics/results')}>
@@ -171,9 +171,9 @@ export function OmniSearch({ role }: { role?: string }) {
                             </CommandPrimitive.Group>
 
                             {query.length > 0 && (
-                                <CommandPrimitive.Group heading="Search Results" className="text-[10px] uppercase tracking-wider font-bold text-slate-500 px-2 py-1.5 mt-2">
+                                <CommandPrimitive.Group heading="Search Results" className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground px-2 py-1.5 mt-2">
                                     {isLoading ? (
-                                        <div className="flex items-center justify-center py-4 text-xs text-slate-500">
+                                        <div className="flex items-center justify-center py-4 text-xs text-muted-foreground">
                                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
                                             Searching...
                                         </div>
@@ -185,16 +185,16 @@ export function OmniSearch({ role }: { role?: string }) {
                                                 ) : res.type === 'timetable' ? (
                                                     <CalendarIcon className="mr-2 h-3.5 w-3.5 text-cyan-500" />
                                                 ) : (
-                                                    <Search className="mr-2 h-3.5 w-3.5 text-slate-400" />
+                                                    <Search className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
                                                 )}
                                                 <div className="flex flex-col flex-1 min-w-0">
                                                     <span className="text-xs text-slate-200 leading-tight truncate">{res.title}</span>
-                                                    {res.subtitle && <span className="text-[10px] text-slate-500 leading-tight truncate">{res.subtitle}</span>}
+                                                    {res.subtitle && <span className="text-[10px] text-muted-foreground leading-tight truncate">{res.subtitle}</span>}
                                                 </div>
                                             </CommandItem>
                                         ))
                                     ) : (
-                                        <div className="py-4 text-center text-xs text-slate-500">
+                                        <div className="py-4 text-center text-xs text-muted-foreground">
                                             No results found for "{query}"
                                         </div>
                                     )}
@@ -212,7 +212,7 @@ function CommandItem({ children, onSelect }: { children: React.ReactNode, onSele
     return (
         <CommandPrimitive.Item
             onSelect={onSelect}
-            className="relative flex cursor-default select-none items-center rounded-md px-2 py-2 text-xs outline-none aria-selected:bg-indigo-600 aria-selected:text-white text-slate-300 hover:bg-white/5 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+            className="relative flex cursor-default select-none items-center rounded-md px-2 py-2 text-xs outline-none aria-selected:bg-indigo-600 aria-selected:text-foreground text-slate-300 hover:bg-secondary/50 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
         >
             {children}
         </CommandPrimitive.Item>

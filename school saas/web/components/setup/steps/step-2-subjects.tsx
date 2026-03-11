@@ -151,17 +151,17 @@ export function SubjectRegistryStep({ onNext, onPrev }: { onNext: () => void, on
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-xl font-bold text-white">Subject Registry</h2>
-                    <p className="text-slate-400">Manage all subjects taught in the school.</p>
+                    <h2 className="text-xl font-bold text-foreground">Subject Registry</h2>
+                    <p className="text-muted-foreground">Manage all subjects taught in the school.</p>
                 </div>
                 <div className="flex gap-3">
-                    <Button onClick={openAddSubject} variant="outline" className="border-white/20 bg-transparent hover:bg-white/10 hover:text-white text-slate-300 transition-colors">
+                    <Button onClick={openAddSubject} variant="outline" className="border-white/20 bg-transparent hover:bg-white/10 hover:text-foreground text-slate-300 transition-colors">
                         <Plus className="mr-2 h-4 w-4" /> Add Custom
                     </Button>
                     <Button
                         onClick={importNERDC}
                         disabled={importing}
-                        className="bg-[var(--school-accent)] text-white shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] transition-all duration-300"
+                        className="bg-[var(--school-accent)] text-foreground shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] transition-all duration-300"
                     >
                         <Download className="mr-2 h-4 w-4" /> Import NERDC Standard
                     </Button>
@@ -188,7 +188,7 @@ export function SubjectRegistryStep({ onNext, onPrev }: { onNext: () => void, on
                 <BookOpen className="h-5 w-5 text-blue-400 mt-0.5" />
                 <div>
                     <h4 className="text-blue-400 font-medium">Teacher Assignment</h4>
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-muted-foreground">
                         To assign teachers to subjects for specific classes, please go to the
                         <span className="font-bold text-slate-300"> "Staff & Roles"</span> module after setup.
                         Currently this wizard focuses on defining the global subject list.
@@ -197,20 +197,20 @@ export function SubjectRegistryStep({ onNext, onPrev }: { onNext: () => void, on
             </div>
 
             <div className="flex justify-between pt-8">
-                <Button variant="ghost" onClick={onPrev} className="text-slate-400 hover:text-white hover:bg-white/5">
+                <Button variant="ghost" onClick={onPrev} className="text-muted-foreground hover:text-foreground hover:bg-secondary/50">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
-                <Button onClick={onNext} className="bg-[var(--school-accent)] text-white px-8">
+                <Button onClick={onNext} className="bg-[var(--school-accent)] text-foreground px-8">
                     Proceed to Grading Config <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </div>
 
             {/* Add Subject Dialog */}
             <Dialog open={isAddSubjectOpen} onOpenChange={setIsAddSubjectOpen}>
-                <DialogContent className="bg-slate-900 border-white/10 text-white">
+                <DialogContent className="bg-card text-card-foreground border-border text-foreground">
                     <DialogHeader>
                         <DialogTitle>Add Custom Subject</DialogTitle>
-                        <DialogDescription className="text-slate-400">Add a new subject that isn't in the standard list.</DialogDescription>
+                        <DialogDescription className="text-muted-foreground">Add a new subject that isn't in the standard list.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-2">
                         <div className="space-y-2">
@@ -219,13 +219,13 @@ export function SubjectRegistryStep({ onNext, onPrev }: { onNext: () => void, on
                                 value={newSubjectName}
                                 onChange={e => setNewSubjectName(e.target.value)}
                                 placeholder="e.g. Photography"
-                                className="bg-slate-950 border-white/10"
+                                className="bg-slate-950 border-border"
                             />
                         </div>
                         <div className="space-y-2">
                             <Label>Category</Label>
                             <Select value={newSubjectCategory} onValueChange={setNewSubjectCategory}>
-                                <SelectTrigger className="bg-slate-950 border-white/10">
+                                <SelectTrigger className="bg-slate-950 border-border">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -237,8 +237,8 @@ export function SubjectRegistryStep({ onNext, onPrev }: { onNext: () => void, on
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="ghost" onClick={() => setIsAddSubjectOpen(false)} className="text-slate-400">Cancel</Button>
-                        <Button onClick={addSubject} className="bg-[var(--school-accent)] text-white">Add Subject</Button>
+                        <Button variant="ghost" onClick={() => setIsAddSubjectOpen(false)} className="text-muted-foreground">Cancel</Button>
+                        <Button onClick={addSubject} className="bg-[var(--school-accent)] text-foreground">Add Subject</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -258,17 +258,17 @@ export function SubjectRegistryStep({ onNext, onPrev }: { onNext: () => void, on
 
 function SubjectList({ title, subjects, onDelete }: { title: string, subjects: any[], onDelete: (id: string) => void }) {
     return (
-        <Card className="bg-slate-900 border-white/10 h-full">
+        <Card className="bg-card text-card-foreground border-border h-full">
             <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    {title} <span className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">{subjects.length}</span>
+                <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                    {title} <span className="text-xs bg-slate-800 text-muted-foreground px-2 py-0.5 rounded-full">{subjects.length}</span>
                 </h3>
                 <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                     {subjects.length === 0 ? (
-                        <p className="text-slate-500 text-sm italic">No subjects found.</p>
+                        <p className="text-muted-foreground text-sm italic">No subjects found.</p>
                     ) : (
                         subjects.map(sub => (
-                            <div key={sub.id} className="flex justify-between items-center p-3 rounded bg-slate-950 border border-white/5 hover:border-white/10 transition-colors group">
+                            <div key={sub.id} className="flex justify-between items-center p-3 rounded bg-slate-950 border border-border/50 hover:border-border transition-colors group">
                                 <div className="flex items-center gap-3">
                                     <div className="h-8 w-8 rounded bg-[var(--school-accent)]/10 text-[var(--school-accent)] flex items-center justify-center font-bold text-xs">
                                         {sub.code || sub.name.substring(0, 2).toUpperCase()}

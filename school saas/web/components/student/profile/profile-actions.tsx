@@ -30,7 +30,7 @@ export function ProfileActions({ student, tenant }: { student: any, tenant: any 
             <Button
                 onClick={handleShare}
                 variant="outline"
-                className="border-white/10 text-slate-300 hover:text-white hover:bg-white/5 bg-slate-900/50 backdrop-blur-sm"
+                className="border-border text-slate-300 hover:text-foreground hover:bg-secondary/50 bg-card text-card-foreground/50 backdrop-blur-sm"
             >
                 <Share2 className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Share</span>
@@ -41,7 +41,7 @@ export function ProfileActions({ student, tenant }: { student: any, tenant: any 
                 tenant={tenant}
                 trigger={
                     <Button
-                        className="bg-[var(--school-accent)] hover:bg-blue-600 text-white border-0 shadow-lg shadow-blue-900/20"
+                        className="bg-[var(--school-accent)] hover:bg-blue-600 text-foreground border-0 shadow-lg shadow-blue-900/20"
                     >
                         <Printer className="h-4 w-4 mr-2" />
                         Print ID Card

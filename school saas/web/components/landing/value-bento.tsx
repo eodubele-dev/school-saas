@@ -50,10 +50,10 @@ export function ValueBento() {
 
             <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
                 <div className="text-center mb-20">
-                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight drop-shadow-lg">
+                    <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight drop-shadow-lg">
                         Everything You Need. <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Nothing You Don't.</span>
                     </h2>
-                    <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+                    <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                         Built specifically for the chaos of Nigerian private schools. Fast, offline-capable, and impossible to trick.
                     </p>
                 </div>
@@ -63,7 +63,7 @@ export function ValueBento() {
                         <div
                             key={i}
                             className={`
-                                relative group rounded-[2rem] border border-white/5 
+                                relative group rounded-[2rem] border border-border/50 
                                 bg-gradient-to-br from-white/[0.03] to-white/[0.01] 
                                 backdrop-blur-[25px] p-10 
                                 transition-all duration-500 
@@ -77,11 +77,11 @@ export function ValueBento() {
                             </div>
 
                             <div className="relative z-10 flex flex-col h-full">
-                                <div className={`h-16 w-16 rounded-2xl bg-[#0B1028]/50 border border-white/5 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-inner ${feature.iconColor.replace('text', 'bg').replace('400', '500')}/10`}>
+                                <div className={`h-16 w-16 rounded-2xl bg-[#0B1028]/50 border border-border/50 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-inner ${feature.iconColor.replace('text', 'bg').replace('400', '500')}/10`}>
                                     <feature.icon className={`h-8 w-8 ${feature.iconColor}`} />
                                 </div>
-                                <h3 className="text-2xl font-bold text-white mb-4 tracking-tight group-hover:text-cyan-100 transition-colors">{feature.title}</h3>
-                                <p className="text-slate-400 leading-relaxed text-lg font-light">
+                                <h3 className="text-2xl font-bold text-foreground mb-4 tracking-tight group-hover:text-cyan-100 transition-colors">{feature.title}</h3>
+                                <p className="text-muted-foreground leading-relaxed text-lg font-light">
                                     {feature.desc}
                                 </p>
                             </div>

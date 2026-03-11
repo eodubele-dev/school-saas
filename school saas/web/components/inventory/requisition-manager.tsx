@@ -76,10 +76,10 @@ export function RequisitionManager({ initialRequests }: RequisitionManagerProps)
 
     return (
         <div className="space-y-6">
-            <h2 className="text-xl font-bold text-white">Requisition Control</h2>
+            <h2 className="text-xl font-bold text-foreground">Requisition Control</h2>
 
             <Tabs defaultValue="pending" className="w-full">
-                <TabsList className="bg-slate-900 border border-white/5">
+                <TabsList className="bg-card text-card-foreground border border-border/50">
                     <TabsTrigger value="pending" className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-500">
                         Pending Approvals ({pendingRequests.length})
                     </TabsTrigger>
@@ -88,17 +88,17 @@ export function RequisitionManager({ initialRequests }: RequisitionManagerProps)
 
                 <TabsContent value="pending" className="space-y-4 pt-4">
                     {pendingRequests.map(req => (
-                        <Card key={req.id} className="p-4 bg-slate-900 border-white/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <Card key={req.id} className="p-4 bg-card text-card-foreground border-border/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                             <div className="flex items-center gap-4">
                                 <div className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center">
-                                    <User className="h-5 w-5 text-slate-400" />
+                                    <User className="h-5 w-5 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-white">
+                                    <h3 className="font-bold text-foreground">
                                         {req.requested_by_profile?.full_name || 'Unknown User'}
-                                        <span className="text-xs font-normal text-slate-500 ml-2">({req.requested_by_profile?.role || 'Staff'})</span>
+                                        <span className="text-xs font-normal text-muted-foreground ml-2">({req.requested_by_profile?.role || 'Staff'})</span>
                                     </h3>
-                                    <div className="flex flex-wrap items-center gap-2 text-sm text-slate-400 mt-1">
+                                    <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mt-1">
                                         {req.items?.map((line: any, idx: number) => (
                                             <Badge key={idx} variant="secondary" className="bg-blue-900/40 text-blue-300 hover:bg-blue-900/60 font-mono">
                                                 {line.quantity_requested} x {line.item?.name}
@@ -122,7 +122,7 @@ export function RequisitionManager({ initialRequests }: RequisitionManagerProps)
                                 </Button>
                                 <Button
                                     size="sm"
-                                    className="bg-green-600 hover:bg-green-700 text-white flex-1 md:flex-none"
+                                    className="bg-green-600 hover:bg-green-700 text-foreground flex-1 md:flex-none"
                                     onClick={() => handleApprove(req)}
                                 >
                                     <Check className="h-4 w-4 mr-1" /> Approve
@@ -132,7 +132,7 @@ export function RequisitionManager({ initialRequests }: RequisitionManagerProps)
                     ))}
 
                     {pendingRequests.length === 0 && (
-                        <div className="text-center py-12 text-slate-500">
+                        <div className="text-center py-12 text-muted-foreground">
                             No pending requests.
                         </div>
                     )}
@@ -140,13 +140,13 @@ export function RequisitionManager({ initialRequests }: RequisitionManagerProps)
 
                 <TabsContent value="history" className="space-y-4 pt-4">
                     {historyRequests.map(req => (
-                        <Card key={req.id} className="p-4 bg-slate-900 border-white/5 flex items-center justify-between opacity-75 hover:opacity-100 transition-opacity">
+                        <Card key={req.id} className="p-4 bg-card text-card-foreground border-border/50 flex items-center justify-between opacity-75 hover:opacity-100 transition-opacity">
                             <div className="flex items-center gap-4">
                                 <div>
                                     <h3 className="font-bold text-slate-300">
                                         {req.requested_by_profile?.full_name}
                                     </h3>
-                                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                         {req.items?.map((line: any, idx: number) => (
                                             <span key={idx} className="text-xs">
                                                 {line.quantity_requested} x {line.item?.name}
@@ -163,7 +163,7 @@ export function RequisitionManager({ initialRequests }: RequisitionManagerProps)
                         </Card>
                     ))}
                     {historyRequests.length === 0 && (
-                        <div className="text-center py-12 text-slate-500">
+                        <div className="text-center py-12 text-muted-foreground">
                             No history available.
                         </div>
                     )}
@@ -171,10 +171,10 @@ export function RequisitionManager({ initialRequests }: RequisitionManagerProps)
             </Tabs>
 
             <Dialog open={!!rejectId} onOpenChange={(v) => !v && setRejectId(null)}>
-                <DialogContent className="bg-slate-900 border-white/10 text-white">
+                <DialogContent className="bg-card text-card-foreground border-border text-foreground">
                     <DialogHeader>
                         <DialogTitle>Reject Requisition</DialogTitle>
-                        <DialogDescription className="text-slate-400">
+                        <DialogDescription className="text-muted-foreground">
                             Please provide a reason for rejecting this request.
                         </DialogDescription>
                     </DialogHeader>
@@ -184,7 +184,7 @@ export function RequisitionManager({ initialRequests }: RequisitionManagerProps)
                             <Input
                                 value={rejectReason}
                                 onChange={(e) => setRejectReason(e.target.value)}
-                                className="bg-slate-950 border-white/10"
+                                className="bg-slate-950 border-border"
                                 placeholder="e.g. Out of stock, not budget approved..."
                             />
                         </div>

@@ -42,27 +42,27 @@ export function StaffAttendanceDashboard() {
         <div className="flex flex-col items-center justify-center h-64 gap-4">
             <AlertCircle className="h-10 w-10 text-red-500" />
             <div className="text-red-400">Failed to load statistics: {error}</div>
-            <Button onClick={() => loadStats(selectedDate)} variant="outline" className="border-white/10">Retry</Button>
+            <Button onClick={() => loadStats(selectedDate)} variant="outline" className="border-border">Retry</Button>
         </div>
     )
 
-    if (!stats) return <div className="text-white p-4">No statistics available.</div>
+    if (!stats) return <div className="text-foreground p-4">No statistics available.</div>
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500 pb-20">
             {/* 1. Header & Stats Cards */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-white tracking-tight">Staff Attendance</h2>
-                    <p className="text-slate-400">Monitor staff presence and punctuality.</p>
+                    <h2 className="text-2xl font-bold text-foreground tracking-tight">Staff Attendance</h2>
+                    <p className="text-muted-foreground">Monitor staff presence and punctuality.</p>
                 </div>
-                <div className="flex items-center gap-2 bg-slate-900 border border-white/10 p-1 rounded-lg">
-                    <div className="px-3 text-sm text-slate-400 font-medium">Date:</div>
+                <div className="flex items-center gap-2 bg-card text-card-foreground border border-border p-1 rounded-lg">
+                    <div className="px-3 text-sm text-muted-foreground font-medium">Date:</div>
                     <input
                         type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
-                        className="bg-transparent text-white text-sm border-none focus:ring-0 cursor-pointer [&::-webkit-calendar-picker-indicator]:invert"
+                        className="bg-transparent text-foreground text-sm border-none focus:ring-0 cursor-pointer [&::-webkit-calendar-picker-indicator]:invert"
                     />
                 </div>
             </div>
@@ -72,7 +72,7 @@ export function StaffAttendanceDashboard() {
                     label="Total Staff"
                     value={stats.summary.total}
                     icon={UserCheck}
-                    color="text-slate-400"
+                    color="text-muted-foreground"
                     bg="bg-slate-800/50"
                 />
                 <StatsCard
@@ -109,20 +109,20 @@ export function StaffAttendanceDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* 2. Live Attendance Table */}
                 <div className="lg:col-span-2">
-                    <Card className="bg-slate-900 border-white/5 overflow-hidden">
-                        <div className="p-6 border-b border-white/5 flex justify-between items-center">
+                    <Card className="bg-card text-card-foreground border-border/50 overflow-hidden">
+                        <div className="p-6 border-b border-border/50 flex justify-between items-center">
                             <div>
-                                <h3 className="text-lg font-bold text-white">Attendance Log</h3>
-                                <p className="text-sm text-slate-500">{format(new Date(selectedDate), 'EEEE, MMMM do, yyyy')}</p>
+                                <h3 className="text-lg font-bold text-foreground">Attendance Log</h3>
+                                <p className="text-sm text-muted-foreground">{format(new Date(selectedDate), 'EEEE, MMMM do, yyyy')}</p>
                             </div>
-                            <Badge variant="outline" className={`animate-pulse ${selectedDate === new Date().toISOString().split('T')[0] ? 'bg-green-500/20 text-green-400 border-green-500/40' : 'bg-slate-500/20 text-slate-400 border-slate-500/40'}`}>
+                            <Badge variant="outline" className={`animate-pulse ${selectedDate === new Date().toISOString().split('T')[0] ? 'bg-green-500/20 text-green-400 border-green-500/40' : 'bg-slate-500/20 text-muted-foreground border-slate-500/40'}`}>
                                 {selectedDate === new Date().toISOString().split('T')[0] ? '● Live' : '○ History'}
                             </Badge>
                         </div>
 
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left">
-                                <thead className="text-xs text-slate-400 uppercase bg-slate-950/50">
+                                <thead className="text-xs text-muted-foreground uppercase bg-slate-950/50">
                                     <tr>
                                         <th className="px-6 py-3">Staff Member</th>
                                         <th className="px-6 py-3">Role</th>
@@ -140,11 +140,11 @@ export function StaffAttendanceDashboard() {
                                                 </Avatar>
                                                 <span className="font-medium text-slate-200">{staff.first_name} {staff.last_name}</span>
                                             </td>
-                                            <td className="px-6 py-4 text-slate-500 capitalize">{staff.role}</td>
+                                            <td className="px-6 py-4 text-muted-foreground capitalize">{staff.role}</td>
                                             <td className="px-6 py-4">
                                                 <StatusBadge status={staff.status} />
                                             </td>
-                                            <td className="px-6 py-4 font-mono text-slate-400">
+                                            <td className="px-6 py-4 font-mono text-muted-foreground">
                                                 {staff.checkInTime ? staff.checkInTime.slice(0, 5) : '--:--'}
                                             </td>
                                         </tr>
@@ -174,12 +174,12 @@ interface StatsCardProps {
 
 function StatsCard({ label, value, icon: Icon, color, bg }: StatsCardProps) {
     return (
-        <Card className={`p-4 border border-white/5 flex items-center justify-between ${bg}`}>
+        <Card className={`p-4 border border-border/50 flex items-center justify-between ${bg}`}>
             <div>
-                <p className="text-xs text-slate-400 uppercase tracking-wider font-bold">{label}</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{label}</p>
                 <p className={`text-2xl font-bold mt-1 ${color}`}>{value}</p>
             </div>
-            <div className={`p-2 rounded-full bg-white/5 ${color}`}>
+            <div className={`p-2 rounded-full bg-secondary/50 ${color}`}>
                 <Icon className="h-6 w-6" />
             </div>
         </Card>

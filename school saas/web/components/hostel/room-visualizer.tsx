@@ -29,9 +29,9 @@ export function RoomVisualizer({ room, onAllocate, onVacate }: {
     // We visualize bunks in pairs if possible
 
     return (
-        <Card className="p-6 bg-slate-900 border-white/5">
+        <Card className="p-6 bg-card text-card-foreground border-border/50">
             <div className="flex justify-between mb-4">
-                <h3 className="text-lg font-bold text-white">{room.name}</h3>
+                <h3 className="text-lg font-bold text-foreground">{room.name}</h3>
                 <Badge variant="outline" className="border-blue-500/20 text-blue-400">
                     {room.bunks.filter(b => b.student).length} / {room.capacity} Occupied
                 </Badge>
@@ -47,14 +47,14 @@ export function RoomVisualizer({ room, onAllocate, onVacate }: {
                             }`}
                     >
                         <div className="flex justify-between items-start mb-2">
-                            <span className="text-xs uppercase font-bold text-slate-500">{bunk.label}</span>
+                            <span className="text-xs uppercase font-bold text-muted-foreground">{bunk.label}</span>
                             <Bed className={`h-4 w-4 ${bunk.student ? 'text-blue-400' : 'text-slate-600'}`} />
                         </div>
 
                         {bunk.student ? (
                             <div className="space-y-1">
                                 <div className="flex items-center gap-2">
-                                    <div className="h-6 w-6 rounded-full overflow-hidden bg-blue-500 flex items-center justify-center text-[10px] font-bold text-white border border-blue-400/30">
+                                    <div className="h-6 w-6 rounded-full overflow-hidden bg-blue-500 flex items-center justify-center text-[10px] font-bold text-foreground border border-blue-400/30">
                                         {bunk.student.passport_url ? (
                                             <img
                                                 src={bunk.student.passport_url}
@@ -70,17 +70,17 @@ export function RoomVisualizer({ room, onAllocate, onVacate }: {
                                             bunk.student.name.substring(0, 2)
                                         )}
                                     </div>
-                                    <p className="text-sm font-bold text-white truncate w-24">
+                                    <p className="text-sm font-bold text-foreground truncate w-24">
                                         {bunk.student.name}
                                     </p>
                                 </div>
-                                <p className="text-xs text-slate-400 pl-8">{bunk.student.class}</p>
+                                <p className="text-xs text-muted-foreground pl-8">{bunk.student.class}</p>
 
                                 <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => onVacate(bunk.id)}
-                                    className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full bg-red-500 hover:bg-red-600 text-white opacity-0 hover:opacity-100 group-hover:opacity-100 transition-opacity"
+                                    className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full bg-red-500 hover:bg-red-600 text-foreground opacity-0 hover:opacity-100 group-hover:opacity-100 transition-opacity"
                                 >
                                     <X className="h-3 w-3" />
                                 </Button>
@@ -88,7 +88,7 @@ export function RoomVisualizer({ room, onAllocate, onVacate }: {
                         ) : (
                             <Button
                                 variant="ghost"
-                                className="w-full h-12 border-2 border-dashed border-slate-800 text-slate-600 hover:text-white hover:border-slate-600 hover:bg-transparent"
+                                className="w-full h-12 border-2 border-dashed border-border text-slate-600 hover:text-foreground hover:border-slate-600 hover:bg-transparent"
                                 onClick={() => onAllocate(bunk.id)}
                             >
                                 <span className="text-xs">+ Assign</span>

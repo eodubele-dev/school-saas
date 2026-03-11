@@ -51,27 +51,27 @@ export function StudentSwitcher({ students = [] }: { students: Student[] }) {
 
     return (
         <div className="px-4 py-2">
-            <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-3 pl-1">
+            <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-3 pl-1">
                 Select Child Profile
             </p>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
                         variant="outline"
-                        className="w-full justify-between h-auto py-3 bg-slate-900/50 border-slate-800 hover:bg-slate-800 hover:text-white text-left group"
+                        className="w-full justify-between h-auto py-3 bg-card text-card-foreground/50 border-border hover:bg-slate-800 hover:text-foreground text-left group"
                     >
                         <div className="flex items-center gap-3 overflow-hidden">
                             <Avatar className="h-9 w-9 border border-slate-700">
                                 <AvatarImage src={activeStudent?.avatar_url} />
-                                <AvatarFallback className="bg-blue-600 text-white font-bold">
+                                <AvatarFallback className="bg-blue-600 text-foreground font-bold">
                                     {activeStudent?.full_name?.charAt(0)}
                                 </AvatarFallback>
                             </Avatar>
                             <div className="flex flex-col truncate">
-                                <span className="text-sm font-bold text-slate-200 truncate group-hover:text-white transition-colors">
+                                <span className="text-sm font-bold text-slate-200 truncate group-hover:text-foreground transition-colors">
                                     {activeStudent?.full_name}
                                 </span>
-                                <span className="text-[10px] text-slate-500 font-mono uppercase truncate">
+                                <span className="text-[10px] text-muted-foreground font-mono uppercase truncate">
                                     {getClassName(activeStudent)}
                                 </span>
                             </div>
@@ -79,8 +79,8 @@ export function StudentSwitcher({ students = [] }: { students: Student[] }) {
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-[240px] bg-slate-900 border-slate-800 text-slate-200">
-                    <DropdownMenuLabel className="text-xs text-slate-500 font-mono uppercase tracking-widest">
+                <DropdownMenuContent className="w-[240px] bg-card text-card-foreground border-border text-slate-200">
+                    <DropdownMenuLabel className="text-xs text-muted-foreground font-mono uppercase tracking-widest">
                         My Children
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-slate-800" />
@@ -88,7 +88,7 @@ export function StudentSwitcher({ students = [] }: { students: Student[] }) {
                         <DropdownMenuItem
                             key={student.id}
                             onSelect={() => onStudentSelect(student.id)}
-                            className="flex items-center gap-2 cursor-pointer focus:bg-slate-800 focus:text-white"
+                            className="flex items-center gap-2 cursor-pointer focus:bg-slate-800 focus:text-foreground"
                         >
                             <Avatar className="h-6 w-6 border border-slate-700">
                                 <AvatarImage src={student.avatar_url} />
@@ -98,7 +98,7 @@ export function StudentSwitcher({ students = [] }: { students: Student[] }) {
                             </Avatar>
                             <div className="flex flex-col flex-1 truncate">
                                 <span className="truncate text-sm font-medium">{student.full_name}</span>
-                                <span className="text-[9px] text-slate-500">{getClassName(student)}</span>
+                                <span className="text-[9px] text-muted-foreground">{getClassName(student)}</span>
                             </div>
                             {activeStudentId === student.id && (
                                 <Check className="ml-auto h-4 w-4 text-emerald-500" />

@@ -75,10 +75,10 @@ export default function StudentListClient({
             {/* Header Actions */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="relative w-full md:w-96">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search students by name or ID..."
-                        className="pl-10 bg-slate-900 border-white/10 text-white"
+                        className="pl-10 bg-card text-card-foreground border-border text-foreground"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -86,10 +86,10 @@ export default function StudentListClient({
 
                 {selectedIds.length > 0 ? (
                     <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-10 duration-300">
-                        <span className="text-sm text-slate-400 font-medium mr-2">{selectedIds.length} selected</span>
+                        <span className="text-sm text-muted-foreground font-medium mr-2">{selectedIds.length} selected</span>
                         <Button
                             onClick={() => setIsBulkOpen(true)}
-                            className="bg-[var(--school-accent)] hover:brightness-110 text-white shadow-[0_0_15px_rgba(var(--school-accent-rgb),0.4)]"
+                            className="bg-[var(--school-accent)] hover:brightness-110 text-foreground shadow-[0_0_15px_rgba(var(--school-accent-rgb),0.4)]"
                         >
                             <Users className="mr-2 h-4 w-4" />
                             Bulk Promote
@@ -98,7 +98,7 @@ export default function StudentListClient({
                 ) : (
                     <Button
                         onClick={() => router.push(`/${domain}/dashboard/admin/admissions`)}
-                        className="bg-[var(--school-accent)] hover:brightness-110 text-white shadow-[0_0_15px_rgba(var(--school-accent-rgb),0.4)]"
+                        className="bg-[var(--school-accent)] hover:brightness-110 text-foreground shadow-[0_0_15px_rgba(var(--school-accent-rgb),0.4)]"
                     >
                         <UserPlus className="mr-2 h-4 w-4" />
                         New Enrollment
@@ -107,10 +107,10 @@ export default function StudentListClient({
             </div>
 
             {/* Students Table */}
-            <div className="border border-white/10 rounded-lg overflow-hidden bg-slate-950/50">
+            <div className="border border-border rounded-lg overflow-hidden bg-slate-950/50">
                 <Table>
-                    <TableHeader className="bg-slate-900">
-                        <TableRow className="border-white/5">
+                    <TableHeader className="bg-card text-card-foreground">
+                        <TableRow className="border-border/50">
                             <TableHead className="w-[40px] px-4">
                                 <Checkbox
                                     checked={filteredStudents.length > 0 && selectedIds.length === filteredStudents.length}
@@ -118,17 +118,17 @@ export default function StudentListClient({
                                     className="border-slate-600 data-[state=checked]:bg-[var(--school-accent)] data-[state=checked]:border-[var(--school-accent)]"
                                 />
                             </TableHead>
-                            <TableHead className="text-slate-400 font-bold">Student</TableHead>
-                            <TableHead className="text-slate-400 font-bold">Admission No</TableHead>
-                            <TableHead className="text-slate-400 font-bold">Class</TableHead>
-                            <TableHead className="text-slate-400 font-bold">Status</TableHead>
-                            <TableHead className="text-right text-slate-400 font-bold">Actions</TableHead>
+                            <TableHead className="text-muted-foreground font-bold">Student</TableHead>
+                            <TableHead className="text-muted-foreground font-bold">Admission No</TableHead>
+                            <TableHead className="text-muted-foreground font-bold">Class</TableHead>
+                            <TableHead className="text-muted-foreground font-bold">Status</TableHead>
+                            <TableHead className="text-right text-muted-foreground font-bold">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {filteredStudents.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="h-32 text-center text-slate-500">
+                                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
                                     No students found.
                                 </TableCell>
                             </TableRow>
@@ -138,7 +138,7 @@ export default function StudentListClient({
                                 return (
                                     <TableRow
                                         key={student.id}
-                                        className={`border-white/5 transition-colors group ${isSelected ? 'bg-[var(--school-accent)]/5 hover:bg-[var(--school-accent)]/10' : 'hover:bg-white/5'}`}
+                                        className={`border-border/50 transition-colors group ${isSelected ? 'bg-[var(--school-accent)]/5 hover:bg-[var(--school-accent)]/10' : 'hover:bg-secondary/50'}`}
                                     >
                                         <TableCell className="px-4">
                                             <Checkbox
@@ -149,28 +149,28 @@ export default function StudentListClient({
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-3">
-                                                <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-white/10">
+                                                <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-border">
                                                     {student.avatar ? (
                                                         <img src={student.avatar} alt={student.name} className="h-full w-full object-cover" />
                                                     ) : (
-                                                        <GraduationCap className="h-4 w-4 text-slate-500" />
+                                                        <GraduationCap className="h-4 w-4 text-muted-foreground" />
                                                     )}
                                                 </div>
                                                 <span className="text-slate-200 font-medium">{student.name}</span>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="font-mono text-xs text-slate-400">
+                                        <TableCell className="font-mono text-xs text-muted-foreground">
                                             {student.admissionNo}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant="outline" className="border-white/10 text-slate-300 bg-slate-900">
+                                            <Badge variant="outline" className="border-border text-slate-300 bg-card text-card-foreground">
                                                 {student.class}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
                                             <span className={`
                                                 inline-flex items-center px-2 py-0.5 rounded textxs font-medium capitalize
-                                                ${student.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-slate-800 text-slate-400'}
+                                                ${student.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-slate-800 text-muted-foreground'}
                                             `}>
                                                 {student.status}
                                             </span>

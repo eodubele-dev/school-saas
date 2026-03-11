@@ -46,7 +46,7 @@ export function ProvisioningSuccess({ schoolName, subdomain, isVisible }: Provis
                             </motion.span>
                         </div>
 
-                        <h2 className="text-4xl font-bold text-white tracking-tight">
+                        <h2 className="text-4xl font-bold text-foreground tracking-tight">
                             {schoolName} is Live
                         </h2>
                         <p className="text-cyan-400 font-mono tracking-widest uppercase text-sm">

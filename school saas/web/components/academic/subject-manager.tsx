@@ -62,44 +62,44 @@ export function SubjectManager({ subjects, classes, domain }: { subjects: any[],
     }
 
     return (
-        <Card className="bg-slate-900 border-white/10 h-full flex flex-col">
+        <Card className="bg-card text-card-foreground border-border h-full flex flex-col">
             <CardHeader className="flex-none">
                 <div className="flex items-center justify-between">
                     <div>
-                        <CardTitle className="text-white">Subject Manager</CardTitle>
-                        <CardDescription className="text-slate-400">Manage subjects and class availability.</CardDescription>
+                        <CardTitle className="text-foreground">Subject Manager</CardTitle>
+                        <CardDescription className="text-muted-foreground">Manage subjects and class availability.</CardDescription>
                     </div>
                     <Button variant="outline" size="sm" onClick={handleBulkAdd} disabled={loading}>
                         <Plus className="mr-2 h-4 w-4" /> Bulk Add
                     </Button>
                 </div>
                 <div className="relative mt-4">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search subjects..."
                         value={search}
                         onChange={e => setSearch(e.target.value)}
-                        className="pl-10 bg-slate-950 border-white/10"
+                        className="pl-10 bg-slate-950 border-border"
                     />
                 </div>
             </CardHeader>
             <CardContent className="flex-1 overflow-auto min-h-[300px]">
                 <div className="grid grid-cols-1 gap-2">
                     {filtered.map(subject => (
-                        <div key={subject.id} className="flex items-center justify-between p-3 rounded-lg border border-white/5 bg-white/5 hover:bg-white/10 transition-colors">
+                        <div key={subject.id} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-secondary/50 hover:bg-white/10 transition-colors">
                             <div className="flex items-center gap-3">
                                 <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
                                     <BookOpen className="h-4 w-4" />
                                 </div>
                                 <span className="font-medium text-slate-200">{subject.name}</span>
                             </div>
-                            <Button variant="ghost" size="sm" onClick={() => openMapping(subject)} className="text-xs text-slate-400 hover:text-white">
+                            <Button variant="ghost" size="sm" onClick={() => openMapping(subject)} className="text-xs text-muted-foreground hover:text-foreground">
                                 Map Classes
                             </Button>
                         </div>
                     ))}
                     {filtered.length === 0 && (
-                        <div className="text-center py-8 text-slate-500 text-sm">
+                        <div className="text-center py-8 text-muted-foreground text-sm">
                             No subjects found. Try bulk adding.
                         </div>
                     )}
@@ -107,7 +107,7 @@ export function SubjectManager({ subjects, classes, domain }: { subjects: any[],
             </CardContent>
 
             <Dialog open={mappingModalOpen} onOpenChange={setMappingModalOpen}>
-                <DialogContent className="bg-slate-900 border-white/10 text-white">
+                <DialogContent className="bg-card text-card-foreground border-border text-foreground">
                     <DialogHeader>
                         <DialogTitle>Map Classes: {selectedSubject?.name}</DialogTitle>
                         <DialogDescription>Select which classes offer this subject.</DialogDescription>
@@ -121,7 +121,7 @@ export function SubjectManager({ subjects, classes, domain }: { subjects: any[],
                                     onClick={() => toggleClass(cls.id)}
                                     className={`cursor-pointer px-3 py-2 rounded-md border text-sm flex items-center justify-between transition-all ${isSelected
                                             ? "bg-[var(--school-accent)]/20 border-[var(--school-accent)] text-[var(--school-accent)] font-medium"
-                                            : "bg-slate-950 border-white/10 text-slate-400 hover:border-white/20"
+                                            : "bg-slate-950 border-border text-muted-foreground hover:border-white/20"
                                         }`}
                                 >
                                     {cls.name}

@@ -16,16 +16,16 @@ export function AffectiveStars({ behavior }: { behavior: any }) {
     ]
 
     return (
-        <Card className="bg-slate-900 border-white/5 p-6 space-y-6">
+        <Card className="bg-card text-card-foreground border-border/50 p-6 space-y-6">
             <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-cyan-400" />
-                <h3 className="text-white font-bold">Affective Domain</h3>
+                <h3 className="text-foreground font-bold">Affective Domain</h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
                 {traits.map((trait) => (
                     <div key={trait.label} className="flex items-center justify-between">
-                        <span className="text-slate-400 text-sm font-medium">{trait.label}</span>
+                        <span className="text-muted-foreground text-sm font-medium">{trait.label}</span>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <Star

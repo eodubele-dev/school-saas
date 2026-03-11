@@ -135,7 +135,7 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
 
     if (isLoading) {
         return (
-            <div className="flex flex-col items-center justify-center h-[400px] text-slate-500 gap-4">
+            <div className="flex flex-col items-center justify-center h-[400px] text-muted-foreground gap-4">
                 <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                 <p className="animate-pulse font-medium">Checking for existing drafts...</p>
             </div>
@@ -143,9 +143,9 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
     }
 
     return (
-        <div className="flex flex-col h-[calc(100vh-140px)] gap-6 animate-in fade-in duration-700 bg-slate-950 text-white p-4 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden">
+        <div className="flex flex-col h-[calc(100vh-140px)] gap-6 animate-in fade-in duration-700 bg-slate-950 text-foreground p-4 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden">
             {/* Context Breadcrumb */}
-            <div className="px-4 -mb-4 flex items-center gap-2 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+            <div className="px-4 -mb-4 flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                 Targeting: <span className="text-blue-400">{className || "Current Class"}</span>
                 <span className="mx-1 opacity-20">|</span>
@@ -154,12 +154,12 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
             </div>
 
             {/* Top Bar */}
-            <div className="flex items-center justify-between bg-slate-900/40 backdrop-blur-md p-4 rounded-2xl border border-white/5">
+            <div className="flex items-center justify-between bg-card text-card-foreground/40 backdrop-blur-md p-4 rounded-2xl border border-border/50">
                 <div className="flex items-center gap-4 flex-1">
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="text-slate-500 hover:text-white"
+                        className="text-muted-foreground hover:text-foreground"
                         onClick={() => onClose?.()}
                     >
                         <ChevronLeft className="h-5 w-5" />
@@ -168,10 +168,10 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
                         <Input
                             value={quizTitle}
                             onChange={(e) => setQuizTitle(e.target.value)}
-                            className="bg-transparent border-none text-xl font-serif font-bold text-white p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+                            className="bg-transparent border-none text-xl font-serif font-bold text-foreground p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
                             placeholder="Type Assessment Title..."
                         />
-                        <div className="flex items-center gap-3 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                        <div className="flex items-center gap-3 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
                             <span className="flex items-center gap-1">
                                 <Clock className="h-3 w-3 text-[hsl(var(--school-accent))]" />
                                 <Input
@@ -182,7 +182,7 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
                                 />
                                 Mins
                             </span>
-                            <span className="flex items-center gap-1 border-l border-white/10 pl-3">
+                            <span className="flex items-center gap-1 border-l border-border pl-3">
                                 <Shield className="h-3 w-3 text-emerald-400" /> {questions.length} Questions
                             </span>
                         </div>
@@ -190,9 +190,9 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <div className="hidden md:flex items-center gap-4 mr-6 px-6 border-r border-white/5">
+                    <div className="hidden md:flex items-center gap-4 mr-6 px-6 border-r border-border/50">
                         <div className="flex items-center gap-2">
-                            <Label className="text-xs text-slate-400 font-medium">Shuffle</Label>
+                            <Label className="text-xs text-muted-foreground font-medium">Shuffle</Label>
                             <Switch
                                 checked={shuffle}
                                 onCheckedChange={setShuffle}
@@ -200,7 +200,7 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <Label className="text-xs text-slate-400 font-medium">Live</Label>
+                            <Label className="text-xs text-muted-foreground font-medium">Live</Label>
                             <Switch
                                 checked={visibility === 'published'}
                                 onCheckedChange={(val) => setVisibility(val ? 'published' : 'draft')}
@@ -211,7 +211,7 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
 
                     <Button
                         variant="outline"
-                        className="border-white/10 bg-white/5 text-slate-300 gap-2 font-bold"
+                        className="border-border bg-secondary/50 text-slate-300 gap-2 font-bold"
                         onClick={() => handleSave(false)}
                         disabled={isSaving}
                     >
@@ -219,7 +219,7 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
                         Save Revision
                     </Button>
                     <Button
-                        className="bg-blue-600 hover:bg-blue-600 text-white gap-2 font-bold shadow-lg shadow-blue-500/20"
+                        className="bg-blue-600 hover:bg-blue-600 text-foreground gap-2 font-bold shadow-lg shadow-blue-500/20"
                         onClick={() => handleSave(true)}
                         disabled={isSaving}
                     >

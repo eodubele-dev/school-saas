@@ -16,7 +16,7 @@ export function ReportCard({ grades }: { grades: any[] }) {
         if (grade?.startsWith('B')) return "bg-blue-500/10 text-blue-400 border-blue-500/20"
         if (grade?.startsWith('C')) return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
         if (grade?.startsWith('F')) return "bg-red-500/10 text-red-400 border-red-500/20"
-        return "bg-slate-500/10 text-slate-400 border-slate-500/20"
+        return "bg-slate-500/10 text-muted-foreground border-slate-500/20"
     }
 
     return (
@@ -25,13 +25,13 @@ export function ReportCard({ grades }: { grades: any[] }) {
             <div className="bg-slate-50 p-6 border-b border-slate-200 flex flex-col md:flex-row justify-between gap-6">
                 <div>
                     <h2 className="text-2xl font-bold text-slate-900 font-serif">End of Term Report</h2>
-                    <p className="text-slate-500 text-sm">First Term • 2025/2026 Session</p>
+                    <p className="text-muted-foreground text-sm">First Term • 2025/2026 Session</p>
                 </div>
                 <div className="flex gap-3">
                     <Button variant="outline" className="border-slate-300 text-slate-700">
                         <Share2 className="h-4 w-4 mr-2" /> Share
                     </Button>
-                    <Button className="bg-[var(--school-accent)] text-white hover:bg-blue-700">
+                    <Button className="bg-[var(--school-accent)] text-foreground hover:bg-blue-700">
                         <Download className="h-4 w-4 mr-2" /> Download PDF
                     </Button>
                 </div>
@@ -40,19 +40,19 @@ export function ReportCard({ grades }: { grades: any[] }) {
             {/* Stats Cards Row (in print layout this would be top) */}
             <div className="grid grid-cols-4 gap-px bg-slate-200 border-b border-slate-200">
                 <div className="bg-white p-4 text-center">
-                    <span className="block text-xs uppercase tracking-wider text-slate-500 font-bold mb-1">Total Score</span>
+                    <span className="block text-xs uppercase tracking-wider text-muted-foreground font-bold mb-1">Total Score</span>
                     <span className="text-xl font-black text-slate-900">{totalScore}</span>
                 </div>
                 <div className="bg-white p-4 text-center">
-                    <span className="block text-xs uppercase tracking-wider text-slate-500 font-bold mb-1">Average</span>
+                    <span className="block text-xs uppercase tracking-wider text-muted-foreground font-bold mb-1">Average</span>
                     <span className="text-xl font-black text-blue-600">{average}%</span>
                 </div>
                 <div className="bg-white p-4 text-center">
-                    <span className="block text-xs uppercase tracking-wider text-slate-500 font-bold mb-1">Position</span>
+                    <span className="block text-xs uppercase tracking-wider text-muted-foreground font-bold mb-1">Position</span>
                     <span className="text-xl font-black text-slate-900">4th</span>
                 </div>
                 <div className="bg-white p-4 text-center">
-                    <span className="block text-xs uppercase tracking-wider text-slate-500 font-bold mb-1">Class Size</span>
+                    <span className="block text-xs uppercase tracking-wider text-muted-foreground font-bold mb-1">Class Size</span>
                     <span className="text-xl font-black text-slate-900">25</span>
                 </div>
             </div>
@@ -90,7 +90,7 @@ export function ReportCard({ grades }: { grades: any[] }) {
                                         {grade.grade}
                                     </Badge>
                                 </TableCell>
-                                <TableCell className="text-sm text-slate-500 italic">
+                                <TableCell className="text-sm text-muted-foreground italic">
                                     {grade.remarks || "Satisfactory effort."}
                                 </TableCell>
                             </TableRow>
@@ -106,7 +106,7 @@ export function ReportCard({ grades }: { grades: any[] }) {
                         {/* Placeholder for scanned signature */}
                         <span className="font-dancing-script text-2xl text-blue-900">Principal</span>
                     </div>
-                    <p className="text-xs text-slate-500 uppercase tracking-widest">Principal&apos;s Signature</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">Principal&apos;s Signature</p>
                 </div>
 
                 <div className="text-center w-32 opacity-50">

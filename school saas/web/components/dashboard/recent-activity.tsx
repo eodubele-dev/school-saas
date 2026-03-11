@@ -36,11 +36,11 @@ export function RecentActivity({ data }: RecentActivityProps) {
     }
 
     return (
-        <Card className="bg-slate-900/90 border-white/10 backdrop-blur-xl shadow-2xl flex flex-col">
+        <Card className="bg-card text-card-foreground/90 border-border backdrop-blur-xl shadow-2xl flex flex-col">
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-white font-semibold text-sm tracking-tight">Recent System Activity</CardTitle>
-                    <span className="text-[10px] text-slate-500 font-mono bg-white/5 px-2 py-0.5 rounded">
+                    <CardTitle className="text-foreground font-semibold text-sm tracking-tight">Recent System Activity</CardTitle>
+                    <span className="text-[10px] text-muted-foreground font-mono bg-secondary/50 px-2 py-0.5 rounded">
                         {activities.length} Events
                     </span>
                 </div>
@@ -50,18 +50,18 @@ export function RecentActivity({ data }: RecentActivityProps) {
                     {currentActivities.length > 0 ? (
                         currentActivities.map((item, index) => (
                             <div key={index} className="flex items-center animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: `${index * 50}ms` }}>
-                                <Avatar className="h-9 w-9 bg-slate-800 border border-white/10 shrink-0">
+                                <Avatar className="h-9 w-9 bg-slate-800 border border-border shrink-0">
                                     <AvatarFallback className="text-xs text-blue-400 font-bold bg-blue-500/10">
                                         {item.type.charAt(0)}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="ml-4 space-y-1 min-w-0">
                                     <p className="text-sm font-medium leading-none text-slate-200 truncate">{item.type}</p>
-                                    <p className="text-xs text-slate-500 truncate">
+                                    <p className="text-xs text-muted-foreground truncate">
                                         {item.message}
                                     </p>
                                 </div>
-                                <div className="ml-auto text-xs text-slate-400 whitespace-nowrap pl-2">
+                                <div className="ml-auto text-xs text-muted-foreground whitespace-nowrap pl-2">
                                     {formatDate(item.time)}
                                 </div>
                             </div>
@@ -71,18 +71,18 @@ export function RecentActivity({ data }: RecentActivityProps) {
                             <div className="h-12 w-12 rounded-full bg-slate-800/50 flex items-center justify-center">
                                 <div className="h-2 w-2 bg-slate-600 rounded-full animate-ping" />
                             </div>
-                            <p className="text-sm text-slate-500">No recent activity recorded</p>
+                            <p className="text-sm text-muted-foreground">No recent activity recorded</p>
                         </div>
                     )}
                 </div>
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                    <div className="pt-4 mt-auto border-t border-white/5 flex items-center justify-between text-xs text-slate-400">
+                    <div className="pt-4 mt-auto border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground">
                         <button
                             onClick={handlePrev}
                             disabled={currentPage === 1}
-                            className="flex items-center gap-1 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
+                            className="flex items-center gap-1 hover:text-foreground disabled:opacity-30 disabled:hover:text-muted-foreground transition-colors"
                         >
                             <ChevronLeft className="h-3 w-3" />
                             Prev
@@ -93,7 +93,7 @@ export function RecentActivity({ data }: RecentActivityProps) {
                         <button
                             onClick={handleNext}
                             disabled={currentPage === totalPages}
-                            className="flex items-center gap-1 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
+                            className="flex items-center gap-1 hover:text-foreground disabled:opacity-30 disabled:hover:text-muted-foreground transition-colors"
                         >
                             Next
                             <ChevronRight className="h-3 w-3" />

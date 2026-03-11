@@ -34,32 +34,32 @@ export function LessonViewer({ lesson, onBack }: { lesson: any, onBack: () => vo
             <style>{contentStyles}</style>
 
             <div className="flex items-center justify-between gap-2 mb-4 px-2 no-print">
-                <Button variant="ghost" size="sm" onClick={onBack} className="text-slate-400 hover:text-white hover:bg-white/5">
+                <Button variant="ghost" size="sm" onClick={onBack} className="text-muted-foreground hover:text-foreground hover:bg-secondary/50">
                     <ArrowLeft className="h-4 w-4 mr-1" /> Back to Locker
                 </Button>
             </div>
 
-            <div className="bg-slate-900 shadow-2xl rounded-2xl overflow-hidden flex-1 flex flex-col border border-white/10">
+            <div className="bg-card text-card-foreground shadow-2xl rounded-2xl overflow-hidden flex-1 flex flex-col border border-border">
                 {/* Visual Header */}
-                <div className="bg-slate-950 p-8 text-white no-print border-b border-white/5">
+                <div className="bg-slate-950 p-8 text-foreground no-print border-b border-border/50">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
                             <BookOpen className="h-5 w-5 text-blue-400" />
                         </div>
                         <span className="text-xs font-semibold uppercase tracking-widest text-blue-400">Lesson Note</span>
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">{lesson.title}</h2>
-                    <div className="flex flex-wrap gap-4 text-xs text-slate-400 font-mono">
-                        <span className="bg-white/5 border border-white/5 px-2 py-1 rounded">Week {lesson.week}</span>
-                        <span className="bg-white/5 border border-white/5 px-2 py-1 rounded">{lesson.grade_level}</span>
-                        <span className="bg-white/5 border border-white/5 px-2 py-1 rounded">{lesson.subject}</span>
+                    <h2 className="text-2xl md:text-3xl font-bold mb-2 text-foreground">{lesson.title}</h2>
+                    <div className="flex flex-wrap gap-4 text-xs text-muted-foreground font-mono">
+                        <span className="bg-secondary/50 border border-border/50 px-2 py-1 rounded">Week {lesson.week}</span>
+                        <span className="bg-secondary/50 border border-border/50 px-2 py-1 rounded">{lesson.grade_level}</span>
+                        <span className="bg-secondary/50 border border-border/50 px-2 py-1 rounded">{lesson.subject}</span>
                     </div>
                 </div>
 
                 {/* Print-only Header */}
                 <div className="hidden print:block p-10 border-b-2 border-slate-200 mb-8">
                     <h1 className="text-4xl font-black text-slate-900 mb-2 uppercase tracking-tight">{lesson.title}</h1>
-                    <p className="text-slate-500 font-mono">Subject: {lesson.subject} | Level: {lesson.grade_level} | Week: {lesson.week}</p>
+                    <p className="text-muted-foreground font-mono">Subject: {lesson.subject} | Level: {lesson.grade_level} | Week: {lesson.week}</p>
                 </div>
 
                 <ScrollArea className="flex-1 p-6 md:p-12 bg-slate-950/50 print:overflow-visible">
@@ -70,10 +70,10 @@ export function LessonViewer({ lesson, onBack }: { lesson: any, onBack: () => vo
                     </div>
                 </ScrollArea>
 
-                <div className="p-6 bg-slate-900 border-t border-white/10 flex justify-end gap-3 no-print">
+                <div className="p-6 bg-card text-card-foreground border-t border-border flex justify-end gap-3 no-print">
                     <Button
                         variant="default"
-                        className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20"
+                        className="bg-blue-600 hover:bg-blue-700 text-foreground shadow-lg shadow-blue-500/20"
                         onClick={handleDownload}
                     >
                         <Download className="h-4 w-4 mr-2" /> Download PDF / Print

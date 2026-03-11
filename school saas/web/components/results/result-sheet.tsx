@@ -68,8 +68,8 @@ export function ResultSheet({ data }: { data: ResultData }) {
                         </div>
                         <div className="pt-2 relative z-20">
                             <h1 className="text-4xl font-black uppercase tracking-wider leading-none mb-1.5 drop-shadow-sm" style={{ color: theme.primary_color }}>{school.name}</h1>
-                            <p className="text-[13px] font-bold text-slate-500 tracking-[0.2em] uppercase">{school.motto}</p>
-                            <p className="text-xs text-slate-400 mt-2 max-w-sm">{school.address}</p>
+                            <p className="text-[13px] font-bold text-muted-foreground tracking-[0.2em] uppercase">{school.motto}</p>
+                            <p className="text-xs text-muted-foreground mt-2 max-w-sm">{school.address}</p>
                         </div>
                     </div>
                     <div className="flex flex-col items-end text-right pt-2 relative z-20">
@@ -82,23 +82,23 @@ export function ResultSheet({ data }: { data: ResultData }) {
                 <section className="grid grid-cols-[1fr_auto] gap-8 mb-8">
                     <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
                         <div className="flex border-b border-slate-200 pb-1">
-                            <span className="font-bold w-32 uppercase text-xs text-slate-500">Student Name:</span>
+                            <span className="font-bold w-32 uppercase text-xs text-muted-foreground">Student Name:</span>
                             <span className="font-bold text-lg">{data.student.full_name}</span>
                         </div>
                         <div className="flex border-b border-slate-200 pb-1">
-                            <span className="font-bold w-32 uppercase text-xs text-slate-500">Admission No:</span>
+                            <span className="font-bold w-32 uppercase text-xs text-muted-foreground">Admission No:</span>
                             <span className="font-mono">{data.student.admission_number}</span>
                         </div>
                         <div className="flex border-b border-slate-200 pb-1">
-                            <span className="font-bold w-32 uppercase text-xs text-slate-500">Class:</span>
+                            <span className="font-bold w-32 uppercase text-xs text-muted-foreground">Class:</span>
                             <span>{data.student.class_name}</span>
                         </div>
                         <div className="flex border-b border-slate-200 pb-1">
-                            <span className="font-bold w-32 uppercase text-xs text-slate-500">House:</span>
+                            <span className="font-bold w-32 uppercase text-xs text-muted-foreground">House:</span>
                             <span>{data.student.house || 'N/A'}</span>
                         </div>
                         <div className="flex border-b border-slate-200 pb-1">
-                            <span className="font-bold w-32 uppercase text-xs text-slate-500">Next Term:</span>
+                            <span className="font-bold w-32 uppercase text-xs text-muted-foreground">Next Term:</span>
                             <span>{data.term_info.next_term_begins}</span>
                         </div>
                     </div>
@@ -114,7 +114,7 @@ export function ResultSheet({ data }: { data: ResultData }) {
                                 className="object-cover"
                             />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center text-xs text-slate-400 uppercase text-center p-2">
+                            <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground uppercase text-center p-2">
                                 Passport Photo
                             </div>
                         )}
@@ -124,12 +124,12 @@ export function ResultSheet({ data }: { data: ResultData }) {
                 {/* Attendance Tally */}
                 <section className="mb-8">
                     <div className="rounded-none overflow-hidden flex border" style={{ borderColor: theme.secondary_color }}>
-                        <div className="text-white px-4 py-2 text-xs font-bold uppercase w-32 flex items-center" style={{ backgroundColor: theme.secondary_color }}>
+                        <div className="text-foreground px-4 py-2 text-xs font-bold uppercase w-32 flex items-center" style={{ backgroundColor: theme.secondary_color }}>
                             Attendance Record
                         </div>
                         <div className="flex-1 flex divide-x divide-slate-200">
                             <div className="flex-1 px-4 py-2 text-center">
-                                <div className="text-xs text-slate-500 uppercase">Days Open</div>
+                                <div className="text-xs text-muted-foreground uppercase">Days Open</div>
                                 <div className="font-bold text-lg">{data.attendance.total_days}</div>
                             </div>
                             <div className="flex-1 px-4 py-2 text-center bg-green-50">
@@ -148,7 +148,7 @@ export function ResultSheet({ data }: { data: ResultData }) {
                 <section className="mb-8 flex-1">
                     <table className="w-full text-sm border-collapse border border-slate-300">
                         <thead>
-                            <tr className="text-white uppercase text-xs" style={{ backgroundColor: theme.primary_color }}>
+                            <tr className="text-foreground uppercase text-xs" style={{ backgroundColor: theme.primary_color }}>
                                 <th className="border border-white/20 px-3 py-2 text-left w-1/3">Subject</th>
                                 <th className="border border-white/20 px-2 py-2 w-16 text-center">CA 1 (20)</th>
                                 <th className="border border-white/20 px-2 py-2 w-16 text-center">CA 2 (20)</th>
@@ -163,8 +163,8 @@ export function ResultSheet({ data }: { data: ResultData }) {
                             {data.academic.subjects.map((subject, idx) => (
                                 <tr key={idx} className="even:bg-slate-50/50">
                                     <td className="border border-slate-300 px-3 py-2 font-medium">{subject.name}</td>
-                                    <td className="border border-slate-300 px-2 py-2 text-center text-slate-500">{subject.ca1}</td>
-                                    <td className="border border-slate-300 px-2 py-2 text-center text-slate-500">{subject.ca2}</td>
+                                    <td className="border border-slate-300 px-2 py-2 text-center text-muted-foreground">{subject.ca1}</td>
+                                    <td className="border border-slate-300 px-2 py-2 text-center text-muted-foreground">{subject.ca2}</td>
                                     <td className="border border-slate-300 px-2 py-2 text-center font-medium">{subject.exam}</td>
                                     <td className="border border-slate-300 px-2 py-2 text-center font-bold bg-slate-50">{subject.total}</td>
                                     <td className={`border border-slate-300 px-2 py-2 text-center font-bold ${getGradeColor(subject.grade)}`}>{subject.grade}</td>
@@ -187,7 +187,7 @@ export function ResultSheet({ data }: { data: ResultData }) {
                             ))}
                         </tbody>
                         <tfoot>
-                            <tr className="text-white font-bold" style={{ backgroundColor: theme.secondary_color }}>
+                            <tr className="text-foreground font-bold" style={{ backgroundColor: theme.secondary_color }}>
                                 <td className="border border-white/20 px-3 py-2">OVERALL AVERAGE</td>
                                 <td colSpan={3} className="border border-white/20"></td>
                                 <td className="border border-white/20 px-2 py-2 text-center text-lg">{data.academic.average}%</td>
@@ -203,19 +203,19 @@ export function ResultSheet({ data }: { data: ResultData }) {
                         {/* Iconic Star Rating for Character (Static Demo for Platinum Polish) */}
                         <div className="flex gap-6 mb-4">
                             <div>
-                                <h3 className="text-[10px] font-bold uppercase text-slate-400 mb-1">Punctuality</h3>
+                                <h3 className="text-[10px] font-bold uppercase text-muted-foreground mb-1">Punctuality</h3>
                                 <div className="flex text-yellow-500">
                                     {'★★★★★'.split('').map((s, i) => <span key={i} className="text-lg leading-none text-yellow-500 drop-shadow-sm">{s}</span>)}
                                 </div>
                             </div>
                             <div>
-                                <h3 className="text-[10px] font-bold uppercase text-slate-400 mb-1">Neatness</h3>
+                                <h3 className="text-[10px] font-bold uppercase text-muted-foreground mb-1">Neatness</h3>
                                 <div className="flex text-yellow-500">
                                     {'★★★★☆'.split('').map((s, i) => <span key={i} className="text-lg leading-none text-yellow-500 drop-shadow-sm">{s}</span>)}
                                 </div>
                             </div>
                             <div>
-                                <h3 className="text-[10px] font-bold uppercase text-slate-400 mb-1">Leadership</h3>
+                                <h3 className="text-[10px] font-bold uppercase text-muted-foreground mb-1">Leadership</h3>
                                 <div className="flex text-yellow-500">
                                     {'★★★★★'.split('').map((s, i) => <span key={i} className="text-lg leading-none text-yellow-500 drop-shadow-sm">{s}</span>)}
                                 </div>
@@ -235,7 +235,7 @@ export function ResultSheet({ data }: { data: ResultData }) {
                             <div className="absolute top-4 right-4 text-slate-700 opacity-20">
                                 <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 13.1216 16 12.017 16H9.01703C7.91246 16 7.01703 16.8954 7.01703 18L7.01703 21H5.01703V18C5.01703 15.7909 6.79089 14 9.01703 14H12.017C14.2432 14 16.017 15.7909 16.017 18V21H14.017ZM21.017 6.00005C22.1216 6.00005 23.017 6.89548 23.017 8.00005V11C23.017 12.1046 22.1216 13 21.017 13H19.017V10H21.017V8.00005H19.017V13H17.017V11C17.017 9.89548 16.1216 9.00005 15.017 9.00005H12.017C10.9125 9.00005 10.017 9.89548 10.017 11V13H7.01703C5.91246 13 5.01703 12.1046 5.01703 11V8.00005C5.01703 6.89548 5.91246 6.00005 7.01703 6.00005H10.017C10.5693 6.00005 11.017 5.55233 11.017 5.00005C11.017 4.44776 10.5693 4.00005 10.017 4.00005H7.01703C4.80789 4.00005 3.01703 5.79091 3.01703 8.00005V11C3.01703 13.2092 4.80789 15 7.01703 15H17.017V17H19.017V15H21.017C23.2262 15 25.017 13.2092 25.017 11V8.00005C25.017 5.79091 23.2262 4.00005 21.017 4.00005H18.017C17.4647 4.00005 17.017 4.44776 17.017 5.00005C17.017 5.55233 17.4647 6.00005 18.017 6.00005H21.017Z" /></svg>
                             </div>
-                            <h3 className="text-xs font-bold uppercase text-slate-400 mb-2 flex items-center gap-2">
+                            <h3 className="text-xs font-bold uppercase text-muted-foreground mb-2 flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: theme.accent_color }}></span>
                                 Principal's AI Summary
                             </h3>
@@ -248,14 +248,14 @@ export function ResultSheet({ data }: { data: ResultData }) {
                                     <span className="font-handwriting text-2xl text-slate-800 -rotate-3">Mrs. Alade</span>
                                 </div>
                                 <div className="border-t border-slate-400 mx-auto w-32"></div>
-                                <p className="text-[10px] uppercase font-bold text-slate-500 mt-1">Principal's Signature</p>
+                                <p className="text-[10px] uppercase font-bold text-muted-foreground mt-1">Principal's Signature</p>
                             </div>
                             <div className="w-40 text-center pt-1">
                                 <div className="h-12 w-full mb-1 flex items-end justify-center">
                                     <span className="font-mono text-sm text-slate-600">{data.term_info.date_issued}</span>
                                 </div>
                                 <div className="border-t border-slate-400 mx-auto w-32"></div>
-                                <p className="text-[10px] uppercase font-bold text-slate-500 mt-1">Date Issued</p>
+                                <p className="text-[10px] uppercase font-bold text-muted-foreground mt-1">Date Issued</p>
                             </div>
                         </div>
                     </div>
@@ -264,12 +264,12 @@ export function ResultSheet({ data }: { data: ResultData }) {
                         {qrCodeUrl && (
                             <div className="relative p-2 bg-white border border-slate-200 shadow-sm rounded-lg">
                                 <img src={qrCodeUrl} alt="Verification QR" className="w-24 h-24 mix-blend-multiply" />
-                                <div className="absolute -bottom-2 -right-2 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow" style={{ backgroundColor: theme.primary_color }}>
+                                <div className="absolute -bottom-2 -right-2 text-foreground text-[9px] font-bold px-1.5 py-0.5 rounded shadow" style={{ backgroundColor: theme.primary_color }}>
                                     VERIFIED
                                 </div>
                             </div>
                         )}
-                        <p className="text-[10px] text-slate-400 text-right w-full leading-tight mt-2">
+                        <p className="text-[10px] text-muted-foreground text-right w-full leading-tight mt-2">
                             Scan to verify authenticity<br />via EduFlow Secure Portal.
                         </p>
                     </div>

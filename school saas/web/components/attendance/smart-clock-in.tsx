@@ -145,11 +145,11 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     }
 
     return (
-        <Card className="p-6 bg-slate-900 border-white/5 relative overflow-hidden group">
+        <Card className="p-6 bg-card text-card-foreground border-border/50 relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
             <div className="relative flex flex-col items-center justify-center text-center gap-4">
-                <div className="flex items-center gap-2 text-slate-400 text-sm font-medium uppercase tracking-widest">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium uppercase tracking-widest">
                     <MapPin className="h-4 w-4" />
                     Smart Attendance
                 </div>
@@ -173,7 +173,7 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                     <div className="space-y-4">
                         <div className="h-32 w-32 rounded-full border-4 border-emerald-500/20 bg-emerald-500/10 flex flex-col items-center justify-center mx-auto animate-in zoom-in duration-300">
                             <CheckCircle2 className="h-10 w-10 text-emerald-500 mb-1" />
-                            <span className="text-2xl font-bold text-white">{status.clockInTime?.slice(0, 5)}</span>
+                            <span className="text-2xl font-bold text-foreground">{status.clockInTime?.slice(0, 5)}</span>
                             <span className="text-[10px] uppercase text-emerald-400 font-bold tracking-widest">Clocked In</span>
                         </div>
 
@@ -186,7 +186,7 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
 
                         <Button
                             variant="outline"
-                            className="w-full border-white/10 hover:bg-white/5 text-slate-400 hover:text-white"
+                            className="w-full border-border hover:bg-secondary/50 text-muted-foreground hover:text-foreground"
                             onClick={handleClockOut}
                             disabled={loading}
                         >
@@ -195,7 +195,7 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                     </div>
                 )}
 
-                <p className={`text-xs max-w-[200px] font-medium transition-colors ${isWithinRange === false ? 'text-red-400 animate-pulse' : 'text-slate-500'}`}>
+                <p className={`text-xs max-w-[200px] font-medium transition-colors ${isWithinRange === false ? 'text-red-400 animate-pulse' : 'text-muted-foreground'}`}>
                     {status.clockedIn
                         ? "You are currently active. Don't forget to clock out."
                         : isWithinRange === false

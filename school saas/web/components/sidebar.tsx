@@ -43,7 +43,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
 
     // Parallelize Tenant and Auth Fetches to avoid waterfalls
     const [tenantRes, authRes] = await Promise.all([
-        supabase.from('tenants').select('name, logo_url, theme_config, motto, tier').eq('slug', slug).single(),
+        supabase.from('tenants').select('name, logo_url, theme_config, motto, subscription_tier').eq('slug', slug).single(),
         supabase.auth.getUser()
     ])
 
@@ -53,13 +53,13 @@ export async function Sidebar({ className, domain }: { className?: string, domai
     let primaryColor = '#3b82f6' // Default Blue-500
     let secondaryColor = '#020617' // Default slate-950
     let tenantMotto = "Excellence in Everything" // Default Slogan
-    let tenantTier = "Free"
+    let tenantTier = "starter" // Set default to starter as base tier
 
     if (tenant) {
         tenantName = tenant.name || "EduFlow"
         tenantLogo = tenant.logo_url
         // @ts-ignore
-        tenantTier = tenant.tier || "Free"
+        tenantTier = tenant.subscription_tier || "starter"
         if (tenant.motto) tenantMotto = tenant.motto
         if (tenant.theme_config && typeof tenant.theme_config === 'object') {
             // @ts-ignore
@@ -117,7 +117,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
 
     return (
         <div
-            className={cn("flex h-screen w-64 flex-col text-white relative z-50 shadow-xl", className)}
+            className={cn("flex h-screen w-64 flex-col text-foreground relative z-50 shadow-xl", className)}
             style={{
                 backgroundColor: secondaryColor,
                 // @ts-ignore

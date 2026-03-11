@@ -63,7 +63,7 @@ export function NavbarLinks({ domain, scheduleData, userRole = 'User' }: NavbarL
             {!isParent && (
                 <Link
                     href="/dashboard/schedule"
-                    className="text-sm font-medium text-slate-400 hover:text-white hover:underline decoration-blue-500 underline-offset-4 transition-all flex items-center gap-2 group"
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground hover:underline decoration-blue-500 underline-offset-4 transition-all flex items-center gap-2 group"
                 >
                     <Calendar className="h-3.5 w-3.5 group-hover:text-blue-400" />
                     <span>My Schedule</span>
@@ -77,7 +77,7 @@ export function NavbarLinks({ domain, scheduleData, userRole = 'User' }: NavbarL
 
             <button
                 onClick={triggerSearch}
-                className="text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center gap-2 border border-slate-700/50 hover:border-slate-500 rounded-md px-3 py-1.5 bg-slate-800/20"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-all flex items-center gap-2 border border-slate-700/50 hover:border-slate-500 rounded-md px-3 py-1.5 bg-slate-800/20"
             >
                 <Book className="h-3.5 w-3.5" />
                 Directory
@@ -86,7 +86,7 @@ export function NavbarLinks({ domain, scheduleData, userRole = 'User' }: NavbarL
             <Link
                 href="#"
                 onClick={handleResourcesClick}
-                className="text-sm font-medium text-slate-500 hover:text-blue-400 transition-all flex items-center gap-2"
+                className="text-sm font-medium text-muted-foreground hover:text-blue-400 transition-all flex items-center gap-2"
             >
                 <Folder className="h-3.5 w-3.5" />
                 Resources
@@ -97,21 +97,21 @@ export function NavbarLinks({ domain, scheduleData, userRole = 'User' }: NavbarL
     const MobileView = () => (
         <div className="lg:hidden">
             <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-slate-400 hover:text-white">
+                <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
                     Utilities <ChevronDown className="h-3 w-3" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 bg-slate-900 border-slate-800 text-slate-300">
+                <DropdownMenuContent align="end" className="w-48 bg-card text-card-foreground border-border text-slate-300">
                     {!isParent && (
                         <DropdownMenuItem asChild>
-                            <Link href="/dashboard/schedule" className="flex items-center gap-2 cursor-pointer focus:bg-slate-800 focus:text-white">
+                            <Link href="/dashboard/schedule" className="flex items-center gap-2 cursor-pointer focus:bg-slate-800 focus:text-foreground">
                                 <Calendar className="h-4 w-4" /> My Schedule
                             </Link>
                         </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem onClick={triggerSearch} className="flex items-center gap-2 cursor-pointer focus:bg-slate-800 focus:text-white">
+                    <DropdownMenuItem onClick={triggerSearch} className="flex items-center gap-2 cursor-pointer focus:bg-slate-800 focus:text-foreground">
                         <Book className="h-4 w-4" /> Directory
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleResourcesClick} className="flex items-center gap-2 cursor-pointer focus:bg-slate-800 focus:text-white">
+                    <DropdownMenuItem onClick={handleResourcesClick} className="flex items-center gap-2 cursor-pointer focus:bg-slate-800 focus:text-foreground">
                         <Folder className="h-4 w-4" /> Resources
                     </DropdownMenuItem>
                 </DropdownMenuContent>

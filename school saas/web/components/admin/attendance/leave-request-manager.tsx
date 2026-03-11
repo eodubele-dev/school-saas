@@ -45,9 +45,9 @@ export function LeaveRequestManager() {
     }
 
     return (
-        <Card className="p-6 bg-slate-900 border-white/5 h-full">
+        <Card className="p-6 bg-card text-card-foreground border-border/50 h-full">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                     <Calendar className="h-5 w-5 text-blue-500" />
                     Leave Requests
                 </h3>
@@ -57,15 +57,15 @@ export function LeaveRequestManager() {
             </div>
 
             {loading ? (
-                <div className="flex justify-center py-12"><Loader2 className="animate-spin text-slate-500" /></div>
+                <div className="flex justify-center py-12"><Loader2 className="animate-spin text-muted-foreground" /></div>
             ) : requests.length === 0 ? (
-                <div className="text-center py-12 text-slate-500 border border-dashed border-white/5 rounded-lg bg-white/[0.02]">
+                <div className="text-center py-12 text-muted-foreground border border-dashed border-border/50 rounded-lg bg-white/[0.02]">
                     No pending requests
                 </div>
             ) : (
                 <div className="space-y-4">
                     {requests.map((r) => (
-                        <div key={r.id} className="p-4 rounded-xl bg-slate-950/50 border border-white/5 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2">
+                        <div key={r.id} className="p-4 rounded-xl bg-slate-950/50 border border-border/50 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2">
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-3">
 
@@ -74,19 +74,19 @@ export function LeaveRequestManager() {
                                         <AvatarFallback>{r?.staff?.full_name?.[0]}</AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <p className="font-bold text-white">{r.staff?.full_name}</p>
-                                        <p className="text-xs text-slate-400 capitalize">{r.staff?.role} • <span className="text-blue-400">{r.leave_type}</span></p>
+                                        <p className="font-bold text-foreground">{r.staff?.full_name}</p>
+                                        <p className="text-xs text-muted-foreground capitalize">{r.staff?.role} • <span className="text-blue-400">{r.leave_type}</span></p>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-xs text-slate-500">Requested on</p>
+                                    <p className="text-xs text-muted-foreground">Requested on</p>
                                     <p className="text-xs font-medium text-slate-300">{format(new Date(r.created_at), 'MMM d, yyyy')}</p>
                                 </div>
                             </div>
 
-                            <div className="bg-white/5 p-3 rounded-lg text-sm text-slate-300">
-                                <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/5">
-                                    <span className="text-slate-500 text-xs uppercase tracking-wider">Duration</span>
+                            <div className="bg-secondary/50 p-3 rounded-lg text-sm text-slate-300">
+                                <div className="flex justify-between items-center mb-2 pb-2 border-b border-border/50">
+                                    <span className="text-muted-foreground text-xs uppercase tracking-wider">Duration</span>
                                     <span className="font-mono text-blue-300">
                                         {format(new Date(r.start_date), 'MMM d')} - {format(new Date(r.end_date), 'MMM d, yyyy')}
                                     </span>
@@ -96,7 +96,7 @@ export function LeaveRequestManager() {
 
                             <div className="flex gap-2 pt-2">
                                 <Button
-                                    className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white"
+                                    className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-foreground"
                                     size="sm"
                                     onClick={() => handleAction(r.id, 'approved')}
                                     disabled={!!processing}

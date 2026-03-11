@@ -5,8 +5,8 @@ import { TrendingUp, ShieldAlert, BarChart3, Globe } from 'lucide-react';
 
 const ProprietorBriefing = () => {
     return (
-        <div className="bg-[#0A0A0B] min-h-screen p-12 text-white font-sans border-t-4 border-amber-600">
-            <header className="flex justify-between items-end mb-12 border-b border-white/5 pb-8">
+        <div className="bg-[#0A0A0B] min-h-screen p-12 text-foreground font-sans border-t-4 border-amber-600">
+            <header className="flex justify-between items-end mb-12 border-b border-border/50 pb-8">
                 <div>
                     <h1 className="text-4xl font-black italic tracking-tighter uppercase text-amber-500">Global Group Performance Report</h1>
                     <p className="text-gray-500 font-mono mt-2">Achievers Minds School International • Platinum Executive Briefing</p>
@@ -33,7 +33,7 @@ const ProprietorBriefing = () => {
             </div>
 
             {/* 🛡️ Integrity Flags Section */}
-            <section className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8">
+            <section className="bg-secondary/50 border border-border rounded-[2.5rem] p-8">
                 <div className="flex items-center gap-3 mb-8">
                     <ShieldAlert className="text-red-500" size={20} />
                     <h2 className="text-xl font-bold uppercase tracking-tight">Critical Integrity Logs (24h)</h2>

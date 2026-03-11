@@ -24,16 +24,16 @@ export function RevenueMonitor({ expected, collected }: { expected: number, coll
     }
 
     return (
-        <Card className="bg-slate-900 border-white/10 p-4 space-y-4">
+        <Card className="bg-card text-card-foreground border-border p-4 space-y-4">
             <div className="flex justify-between items-end">
                 <div>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider">Revenue Leakage</h3>
-                    <div className="text-2xl font-bold text-white mt-1">
-                        {percentage}% <span className="text-sm text-slate-500 font-normal">Collected</span>
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Revenue Leakage</h3>
+                    <div className="text-2xl font-bold text-foreground mt-1">
+                        {percentage}% <span className="text-sm text-muted-foreground font-normal">Collected</span>
                     </div>
                 </div>
                 <div className="text-right">
-                    <div className="text-xs text-slate-500">outstanding</div>
+                    <div className="text-xs text-muted-foreground">outstanding</div>
                     <div className="text-sm font-mono text-amber-500 text-glow-cyan">
                         ₦{((expected - collected) / 1000000).toFixed(2)}M
                     </div>

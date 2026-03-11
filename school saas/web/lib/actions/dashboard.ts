@@ -46,9 +46,53 @@ export async function getAdminStats() {
         const occupancyRate = totalCapacity > 0 ? Math.round((totalOccupancy / totalCapacity) * 100) : 0
         const maintenanceAlerts = (rooms || []).filter(r => r.maintenance_status !== 'clean').length
 
-        // Fetch recent 5 items across tables to simulate "Activity"
-        // In a real dedicated system we'd have an 'events' table.
-        // Here we just show "New Student Joined" etc based on created_at.
+        // 5. Chart Data: Revenue Overview (Last 12 Months)
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        const twelveMonthsAgo = new Date()
+        twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 11)
+        twelveMonthsAgo.setDate(1)
+
+        const { data: monthlyTransactions } = await supabase
+            .from('transactions')
+            .select('amount, date')
+            .eq('status', 'success')
+            .gte('date', twelveMonthsAgo.toISOString())
+
+        const revenueChartData = Array.from({ length: 12 }, (_, i) => {
+            const d = new Date()
+            d.setMonth(d.getMonth() - (11 - i))
+            const monthName = months[d.getMonth()]
+            const year = d.getFullYear()
+
+            const total = (monthlyTransactions || [])
+                .filter(t => {
+                    const tDate = new Date(t.date)
+                    return tDate.getMonth() === d.getMonth() && tDate.getFullYear() === d.getFullYear()
+                })
+                .reduce((sum, t) => sum + (Number(t.amount) || 0), 0)
+
+            return { name: monthName, total }
+        })
+
+        // 6. Chart Data: Student Demographics
+        const { data: genderData } = await supabase
+            .from('students')
+            .select('gender')
+
+        const demographicsData = [
+            { name: "Male", value: (genderData || []).filter(s => s.gender?.toLowerCase() === 'male').length },
+            { name: "Female", value: (genderData || []).filter(s => s.gender?.toLowerCase() === 'female').length },
+            { name: "Others", value: (genderData || []).filter(s => !['male', 'female'].includes(s.gender?.toLowerCase() || '')).length },
+        ].filter(d => d.value > 0)
+
+        // If no data, provide a fallback so chart doesn't look empty for first-time users
+        const finalDemographics = demographicsData.length > 0 ? demographicsData : [
+            { name: "Male", value: 0 },
+            { name: "Female", value: 0 },
+            { name: "Others", value: 0 },
+        ]
+
+        // 7. Recent Activity
         const { data: recentStudents } = await supabase
             .from('students')
             .select('full_name, created_at')
@@ -67,7 +111,6 @@ export async function getAdminStats() {
             .order('created_at', { ascending: false })
             .limit(10)
 
-        // standardized activity format
         const activities = [
             ...(recentStudents || []).map(s => ({
                 type: 'New Student',
@@ -86,6 +129,27 @@ export async function getAdminStats() {
             }))
         ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 20)
 
+        // 8. Trend Calculations
+        const currentMonth = new Date().getMonth()
+        const currentYear = new Date().getFullYear()
+        const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1
+        const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear
+
+        const thisMonthRevenue = revenueChartData[11]?.total || 0
+        const lastMonthRevenue = revenueChartData[10]?.total || 0
+        const revenueTrendValue = lastMonthRevenue > 0
+            ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100)
+            : (thisMonthRevenue > 0 ? 100 : 0)
+
+        // Student Trend (New this month vs Total)
+        const thisMonthStudents = (recentStudents || []).filter(s => {
+            const d = new Date(s.created_at)
+            return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+        }).length
+        const studentTrendValue = studentsResult.count && studentsResult.count > thisMonthStudents
+            ? Math.round((thisMonthStudents / (studentsResult.count - thisMonthStudents)) * 100)
+            : (thisMonthStudents > 0 ? 100 : 0)
+
         return {
             totalStudents: studentsResult.count || 0,
             totalTeachers: teachersResult.count || 0,
@@ -95,12 +159,18 @@ export async function getAdminStats() {
             finance: {
                 revenueLeakage,
                 orphanedFeesCount,
-                recoveryRate
+                recoveryRate,
+                revenueTrend: `${revenueTrendValue >= 0 ? '+' : ''}${revenueTrendValue}%`
             },
             hostel: {
                 occupancyRate,
                 maintenanceAlerts
-            }
+            },
+            charts: {
+                revenue: revenueChartData,
+                demographics: finalDemographics
+            },
+            studentTrend: `${studentTrendValue >= 0 ? '+' : ''}${studentTrendValue}%`
         }
 
     } catch (error) {

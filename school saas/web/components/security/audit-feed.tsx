@@ -78,20 +78,20 @@ export function AuditFeed({ initialLogs, domain }: { initialLogs: any, domain: s
             {/* Toolbar */}
             <div className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search logs by user, action, or details..."
-                        className="pl-10 bg-black/20 border-slate-800 text-slate-200 focus:border-blue-500/50 font-mono text-sm"
+                        className="pl-10 bg-black/20 border-border text-slate-200 focus:border-blue-500/50 font-mono text-sm"
                         value={filters.query}
                         onChange={handleSearch}
                         onKeyDown={(e) => e.key === 'Enter' && fetchLogs(1)}
                     />
                 </div>
                 <Select value={filters.category} onValueChange={handleCategoryChange}>
-                    <SelectTrigger className="w-[180px] bg-black/20 border-slate-800 text-slate-300 font-mono text-xs">
+                    <SelectTrigger className="w-[180px] bg-black/20 border-border text-slate-300 font-mono text-xs">
                         <SelectValue placeholder="Category" />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-900 border-slate-800 text-slate-300">
+                    <SelectContent className="bg-card text-card-foreground border-border text-slate-300">
                         <SelectItem value="all">All Categories</SelectItem>
                         <SelectItem value="Financial">Financial</SelectItem>
                         <SelectItem value="Academic">Academic</SelectItem>
@@ -102,7 +102,7 @@ export function AuditFeed({ initialLogs, domain }: { initialLogs: any, domain: s
                 <Button
                     variant="outline"
                     size="icon"
-                    className="border-slate-800 bg-black/20 text-slate-400 hover:text-white hover:bg-slate-800"
+                    className="border-border bg-black/20 text-muted-foreground hover:text-foreground hover:bg-slate-800"
                     onClick={() => fetchLogs(1)}
                 >
                     {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
@@ -112,12 +112,12 @@ export function AuditFeed({ initialLogs, domain }: { initialLogs: any, domain: s
             {/* Feed */}
             <div className="space-y-4 min-h-[400px]">
                 {isPending ? (
-                    <div className="flex items-center justify-center min-h-[400px] text-slate-500 font-mono text-xs">
+                    <div className="flex items-center justify-center min-h-[400px] text-muted-foreground font-mono text-xs">
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         SYNCING INTEGRITY STREAM...
                     </div>
                 ) : logs.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-slate-500 border border-dashed border-slate-800 rounded-lg bg-slate-950/20">
+                    <div className="flex flex-col items-center justify-center py-20 text-muted-foreground border border-dashed border-border rounded-lg bg-slate-950/20">
                         <Server className="h-8 w-8 mb-4 opacity-20" />
                         <p className="font-mono text-xs">No audit logs found matching your criteria.</p>
                     </div>
@@ -129,13 +129,13 @@ export function AuditFeed({ initialLogs, domain }: { initialLogs: any, domain: s
             </div>
 
             {/* Simple Pagination */}
-            <div className="flex justify-between items-center pt-4 border-t border-slate-800/50">
+            <div className="flex justify-between items-center pt-4 border-t border-border/50">
                 <Button
                     variant="ghost"
                     size="sm"
                     disabled={page === 1 || isPending}
                     onClick={() => fetchLogs(page - 1)}
-                    className="text-slate-500 hover:text-white hover:bg-slate-900 font-mono text-[10px]"
+                    className="text-muted-foreground hover:text-foreground hover:bg-card text-card-foreground font-mono text-[10px]"
                 >
                     PREVIOUS
                 </Button>
@@ -147,7 +147,7 @@ export function AuditFeed({ initialLogs, domain }: { initialLogs: any, domain: s
                     size="sm"
                     disabled={isPending || logs.length < 20}
                     onClick={() => fetchLogs(page + 1)}
-                    className="text-slate-500 hover:text-white hover:bg-slate-900 font-mono text-[10px]"
+                    className="text-muted-foreground hover:text-foreground hover:bg-card text-card-foreground font-mono text-[10px]"
                 >
                     NEXT
                 </Button>

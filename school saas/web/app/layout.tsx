@@ -28,6 +28,9 @@ import { PhysicalDemoModal } from "@/components/landing/physical-demo-modal"
 import { SupportSlideOver } from "@/components/landing/support-slide-over"
 import { ExecutiveFocusGlow } from "@/components/landing/executive-focus-glow"
 
+import { UserPreferencesProvider } from "@/components/providers/user-preferences-provider";
+import { RealtimeNotifications } from "@/components/layout/realtime-notifications";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,14 +42,17 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ReactQueryProvider>
-          <ExecutiveConversionProvider>
-            {children}
-            <ExecutiveModals />
-            <MegaMenu />
-            <PhysicalDemoModal />
-            <SupportSlideOver />
-            <ExecutiveFocusGlow />
-          </ExecutiveConversionProvider>
+          <UserPreferencesProvider>
+            <RealtimeNotifications />
+            <ExecutiveConversionProvider>
+              {children}
+              <ExecutiveModals />
+              <MegaMenu />
+              <PhysicalDemoModal />
+              <SupportSlideOver />
+              <ExecutiveFocusGlow />
+            </ExecutiveConversionProvider>
+          </UserPreferencesProvider>
           <Toaster theme="dark" richColors />
         </ReactQueryProvider>
       </body>

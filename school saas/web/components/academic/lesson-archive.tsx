@@ -80,7 +80,7 @@ export function LessonArchive({ plans, onEdit }: LessonArchiveProps) {
             case 'pending':
                 return <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500/20"><Clock className="w-3 h-3 mr-1" /> Submitted</Badge>
             default:
-                return <Badge variant="outline" className="text-slate-500 border-slate-700">Draft</Badge>
+                return <Badge variant="outline" className="text-muted-foreground border-slate-700">Draft</Badge>
         }
     }
 
@@ -98,12 +98,12 @@ export function LessonArchive({ plans, onEdit }: LessonArchiveProps) {
 
     if (plans.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center h-96 text-center p-8 bg-slate-900/50 rounded-xl border border-white/5">
+            <div className="flex flex-col items-center justify-center h-96 text-center p-8 bg-card text-card-foreground/50 rounded-xl border border-border/50">
                 <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4">
-                    <Clock className="w-8 h-8 text-slate-500" />
+                    <Clock className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">No Archived Plans</h3>
-                <p className="text-slate-400 max-w-sm">
+                <h3 className="text-xl font-semibold text-foreground mb-2">No Archived Plans</h3>
+                <p className="text-muted-foreground max-w-sm">
                     You haven't saved any lesson plans yet. Generate a new plan and click "Save to Archive".
                 </p>
             </div>
@@ -112,12 +112,12 @@ export function LessonArchive({ plans, onEdit }: LessonArchiveProps) {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg border border-white/5 self-start w-fit">
+            <div className="flex items-center gap-2 bg-card text-card-foreground/50 p-1 rounded-lg border border-border/50 self-start w-fit">
                 <Button
                     variant={filterType === 'all' ? "secondary" : "ghost"}
                     size="sm"
                     onClick={() => setFilterType('all')}
-                    className={filterType === 'all' ? "bg-indigo-600 text-white hover:bg-indigo-700" : "text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"}
+                    className={filterType === 'all' ? "bg-indigo-600 text-foreground hover:bg-indigo-700" : "text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"}
                 >
                     All ({plans.length})
                 </Button>
@@ -125,7 +125,7 @@ export function LessonArchive({ plans, onEdit }: LessonArchiveProps) {
                     variant={filterType === 'lesson_plan' ? "secondary" : "ghost"}
                     size="sm"
                     onClick={() => setFilterType('lesson_plan')}
-                    className={filterType === 'lesson_plan' ? "bg-indigo-600 text-white hover:bg-indigo-700" : "text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"}
+                    className={filterType === 'lesson_plan' ? "bg-indigo-600 text-foreground hover:bg-indigo-700" : "text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"}
                 >
                     Plans ({plans.filter(p => p.type === 'lesson_plan' || !p.type).length})
                 </Button>
@@ -133,7 +133,7 @@ export function LessonArchive({ plans, onEdit }: LessonArchiveProps) {
                     variant={filterType === 'lesson_note' ? "secondary" : "ghost"}
                     size="sm"
                     onClick={() => setFilterType('lesson_note')}
-                    className={filterType === 'lesson_note' ? "bg-indigo-600 text-white hover:bg-indigo-700" : "text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"}
+                    className={filterType === 'lesson_note' ? "bg-indigo-600 text-foreground hover:bg-indigo-700" : "text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"}
                 >
                     Notes ({plans.filter(p => p.type === 'lesson_note').length})
                 </Button>
@@ -148,14 +148,14 @@ export function LessonArchive({ plans, onEdit }: LessonArchiveProps) {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-20">
                         {filteredPlans.map((plan) => (
-                            <Card key={plan.id} className="bg-slate-900 border-white/10 overflow-hidden hover:border-white/20 transition-all group">
+                            <Card key={plan.id} className="bg-card text-card-foreground border-border overflow-hidden hover:border-white/20 transition-all group">
                                 <div className="p-5 space-y-4">
                                     <div className="flex justify-between items-start">
                                         <div className="space-y-1">
-                                            <h3 className="font-semibold text-white line-clamp-1" title={plan.title}>
+                                            <h3 className="font-semibold text-foreground line-clamp-1" title={plan.title}>
                                                 {plan.title || "Untitled Plan"}
                                             </h3>
-                                            <p className="text-xs text-slate-400">
+                                            <p className="text-xs text-muted-foreground">
                                                 {plan.subject} • {plan.week}
                                             </p>
                                         </div>
@@ -165,7 +165,7 @@ export function LessonArchive({ plans, onEdit }: LessonArchiveProps) {
                                         </div>
                                     </div>
 
-                                    <div className="text-xs text-slate-500 font-mono">
+                                    <div className="text-xs text-muted-foreground font-mono">
                                         Last updated: {formatDate(plan.date || new Date())}
                                     </div>
 
@@ -179,7 +179,7 @@ export function LessonArchive({ plans, onEdit }: LessonArchiveProps) {
                                         <Button
                                             size="sm"
                                             variant="outline"
-                                            className="flex-1 bg-white/5 border-white/10 text-slate-300 hover:text-white hover:bg-white/10"
+                                            className="flex-1 bg-secondary/50 border-border text-slate-300 hover:text-foreground hover:bg-white/10"
                                             onClick={() => router.push(`?tab=ai&edit_id=${plan.id}`)}
                                         >
                                             <Edit className="w-4 h-4 mr-2" /> Edit
@@ -188,7 +188,7 @@ export function LessonArchive({ plans, onEdit }: LessonArchiveProps) {
                                         {(plan.approval_status === 'draft' || plan.approval_status === 'rejected' || !plan.approval_status) && (
                                             <Button
                                                 size="sm"
-                                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-foreground"
                                                 onClick={() => handleSubmit(plan.id)}
                                                 disabled={submitting === plan.id}
                                             >
@@ -207,7 +207,7 @@ export function LessonArchive({ plans, onEdit }: LessonArchiveProps) {
                                                 variant={plan.status === 'published' ? "outline" : "default"}
                                                 className={plan.status === 'published'
                                                     ? "flex-1 border-green-500/30 text-green-500 bg-green-500/5 cursor-not-allowed hover:bg-green-500/5"
-                                                    : "flex-1 bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/20"
+                                                    : "flex-1 bg-green-600 hover:bg-green-700 text-foreground shadow-lg shadow-green-900/20"
                                                 }
                                                 onClick={() => handlePublish(plan)}
                                                 disabled={publishing === plan.id || plan.status === 'published'}

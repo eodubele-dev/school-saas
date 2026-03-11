@@ -173,14 +173,14 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
     return (
         <div className="w-full flex-1 flex flex-col h-full animate-in fade-in duration-700 bg-slate-950">
             {/* Header / Top Bar */}
-            <div className="h-16 border-b border-white/10 flex items-center justify-between px-6 bg-slate-950 shrink-0 z-10">
+            <div className="h-16 border-b border-border flex items-center justify-between px-6 bg-slate-950 shrink-0 z-10">
                 <div className="flex items-center gap-2">
                     <div className="p-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-lg shadow-blue-500/20">
-                        <Sparkles className="h-4 w-4 text-white" />
+                        <Sparkles className="h-4 w-4 text-foreground" />
                     </div>
                     <div>
-                        <h2 className="font-semibold text-white">Gemini Teacher Assistant</h2>
-                        <p className="text-xs text-slate-400">Powered by Google Generative AI</p>
+                        <h2 className="font-semibold text-foreground">Gemini Teacher Assistant</h2>
+                        <p className="text-xs text-muted-foreground">Powered by Google Generative AI</p>
                     </div>
                 </div>
 
@@ -208,7 +208,7 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => router.refresh()}
-                                className="h-8 w-8 p-0 rounded-full hover:bg-white/10 text-slate-400 hover:text-white"
+                                className="h-8 w-8 p-0 rounded-full hover:bg-white/10 text-muted-foreground hover:text-foreground"
                                 title="Refresh Status"
                             >
                                 <Zap className="h-4 w-4" />
@@ -218,15 +218,15 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
 
                     {content && (
                         <>
-                            <Button variant="outline" size="sm" onClick={handleNew} className="border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white">
+                            <Button variant="outline" size="sm" onClick={handleNew} className="border-border bg-secondary/50 text-slate-300 hover:bg-white/10 hover:text-foreground">
                                 <Plus className="h-4 w-4 mr-2" /> New Chat
                             </Button>
                             <Button
                                 size="sm"
                                 className={
                                     type === 'lesson_note'
-                                        ? "bg-green-600 hover:bg-green-700 text-white"
-                                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                                        ? "bg-green-600 hover:bg-green-700 text-foreground"
+                                        : "bg-blue-600 hover:bg-blue-700 text-foreground"
                                 }
                                 onClick={() => handleSave(true)}
                             >
@@ -258,17 +258,17 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                             <h1 className="text-4xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
                                 Hello, Teacher.
                             </h1>
-                            <h2 className="text-2xl text-slate-500 font-light">
+                            <h2 className="text-2xl text-muted-foreground font-light">
                                 What would you like to teach today?
                             </h2>
                         </div>
 
                         {/* Input Box */}
-                        <Card className="w-full p-2 rounded-2xl shadow-2xl shadow-black/50 border-white/10 bg-white/5 backdrop-blur-xl overflow-hidden">
+                        <Card className="w-full p-2 rounded-2xl shadow-2xl shadow-black/50 border-border bg-secondary/50 backdrop-blur-xl overflow-hidden">
                             <div className="p-4 space-y-4">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div className="space-y-1">
-                                        <Label className="text-xs font-medium text-slate-400">Target Class</Label>
+                                        <Label className="text-xs font-medium text-muted-foreground">Target Class</Label>
                                         <Select
                                             value={classId}
                                             onValueChange={(val) => {
@@ -280,7 +280,7 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                                                 }
                                             }}
                                         >
-                                            <SelectTrigger className="border-0 bg-slate-900/50 focus:ring-0 rounded-xl h-10 text-white">
+                                            <SelectTrigger className="border-0 bg-card text-card-foreground/50 focus:ring-0 rounded-xl h-10 text-foreground">
                                                 <SelectValue placeholder="Select Class" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -291,18 +291,18 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                                         </Select>
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className="text-xs font-medium text-slate-400">Subject</Label>
+                                        <Label className="text-xs font-medium text-muted-foreground">Subject</Label>
                                         <Input
                                             value={subject}
                                             onChange={(e) => setSubject(e.target.value)}
-                                            className="border-0 bg-slate-900/50 focus-visible:ring-0 rounded-xl h-10 text-white placeholder:text-slate-500"
+                                            className="border-0 bg-card text-card-foreground/50 focus-visible:ring-0 rounded-xl h-10 text-foreground placeholder:text-muted-foreground"
                                             placeholder="Subject..."
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className="text-xs font-medium text-slate-400">Timeline</Label>
+                                        <Label className="text-xs font-medium text-muted-foreground">Timeline</Label>
                                         <Select value={week} onValueChange={setWeek}>
-                                            <SelectTrigger className="border-0 bg-slate-900/50 focus:ring-0 rounded-xl h-10 text-white">
+                                            <SelectTrigger className="border-0 bg-card text-card-foreground/50 focus:ring-0 rounded-xl h-10 text-foreground">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -313,9 +313,9 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                                         </Select>
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className="text-xs font-medium text-slate-400">Mode</Label>
+                                        <Label className="text-xs font-medium text-muted-foreground">Mode</Label>
                                         <Select value={type} onValueChange={(val: any) => setType(val)}>
-                                            <SelectTrigger className="border-0 bg-slate-900/50 focus:ring-0 rounded-xl h-10 text-white">
+                                            <SelectTrigger className="border-0 bg-card text-card-foreground/50 focus:ring-0 rounded-xl h-10 text-foreground">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -328,7 +328,7 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
 
                                 <div className="relative">
                                     <Input
-                                        className="w-full text-lg p-4 h-16 rounded-xl border-white/10 bg-slate-900/50 text-white focus-visible:ring-blue-500 pr-14 placeholder:text-slate-500"
+                                        className="w-full text-lg p-4 h-16 rounded-xl border-border bg-card text-card-foreground/50 text-foreground focus-visible:ring-blue-500 pr-14 placeholder:text-muted-foreground"
                                         placeholder="Enter a topic or description (e.g., 'Photosynthesis and its importance')"
                                         value={topic}
                                         onChange={(e) => setTopic(e.target.value)}
@@ -336,7 +336,7 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                                     />
                                     <Button
                                         size="icon"
-                                        className="absolute right-2 top-2 h-12 w-12 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-all disabled:opacity-50"
+                                        className="absolute right-2 top-2 h-12 w-12 rounded-lg bg-blue-600 hover:bg-blue-700 text-foreground transition-all disabled:opacity-50"
                                         onClick={handleGenerate}
                                         disabled={loading || !topic}
                                     >
@@ -344,7 +344,7 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                                     </Button>
                                 </div>
                             </div>
-                            <div className="px-4 pb-2 text-[10px] text-slate-500 flex justify-between">
+                            <div className="px-4 pb-2 text-[10px] text-muted-foreground flex justify-between">
                                 <span>Press Enter to generate</span>
                                 <span>Gemini 1.5 Flash</span>
                             </div>
@@ -354,11 +354,11 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                             {['Motion in Physics', 'Quadratic Equations', 'History of Nigeria'].map((suggestion) => (
                                 <button
                                     key={suggestion}
-                                    className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-left transition-colors group"
+                                    className="p-4 rounded-xl bg-secondary/50 hover:bg-white/10 border border-border/50 text-left transition-colors group"
                                     onClick={() => setTopic(suggestion)}
                                 >
                                     <h3 className="font-medium text-slate-300 text-sm group-hover:text-blue-400">{suggestion}</h3>
-                                    <p className="text-xs text-slate-500 mt-1">Generate a lesson...</p>
+                                    <p className="text-xs text-muted-foreground mt-1">Generate a lesson...</p>
                                 </button>
                             ))}
                         </div>
@@ -373,7 +373,7 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                                     }`}>
                                     {type === 'lesson_plan' ? 'Lesson Plan' : 'Lesson Note'}
                                 </h1>
-                                <div className="flex flex-wrap gap-4 text-sm text-slate-500 font-mono">
+                                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground font-mono">
                                     <span className="bg-slate-100 px-2 py-1 rounded">{level || 'Class'}</span>
                                     <span className="bg-slate-100 px-2 py-1 rounded">{subject || 'Subject'}</span>
                                     <span className="bg-slate-100 px-2 py-1 rounded">{week}</span>

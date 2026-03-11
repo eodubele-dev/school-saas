@@ -112,7 +112,7 @@ export function HeroFlowBuilder() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6 }}
                         >
-                            <h1 className="text-5xl md:text-7xl font-[800] tracking-tighter text-white leading-[1.05] drop-shadow-2xl">
+                            <h1 className="text-5xl md:text-7xl font-[800] tracking-tighter text-foreground leading-[1.05] drop-shadow-2xl">
                                 <span className="text-blue-500">Supercharge</span> your campus, streamline your success.
                             </h1>
                         </motion.div>
@@ -121,7 +121,7 @@ export function HeroFlowBuilder() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.1 }}
-                            className="text-lg md:text-xl text-slate-400 max-w-xl mx-auto lg:mx-0 font-medium leading-relaxed"
+                            className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 font-medium leading-relaxed"
                         >
                             Everything you need to run a top-tier institution. Automate finances, secure grades, and delight parents with a world-class experience.
                         </motion.p>
@@ -134,13 +134,13 @@ export function HeroFlowBuilder() {
                         >
                             <button
                                 onClick={openTenantPreview}
-                                className="px-8 py-4 bg-[#3B82F6] hover:bg-cyan-500 hover:scale-105 transition-all duration-300 rounded-lg text-white font-bold text-lg shadow-[0_0_40px_-5px_#3B82F6] hover:shadow-[0_0_50px_-5px_#06b6d4] border border-blue-400/50 flex items-center gap-2 group ring-offset-2 ring-offset-black focus:ring-2 ring-blue-500"
+                                className="px-8 py-4 bg-[#3B82F6] hover:bg-cyan-500 hover:scale-105 transition-all duration-300 rounded-lg text-foreground font-bold text-lg shadow-[0_0_40px_-5px_#3B82F6] hover:shadow-[0_0_50px_-5px_#06b6d4] border border-blue-400/50 flex items-center gap-2 group ring-offset-2 ring-offset-black focus:ring-2 ring-blue-500"
                             >
                                 Start Free
                             </button>
                             <button
                                 onClick={triggerVideoDemo}
-                                className="px-8 py-4 bg-transparent hover:bg-white/5 border border-white/20 hover:border-cyan-500/50 rounded-lg text-white font-medium text-lg backdrop-blur-md transition-all flex items-center gap-3 hover:shadow-[0_0_30px_-5px_rgba(6,182,212,0.2)]"
+                                className="px-8 py-4 bg-transparent hover:bg-secondary/50 border border-white/20 hover:border-cyan-500/50 rounded-lg text-foreground font-medium text-lg backdrop-blur-md transition-all flex items-center gap-3 hover:shadow-[0_0_30px_-5px_rgba(6,182,212,0.2)]"
                             >
                                 Set It in Action
                             </button>
@@ -162,14 +162,14 @@ export function HeroFlowBuilder() {
                             <div className="grid grid-cols-6 grid-rows-6 gap-4 h-full w-full p-4">
 
                                 {/* 1. Main Center (Wide) - Proprietor Executive God-View */}
-                                <div className="col-span-6 row-span-4 bg-white/[0.03] backdrop-blur-md rounded-2xl border border-white/10 flex flex-col justify-between relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-500"
+                                <div className="col-span-6 row-span-4 bg-white/[0.03] backdrop-blur-md rounded-2xl border border-border flex flex-col justify-between relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-500"
                                     style={{
                                         boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
                                         transform: "translateZ(30px)"
                                     }}>
 
                                     {/* Fake Chrome/Header */}
-                                    <div className="h-10 border-b border-white/5 flex items-center px-4 justify-between bg-white/[0.02]">
+                                    <div className="h-10 border-b border-border/50 flex items-center px-4 justify-between bg-white/[0.02]">
                                         <div className="flex gap-1.5">
                                             <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/50" />
                                             <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20 border border-amber-500/50" />
@@ -184,21 +184,21 @@ export function HeroFlowBuilder() {
                                     <div className="p-6 flex-1 flex flex-col relative z-10">
                                         <div className="flex justify-between items-start mb-4">
                                             <div>
-                                                <h3 className="text-slate-400 text-xs uppercase tracking-wider font-semibold">Total Revenue</h3>
+                                                <h3 className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">Total Revenue</h3>
                                                 <div className="flex items-baseline gap-2">
-                                                    <p className="text-4xl font-bold text-white tracking-tight">₦42.5M</p>
+                                                    <p className="text-4xl font-bold text-foreground tracking-tight">₦42.5M</p>
                                                     <span className="text-green-400 text-xs font-mono bg-green-500/10 px-1.5 py-0.5 rounded">+12.4%</span>
                                                 </div>
                                             </div>
                                             {/* Floating Label */}
                                             <motion.div
                                                 initial={{ y: 0 }} animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 4 }}
-                                                className="px-3 py-1.5 rounded-lg bg-blue-600 shadow-lg shadow-blue-500/30 border border-white/10 flex items-center gap-2"
+                                                className="px-3 py-1.5 rounded-lg bg-blue-600 shadow-lg shadow-blue-500/30 border border-border flex items-center gap-2"
                                             >
                                                 <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center overflow-hidden">
                                                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
                                                 </div>
-                                                <div className="text-[10px] leading-tight text-white">
+                                                <div className="text-[10px] leading-tight text-foreground">
                                                     <span className="font-bold block">Proprietor</span>
                                                     <span className="opacity-80">God Mode Active</span>
                                                 </div>
@@ -232,15 +232,15 @@ export function HeroFlowBuilder() {
                                 </div>
 
                                 {/* 2. Top Right (Small) - Security Integrity Log */}
-                                <div className="col-span-2 row-span-3 bg-white/[0.03] backdrop-blur-md rounded-2xl border border-white/10 p-4 flex flex-col relative group"
+                                <div className="col-span-2 row-span-3 bg-white/[0.03] backdrop-blur-md rounded-2xl border border-border p-4 flex flex-col relative group"
                                     style={{ transform: "translateZ(50px)" }}>
-                                    <div className="flex items-center gap-2 mb-3 border-b border-white/5 pb-2">
+                                    <div className="flex items-center gap-2 mb-3 border-b border-border/50 pb-2">
                                         <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                                        <span className="text-[10px] font-bold text-white uppercase tracking-widest">Audit Log</span>
+                                        <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Audit Log</span>
                                     </div>
-                                    <div className="space-y-2 font-mono text-[9px] text-slate-400">
+                                    <div className="space-y-2 font-mono text-[9px] text-muted-foreground">
                                         {securityLogs.map(log => (
-                                            <div key={log.id} className="flex flex-col border-l border-white/5 pl-2">
+                                            <div key={log.id} className="flex flex-col border-l border-border/50 pl-2">
                                                 <div className="flex justify-between text-slate-300">
                                                     <span>{log.action}</span>
                                                     <span className={log.status === 'BLOCKED' ? 'text-red-400' : log.status === 'FLAGGED' ? 'text-amber-400' : 'text-emerald-400'}>
@@ -256,7 +256,7 @@ export function HeroFlowBuilder() {
                                 </div>
 
                                 {/* 3. Bottom Left (Square) - Student Identity */}
-                                <div className="col-span-2 row-span-2 bg-white/[0.03] backdrop-blur-md rounded-2xl border border-white/10 p-4 relative group hover:bg-white/[0.05] transition-colors"
+                                <div className="col-span-2 row-span-2 bg-white/[0.03] backdrop-blur-md rounded-2xl border border-border p-4 relative group hover:bg-white/[0.05] transition-colors"
                                     style={{ transform: "translateZ(20px)" }}>
                                     <div className="flex items-center justify-center h-full">
                                         <div className="relative">
@@ -274,16 +274,16 @@ export function HeroFlowBuilder() {
                                         </div>
                                     </div>
                                     <div className="absolute bottom-2 left-0 w-full text-center">
-                                        <p className="text-[10px] font-bold text-white">Student ID Verified</p>
+                                        <p className="text-[10px] font-bold text-foreground">Student ID Verified</p>
                                     </div>
                                 </div>
 
                                 {/* 4. Bottom Right (Tall) - Fee Collection Velocity */}
-                                <div className="col-span-4 row-span-2 bg-white/[0.03] backdrop-blur-md rounded-2xl border border-white/10 p-4 flex items-center gap-6 relative overflow-hidden"
+                                <div className="col-span-4 row-span-2 bg-white/[0.03] backdrop-blur-md rounded-2xl border border-border p-4 flex items-center gap-6 relative overflow-hidden"
                                     style={{ transform: "translateZ(40px)" }}>
                                     <div className="flex-1">
                                         <div className="flex justify-between items-center mb-1">
-                                            <h4 className="text-white text-xs font-bold">Fee Velocity</h4>
+                                            <h4 className="text-foreground text-xs font-bold">Fee Velocity</h4>
                                             <span className="text-[10px] text-green-400 font-mono">98% Match</span>
                                         </div>
                                         <div className="h-16 w-full">
@@ -296,7 +296,7 @@ export function HeroFlowBuilder() {
                                     </div>
 
                                     {/* Floating Label Style 2 */}
-                                    <div className="absolute top-2 right-2 px-2 py-0.5 rounded border border-white/10 bg-black/40 text-[9px] text-slate-400 font-mono">
+                                    <div className="absolute top-2 right-2 px-2 py-0.5 rounded border border-border bg-black/40 text-[9px] text-muted-foreground font-mono">
                                         Lagos_Campus_01
                                     </div>
                                 </div>

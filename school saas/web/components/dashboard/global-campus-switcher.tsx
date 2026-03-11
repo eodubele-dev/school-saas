@@ -78,7 +78,7 @@ export function GlobalCampusSwitcher({
                     role="combobox"
                     aria-expanded={open}
                     aria-label="Select a campus"
-                    className={cn("w-full justify-between h-12 bg-white/5 border-white/10 hover:bg-white/10 hover:text-white text-slate-300", className)}
+                    className={cn("w-full justify-between h-12 bg-secondary/50 border-border hover:bg-white/10 hover:text-foreground text-slate-300", className)}
                 >
                     <div className="flex items-center gap-2 truncate">
                         {isGlobalView ? (
@@ -86,7 +86,7 @@ export function GlobalCampusSwitcher({
                                 <Globe className="w-5 h-5" />
                             </div>
                         ) : (
-                            <Avatar className="w-8 h-8 rounded-lg border border-white/10">
+                            <Avatar className="w-8 h-8 rounded-lg border border-border">
                                 <AvatarImage
                                     src={selectedTenant?.logoUrl}
                                     alt={selectedTenant?.name}
@@ -97,10 +97,10 @@ export function GlobalCampusSwitcher({
                             </Avatar>
                         )}
                         <div className="flex flex-col items-start truncate text-left">
-                            <span className="text-sm font-bold text-white truncate w-32">
+                            <span className="text-sm font-bold text-foreground truncate w-32">
                                 {isGlobalView ? "Global Group View" : selectedTenant?.name}
                             </span>
-                            <span className="text-[10px] text-slate-500 uppercase font-mono">
+                            <span className="text-[10px] text-muted-foreground uppercase font-mono">
                                 {isGlobalView ? "All Campuses" : "Active Campus"}
                             </span>
                         </div>
@@ -108,7 +108,7 @@ export function GlobalCampusSwitcher({
                     <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[250px] p-0 bg-slate-950 border-white/10">
+            <PopoverContent className="w-[250px] p-0 bg-slate-950 border-border">
                 <Command className="bg-transparent text-slate-300">
                     <CommandList>
                         <CommandInput placeholder="Search campus..." className="h-9" />
@@ -133,7 +133,7 @@ export function GlobalCampusSwitcher({
                                     onSelect={() => handleSelect(tenant.slug)}
                                     className="text-sm cursor-pointer"
                                 >
-                                    <Avatar className="mr-2 h-5 w-5 rounded-full border border-white/10">
+                                    <Avatar className="mr-2 h-5 w-5 rounded-full border border-border">
                                         <AvatarImage
                                             src={tenant.logoUrl}
                                             alt={tenant.name}
@@ -156,7 +156,7 @@ export function GlobalCampusSwitcher({
                                 <Link
                                     href="/dashboard/admin/campus/new"
                                     onClick={() => setOpen(false)}
-                                    className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm outline-none text-slate-500 hover:text-white hover:bg-white/10 cursor-pointer"
+                                    className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm outline-none text-muted-foreground hover:text-foreground hover:bg-white/10 cursor-pointer"
                                 >
                                     <PlusCircle className="mr-2 h-4 w-4" />
                                     <span>Create New Campus</span>

@@ -21,10 +21,10 @@ export function ResultVideo() {
             {/* Header Content */}
             <div className="max-w-7xl mx-auto px-6 text-center mb-16 relative z-10">
                 <span className="text-blue-500 font-bold tracking-widest text-xs uppercase mb-4 block">Executive Demo</span>
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
                     Watch the <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 italic">Magic</span> Happen
                 </h2>
-                <p className="text-slate-400 max-w-2xl mx-auto text-lg leading-relaxed">
+                <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
                     From raw scores to a beautiful, branded report card delivered to a parent's phone.
                 </p>
             </div>
@@ -37,7 +37,7 @@ export function ResultVideo() {
                     {!isPlaying ? (
                         /* Custom Thumbnail Overlay */
                         <div
-                            className="absolute inset-0 flex items-center justify-center bg-slate-900/50 cursor-pointer z-20 group-hover:bg-slate-900/40 transition-colors"
+                            className="absolute inset-0 flex items-center justify-center bg-card text-card-foreground/50 cursor-pointer z-20 group-hover:bg-card text-card-foreground/40 transition-colors"
                             onClick={() => setIsPlaying(true)}
                         >
                             <div className="absolute inset-0 z-10 bg-black/40" />
@@ -49,11 +49,11 @@ export function ResultVideo() {
 
                             {/* Play Button */}
                             <div className="h-24 w-24 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 shadow-2xl group-hover:scale-110 transition-transform duration-300">
-                                <Play className="w-10 h-10 text-white fill-white ml-2" />
+                                <Play className="w-10 h-10 text-foreground fill-white ml-2" />
                             </div>
 
                             {/* Section Label */}
-                            <div className="absolute top-6 left-6 bg-black/60 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold text-white border border-white/10 flex items-center gap-2">
+                            <div className="absolute top-6 left-6 bg-black/60 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold text-foreground border border-border flex items-center gap-2">
                                 <div className="h-2 w-2 bg-red-500 rounded-full animate-pulse" />
                                 LIVE PREVIEW
                             </div>

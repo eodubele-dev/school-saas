@@ -91,26 +91,26 @@ export function SubmissionsView({ assignmentId, isOpen, onClose, assignmentTitle
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-[900px] h-[80vh] bg-slate-950 border-slate-800 text-white flex flex-col p-0 overflow-hidden">
-                <DialogHeader className="p-6 border-b border-white/5 space-y-1">
+            <DialogContent className="sm:max-w-[900px] h-[80vh] bg-slate-950 border-border text-foreground flex flex-col p-0 overflow-hidden">
+                <DialogHeader className="p-6 border-b border-border/50 space-y-1">
                     <DialogTitle className="text-xl font-bold flex items-center gap-2">
                         <FileText className="h-5 w-5 text-blue-400" />
                         Submissions: {assignmentTitle}
                     </DialogTitle>
-                    <DialogDescription className="text-slate-400">
+                    <DialogDescription className="text-muted-foreground">
                         Review student work and assign grades. Max points: {maxPoints}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex-1 flex overflow-hidden">
                     {/* Left: Sidebar Submissions List */}
-                    <div className="w-1/3 border-r border-white/5 overflow-y-auto bg-slate-950/50">
+                    <div className="w-1/3 border-r border-border/50 overflow-y-auto bg-slate-950/50">
                         {loading ? (
                             <div className="flex justify-center py-12">
-                                <Loader2 className="h-6 w-6 animate-spin text-slate-500" />
+                                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                             </div>
                         ) : submissions.length === 0 ? (
-                            <div className="p-8 text-center text-slate-500 italic text-sm">
+                            <div className="p-8 text-center text-muted-foreground italic text-sm">
                                 No submissions yet.
                             </div>
                         ) : (
@@ -119,11 +119,11 @@ export function SubmissionsView({ assignmentId, isOpen, onClose, assignmentTitle
                                     <button
                                         key={sub.id}
                                         onClick={() => handleSelectSubmission(sub)}
-                                        className={`w-full text-left p-4 hover:bg-white/5 transition-colors flex items-center justify-between ${selectedSubmission?.id === sub.id ? 'bg-blue-500/10 border-l-2 border-blue-500' : ''}`}
+                                        className={`w-full text-left p-4 hover:bg-secondary/50 transition-colors flex items-center justify-between ${selectedSubmission?.id === sub.id ? 'bg-blue-500/10 border-l-2 border-blue-500' : ''}`}
                                     >
                                         <div className="flex flex-col gap-1 overflow-hidden">
                                             <span className="text-sm font-bold truncate">{sub.student?.full_name}</span>
-                                            <span className="text-[10px] text-slate-500 font-mono italic">
+                                            <span className="text-[10px] text-muted-foreground font-mono italic">
                                                 {format(new Date(sub.submitted_at), "MMM d, h:mm a")}
                                             </span>
                                         </div>
@@ -132,7 +132,7 @@ export function SubmissionsView({ assignmentId, isOpen, onClose, assignmentTitle
                                                 {sub.grade}/{maxPoints}
                                             </Badge>
                                         ) : (
-                                            <Badge variant="outline" className="text-[10px] text-slate-500 border-slate-700">
+                                            <Badge variant="outline" className="text-[10px] text-muted-foreground border-slate-700">
                                                 Pending
                                             </Badge>
                                         )}
@@ -143,17 +143,17 @@ export function SubmissionsView({ assignmentId, isOpen, onClose, assignmentTitle
                     </div>
 
                     {/* Right: Submission Detail & Grading */}
-                    <div className="flex-1 overflow-y-auto p-6 bg-slate-900/10">
+                    <div className="flex-1 overflow-y-auto p-6 bg-card text-card-foreground/10">
                         {selectedSubmission ? (
                             <div className="space-y-6">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center border border-white/10">
-                                            <User className="h-5 w-5 text-slate-400" />
+                                        <div className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center border border-border">
+                                            <User className="h-5 w-5 text-muted-foreground" />
                                         </div>
                                         <div>
                                             <h3 className="font-bold text-lg">{selectedSubmission.student?.full_name}</h3>
-                                            <p className="text-xs text-slate-500">Reg No: {selectedSubmission.student?.admission_number}</p>
+                                            <p className="text-xs text-muted-foreground">Reg No: {selectedSubmission.student?.admission_number}</p>
                                         </div>
                                     </div>
                                     {selectedSubmission.file_url && (
@@ -168,37 +168,37 @@ export function SubmissionsView({ assignmentId, isOpen, onClose, assignmentTitle
                                     )}
                                 </div>
 
-                                <div className="bg-black/30 rounded-xl p-5 border border-white/5 space-y-4">
-                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 border-b border-white/5 pb-2">Student Submission Content</h4>
+                                <div className="bg-black/30 rounded-xl p-5 border border-border/50 space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b border-border/50 pb-2">Student Submission Content</h4>
                                     <div className="text-slate-300 text-sm whitespace-pre-wrap leading-relaxed">
                                         {selectedSubmission.content || "No text content provided."}
                                     </div>
                                 </div>
 
-                                <div className="space-y-4 pt-4 border-t border-white/5">
+                                <div className="space-y-4 pt-4 border-t border-border/50">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <Label className="text-xs text-slate-400">Score (Out of {maxPoints})</Label>
+                                            <Label className="text-xs text-muted-foreground">Score (Out of {maxPoints})</Label>
                                             <Input
                                                 type="number"
                                                 placeholder="0.0"
-                                                className="bg-slate-900 border-slate-700 h-10"
+                                                className="bg-card text-card-foreground border-slate-700 h-10"
                                                 value={grade}
                                                 onChange={(e) => setGrade(e.target.value)}
                                             />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs text-slate-400">Teacher Feedback</Label>
+                                        <Label className="text-xs text-muted-foreground">Teacher Feedback</Label>
                                         <Textarea
                                             placeholder="Write comments or feedback for the student..."
-                                            className="bg-slate-900 border-slate-700 min-h-[100px]"
+                                            className="bg-card text-card-foreground border-slate-700 min-h-[100px]"
                                             value={feedback}
                                             onChange={(e) => setFeedback(e.target.value)}
                                         />
                                     </div>
                                     <Button
-                                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold h-10"
+                                        className="w-full bg-green-600 hover:bg-green-700 text-foreground font-bold h-10"
                                         onClick={handleSaveGrade}
                                         disabled={isSaving}
                                     >
@@ -218,11 +218,11 @@ export function SubmissionsView({ assignmentId, isOpen, onClose, assignmentTitle
                             </div>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-                                <div className="h-16 w-16 bg-white/5 rounded-full flex items-center justify-center">
+                                <div className="h-16 w-16 bg-secondary/50 rounded-full flex items-center justify-center">
                                     <ArrowLeft className="h-8 w-8 text-slate-600" />
                                 </div>
                                 <div className="max-w-[250px]">
-                                    <p className="text-slate-400 font-medium">Select a student from the list to view their work and assign a grade.</p>
+                                    <p className="text-muted-foreground font-medium">Select a student from the list to view their work and assign a grade.</p>
                                 </div>
                             </div>
                         )}

@@ -60,7 +60,7 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="bg-[#0A0A0B] border-white/10 text-white sm:max-w-[450px] overflow-hidden">
+            <DialogContent className="bg-[#0A0A0B] border-border text-foreground sm:max-w-[450px] overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-3xl -mr-16 -mt-16" />
 
                 <DialogHeader>
@@ -68,10 +68,10 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                         <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
                             <Zap className="h-5 w-5 text-cyan-400" />
                         </div>
-                        <DialogTitle className="text-xl font-bold tracking-tight text-white">Institutional Wallet</DialogTitle>
+                        <DialogTitle className="text-xl font-bold tracking-tight text-foreground">Institutional Wallet</DialogTitle>
                     </div>
-                    <DialogDescription className="text-slate-400 text-sm leading-relaxed">
-                        Funding your wallet restores <span className="text-white font-medium">automated revenue recovery</span> and direct institutional communication channels.
+                    <DialogDescription className="text-muted-foreground text-sm leading-relaxed">
+                        Funding your wallet restores <span className="text-foreground font-medium">automated revenue recovery</span> and direct institutional communication channels.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -86,14 +86,14 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                                 }}
                                 className={`flex items-center justify-between p-4 rounded-xl border transition-all ${!isCustom && amount === opt.amount
                                     ? "bg-cyan-500/10 border-cyan-500/50 shadow-[0_4px_20px_rgba(0,245,255,0.1)]"
-                                    : "bg-white/5 border-white/5 hover:bg-white/10"
+                                    : "bg-secondary/50 border-border/50 hover:bg-white/10"
                                     }`}
                             >
                                 <div className="text-left">
-                                    <p className="text-sm font-bold text-white">{opt.label}</p>
-                                    <p className="text-[10px] text-slate-500 font-mono italic">{opt.est}</p>
+                                    <p className="text-sm font-bold text-foreground">{opt.label}</p>
+                                    <p className="text-[10px] text-muted-foreground font-mono italic">{opt.est}</p>
                                 </div>
-                                <p className="text-lg font-black text-white">₦{opt.amount.toLocaleString()}</p>
+                                <p className="text-lg font-black text-foreground">₦{opt.amount.toLocaleString()}</p>
                             </button>
                         ))}
 
@@ -101,19 +101,19 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                             onClick={() => setIsCustom(true)}
                             className={`p-4 rounded-xl border transition-all text-left ${isCustom
                                 ? "bg-cyan-500/10 border-cyan-500/50"
-                                : "bg-white/5 border-white/10 hover:bg-white/10"
+                                : "bg-secondary/50 border-border hover:bg-white/10"
                                 }`}
                         >
-                            <p className="text-sm font-bold text-white">Custom Amount</p>
+                            <p className="text-sm font-bold text-foreground">Custom Amount</p>
                             {isCustom && (
                                 <div className="mt-3 relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">₦</span>
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">₦</span>
                                     <Input
                                         type="number"
                                         value={customAmount}
                                         onChange={(e) => setCustomAmount(e.target.value)}
                                         placeholder="Min: 1,000"
-                                        className="bg-black/40 border-white/10 pl-8 focus-visible:ring-cyan-500/50 text-white"
+                                        className="bg-black/40 border-border pl-8 focus-visible:ring-cyan-500/50 text-foreground"
                                         autoFocus
                                     />
                                 </div>
@@ -122,13 +122,13 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 pb-2">
-                        <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                        <div className="flex items-center gap-2 p-2 bg-secondary/50 rounded-lg">
                             <MessageSquare className="h-3 w-3 text-cyan-400" />
-                            <span className="text-[10px] text-slate-400">Instant Delivery</span>
+                            <span className="text-[10px] text-muted-foreground">Instant Delivery</span>
                         </div>
-                        <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                        <div className="flex items-center gap-2 p-2 bg-secondary/50 rounded-lg">
                             <ShieldCheck className="h-3 w-3 text-emerald-400" />
-                            <span className="text-[10px] text-slate-400">Forensic Audit</span>
+                            <span className="text-[10px] text-muted-foreground">Forensic Audit</span>
                         </div>
                     </div>
                 </div>
@@ -137,7 +137,7 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                     <Button
                         variant="ghost"
                         onClick={() => onOpenChange(false)}
-                        className="text-slate-500 hover:text-white hover:bg-white/5"
+                        className="text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                         disabled={loading}
                     >
                         Cancel
@@ -145,7 +145,7 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                     <Button
                         onClick={handleTopUp}
                         disabled={loading || (isCustom && (!customAmount || Number(customAmount) < 1000))}
-                        className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-8 shadow-lg shadow-cyan-900/20"
+                        className="bg-cyan-600 hover:bg-cyan-500 text-foreground font-bold px-8 shadow-lg shadow-cyan-900/20"
                     >
                         {loading ? (
                             <>

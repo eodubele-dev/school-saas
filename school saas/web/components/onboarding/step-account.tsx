@@ -95,12 +95,12 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-white/[0.03] backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-white/[0.03] backdrop-blur-md p-8 rounded-3xl border border-border shadow-2xl">
             <div className="text-center">
                 <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center mb-4">
                     <ShieldCheck className="h-6 w-6 text-cyan-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2">
+                <h2 className="text-2xl font-bold text-foreground mb-2">
                     {mode === 'signup' ? 'Proprietor Identity' : 'Welcome Back'}
                 </h2>
                 <p className="text-gray-400">
@@ -114,7 +114,7 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
             <form onSubmit={handleSubmit} className="space-y-5">
                 {mode === 'signup' && (
                     <div className="grid gap-2">
-                        <Label className="text-slate-400 ml-1 text-xs uppercase font-mono tracking-widest">Full Name</Label>
+                        <Label className="text-muted-foreground ml-1 text-xs uppercase font-mono tracking-widest">Full Name</Label>
                         <div className="relative group">
                             <User className="absolute left-3 top-3 h-5 w-5 text-slate-600 group-focus-within:text-cyan-400 transition-colors" />
                             <Input
@@ -122,14 +122,14 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
                                 value={data.fullName || ''}
                                 onChange={(e) => updateData('fullName', e.target.value)}
                                 required
-                                className="bg-white/5 border-white/10 text-white pl-10 h-11 focus:border-cyan-500/50 focus:ring-cyan-500/20"
+                                className="bg-secondary/50 border-border text-foreground pl-10 h-11 focus:border-cyan-500/50 focus:ring-cyan-500/20"
                             />
                         </div>
                     </div>
                 )}
 
                 <div className="grid gap-2">
-                    <Label className="text-slate-400 ml-1 text-xs uppercase font-mono tracking-widest">Official Email</Label>
+                    <Label className="text-muted-foreground ml-1 text-xs uppercase font-mono tracking-widest">Official Email</Label>
                     <div className="relative group">
                         <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-600 group-focus-within:text-cyan-400 transition-colors" />
                         <Input
@@ -138,13 +138,13 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
                             value={data.email || ''}
                             onChange={(e) => updateData('email', e.target.value.trim())}
                             required
-                            className="bg-white/5 border-white/10 text-white pl-10 h-11 focus:border-cyan-500/50 focus:ring-cyan-500/20"
+                            className="bg-secondary/50 border-border text-foreground pl-10 h-11 focus:border-cyan-500/50 focus:ring-cyan-500/20"
                         />
                     </div>
                 </div>
 
                 <div className="grid gap-2">
-                    <Label className="text-slate-400 ml-1 text-xs uppercase font-mono tracking-widest">Secure Password</Label>
+                    <Label className="text-muted-foreground ml-1 text-xs uppercase font-mono tracking-widest">Secure Password</Label>
                     <div className="relative group">
                         <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-600 group-focus-within:text-cyan-400 transition-colors" />
                         <Input
@@ -153,12 +153,12 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            className="bg-white/5 border-white/10 text-white pl-10 pr-10 h-11 focus:border-cyan-500/50 focus:ring-cyan-500/20"
+                            className="bg-secondary/50 border-border text-foreground pl-10 pr-10 h-11 focus:border-cyan-500/50 focus:ring-cyan-500/20"
                         />
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-3 text-slate-500 hover:text-cyan-400 transition-colors"
+                            className="absolute right-3 top-3 text-muted-foreground hover:text-cyan-400 transition-colors"
                         >
                             {showPassword ? (
                                 <EyeOff className="h-5 w-5" />
@@ -184,7 +184,7 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
                             >
                                 Accept terms and conditions
                             </label>
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-muted-foreground">
                                 You agree to our Terms of Service and Privacy Policy.
                             </p>
                         </div>
@@ -195,7 +195,7 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
                     <Button
                         type="submit"
                         disabled={isLoading || (mode === 'signup' && !acceptedTerms)}
-                        className="w-full bg-[#0066FF] hover:bg-blue-600 h-12 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
+                        className="w-full bg-[#0066FF] hover:bg-blue-600 h-12 text-foreground font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
                     >
                         {isLoading ? (
                             <Loader2 className="h-5 w-5 animate-spin" />
@@ -210,7 +210,7 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
             </form>
 
             <div className="text-center">
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground">
                     {mode === 'signup' ? (
                         <>Already have an account? <button type="button" onClick={() => setMode('login')} className="text-cyan-400 hover:underline">Log in</button></>
                     ) : (

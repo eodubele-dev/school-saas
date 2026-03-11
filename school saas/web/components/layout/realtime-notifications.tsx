@@ -3,16 +3,24 @@
 import { useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
-import { Bell, CreditCard, AlertTriangle } from 'lucide-react'
+import { Bell, CreditCard, AlertTriangle, ShieldCheck } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { usePreferencesStore } from '@/lib/stores/preferences-store'
 
 export function RealtimeNotifications() {
     const supabase = createClient()
     const router = useRouter()
+    const preferences = usePreferencesStore()
 
     useEffect(() => {
-        // Listen for INSERT on 'notifications' table
-        // We filter for rows where 'is_read' is false (newly created)
+        let userId: string | null = null
+
+        const setup = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            userId = user?.id || null
+        }
+        setup()
+
         const channel = supabase
             .channel('global-notifications')
             .on(
@@ -21,11 +29,15 @@ export function RealtimeNotifications() {
                 (payload) => {
                     const notif = payload.new as any
 
-                    // Check if this notification is relevant to the current user (Client-side filter for now)
-                    // Ideally, RLS prevents receiving it, but realtime sends all if enabled on table without filters.
-                    // We will rely on the backend trigger to set the user_id correctly, 
-                    // and here we might check if it matches our user ID (if we had it in context).
-                    // For this demo, we'll just show the pop.
+                    // 1. Security Check: Only show if it's for this user
+                    if (userId && notif.user_id !== userId) return
+
+                    // 2. Preferences Check: Respect the Notification Matrix (in_app)
+                    const inAppPrefs = preferences.notifications.in_app as any
+                    if (notif.type === 'academic' && inAppPrefs?.academic === false) return
+                    if (notif.type === 'financial' && inAppPrefs?.financial === false) return
+                    if (notif.type === 'security' && inAppPrefs?.security === false) return
+                    // Emergency & System bypass filters
 
                     playNotificationSound(notif.type)
 
@@ -39,7 +51,7 @@ export function RealtimeNotifications() {
                             label: 'View',
                             onClick: () => router.push(notif.link)
                         } : undefined,
-                        className: getClassName(notif.type)
+                        className: "border border-border bg-slate-950 text-foreground shadow-2xl"
                     })
                 }
             )
@@ -48,9 +60,9 @@ export function RealtimeNotifications() {
         return () => {
             supabase.removeChannel(channel)
         }
-    }, [router])
+    }, [router, preferences.notifications.in_app])
 
-    return null // Headless component
+    return null
 }
 
 function getIcon(type: string) {
@@ -64,7 +76,7 @@ function getIcon(type: string) {
 
 function getClassName(type: string) {
     // Return tailwind classes for styling the toast based on type
-    return "border border-white/10 bg-slate-950 text-white"
+    return "border border-border bg-slate-950 text-foreground"
 }
 
 function playNotificationSound(type: string) {

@@ -43,7 +43,7 @@ function CircularProgress({ percentage, size = 80, color = "#3B82F6" }: { percen
                     className="transition-all duration-1000 ease-out"
                 />
             </svg>
-            <span className="absolute text-sm font-bold text-white">{percentage}%</span>
+            <span className="absolute text-sm font-bold text-foreground">{percentage}%</span>
         </div>
     )
 }
@@ -72,7 +72,7 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
         return (
             <div className="space-y-8">
                 <div className="text-center py-12">
-                    <p className="text-slate-400">Unable to load dashboard data. Please try again later.</p>
+                    <p className="text-muted-foreground">Unable to load dashboard data. Please try again later.</p>
                 </div>
             </div>
         )
@@ -84,9 +84,9 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div>
-                <h2 className="text-3xl font-bold tracking-tight text-white glow-blue">Student Progress</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-foreground glow-blue">Student Progress</h2>
                 <div className="flex items-center gap-2 mt-1">
-                    <p className="text-slate-400">Overview for {stats.studentName} ({stats.className})</p>
+                    <p className="text-muted-foreground">Overview for {stats.studentName} ({stats.className})</p>
                     {session && (
                         <span className="hidden md:inline-flex items-center rounded-md bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-500/20">
                             {session.session} • {session.term}
@@ -151,7 +151,7 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
             <div className="grid gap-6 md:grid-cols-2">
                 {/* Math */}
                 {mathSubject ? (
-                    <Card className="bg-[#0A0A0B]/80 border-white/5 backdrop-blur-xl group relative overflow-hidden hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-900/20 transition-all duration-500">
+                    <Card className="bg-[#0A0A0B]/80 border-border/50 backdrop-blur-xl group relative overflow-hidden hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-900/20 transition-all duration-500">
                         {/* 🌈 Vibrant Gradient Background Glow */}
                         <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-colors duration-700" />
                         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
@@ -165,7 +165,7 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
                                 <span className="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(59,130,246,0.15)] glow-blue">Next Grade</span>
                             </div>
 
-                            <ul className="space-y-2 text-sm text-slate-400">
+                            <ul className="space-y-2 text-sm text-muted-foreground">
                                 {mathSubject.topics.map((topic, i) => (
                                     <li key={i} className="flex items-center gap-2">
                                         <CheckCircle2 className="w-4 h-4 text-emerald-500/50" /> {topic}
@@ -186,23 +186,23 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
                                         <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/20" />
                                     </div>
                                 </div>
-                                <p className="text-xs text-slate-500 pt-1">
+                                <p className="text-xs text-muted-foreground pt-1">
                                     Next up: <span className="text-slate-300">{mathSubject.nextLessonTitle || 'Complete!'}</span>
                                 </p>
                             </div>
                         </CardContent>
                     </Card>
                 ) : (
-                    <Card className="bg-slate-900/50 border-white/5 border-dashed">
+                    <Card className="bg-card text-card-foreground/50 border-border/50 border-dashed">
                         <CardContent className="p-6 h-full flex items-center justify-center">
-                            <p className="text-sm text-slate-500">No Math progress data available</p>
+                            <p className="text-sm text-muted-foreground">No Math progress data available</p>
                         </CardContent>
                     </Card>
                 )}
 
                 {/* Reading */}
                 {readingSubject ? (
-                    <Card className="bg-[#0A0A0B]/80 border-white/5 backdrop-blur-xl group relative overflow-hidden hover:border-pink-500/50 hover:shadow-2xl hover:shadow-pink-900/20 transition-all duration-500">
+                    <Card className="bg-[#0A0A0B]/80 border-border/50 backdrop-blur-xl group relative overflow-hidden hover:border-pink-500/50 hover:shadow-2xl hover:shadow-pink-900/20 transition-all duration-500">
                         {/* 🌈 Vibrant Gradient Background Glow */}
                         <div className="absolute -top-24 -right-24 w-64 h-64 bg-pink-600/10 rounded-full blur-3xl group-hover:bg-pink-500/20 transition-colors duration-700" />
                         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-pink-500 to-fuchsia-400 opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
@@ -216,7 +216,7 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
                                 <span className="px-3 py-1 bg-pink-500/10 text-pink-400 border border-pink-500/20 rounded-full text-xs font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(236,72,153,0.15)] glow-pink">Next Grade</span>
                             </div>
 
-                            <ul className="space-y-2 text-sm text-slate-400">
+                            <ul className="space-y-2 text-sm text-muted-foreground">
                                 {readingSubject.topics.map((topic, i) => (
                                     <li key={i} className="flex items-center gap-2">
                                         <CheckCircle2 className="w-4 h-4 text-emerald-500/50" /> {topic}
@@ -237,24 +237,24 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
                                         <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/20" />
                                     </div>
                                 </div>
-                                <p className="text-xs text-slate-500 pt-1">
+                                <p className="text-xs text-muted-foreground pt-1">
                                     Next up: <span className="text-slate-300">{readingSubject.nextLessonTitle || 'Complete!'}</span>
                                 </p>
                             </div>
                         </CardContent>
                     </Card>
                 ) : (
-                    <Card className="bg-slate-900/50 border-white/5 border-dashed">
+                    <Card className="bg-card text-card-foreground/50 border-border/50 border-dashed">
                         <CardContent className="p-6 h-full flex items-center justify-center">
-                            <p className="text-sm text-slate-500">No Reading progress data available</p>
+                            <p className="text-sm text-muted-foreground">No Reading progress data available</p>
                         </CardContent>
                     </Card>
                 )}
             </div>
 
             {/* Today's Activity */}
-            <Card className="bg-gradient-to-bl from-[#0A0A0B] to-slate-900 border-white/5 backdrop-blur-xl shadow-xl">
-                <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-white/5 mb-4">
+            <Card className="bg-gradient-to-bl from-[#0A0A0B] to-slate-900 border-border/50 backdrop-blur-xl shadow-xl">
+                <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border/50 mb-4">
                     <CardTitle className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">Today&apos;s Activity Schedule</CardTitle>
                     <div className="flex gap-4 text-sm">
                         <span className="flex items-center gap-1.5 text-amber-500/80 font-mono bg-amber-500/10 px-3 py-1 rounded border border-amber-500/20">
@@ -267,18 +267,18 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
                     {stats.todaysActivities.length > 0 ? (
                         <div className="grid gap-4 md:grid-cols-4">
                             {stats.todaysActivities.map((activity) => (
-                                <div key={activity.id} className="relative bg-[#0A0A0B]/80 border border-white/5 rounded-xl p-5 hover:border-blue-500/40 hover:bg-slate-900/80 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden">
+                                <div key={activity.id} className="relative bg-[#0A0A0B]/80 border border-border/50 rounded-xl p-5 hover:border-blue-500/40 hover:bg-card text-card-foreground/80 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden">
                                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-transparent group-hover:from-blue-500/5 transition-colors duration-500" />
                                     <div className="relative z-10 flex justify-between items-start mb-4">
                                         <div>
                                             <h4 className="font-bold text-slate-200 group-hover:text-blue-400 transition-colors">{activity.subject}</h4>
-                                            <p className="text-[10px] uppercase font-mono tracking-wider text-slate-500 mt-1">Lesson-{activity.lessonNumber}</p>
+                                            <p className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground mt-1">Lesson-{activity.lessonNumber}</p>
                                         </div>
                                         <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded border shadow-sm ${activity.status === 'completed'
                                             ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/10'
                                             : activity.status === 'in_progress'
                                                 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-amber-500/10'
-                                                : 'bg-slate-800/80 text-slate-400 border-white/5'
+                                                : 'bg-slate-800/80 text-muted-foreground border-border/50'
                                             }`}>
                                             {activity.status === 'completed' ? 'Completed' :
                                                 activity.status === 'in_progress' ? 'In Progress' : 'Not Started'}
@@ -286,9 +286,9 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
                                     </div>
                                     <div className="mb-5 relative z-10">
                                         <p className="font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-500 mb-1">{String(activity.lessonNumber).padStart(2, '0')}</p>
-                                        <p className="text-xs text-slate-400 line-clamp-1">{activity.title}</p>
+                                        <p className="text-xs text-muted-foreground line-clamp-1">{activity.title}</p>
                                     </div>
-                                    <Link href="/dashboard/academics" className="relative z-10 flex items-center justify-center w-full py-2 text-xs font-bold uppercase tracking-wider text-slate-300 bg-white/5 hover:bg-white/10 hover:text-white rounded transition-colors border border-white/5">
+                                    <Link href="/dashboard/academics" className="relative z-10 flex items-center justify-center w-full py-2 text-xs font-bold uppercase tracking-wider text-slate-300 bg-secondary/50 hover:bg-white/10 hover:text-foreground rounded transition-colors border border-border/50">
                                         View Lesson
                                     </Link>
                                 </div>
@@ -297,7 +297,7 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
                     ) : (
                         <div className="text-center py-8">
                             <BookOpen className="w-12 h-12 text-slate-800 mx-auto mb-3" />
-                            <p className="text-sm text-slate-500">No activities scheduled for today</p>
+                            <p className="text-sm text-muted-foreground">No activities scheduled for today</p>
                         </div>
                     )}
                 </CardContent>
@@ -307,7 +307,7 @@ export async function ParentDashboard({ tier = 'starter', studentId }: { tier?: 
             <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2">
                 <div>
                     <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-xl text-white">Class Updates</h3>
+                        <h3 className="font-bold text-xl text-foreground">Class Updates</h3>
                     </div>
                     {/* Note: ParentFeedView might need internal styling updates to match dark mode, 
                      but since it's a separate component we assume it inherits globals or will require separate pass if distinct */}

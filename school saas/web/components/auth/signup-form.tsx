@@ -69,11 +69,11 @@ export function SignupForm({ domain, schoolName, logoUrl, primaryColor = '#2563e
                 <div className="relative z-10 max-w-lg text-center">
                     <div className="flex justify-center gap-6 mb-12">
                         {logoUrl ? (
-                            <div className="h-32 w-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow group hover:bg-white/10 transition-all duration-300 overflow-hidden">
+                            <div className="h-32 w-32 rounded-2xl bg-secondary/50 border border-border flex items-center justify-center backdrop-blur-md shadow-glow group hover:bg-white/10 transition-all duration-300 overflow-hidden">
                                 <img src={logoUrl} alt="School Logo" className="w-full h-full object-cover" />
                             </div>
                         ) : (
-                            <div className="h-32 w-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md shadow-glow group hover:bg-white/10 transition-all duration-300 overflow-hidden">
+                            <div className="h-32 w-32 rounded-2xl bg-secondary/50 border border-border flex items-center justify-center backdrop-blur-md shadow-glow group hover:bg-white/10 transition-all duration-300 overflow-hidden">
                                 <img
                                     src="/visuals/auth-logo.png"
                                     alt="Identity Verified"
@@ -83,10 +83,10 @@ export function SignupForm({ domain, schoolName, logoUrl, primaryColor = '#2563e
                         )}
                     </div>
 
-                    <h1 className="text-4xl font-bold text-white mb-4 tracking-tight">
+                    <h1 className="text-4xl font-bold text-foreground mb-4 tracking-tight">
                         Join {schoolName || domain}
                     </h1>
-                    <p className="text-slate-400 text-lg leading-relaxed">
+                    <p className="text-muted-foreground text-lg leading-relaxed">
                         Create your account to access grades, attendance, and school resources.
                     </p>
                 </div>
@@ -96,13 +96,13 @@ export function SignupForm({ domain, schoolName, logoUrl, primaryColor = '#2563e
             <div className="flex-1 flex items-center justify-center bg-white p-8">
                 <div className="w-full max-w-sm space-y-8">
                     <div className="text-center lg:text-left">
-                        <Link href="/login" className="inline-flex items-center text-sm text-slate-500 hover:text-blue-600 mb-8 transition-colors">
+                        <Link href="/login" className="inline-flex items-center text-sm text-muted-foreground hover:text-blue-600 mb-8 transition-colors">
                             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Login
                         </Link>
                         <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
                             Create an account
                         </h2>
-                        <p className="mt-2 text-sm text-slate-500">
+                        <p className="mt-2 text-sm text-muted-foreground">
                             Enter your details below to get started.
                         </p>
                     </div>
@@ -135,7 +135,7 @@ export function SignupForm({ domain, schoolName, logoUrl, primaryColor = '#2563e
                                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
-                                    {showPassword ? <EyeOff className="h-4 w-4 text-slate-400" /> : <Eye className="h-4 w-4 text-slate-400" />}
+                                    {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
                                 </Button>
                             </div>
                         </div>
@@ -153,7 +153,7 @@ export function SignupForm({ domain, schoolName, logoUrl, primaryColor = '#2563e
                         </div>
 
                         <Button
-                            className="w-full h-11 text-white font-medium rounded-md shadow-sm transition-all"
+                            className="w-full h-11 text-foreground font-medium rounded-md shadow-sm transition-all"
                             type="submit"
                             style={bgBrandStyle}
                             disabled={isLoading}
@@ -162,7 +162,7 @@ export function SignupForm({ domain, schoolName, logoUrl, primaryColor = '#2563e
                         </Button>
                     </form>
 
-                    <p className="text-center text-sm text-slate-500 mt-4">
+                    <p className="text-center text-sm text-muted-foreground mt-4">
                         Already have an account?
                         <Link href="/login" className="ml-1 font-medium hover:underline" style={brandStyle}>
                             Sign in

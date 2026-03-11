@@ -109,17 +109,17 @@ export function EventDialog({ open, onOpenChange, onSuccess, event }: EventDialo
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px] bg-slate-950 border-slate-800 text-slate-200">
+            <DialogContent className="sm:max-w-[500px] bg-slate-950 border-border text-slate-200">
                 <DialogHeader>
                     <div className="flex items-center gap-3">
                         <div className="h-10 w-10 bg-indigo-500/10 rounded-full flex items-center justify-center">
                             <CalendarDays className="h-5 w-5 text-indigo-500" />
                         </div>
                         <div>
-                            <DialogTitle className="text-xl text-white">
+                            <DialogTitle className="text-xl text-foreground">
                                 {isEditing ? "Edit Event" : "Create New Event"}
                             </DialogTitle>
-                            <DialogDescription className="text-slate-400">
+                            <DialogDescription className="text-muted-foreground">
                                 {isEditing ? "Update the details for this calendar event." : "Add a new event to the school calendar."}
                             </DialogDescription>
                         </div>
@@ -129,49 +129,49 @@ export function EventDialog({ open, onOpenChange, onSuccess, event }: EventDialo
                 <form onSubmit={handleSubmit} className="space-y-6 pt-4">
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="title" className="text-white">Event Title</Label>
+                            <Label htmlFor="title" className="text-foreground">Event Title</Label>
                             <Input
                                 id="title"
                                 placeholder="e.g. Mid-Term Break"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                className="bg-slate-900 border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-indigo-500"
+                                className="bg-card text-card-foreground border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-indigo-500"
                                 required
                             />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="start_date" className="text-white">Start Date & Time</Label>
+                                <Label htmlFor="start_date" className="text-foreground">Start Date & Time</Label>
                                 <Input
                                     id="start_date"
                                     type="datetime-local"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className="bg-slate-900 border-white/10 text-white [color-scheme:dark] focus-visible:ring-indigo-500"
+                                    className="bg-card text-card-foreground border-border text-foreground [color-scheme:dark] focus-visible:ring-indigo-500"
                                     required
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="end_date" className="text-white">End Date & Time</Label>
+                                <Label htmlFor="end_date" className="text-foreground">End Date & Time</Label>
                                 <Input
                                     id="end_date"
                                     type="datetime-local"
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    className="bg-slate-900 border-white/10 text-white [color-scheme:dark] focus-visible:ring-indigo-500"
+                                    className="bg-card text-card-foreground border-border text-foreground [color-scheme:dark] focus-visible:ring-indigo-500"
                                 />
-                                <p className="text-[10px] text-slate-500">Optional for single-day events</p>
+                                <p className="text-[10px] text-muted-foreground">Optional for single-day events</p>
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="type" className="text-white">Event Category</Label>
+                            <Label htmlFor="type" className="text-foreground">Event Category</Label>
                             <Select value={type} onValueChange={(val: any) => setType(val)}>
-                                <SelectTrigger className="bg-slate-900 border-white/10 text-white focus:ring-indigo-500">
+                                <SelectTrigger className="bg-card text-card-foreground border-border text-foreground focus:ring-indigo-500">
                                     <SelectValue placeholder="Select type" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-slate-900 border-white/10 text-white">
+                                <SelectContent className="bg-card text-card-foreground border-border text-foreground">
                                     <SelectItem value="academic">Academic</SelectItem>
                                     <SelectItem value="holiday">Holiday</SelectItem>
                                     <SelectItem value="exam">Examination</SelectItem>
@@ -181,24 +181,24 @@ export function EventDialog({ open, onOpenChange, onSuccess, event }: EventDialo
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="description" className="text-white">Description</Label>
+                            <Label htmlFor="description" className="text-foreground">Description</Label>
                             <Textarea
                                 id="description"
                                 placeholder="Brief details about this event..."
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="bg-slate-900 border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-indigo-500 resize-none"
+                                className="bg-card text-card-foreground border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-indigo-500 resize-none"
                                 rows={3}
                             />
                         </div>
 
-                        <div className="flex flex-row items-center justify-between rounded-xl border border-white/10 bg-slate-900/50 p-4">
+                        <div className="flex flex-row items-center justify-between rounded-xl border border-border bg-card text-card-foreground/50 p-4">
                             <div className="space-y-0.5">
-                                <Label className="text-white font-medium flex items-center gap-2">
+                                <Label className="text-foreground font-medium flex items-center gap-2">
                                     Visibility
                                     {isPublic && <Sparkles className="h-3 w-3 text-amber-500" />}
                                 </Label>
-                                <p className="text-xs text-slate-400">
+                                <p className="text-xs text-muted-foreground">
                                     {isPublic ? "Visible to students, parents, and staff" : "Hidden (Draft mode or internal only)"}
                                 </p>
                             </div>
@@ -209,19 +209,19 @@ export function EventDialog({ open, onOpenChange, onSuccess, event }: EventDialo
                         </div>
                     </div>
 
-                    <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-white/5">
+                    <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-border/50">
                         <Button
                             type="button"
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
-                            className="text-slate-400 hover:bg-slate-800 hover:text-white"
+                            className="text-muted-foreground hover:bg-slate-800 hover:text-foreground"
                         >
                             Cancel
                         </Button>
                         <Button
                             type="submit"
                             disabled={loading || !title || !startDate}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-[0_0_15px_rgba(79,70,229,0.3)] gap-2"
+                            className="bg-indigo-600 hover:bg-indigo-700 text-foreground shadow-[0_0_15px_rgba(79,70,229,0.3)] gap-2"
                         >
                             {loading ? (
                                 <span className="animate-spin text-lg leading-none py-0.5">↻</span>

@@ -84,18 +84,18 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
     }
 
     return (
-        <div className="w-full bg-transparent p-0 text-white">
+        <div className="w-full bg-transparent p-0 text-foreground">
             <div className="flex justify-between items-center mb-8">
                 <div>
-                    <h1 className="text-4xl font-extrabold tracking-tight text-white">Teacher Workspace</h1>
-                    <p className="text-slate-400 mt-1">Manage your classes and lessons efficiently.</p>
+                    <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Teacher Workspace</h1>
+                    <p className="text-muted-foreground mt-1">Manage your classes and lessons efficiently.</p>
                 </div>
                 <button
                     onClick={() => {
                         toast.info("Academic Setup", { description: "Opening Lesson Architect..." })
                         router.push('/dashboard/teacher/lesson-plans')
                     }}
-                    className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-lg font-bold shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all active:scale-95 text-sm"
+                    className="bg-blue-600 hover:bg-blue-500 text-foreground px-6 py-2.5 rounded-lg font-bold shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all active:scale-95 text-sm"
                 >
                     Create Lesson
                 </button>
@@ -112,15 +112,15 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
                                 Current Session
                             </span>
                             {(startTime && endTime) && (
-                                <span className="text-slate-400 text-[10px] font-mono flex items-center gap-1.5 uppercase tracking-widest">
+                                <span className="text-muted-foreground text-[10px] font-mono flex items-center gap-1.5 uppercase tracking-widest">
                                     <Clock className="w-3 h-3" /> {startTime} - {endTime}
                                 </span>
                             )}
                         </div>
-                        <h2 className="text-6xl font-black mt-6 tracking-tighter text-white">
+                        <h2 className="text-6xl font-black mt-6 tracking-tighter text-foreground">
                             {classData.name}
                         </h2>
-                        <p className="text-slate-400 text-xl mt-3 font-medium">
+                        <p className="text-muted-foreground text-xl mt-3 font-medium">
                             {classData.grade_level} • {classData.subject || "Not Assigned"}
                             {classData.academic_session && ` • ${classData.academic_session}`}
                             {classData.term && ` • ${classData.term}${classData.term.toLowerCase().includes('term') ? '' : ' Term'}`}
@@ -128,19 +128,19 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
                     </div>
 
                     <div className="flex gap-4 mt-8 md:mt-0">
-                        <div className="bg-[#1e293b]/50 p-6 rounded-2xl text-center border border-white/10 w-32 shadow-2xl backdrop-blur-md">
-                            <p className="text-4xl font-black text-white tracking-tighter">{vitals.present}</p>
-                            <p className="text-[10px] text-slate-500 uppercase font-black mt-2 tracking-widest">Present</p>
+                        <div className="bg-[#1e293b]/50 p-6 rounded-2xl text-center border border-border w-32 shadow-2xl backdrop-blur-md">
+                            <p className="text-4xl font-black text-foreground tracking-tighter">{vitals.present}</p>
+                            <p className="text-[10px] text-muted-foreground uppercase font-black mt-2 tracking-widest">Present</p>
                         </div>
-                        <div className="bg-[#1e293b]/50 p-6 rounded-2xl text-center border border-white/10 w-32 shadow-2xl backdrop-blur-md">
-                            <p className="text-4xl font-black text-slate-500 tracking-tighter">{vitals.absent}</p>
-                            <p className="text-[10px] text-slate-500 uppercase font-black mt-2 tracking-widest">Absent</p>
+                        <div className="bg-[#1e293b]/50 p-6 rounded-2xl text-center border border-border w-32 shadow-2xl backdrop-blur-md">
+                            <p className="text-4xl font-black text-muted-foreground tracking-tighter">{vitals.absent}</p>
+                            <p className="text-[10px] text-muted-foreground uppercase font-black mt-2 tracking-widest">Absent</p>
                         </div>
                     </div>
                 </div>
 
                 {/* ⚡ Action Bar */}
-                <div className="bg-[#0f172a] border-t border-white/5 p-8 flex flex-wrap gap-4 relative z-10">
+                <div className="bg-[#0f172a] border-t border-border/50 p-8 flex flex-wrap gap-4 relative z-10">
                     <button
                         onClick={handleStartClass}
                         className="flex items-center gap-2 bg-blue-600 px-8 py-3.5 rounded-xl font-black hover:bg-blue-500 transition-all shadow-[0_0_25px_rgba(37,99,235,0.4)] active:scale-95 text-sm"
@@ -152,7 +152,7 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
                             toast.info("Resource Portal", { description: "Opening Lesson Plans..." })
                             router.push('/dashboard/teacher/lesson-plans')
                         }}
-                        className="flex items-center gap-2 bg-white/5 border border-white/10 px-8 py-3.5 rounded-xl font-black hover:bg-white/10 transition-colors active:scale-95 text-sm text-slate-200"
+                        className="flex items-center gap-2 bg-secondary/50 border border-border px-8 py-3.5 rounded-xl font-black hover:bg-white/10 transition-colors active:scale-95 text-sm text-slate-200"
                     >
                         <FileText className="w-5 h-5" /> View Lesson Plan
                     </button>

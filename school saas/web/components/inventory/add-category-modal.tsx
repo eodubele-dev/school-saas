@@ -60,19 +60,19 @@ export function AddCategoryModal({ category, open, onOpenChange }: AddCategoryMo
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="bg-slate-900 border-white/10 text-white sm:max-w-[425px]">
+            <DialogContent className="bg-card text-card-foreground border-border text-foreground sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>{category ? "Edit Category" : "Add New Category"}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div className="space-y-2">
                         <Label>Category Name</Label>
-                        <Input {...register("name", { required: true })} className="bg-slate-950 border-white/10" placeholder="e.g. Stationery, Electronics..." />
+                        <Input {...register("name", { required: true })} className="bg-slate-950 border-border" placeholder="e.g. Stationery, Electronics..." />
                     </div>
 
                     <div className="space-y-2">
                         <Label>Description (Optional)</Label>
-                        <Textarea {...register("description")} className="bg-slate-950 border-white/10 min-h-[100px]" placeholder="Brief description of items in this category..." />
+                        <Textarea {...register("description")} className="bg-slate-950 border-border min-h-[100px]" placeholder="Brief description of items in this category..." />
                     </div>
 
                     <DialogFooter>

@@ -73,11 +73,11 @@ export function AllergyAlertForm({ students, onSuccess }: { students: any[], onS
                                         <SelectValue placeholder="Select a student" />
                                     </SelectTrigger>
                                 </FormControl>
-                                <SelectContent className="bg-slate-900 border-slate-800 text-slate-200 custom-scrollbar max-h-[200px]">
+                                <SelectContent className="bg-card text-card-foreground border-border text-slate-200 custom-scrollbar max-h-[200px]">
                                     {students.map((s) => (
                                         <SelectItem key={s.id} value={s.id} className="hover:bg-slate-800 transition-colors cursor-pointer">
                                             <span className="font-medium text-slate-200">{s.full_name}</span>
-                                            <span className="text-slate-500 text-xs ml-2 font-mono">{s.admission_number}</span>
+                                            <span className="text-muted-foreground text-xs ml-2 font-mono">{s.admission_number}</span>
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -114,7 +114,7 @@ export function AllergyAlertForm({ students, onSuccess }: { students: any[], onS
                                             <SelectValue placeholder="Select" />
                                         </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent className="bg-slate-900 border-slate-800 text-slate-200">
+                                    <SelectContent className="bg-card text-card-foreground border-border text-slate-200">
                                         <SelectItem value="Mild">Mild</SelectItem>
                                         <SelectItem value="Moderate">Moderate</SelectItem>
                                         <SelectItem value="Severe">Severe</SelectItem>
@@ -145,7 +145,7 @@ export function AllergyAlertForm({ students, onSuccess }: { students: any[], onS
                     <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="bg-rose-600 hover:bg-rose-500 text-white shadow-[0_0_15px_rgba(225,29,72,0.3)] w-full sm:w-auto"
+                        className="bg-rose-600 hover:bg-rose-500 text-foreground shadow-[0_0_15px_rgba(225,29,72,0.3)] w-full sm:w-auto"
                     >
                         {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Submit Health Profile"}
                     </Button>

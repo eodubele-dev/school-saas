@@ -61,15 +61,15 @@ export function TeacherMappingModal({ teacher, classes }: { teacher: any, classe
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <div className="flex items-center w-full cursor-pointer hover:bg-white/5 py-1.5 px-2 rounded-sm text-sm">
+                <div className="flex items-center w-full cursor-pointer hover:bg-secondary/50 py-1.5 px-2 rounded-sm text-sm">
                     <School className="mr-2 h-4 w-4" /> Assign Class
                 </div>
             </DialogTrigger>
-            <DialogContent className="bg-slate-900 border-white/10 text-white sm:max-w-[425px]">
+            <DialogContent className="bg-card text-card-foreground border-border text-foreground sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>Assign Class & Subject</DialogTitle>
-                    <DialogDescription className="text-slate-400">
-                        Map <span className="text-white font-medium">{teacher.full_name}</span> to a class.
+                    <DialogDescription className="text-muted-foreground">
+                        Map <span className="text-foreground font-medium">{teacher.full_name}</span> to a class.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -80,10 +80,10 @@ export function TeacherMappingModal({ teacher, classes }: { teacher: any, classe
                             value={formData.classId}
                             onValueChange={val => setFormData({ ...formData, classId: val })}
                         >
-                            <SelectTrigger className="bg-slate-950 border-white/10">
+                            <SelectTrigger className="bg-slate-950 border-border">
                                 <SelectValue placeholder="Select a class..." />
                             </SelectTrigger>
-                            <SelectContent className="bg-slate-900 border-white/10 text-white">
+                            <SelectContent className="bg-card text-card-foreground border-border text-foreground">
                                 {classes.map((cls) => (
                                     <SelectItem key={cls.id} value={cls.id}>{cls.name}</SelectItem>
                                 ))}
@@ -94,9 +94,9 @@ export function TeacherMappingModal({ teacher, classes }: { teacher: any, classe
                     <div className="space-y-2">
                         <Label>Subject (Optional)</Label>
                         <div className="relative">
-                            <BookOpen className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                            <BookOpen className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
-                                className="bg-slate-950 border-white/10 pl-9"
+                                className="bg-slate-950 border-border pl-9"
                                 placeholder="e.g. Mathematics"
                                 value={formData.subject}
                                 onChange={e => setFormData({ ...formData, subject: e.target.value })}
@@ -104,11 +104,11 @@ export function TeacherMappingModal({ teacher, classes }: { teacher: any, classe
                         </div>
                     </div>
 
-                    <div className="flex items-center space-x-2 border border-white/10 rounded-md p-3 bg-slate-950">
+                    <div className="flex items-center space-x-2 border border-border rounded-md p-3 bg-slate-950">
                         <input
                             type="checkbox"
                             id="formTeacher"
-                            className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-[var(--school-accent)] focus:ring-[var(--school-accent)]"
+                            className="h-4 w-4 rounded border-slate-700 bg-card text-card-foreground text-[var(--school-accent)] focus:ring-[var(--school-accent)]"
                             checked={formData.isFormTeacher}
                             onChange={(e) => setFormData({ ...formData, isFormTeacher: e.target.checked })}
                         />
@@ -119,7 +119,7 @@ export function TeacherMappingModal({ teacher, classes }: { teacher: any, classe
                             >
                                 Set as Form Teacher?
                             </label>
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-muted-foreground">
                                 Form teachers handle attendance and report cards for this class.
                             </p>
                         </div>
@@ -127,11 +127,11 @@ export function TeacherMappingModal({ teacher, classes }: { teacher: any, classe
                 </div>
 
                 <DialogFooter>
-                    <Button variant="ghost" onClick={() => setOpen(false)} className="text-slate-400">Cancel</Button>
+                    <Button variant="ghost" onClick={() => setOpen(false)} className="text-muted-foreground">Cancel</Button>
                     <Button
                         onClick={handleAssign}
                         disabled={loading}
-                        className="bg-[var(--school-accent)] text-white hover:brightness-110"
+                        className="bg-[var(--school-accent)] text-foreground hover:brightness-110"
                     >
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Save Assignment

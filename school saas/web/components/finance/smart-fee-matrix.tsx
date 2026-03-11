@@ -124,21 +124,21 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
     }
 
     return (
-        <Card className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border-white/10 h-full flex flex-col relative overflow-hidden shadow-2xl">
+        <Card className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border-border h-full flex flex-col relative overflow-hidden shadow-2xl">
             {/* Ambient Background Glow */}
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
 
-            <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-white/5 bg-slate-900/50 backdrop-blur-xl sticky top-0 z-30">
+            <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-border/50 bg-card text-card-foreground/50 backdrop-blur-xl sticky top-0 z-30">
                 <div>
-                    <CardTitle className="text-white text-xl flex items-center gap-2">
+                    <CardTitle className="text-foreground text-xl flex items-center gap-2">
                         <div className="h-8 w-8 rounded-lg bg-cyan-500/20 flex items-center justify-center border border-cyan-500/30">
                             <Save className="h-4 w-4 text-cyan-400" />
                         </div>
                         Smart Fee Matrix
                     </CardTitle>
-                    <CardDescription className="text-slate-400 mt-1">Configure automated billing amounts. Empty fields are treated as ₦0.</CardDescription>
+                    <CardDescription className="text-muted-foreground mt-1">Configure automated billing amounts. Empty fields are treated as ₦0.</CardDescription>
                 </div>
-                <Button onClick={saveChanges} disabled={loading || !hasChanges} className="bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-900/20 transition-all font-bold px-6">
+                <Button onClick={saveChanges} disabled={loading || !hasChanges} className="bg-cyan-600 hover:bg-cyan-500 text-foreground shadow-lg shadow-cyan-900/20 transition-all font-bold px-6">
                     {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                     Save Matrix
                 </Button>
@@ -146,8 +146,8 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
             <CardContent className="flex-1 overflow-auto p-0">
                 <Table>
                     <TableHeader className="bg-slate-950/80 backdrop-blur-md sticky top-0 z-20">
-                        <TableRow className="border-b border-white/10 hover:bg-transparent">
-                            <TableHead className="text-white font-bold w-[180px] bg-slate-950/90 backdrop-blur-md sticky left-0 z-20 shadow-[1px_0_0_rgba(255,255,255,0.05)] uppercase tracking-wider text-xs">
+                        <TableRow className="border-b border-border hover:bg-transparent">
+                            <TableHead className="text-foreground font-bold w-[180px] bg-slate-950/90 backdrop-blur-md sticky left-0 z-20 shadow-[1px_0_0_rgba(255,255,255,0.05)] uppercase tracking-wider text-xs">
                                 Class Level
                             </TableHead>
                             {categories.map(cat => (
@@ -159,21 +159,21 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="h-6 text-[10px] bg-white/5 border-white/10 hover:bg-cyan-500/20 hover:text-cyan-400 hover:border-cyan-500/30 transition-all rounded-full px-3"
+                                                    className="h-6 text-[10px] bg-secondary/50 border-border hover:bg-cyan-500/20 hover:text-cyan-400 hover:border-cyan-500/30 transition-all rounded-full px-3"
                                                 >
                                                     <Copy className="h-3 w-3 mr-1" /> Copy Down
                                                 </Button>
                                             </AlertDialogTrigger>
-                                            <AlertDialogContent className="bg-slate-950 border-white/10">
+                                            <AlertDialogContent className="bg-slate-950 border-border">
                                                 <AlertDialogHeader>
-                                                    <AlertDialogTitle className="text-white">Copy Value Down?</AlertDialogTitle>
-                                                    <AlertDialogDescription className="text-slate-400">
-                                                        This will copy the value <span className="text-cyan-400 font-bold text-lg">₦{formatCurrencyDisplay(matrix[`${classes[0]?.id}_${cat.id}`] || "0")}</span> to ALL classes below for <strong className="text-white">{cat.name}</strong>.
+                                                    <AlertDialogTitle className="text-foreground">Copy Value Down?</AlertDialogTitle>
+                                                    <AlertDialogDescription className="text-muted-foreground">
+                                                        This will copy the value <span className="text-cyan-400 font-bold text-lg">₦{formatCurrencyDisplay(matrix[`${classes[0]?.id}_${cat.id}`] || "0")}</span> to ALL classes below for <strong className="text-foreground">{cat.name}</strong>.
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
-                                                    <AlertDialogCancel className="bg-transparent text-slate-400 border-white/10 hover:bg-white/5 hover:text-white">Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => applyToAll(cat.id)} className="bg-cyan-600 text-white font-bold hover:bg-cyan-500">
+                                                    <AlertDialogCancel className="bg-transparent text-muted-foreground border-border hover:bg-secondary/50 hover:text-foreground">Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => applyToAll(cat.id)} className="bg-cyan-600 text-foreground font-bold hover:bg-cyan-500">
                                                         Yes, Apply to All
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>
@@ -186,20 +186,20 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
                     </TableHeader>
                     <TableBody>
                         {classes.map(cls => (
-                            <TableRow key={cls.id} className="border-white/5 hover:bg-white-[0.02] transition-colors group">
-                                <TableCell className="font-bold text-slate-300 bg-slate-900/50 group-hover:bg-slate-800/50 sticky left-0 z-10 shadow-[1px_0_0_rgba(255,255,255,0.05)] transition-colors">
+                            <TableRow key={cls.id} className="border-border/50 hover:bg-white-[0.02] transition-colors group">
+                                <TableCell className="font-bold text-slate-300 bg-card text-card-foreground/50 group-hover:bg-slate-800/50 sticky left-0 z-10 shadow-[1px_0_0_rgba(255,255,255,0.05)] transition-colors">
                                     {cls.name}
                                 </TableCell>
                                 {categories.map(cat => (
                                     <TableCell key={cat.id} className="p-3">
                                         <div className="relative group/input">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-medium group-focus-within/input:text-cyan-500 transition-colors">₦</span>
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium group-focus-within/input:text-cyan-500 transition-colors">₦</span>
                                             <Input
                                                 type="text"
                                                 inputMode="decimal"
                                                 value={formatCurrencyDisplay(matrix[`${cls.id}_${cat.id}`] ?? "")}
                                                 onChange={(e) => handleAmountChange(cls.id, cat.id, e.target.value)}
-                                                className="h-10 pl-8 bg-slate-950/50 border-white/10 text-right text-slate-200 font-medium focus:bg-slate-900 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all placeholder:text-slate-700 rounded-lg hover:border-white/20"
+                                                className="h-10 pl-8 bg-slate-950/50 border-border text-right text-slate-200 font-medium focus:bg-card text-card-foreground focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all placeholder:text-slate-700 rounded-lg hover:border-white/20"
                                                 placeholder="0.00"
                                             />
                                         </div>

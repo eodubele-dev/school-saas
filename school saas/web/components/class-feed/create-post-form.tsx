@@ -165,7 +165,7 @@ export function CreatePostForm({ classId, onPostCreated }: CreatePostFormProps) 
                                             <button
                                                 type="button"
                                                 onClick={() => removeFile(index)}
-                                                className="bg-black/50 hover:bg-black/70 text-white rounded-full p-1"
+                                                className="bg-black/50 hover:bg-black/70 text-foreground rounded-full p-1"
                                             >
                                                 <X className="h-3 w-3" />
                                             </button>

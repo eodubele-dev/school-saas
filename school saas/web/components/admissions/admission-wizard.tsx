@@ -30,7 +30,7 @@ export function AdmissionWizard({ classes, houses }: { classes: any[], houses: s
         <div className="max-w-4xl mx-auto py-4 space-y-8">
             {/* Progress Header */}
             <div className="space-y-4">
-                <div className="flex justify-between text-sm font-medium text-slate-400">
+                <div className="flex justify-between text-sm font-medium text-muted-foreground">
                     {steps.map((s) => (
                         <span
                             key={s.number}

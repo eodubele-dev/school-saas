@@ -56,16 +56,16 @@ export function ManifestClient({ manifest }: { manifest: any }) {
     if (status === 'pending') {
         return (
             <div className="p-8 flex flex-col items-center justify-center h-[60vh] text-center space-y-6">
-                <div className="h-24 w-24 bg-slate-900 rounded-full flex items-center justify-center border border-white/10 animate-pulse">
-                    <Bus className="h-10 w-10 text-slate-500" />
+                <div className="h-24 w-24 bg-card text-card-foreground rounded-full flex items-center justify-center border border-border animate-pulse">
+                    <Bus className="h-10 w-10 text-muted-foreground" />
                 </div>
                 <div>
                     <h3 className="text-xl font-bold">Ready to roll?</h3>
-                    <p className="text-slate-400 text-sm">Start the trip to enable check-ins.</p>
+                    <p className="text-muted-foreground text-sm">Start the trip to enable check-ins.</p>
                 </div>
                 <Button
                     size="lg"
-                    className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold h-14"
+                    className="w-full bg-cyan-600 hover:bg-cyan-500 text-foreground font-bold h-14"
                     onClick={handleStart}
                     disabled={!!loading}
                 >
@@ -94,7 +94,7 @@ export function ManifestClient({ manifest }: { manifest: any }) {
                         key={item.id}
                         className={cn(
                             "p-4 rounded-xl border transition-all duration-300",
-                            isPending ? "bg-slate-900 border-white/10" :
+                            isPending ? "bg-card text-card-foreground border-border" :
                                 isBoarded ? "bg-blue-500/10 border-blue-500/30" :
                                     "bg-emerald-500/5 border-emerald-500/20 opacity-75"
                         )}
@@ -102,7 +102,7 @@ export function ManifestClient({ manifest }: { manifest: any }) {
                         <div className="flex justify-between items-start mb-3">
                             <div>
                                 <h4 className="font-bold text-base">{item.student.first_name} {item.student.last_name}</h4>
-                                <p className="text-xs text-slate-400 font-mono">{item.student.admission_number}</p>
+                                <p className="text-xs text-muted-foreground font-mono">{item.student.admission_number}</p>
                             </div>
                             <div className="text-xs font-mono opacity-50">
                                 {item.status.toUpperCase()}
@@ -142,7 +142,7 @@ export function ManifestClient({ manifest }: { manifest: any }) {
             })}
 
             {items.length === 0 && (
-                <div className="text-center py-10 text-slate-500">
+                <div className="text-center py-10 text-muted-foreground">
                     No students assigned to this route.
                 </div>
             )}

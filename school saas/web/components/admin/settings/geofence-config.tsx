@@ -88,18 +88,18 @@ export function GeofenceConfig() {
         }
     }
 
-    if (fetching) return <div className="p-8 text-center text-slate-500">Loading settings...</div>
+    if (fetching) return <div className="p-8 text-center text-muted-foreground">Loading settings...</div>
 
     return (
-        <Card className="bg-slate-900/40 border-white/5 backdrop-blur-sm group hover:border-blue-500/30 transition-all">
+        <Card className="bg-card text-card-foreground/40 border-border/50 backdrop-blur-sm group hover:border-blue-500/30 transition-all">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div className="flex items-center gap-4">
                     <div className="h-12 w-12 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20">
                         <MapPin className="h-6 w-6 text-blue-400" />
                     </div>
                     <div>
-                        <CardTitle className="text-white text-lg">Geofence Configuration</CardTitle>
-                        <CardDescription className="text-slate-400">
+                        <CardTitle className="text-foreground text-lg">Geofence Configuration</CardTitle>
+                        <CardDescription className="text-muted-foreground">
                             Set the designated area for staff Smart Attendance.
                         </CardDescription>
                     </div>
@@ -113,7 +113,7 @@ export function GeofenceConfig() {
                             value={coords.lat}
                             onChange={(e) => setCoords({ ...coords, lat: e.target.value })}
                             placeholder="e.g. 6.5244"
-                            className="bg-black/20 border-white/10 text-white font-mono"
+                            className="bg-black/20 border-border text-foreground font-mono"
                         />
                     </div>
                     <div className="space-y-2">
@@ -122,7 +122,7 @@ export function GeofenceConfig() {
                             value={coords.lng}
                             onChange={(e) => setCoords({ ...coords, lng: e.target.value })}
                             placeholder="e.g. 3.3792"
-                            className="bg-black/20 border-white/10 text-white font-mono"
+                            className="bg-black/20 border-border text-foreground font-mono"
                         />
                     </div>
                 </div>
@@ -135,9 +135,9 @@ export function GeofenceConfig() {
                             value={coords.radius}
                             onChange={(e) => setCoords({ ...coords, radius: e.target.value })}
                             placeholder="500"
-                            className="bg-black/20 border-white/10 text-white font-mono"
+                            className="bg-black/20 border-border text-foreground font-mono"
                         />
-                        <span className="text-slate-500 text-xs whitespace-nowrap">recommended: 100 - 500m</span>
+                        <span className="text-muted-foreground text-xs whitespace-nowrap">recommended: 100 - 500m</span>
                     </div>
                 </div>
 
@@ -145,7 +145,7 @@ export function GeofenceConfig() {
                     <Button
                         onClick={handleUseMyLocation}
                         disabled={locationLoading}
-                        className="flex-1 bg-transparent border border-white/20 hover:bg-white/10 text-white font-medium shadow-none"
+                        className="flex-1 bg-transparent border border-white/20 hover:bg-white/10 text-foreground font-medium shadow-none"
                     >
                         {locationLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Navigation className="mr-2 h-4 w-4" />}
                         Use My Location
@@ -154,7 +154,7 @@ export function GeofenceConfig() {
                     <Button
                         onClick={handleSave}
                         disabled={loading}
-                        className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold"
+                        className="flex-1 bg-blue-600 hover:bg-blue-500 text-foreground font-bold"
                     >
                         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                         Save Configuration

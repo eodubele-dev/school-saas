@@ -109,7 +109,7 @@ export function SignaturePad({ onEnd }: SignaturePadProps) {
 
     return (
         <div className="space-y-2">
-            <div className="border border-white/10 rounded-md overflow-hidden bg-slate-950 touch-none">
+            <div className="border border-border rounded-md overflow-hidden bg-slate-950 touch-none">
                 <canvas
                     ref={canvasRef}
                     height={200}
@@ -129,7 +129,7 @@ export function SignaturePad({ onEnd }: SignaturePadProps) {
                     variant="ghost"
                     size="sm"
                     onClick={clear}
-                    className="text-slate-400 hover:text-white hover:bg-white/10"
+                    className="text-muted-foreground hover:text-foreground hover:bg-white/10"
                 >
                     <Eraser className="mr-2 h-4 w-4" /> Clear Signature
                 </Button>

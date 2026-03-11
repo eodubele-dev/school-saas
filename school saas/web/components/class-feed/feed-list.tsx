@@ -60,13 +60,13 @@ export function FeedList({ classId, refreshTrigger }: FeedListProps) {
     }
 
     if (loading && posts.length === 0) {
-        return <div className="text-center py-8 text-slate-500">Loading updates...</div>
+        return <div className="text-center py-8 text-muted-foreground">Loading updates...</div>
     }
 
     if (posts.length === 0) {
         return (
             <div className="text-center py-12 bg-slate-50 rounded-lg border border-dashed">
-                <p className="text-slate-500">No updates yet. Be the first to post!</p>
+                <p className="text-muted-foreground">No updates yet. Be the first to post!</p>
             </div>
         )
     }
@@ -90,7 +90,7 @@ export function FeedList({ classId, refreshTrigger }: FeedListProps) {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="text-slate-400 hover:text-red-500"
+                            className="text-muted-foreground hover:text-red-500"
                             onClick={() => handleDelete(post.id)}
                             disabled={deletingId === post.id}
                         >

@@ -134,30 +134,30 @@ export function GradingConfigStep({ onNext, onPrev }: { onNext: () => void, onPr
     return (
         <div className="space-y-8">
             <div>
-                <h2 className="text-xl font-bold text-white">Grading System</h2>
-                <p className="text-slate-400">Define how students are graded. This scale is used globally for report cards.</p>
+                <h2 className="text-xl font-bold text-foreground">Grading System</h2>
+                <p className="text-muted-foreground">Define how students are graded. This scale is used globally for report cards.</p>
             </div>
 
-            <Card className="bg-slate-900 border-white/10">
+            <Card className="bg-card text-card-foreground border-border">
                 <CardContent className="p-0">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-white/5 hover:bg-white/5">
-                                <TableHead className="text-slate-400">Grade</TableHead>
-                                <TableHead className="text-slate-400">Min Score</TableHead>
-                                <TableHead className="text-slate-400">Max Score</TableHead>
-                                <TableHead className="text-slate-400">Remark</TableHead>
-                                <TableHead className="text-right text-slate-400">Actions</TableHead>
+                            <TableRow className="border-border/50 hover:bg-secondary/50">
+                                <TableHead className="text-muted-foreground">Grade</TableHead>
+                                <TableHead className="text-muted-foreground">Min Score</TableHead>
+                                <TableHead className="text-muted-foreground">Max Score</TableHead>
+                                <TableHead className="text-muted-foreground">Remark</TableHead>
+                                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {scales.map(scale => (
-                                <TableRow key={scale.id} className="border-white/5 hover:bg-white/5">
+                                <TableRow key={scale.id} className="border-border/50 hover:bg-secondary/50">
                                     <TableCell>
                                         <Input
                                             value={scale.grade}
                                             onChange={(e) => updateScale(scale.id, { grade: e.target.value })}
-                                            className="w-16 h-8 bg-slate-950 border-white/10 font-bold text-center text-white"
+                                            className="w-16 h-8 bg-slate-950 border-border font-bold text-center text-foreground"
                                         />
                                     </TableCell>
                                     <TableCell>
@@ -165,7 +165,7 @@ export function GradingConfigStep({ onNext, onPrev }: { onNext: () => void, onPr
                                             type="number"
                                             value={scale.min_score}
                                             onChange={(e) => updateScale(scale.id, { min_score: parseInt(e.target.value) })}
-                                            className="w-20 h-8 bg-slate-950 border-white/10 text-center text-white"
+                                            className="w-20 h-8 bg-slate-950 border-border text-center text-foreground"
                                         />
                                     </TableCell>
                                     <TableCell>
@@ -173,14 +173,14 @@ export function GradingConfigStep({ onNext, onPrev }: { onNext: () => void, onPr
                                             type="number"
                                             value={scale.max_score}
                                             onChange={(e) => updateScale(scale.id, { max_score: parseInt(e.target.value) })}
-                                            className="w-20 h-8 bg-slate-950 border-white/10 text-center text-white"
+                                            className="w-20 h-8 bg-slate-950 border-border text-center text-foreground"
                                         />
                                     </TableCell>
                                     <TableCell>
                                         <Input
                                             value={scale.remark}
                                             onChange={(e) => updateScale(scale.id, { remark: e.target.value })}
-                                            className="max-w-[200px] h-8 bg-slate-950 border-white/10 text-white"
+                                            className="max-w-[200px] h-8 bg-slate-950 border-border text-foreground"
                                         />
                                     </TableCell>
                                     <TableCell className="text-right">
@@ -193,8 +193,8 @@ export function GradingConfigStep({ onNext, onPrev }: { onNext: () => void, onPr
                         </TableBody>
                     </Table>
 
-                    <div className="p-4 border-t border-white/5">
-                        <Button onClick={openAddScale} variant="outline" className="w-full border-dashed border-white/20 hover:bg-white/5 text-slate-400 hover:text-white transition-colors">
+                    <div className="p-4 border-t border-border/50">
+                        <Button onClick={openAddScale} variant="outline" className="w-full border-dashed border-white/20 hover:bg-secondary/50 text-muted-foreground hover:text-foreground transition-colors">
                             <Plus className="mr-2 h-4 w-4" /> Add Grading Tier
                         </Button>
                     </div>
@@ -202,20 +202,20 @@ export function GradingConfigStep({ onNext, onPrev }: { onNext: () => void, onPr
             </Card>
 
             <div className="flex justify-between pt-8">
-                <Button variant="ghost" onClick={onPrev} className="text-slate-400 hover:text-white hover:bg-white/5">
+                <Button variant="ghost" onClick={onPrev} className="text-muted-foreground hover:text-foreground hover:bg-secondary/50">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
-                <Button onClick={onNext} className="bg-[var(--school-accent)] text-white px-8">
+                <Button onClick={onNext} className="bg-[var(--school-accent)] text-foreground px-8">
                     Proceed to Timetable Hub <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </div>
 
             {/* Add Scale Dialog */}
             <Dialog open={isAddScaleOpen} onOpenChange={setIsAddScaleOpen}>
-                <DialogContent className="bg-slate-900 border-white/10 text-white sm:max-w-[400px]">
+                <DialogContent className="bg-card text-card-foreground border-border text-foreground sm:max-w-[400px]">
                     <DialogHeader>
                         <DialogTitle>Add New Grade</DialogTitle>
-                        <DialogDescription className="text-slate-400">Enter the grade letter (e.g. A1, B2, C).</DialogDescription>
+                        <DialogDescription className="text-muted-foreground">Enter the grade letter (e.g. A1, B2, C).</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-2">
                         <div className="space-y-2">
@@ -224,14 +224,14 @@ export function GradingConfigStep({ onNext, onPrev }: { onNext: () => void, onPr
                                 value={newGradeLetter}
                                 onChange={e => setNewGradeLetter(e.target.value)}
                                 placeholder="e.g. A1"
-                                className="bg-slate-950 border-white/10 text-white"
+                                className="bg-slate-950 border-border text-foreground"
                                 autoFocus
                             />
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="ghost" onClick={() => setIsAddScaleOpen(false)} className="text-slate-400">Cancel</Button>
-                        <Button onClick={addScale} className="bg-[var(--school-accent)] text-white">Add Grade</Button>
+                        <Button variant="ghost" onClick={() => setIsAddScaleOpen(false)} className="text-muted-foreground">Cancel</Button>
+                        <Button onClick={addScale} className="bg-[var(--school-accent)] text-foreground">Add Grade</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

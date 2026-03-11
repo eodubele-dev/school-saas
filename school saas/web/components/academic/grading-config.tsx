@@ -49,12 +49,12 @@ export function GradingConfig({ initialScales, domain }: { initialScales: any[],
     }
 
     return (
-        <Card className="bg-slate-900 border-white/10 h-full flex flex-col">
+        <Card className="bg-card text-card-foreground border-border h-full flex flex-col">
             <CardHeader className="flex-none">
                 <div className="flex items-center justify-between">
                     <div>
-                        <CardTitle className="text-white">Grading System</CardTitle>
-                        <CardDescription className="text-slate-400">Define score ranges and remarks.</CardDescription>
+                        <CardTitle className="text-foreground">Grading System</CardTitle>
+                        <CardDescription className="text-muted-foreground">Define score ranges and remarks.</CardDescription>
                     </div>
                     <Button variant="outline" size="sm" onClick={handleLoadWAEC} className="border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10">
                         <Download className="mr-2 h-4 w-4" /> Load WAEC
@@ -65,28 +65,28 @@ export function GradingConfig({ initialScales, domain }: { initialScales: any[],
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-white/10 hover:bg-transparent">
-                                <TableHead className="text-slate-400 w-20">Grade</TableHead>
-                                <TableHead className="text-slate-400 w-20">Min</TableHead>
-                                <TableHead className="text-slate-400 w-20">Max</TableHead>
-                                <TableHead className="text-slate-400">Remark</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground w-20">Grade</TableHead>
+                                <TableHead className="text-muted-foreground w-20">Min</TableHead>
+                                <TableHead className="text-muted-foreground w-20">Max</TableHead>
+                                <TableHead className="text-muted-foreground">Remark</TableHead>
                                 <TableHead className="w-10"></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {fields.map((field, index) => (
-                                <TableRow key={field.id} className="border-white/5 hover:bg-white/5">
+                                <TableRow key={field.id} className="border-border/50 hover:bg-secondary/50">
                                     <TableCell>
-                                        <Input {...register(`scales.${index}.grade` as const)} className="h-8 bg-slate-950 border-white/10 text-white" placeholder="A" />
+                                        <Input {...register(`scales.${index}.grade` as const)} className="h-8 bg-slate-950 border-border text-foreground" placeholder="A" />
                                     </TableCell>
                                     <TableCell>
-                                        <Input {...register(`scales.${index}.min_score` as const)} type="number" className="h-8 bg-slate-950 border-white/10 text-white" placeholder="75" />
+                                        <Input {...register(`scales.${index}.min_score` as const)} type="number" className="h-8 bg-slate-950 border-border text-foreground" placeholder="75" />
                                     </TableCell>
                                     <TableCell>
-                                        <Input {...register(`scales.${index}.max_score` as const)} type="number" className="h-8 bg-slate-950 border-white/10 text-white" placeholder="100" />
+                                        <Input {...register(`scales.${index}.max_score` as const)} type="number" className="h-8 bg-slate-950 border-border text-foreground" placeholder="100" />
                                     </TableCell>
                                     <TableCell>
-                                        <Input {...register(`scales.${index}.remark` as const)} className="h-8 bg-slate-950 border-white/10 text-white" placeholder="Excellent" />
+                                        <Input {...register(`scales.${index}.remark` as const)} className="h-8 bg-slate-950 border-border text-foreground" placeholder="Excellent" />
                                     </TableCell>
                                     <TableCell>
                                         <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-8 w-8 text-red-500 hover:text-red-400">

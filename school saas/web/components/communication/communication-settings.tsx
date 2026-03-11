@@ -55,7 +55,7 @@ export function CommunicationSettingsView() {
     const isAdmin = userRole === 'admin' || userRole === 'principal' || userRole === 'bursar'
 
     if (loading) return (
-        <div className="h-96 flex flex-col items-center justify-center gap-4 text-slate-500">
+        <div className="h-96 flex flex-col items-center justify-center gap-4 text-muted-foreground">
             <Loader2 className="h-10 w-10 animate-spin text-[var(--school-accent)]" />
             <p className="text-sm font-mono animate-pulse">Syncing Communication Posture...</p>
         </div>
@@ -63,16 +63,16 @@ export function CommunicationSettingsView() {
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 border-b border-white/5 pb-8">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 border-b border-border/50 pb-8">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-white">Communication Settings</h1>
-                    <p className="text-slate-400 text-sm mt-1">Configure automated triggers and notification preferences.</p>
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Communication Settings</h1>
+                    <p className="text-muted-foreground text-sm mt-1">Configure automated triggers and notification preferences.</p>
                 </div>
 
                 {isAdmin && (
-                    <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-4 group hover:border-cyan-500/50 transition-all duration-500 cursor-help">
+                    <div className="bg-secondary/50 border border-border px-6 py-3 rounded-2xl flex items-center gap-4 group hover:border-cyan-500/50 transition-all duration-500 cursor-help">
                         <div className="text-right">
-                            <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">SMS_Wallet_Balance</p>
+                            <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">SMS_Wallet_Balance</p>
                             <p className="text-xl font-bold text-cyan-400 font-mono tracking-tighter">
                                 ₦{walletBalance.toLocaleString()}
                             </p>
@@ -86,12 +86,12 @@ export function CommunicationSettingsView() {
 
             <div className="grid grid-cols-1 gap-8 max-w-4xl">
                 {/* 🎭 Behavioral Triggers */}
-                <section className="bg-slate-900/50 rounded-3xl p-8 border border-white/5 hover:border-purple-500/30 transition-all duration-500">
+                <section className="bg-card text-card-foreground/50 rounded-3xl p-8 border border-border/50 hover:border-purple-500/30 transition-all duration-500">
                     <div className="flex items-center gap-3 mb-8">
                         <div className="p-2 bg-purple-500/10 rounded-xl">
                             <Bell className="text-purple-400" size={20} />
                         </div>
-                        <h2 className="text-xl font-bold text-white">Behavioral Recognition</h2>
+                        <h2 className="text-xl font-bold text-foreground">Behavioral Recognition</h2>
                     </div>
 
                     <div className="space-y-8">
@@ -118,12 +118,12 @@ export function CommunicationSettingsView() {
                 </section>
 
                 {/* 🛡️ Operational & Security */}
-                <section className="bg-slate-900/50 rounded-3xl p-8 border border-white/5 hover:border-emerald-500/30 transition-all duration-500">
+                <section className="bg-card text-card-foreground/50 rounded-3xl p-8 border border-border/50 hover:border-emerald-500/30 transition-all duration-500">
                     <div className="flex items-center gap-3 mb-8">
                         <div className="p-2 bg-emerald-500/10 rounded-xl">
                             <MessageSquare className="text-emerald-400" size={20} />
                         </div>
-                        <h2 className="text-xl font-bold text-white">Operational & Security</h2>
+                        <h2 className="text-xl font-bold text-foreground">Operational & Security</h2>
                     </div>
 
                     <div className="space-y-8">
@@ -150,12 +150,12 @@ export function CommunicationSettingsView() {
 
                 {/* 📉 Revenue Recovery - ADMIN ONLY */}
                 {isAdmin && (
-                    <section className="bg-slate-900/50 rounded-3xl p-8 border border-white/5 hover:border-amber-500/30 transition-all duration-500">
+                    <section className="bg-card text-card-foreground/50 rounded-3xl p-8 border border-border/50 hover:border-amber-500/30 transition-all duration-500">
                         <div className="flex items-center gap-3 mb-8">
                             <div className="p-2 bg-amber-500/10 rounded-xl">
                                 <ShieldCheck className="text-amber-400" size={20} />
                             </div>
-                            <h2 className="text-xl font-bold text-white">Revenue & Receipts</h2>
+                            <h2 className="text-xl font-bold text-foreground">Revenue & Receipts</h2>
                         </div>
 
                         <div className="space-y-8">
@@ -177,7 +177,7 @@ export function CommunicationSettingsView() {
             </div>
 
             <div className="pt-8 text-center">
-                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-[0.2em]">
+                <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em]">
                     PLATINUM_SECURITY_ENFORCED // SYSTEM_ID_{settings?.tenant_id?.slice(0, 8)} // ROLE_{userRole?.toUpperCase()}
                 </p>
             </div>
@@ -189,8 +189,8 @@ function SettingToggle({ label, description, isItalic, checked, onCheckedChange 
     return (
         <div className="flex justify-between items-center group/item">
             <div className="space-y-1">
-                <p className="font-bold text-slate-200 group-hover/item:text-white transition-colors">{label}</p>
-                <p className={`text-xs text-slate-500 ${isItalic ? 'italic' : ''}`}>{description}</p>
+                <p className="font-bold text-slate-200 group-hover/item:text-foreground transition-colors">{label}</p>
+                <p className={`text-xs text-muted-foreground ${isItalic ? 'italic' : ''}`}>{description}</p>
             </div>
             <Switch
                 checked={checked}

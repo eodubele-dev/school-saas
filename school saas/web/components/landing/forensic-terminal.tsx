@@ -52,10 +52,10 @@ export function ForensicTerminal() {
                         <Activity className="w-3 h-3 animate-pulse" />
                         Live System Monitor
                     </div>
-                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                    <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
                         The Truth, <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">In Real-Time.</span>
                     </h2>
-                    <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                         Eliminate the "Nigeria Factor" in your administration. From grade changes to invoice deletions, every action on your campus is logged, flagged, and immutable.
                     </p>
                 </motion.div>
@@ -89,8 +89,8 @@ export function ForensicTerminal() {
                             <ShieldCheck className="absolute w-8 h-8 text-emerald-500" />
                         </div>
                         <div className="text-center">
-                            <div className="text-2xl font-bold text-white">100%</div>
-                            <div className="text-xs text-slate-500 uppercase tracking-widest font-semibold">Integrity Score</div>
+                            <div className="text-2xl font-bold text-foreground">100%</div>
+                            <div className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Integrity Score</div>
                         </div>
                     </motion.div>
 
@@ -107,13 +107,13 @@ export function ForensicTerminal() {
                             <div className="absolute inset-0 z-20 bg-gradient-to-br from-white/5 to-transparent pointer-events-none mix-blend-overlay" />
 
                             {/* Header Bar */}
-                            <div className="h-8 bg-[#0f172a] border-b border-white/10 flex items-center px-4 gap-2">
+                            <div className="h-8 bg-[#0f172a] border-b border-border flex items-center px-4 gap-2">
                                 <div className="flex gap-1.5">
                                     <div className="w-2.5 h-2.5 rounded-full bg-red-500/50" />
                                     <div className="w-2.5 h-2.5 rounded-full bg-amber-500/50" />
                                     <div className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
                                 </div>
-                                <div className="ml-4 flex items-center gap-2 px-2 py-0.5 bg-black/50 rounded border border-white/5 text-[10px] text-slate-400 font-mono">
+                                <div className="ml-4 flex items-center gap-2 px-2 py-0.5 bg-black/50 rounded border border-border/50 text-[10px] text-muted-foreground font-mono">
                                     <Lock className="w-2.5 h-2.5" />
                                     secure_logs.sys
                                 </div>
@@ -150,7 +150,7 @@ export function ForensicTerminal() {
                                         <div className="absolute -left-1 -top-1 w-2 h-2 bg-red-500 rounded-full" />
 
                                         {/* Tooltip Box */}
-                                        <div className="ml-4 bg-slate-900/90 border border-red-500/30 p-3 rounded-lg backdrop-blur-md shadow-xl">
+                                        <div className="ml-4 bg-card text-card-foreground/90 border border-red-500/30 p-3 rounded-lg backdrop-blur-md shadow-xl">
                                             <h4 className="text-red-400 text-xs font-bold flex items-center gap-1 mb-1">
                                                 <ShieldCheck className="w-3 h-3" />
                                                 Unauthorized Edit
@@ -173,17 +173,17 @@ export function ForensicTerminal() {
                         transition={{ delay: 0.4 }}
                         className="hidden lg:flex flex-col w-48 bento-card p-4"
                     >
-                        <div className="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
+                        <div className="flex items-center gap-2 mb-4 border-b border-border/50 pb-2">
                             <Globe className="w-4 h-4 text-blue-400" />
-                            <span className="text-xs font-bold text-white uppercase">Access Log</span>
+                            <span className="text-xs font-bold text-foreground uppercase">Access Log</span>
                         </div>
                         <div className="space-y-3">
                             {[1, 2, 3].map((_, i) => (
                                 <div key={i} className="flex items-start gap-2">
                                     <div className={`mt-1 w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-green-500 animate-pulse' : 'bg-slate-600'}`} />
                                     <div>
-                                        <p className="text-[10px] text-white font-mono">192.168.1.10{i}</p>
-                                        <p className="text-[9px] text-slate-500">Lagos, NG • Chrome</p>
+                                        <p className="text-[10px] text-foreground font-mono">192.168.1.10{i}</p>
+                                        <p className="text-[9px] text-muted-foreground">Lagos, NG • Chrome</p>
                                     </div>
                                 </div>
                             ))}

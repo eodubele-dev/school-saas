@@ -33,13 +33,13 @@ export function ForensicCampusBento() {
                         SYSTEM_ARCH_V2.0
                     </div>
 
-                    <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-[1.1]">
+                    <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-[1.1]">
                         Forensic-Level <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Campus Control</span>.
                     </h2>
-                    <p className="text-slate-400 text-lg md:text-xl max-w-2xl leading-relaxed">
+                    <p className="text-muted-foreground text-lg md:text-xl max-w-2xl leading-relaxed">
                         Replace 5 fragmented tools with one cohesive operating system. <br className="hidden md:block" />
-                        Designed for <span className="text-white font-medium">speed</span>, <span className="text-white font-medium">security</span>, and <span className="text-white font-medium">clarity</span>.
+                        Designed for <span className="text-foreground font-medium">speed</span>, <span className="text-foreground font-medium">security</span>, and <span className="text-foreground font-medium">clarity</span>.
                     </p>
                 </div>
 
@@ -75,7 +75,7 @@ export function ForensicCampusBento() {
                         <div className="absolute bottom-0 left-0 p-6 z-10">
                             <div className="flex items-center gap-2 mb-2">
                                 <Shield className="w-5 h-5 text-cyan-400" />
-                                <h3 className="text-xl font-bold text-white">System Integrity</h3>
+                                <h3 className="text-xl font-bold text-foreground">System Integrity</h3>
                             </div>
                             <p className="text-slate-300 text-sm max-w-md">
                                 Tamper-proof logs tracks every grade change and unauthorized access attempt.
@@ -107,9 +107,9 @@ export function ForensicCampusBento() {
                         <div className="absolute bottom-0 left-0 p-6 z-10">
                             <div className="flex items-center gap-2 mb-1">
                                 <Sparkles className="w-4 h-4 text-blue-400" />
-                                <h3 className="text-lg font-bold text-white">Financial Command</h3>
+                                <h3 className="text-lg font-bold text-foreground">Financial Command</h3>
                             </div>
-                            <p className="text-slate-400 text-xs">Instant revenue clarity.</p>
+                            <p className="text-muted-foreground text-xs">Instant revenue clarity.</p>
                         </div>
                     </motion.div>
 
@@ -135,9 +135,9 @@ export function ForensicCampusBento() {
                         <div className="absolute bottom-0 left-0 p-6 z-10">
                             <div className="flex items-center gap-2 mb-1">
                                 <AlertTriangle className="w-4 h-4 text-amber-400" />
-                                <h3 className="text-lg font-bold text-white">Zero-Leakage</h3>
+                                <h3 className="text-lg font-bold text-foreground">Zero-Leakage</h3>
                             </div>
-                            <p className="text-slate-400 text-xs">Stop resource theft with inventory tracking.</p>
+                            <p className="text-muted-foreground text-xs">Stop resource theft with inventory tracking.</p>
                         </div>
                     </motion.div>
 
@@ -162,9 +162,9 @@ export function ForensicCampusBento() {
                         <div className="absolute bottom-0 left-0 p-6 z-10">
                             <div className="flex items-center gap-2 mb-1">
                                 <UserCheck className="w-4 h-4 text-purple-400" />
-                                <h3 className="text-lg font-bold text-white">Dorm-Master</h3>
+                                <h3 className="text-lg font-bold text-foreground">Dorm-Master</h3>
                             </div>
-                            <p className="text-slate-400 text-xs">Real-time student safety alerts.</p>
+                            <p className="text-muted-foreground text-xs">Real-time student safety alerts.</p>
                         </div>
                     </motion.div>
 

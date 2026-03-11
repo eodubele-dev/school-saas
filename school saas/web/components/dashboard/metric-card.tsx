@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 
 interface MetricCardProps {
     title: string
-    value: string | number
+    value: React.ReactNode
     icon: LucideIcon
     description?: string
     trend?: {
@@ -30,7 +30,7 @@ export function MetricCard({ title, value, icon: Icon, description, trend, id, c
     const theme = colors[accentColor] || colors.blue
 
     return (
-        <Card id={id} className={cn("bg-[#0f172a]/80 border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-white/20 transition-all duration-300 rounded-2xl pt-2", className)}>
+        <Card id={id} className={cn("bg-[#0f172a]/80 border-border backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-white/20 transition-all duration-300 rounded-2xl pt-2", className)}>
             {/* 🌈 Thick Top Border Action */}
             <div className={cn("absolute top-0 left-0 right-0 h-1.5", theme.border)} />
 
@@ -38,7 +38,7 @@ export function MetricCard({ title, value, icon: Icon, description, trend, id, c
             <div className={cn("absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity opacity-0 group-hover:opacity-100", theme.glow)} />
 
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                <CardTitle className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
                     {title}
                 </CardTitle>
                 <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 border", theme.iconBg, theme.icon, theme.iconBorder)}>
@@ -47,11 +47,11 @@ export function MetricCard({ title, value, icon: Icon, description, trend, id, c
             </CardHeader>
             <CardContent>
                 <div className="flex flex-col gap-1">
-                    <div className="text-4xl font-black text-white tracking-tighter">
+                    <div className="text-4xl font-black text-foreground tracking-tighter">
                         {value}
                     </div>
                     {(description || trend) && (
-                        <div className="flex items-center text-[10px] text-slate-500 gap-2 font-medium">
+                        <div className="flex items-center text-[10px] text-muted-foreground gap-2 font-medium">
                             {trend && (
                                 <span className={trend.positive ? "text-emerald-400 font-bold" : "text-rose-400 font-bold"}>
                                     {trend.value}

@@ -187,31 +187,31 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
         <div className="space-y-8">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-xl font-bold text-white">Class & Arm Manager</h2>
-                    <p className="text-slate-400">Define your school structure. Levels (e.g. JSS 1) contain Arms (e.g. JSS 1A).</p>
+                    <h2 className="text-xl font-bold text-foreground">Class & Arm Manager</h2>
+                    <p className="text-muted-foreground">Define your school structure. Levels (e.g. JSS 1) contain Arms (e.g. JSS 1A).</p>
                 </div>
-                <Button onClick={() => setIsAddLevelOpen(true)} className="bg-[var(--school-accent)] text-white">
+                <Button onClick={() => setIsAddLevelOpen(true)} className="bg-[var(--school-accent)] text-foreground">
                     <Plus className="mr-2 h-4 w-4" /> Add Level
                 </Button>
             </div>
 
             <div className="grid grid-cols-1 gap-6">
                 {levels.length === 0 && (
-                    <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-xl">
-                        <p className="text-slate-500">No classes defined yet. Click "Add Level" to start.</p>
+                    <div className="p-12 text-center border-2 border-dashed border-border rounded-xl">
+                        <p className="text-muted-foreground">No classes defined yet. Click "Add Level" to start.</p>
                     </div>
                 )}
 
                 {levels.map(level => (
-                    <Card key={level.id} className="bg-slate-900 border-white/10">
+                    <Card key={level.id} className="bg-card text-card-foreground border-border">
                         <CardHeader className="pb-2">
                             <div className="flex justify-between items-center">
-                                <CardTitle className="text-white text-lg flex items-center gap-2">
+                                <CardTitle className="text-foreground text-lg flex items-center gap-2">
                                     {level.name}
                                     <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-slate-300 font-normal ml-2">{level.section}</span>
                                 </CardTitle>
                                 <div className="flex items-center gap-2">
-                                    <Button size="sm" variant="outline" onClick={() => openAddArm(level.id)} className="border-white/20 bg-transparent hover:bg-white/10 hover:text-white text-slate-300 transition-colors">
+                                    <Button size="sm" variant="outline" onClick={() => openAddArm(level.id)} className="border-white/20 bg-transparent hover:bg-white/10 hover:text-foreground text-slate-300 transition-colors">
                                         <Plus className="mr-1 h-3 w-3" /> Add Arm
                                     </Button>
                                     <Button size="icon" variant="ghost" onClick={() => deleteLevel(level.id)} className="text-red-400 hover:bg-red-500/10">
@@ -223,13 +223,13 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
                         <CardContent>
                             <div className="space-y-3">
                                 {armsByLevel(level.id).length === 0 ? (
-                                    <p className="text-sm text-slate-500 italic">No arms added yet.</p>
+                                    <p className="text-sm text-muted-foreground italic">No arms added yet.</p>
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                         {armsByLevel(level.id).map(arm => (
-                                            <div key={arm.id} className="p-3 rounded bg-slate-950 border border-white/5 flex flex-col gap-3">
+                                            <div key={arm.id} className="p-3 rounded bg-slate-950 border border-border/50 flex flex-col gap-3">
                                                 <div className="flex justify-between items-start">
-                                                    <span className="font-medium text-white">{arm.name}</span>
+                                                    <span className="font-medium text-foreground">{arm.name}</span>
                                                     <Button size="icon" variant="ghost" className="h-6 w-6 text-red-500/50 hover:text-red-500" onClick={() => {
                                                         setConfirmConfig({
                                                             isOpen: true,
@@ -251,12 +251,12 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
                                                 </div>
 
                                                 <div className="space-y-1">
-                                                    <Label className="text-xs text-slate-500">Form Teacher</Label>
+                                                    <Label className="text-xs text-muted-foreground">Form Teacher</Label>
                                                     <Select
                                                         value={arm.form_teacher_id || "unassigned"}
                                                         onValueChange={(val) => updateArmTeacher(arm.id, val === "unassigned" ? "" : val)}
                                                     >
-                                                        <SelectTrigger className="h-8 text-xs bg-slate-900 border-white/10 text-slate-300">
+                                                        <SelectTrigger className="h-8 text-xs bg-card text-card-foreground border-border text-slate-300">
                                                             <SelectValue placeholder="Assign Teacher" />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -278,7 +278,7 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
             </div>
 
             <div className="flex justify-end pt-8">
-                <Button onClick={onNext} className="bg-[var(--school-accent)] text-white px-8">
+                <Button onClick={onNext} className="bg-[var(--school-accent)] text-foreground px-8">
                     Proceed to Subject Registry <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </div>
@@ -286,22 +286,22 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
             {/* Add Level Dialog */}
             {isAddLevelOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="w-full max-w-md bg-slate-900 border border-white/10 rounded-xl p-6 shadow-xl space-y-4 m-4">
-                        <h3 className="text-lg font-bold text-white">Add New Level</h3>
+                    <div className="w-full max-w-md bg-card text-card-foreground border border-border rounded-xl p-6 shadow-xl space-y-4 m-4">
+                        <h3 className="text-lg font-bold text-foreground">Add New Level</h3>
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label className="text-slate-400">Level Name (e.g. JSS 1)</Label>
+                                <Label className="text-muted-foreground">Level Name (e.g. JSS 1)</Label>
                                 <Input
                                     value={newLevelName}
                                     onChange={e => setNewLevelName(e.target.value)}
                                     placeholder="Enter level name"
-                                    className="bg-slate-950 border-white/10 text-white"
+                                    className="bg-slate-950 border-border text-foreground"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-slate-400">Section</Label>
+                                <Label className="text-muted-foreground">Section</Label>
                                 <Select value={newLevelSection} onValueChange={(val: any) => setNewLevelSection(val)}>
-                                    <SelectTrigger className="bg-slate-950 border-white/10 text-white">
+                                    <SelectTrigger className="bg-slate-950 border-border text-foreground">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -314,8 +314,8 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
                             </div>
                         </div>
                         <div className="flex justify-end gap-3 pt-2">
-                            <Button variant="ghost" onClick={() => setIsAddLevelOpen(false)} className="text-slate-400">Cancel</Button>
-                            <Button onClick={addLevel} className="bg-[var(--school-accent)] text-white">Create Level</Button>
+                            <Button variant="ghost" onClick={() => setIsAddLevelOpen(false)} className="text-muted-foreground">Cancel</Button>
+                            <Button onClick={addLevel} className="bg-[var(--school-accent)] text-foreground">Create Level</Button>
                         </div>
                     </div>
                 </div>
@@ -324,20 +324,20 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
             {/* Add Arm Dialog */}
             {isAddArmOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="w-full max-w-sm bg-slate-900 border border-white/10 rounded-xl p-6 shadow-xl space-y-4 m-4">
-                        <h3 className="text-lg font-bold text-white">Add New Arm</h3>
+                    <div className="w-full max-w-sm bg-card text-card-foreground border border-border rounded-xl p-6 shadow-xl space-y-4 m-4">
+                        <h3 className="text-lg font-bold text-foreground">Add New Arm</h3>
                         <div className="space-y-2">
-                            <Label className="text-slate-400">Arm Name (e.g. Gold, A)</Label>
+                            <Label className="text-muted-foreground">Arm Name (e.g. Gold, A)</Label>
                             <Input
                                 value={newArmName}
                                 onChange={e => setNewArmName(e.target.value)}
                                 placeholder="Enter arm suffix"
-                                className="bg-slate-950 border-white/10 text-white"
+                                className="bg-slate-950 border-border text-foreground"
                             />
                         </div>
                         <div className="flex justify-end gap-3 pt-2">
-                            <Button variant="ghost" onClick={() => setIsAddArmOpen(false)} className="text-slate-400">Cancel</Button>
-                            <Button onClick={addArm} className="bg-[var(--school-accent)] text-white">Create Arm</Button>
+                            <Button variant="ghost" onClick={() => setIsAddArmOpen(false)} className="text-muted-foreground">Cancel</Button>
+                            <Button onClick={addArm} className="bg-[var(--school-accent)] text-foreground">Create Arm</Button>
                         </div>
                     </div>
                 </div>

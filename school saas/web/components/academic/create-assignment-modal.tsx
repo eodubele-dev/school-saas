@@ -146,12 +146,12 @@ export function CreateAssignmentModal({ classId, subjectId, trigger, initialData
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
                 {trigger || (
-                    <Button className="bg-[var(--school-accent)] text-white">
+                    <Button className="bg-[var(--school-accent)] text-foreground">
                         <Plus className="h-4 w-4 mr-2" /> Create Assignment
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px] bg-slate-950 border-white/10 text-white">
+            <DialogContent className="sm:max-w-[500px] bg-slate-950 border-border text-foreground">
                 <DialogHeader>
                     <DialogTitle>{initialData ? "Edit Assignment" : "Create Assignment"}</DialogTitle>
                     <DialogDescription>
@@ -167,7 +167,7 @@ export function CreateAssignmentModal({ classId, subjectId, trigger, initialData
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                             required
-                            className="bg-slate-900 border-white/10"
+                            className="bg-card text-card-foreground border-border"
                         />
                     </div>
                     <div className="space-y-2">
@@ -177,7 +177,7 @@ export function CreateAssignmentModal({ classId, subjectId, trigger, initialData
                             placeholder="Instructions for the assignment..."
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            className="bg-slate-900 border-white/10 min-h-[100px]"
+                            className="bg-card text-card-foreground border-border min-h-[100px]"
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -188,7 +188,7 @@ export function CreateAssignmentModal({ classId, subjectId, trigger, initialData
                                 type="datetime-local"
                                 value={formData.dueDate}
                                 onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                                className="bg-slate-900 border-white/10"
+                                className="bg-card text-card-foreground border-border"
                             />
                         </div>
                         <div className="space-y-2">
@@ -198,33 +198,33 @@ export function CreateAssignmentModal({ classId, subjectId, trigger, initialData
                                 type="number"
                                 value={formData.points}
                                 onChange={(e) => setFormData({ ...formData, points: e.target.value })}
-                                className="bg-slate-900 border-white/10"
+                                className="bg-card text-card-foreground border-border"
                             />
                         </div>
                     </div>
                     <div className="space-y-2">
                         <Label>Question Paper / Attachments (Optional)</Label>
                         {!file && !existingFile ? (
-                            <div className="border border-dashed border-white/10 rounded-lg p-4 flex flex-col items-center justify-center bg-slate-900/50 hover:bg-slate-900 transition-colors cursor-pointer relative">
+                            <div className="border border-dashed border-border rounded-lg p-4 flex flex-col items-center justify-center bg-card text-card-foreground/50 hover:bg-card text-card-foreground transition-colors cursor-pointer relative">
                                 <input
                                     type="file"
                                     className="absolute inset-0 opacity-0 cursor-pointer"
                                     onChange={handleFileChange}
                                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                                 />
-                                <UploadCloud className="h-6 w-6 text-slate-500 mb-1" />
-                                <p className="text-xs text-slate-400 font-medium">Click to upload question paper</p>
+                                <UploadCloud className="h-6 w-6 text-muted-foreground mb-1" />
+                                <p className="text-xs text-muted-foreground font-medium">Click to upload question paper</p>
                                 <p className="text-[10px] text-slate-600">PDF, DOCX, JPG (Max 10MB)</p>
                             </div>
                         ) : (
-                            <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-white/10 rounded-lg">
+                            <div className="flex items-center justify-between p-2.5 bg-card text-card-foreground border border-border rounded-lg">
                                 <div className="flex items-center gap-2 overflow-hidden">
                                     <div className="h-8 w-8 bg-blue-500/10 rounded flex items-center justify-center flex-shrink-0">
                                         <FileIcon className="h-4 w-4 text-blue-500" />
                                     </div>
                                     <div className="truncate">
-                                        <p className="text-xs font-medium text-white truncate">{file ? file.name : existingFile?.name}</p>
-                                        <p className="text-[10px] text-slate-500">{file ? (file.size / 1024 / 1024).toFixed(2) + ' MB' : 'Existing File'}</p>
+                                        <p className="text-xs font-medium text-foreground truncate">{file ? file.name : existingFile?.name}</p>
+                                        <p className="text-[10px] text-muted-foreground">{file ? (file.size / 1024 / 1024).toFixed(2) + ' MB' : 'Existing File'}</p>
                                     </div>
                                 </div>
                                 <Button
@@ -235,7 +235,7 @@ export function CreateAssignmentModal({ classId, subjectId, trigger, initialData
                                         setFile(null)
                                         setExistingFile(null)
                                     }}
-                                    className="h-8 w-8 text-slate-500 hover:text-red-400"
+                                    className="h-8 w-8 text-muted-foreground hover:text-red-400"
                                 >
                                     <X className="h-4 w-4" />
                                 </Button>
@@ -244,7 +244,7 @@ export function CreateAssignmentModal({ classId, subjectId, trigger, initialData
                     </div>
                 </form>
                 <DialogFooter>
-                    <Button variant="ghost" onClick={() => handleOpenChange(false)} className="text-slate-400 hover:text-white">
+                    <Button variant="ghost" onClick={() => handleOpenChange(false)} className="text-muted-foreground hover:text-foreground">
                         Cancel
                     </Button>
                     <Button onClick={handleSubmit} disabled={loading} className="bg-[var(--school-accent)]">

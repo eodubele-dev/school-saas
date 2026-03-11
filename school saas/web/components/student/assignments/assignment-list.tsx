@@ -105,21 +105,21 @@ export function AssignmentList({ initialData }: { initialData?: any[] }) {
     }, [initialData]) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
-        return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-slate-500" /></div>
+        return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
     }
 
     return (
         <div className="space-y-6">
             <Tabs defaultValue="pending" className="w-full">
                 <div className="flex justify-between items-center mb-6">
-                    <TabsList className="bg-slate-900 border border-white/10">
-                        <TabsTrigger value="pending" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">
+                    <TabsList className="bg-card text-card-foreground border border-border">
+                        <TabsTrigger value="pending" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-foreground">
                             Pending
                         </TabsTrigger>
-                        <TabsTrigger value="submitted" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">
+                        <TabsTrigger value="submitted" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-foreground">
                             Submitted
                         </TabsTrigger>
-                        <TabsTrigger value="graded" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">
+                        <TabsTrigger value="graded" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-foreground">
                             Graded
                         </TabsTrigger>
                     </TabsList>
@@ -185,7 +185,7 @@ function AssignmentCard({ assignment, onSuccess, onViewFeedback }: { assignment:
     }
 
     return (
-        <Card className="bg-slate-900/50 border-white/5 hover:border-[var(--school-accent)]/30 transition-all duration-300 shadow-xl overflow-hidden group">
+        <Card className="bg-card text-card-foreground/50 border-border/50 hover:border-[var(--school-accent)]/30 transition-all duration-300 shadow-xl overflow-hidden group">
             <CardHeader className="pb-4 relative">
                 <div className="flex justify-between items-start mb-4">
                     <div className="flex flex-col gap-3">
@@ -194,11 +194,11 @@ function AssignmentCard({ assignment, onSuccess, onViewFeedback }: { assignment:
                                 {assignment.subject}
                             </Badge>
                         </div>
-                        <CardTitle className="text-xl font-bold text-white tracking-tight group-hover:text-[var(--school-accent)] transition-colors">
+                        <CardTitle className="text-xl font-bold text-foreground tracking-tight group-hover:text-[var(--school-accent)] transition-colors">
                             {assignment.title}
                         </CardTitle>
-                        <div className="flex items-center gap-2 text-slate-400">
-                            <div className="h-6 w-6 rounded-full bg-slate-800 flex items-center justify-center border border-white/5">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <div className="h-6 w-6 rounded-full bg-slate-800 flex items-center justify-center border border-border/50">
                                 <User className="h-3.5 w-3.5" />
                             </div>
                             <span className="text-xs font-medium">{assignment.teacher}</span>
@@ -220,17 +220,17 @@ function AssignmentCard({ assignment, onSuccess, onViewFeedback }: { assignment:
                 </div>
 
                 {assignment.description && (
-                    <div className="bg-black/40 border border-white/5 rounded-2xl p-5 mb-2 group-hover:bg-black/60 transition-colors">
+                    <div className="bg-black/40 border border-border/50 rounded-2xl p-5 mb-2 group-hover:bg-black/60 transition-colors">
                         <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
                                 <div className="w-1 h-3 bg-[var(--school-accent)] rounded-full" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Assignment Materials & Questions</span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Assignment Materials & Questions</span>
                             </div>
                             {assignment.fileUrl && (
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    className="h-7 text-[10px] bg-white/5 border-white/10 hover:bg-white/10 text-cyan-400 font-bold uppercase tracking-tighter"
+                                    className="h-7 text-[10px] bg-secondary/50 border-border hover:bg-white/10 text-cyan-400 font-bold uppercase tracking-tighter"
                                     onClick={() => window.open(assignment.fileUrl, '_blank')}
                                 >
                                     <FileIcon className="h-3 w-3 mr-1.5" />
@@ -245,21 +245,21 @@ function AssignmentCard({ assignment, onSuccess, onViewFeedback }: { assignment:
                 )}
             </CardHeader>
 
-            <CardContent className="pt-0 border-t border-white/5 bg-slate-900/40">
+            <CardContent className="pt-0 border-t border-border/50 bg-card text-card-foreground/40">
                 <div className="flex flex-wrap items-center justify-between gap-4 py-3 mt-1">
                     <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg text-slate-400">
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/50 rounded-lg text-muted-foreground">
                             <Calendar className="h-4 w-4 text-cyan-500/70" />
                             <div className="flex flex-col">
                                 <span className="text-[9px] uppercase font-bold tracking-widest text-slate-600">Deadline</span>
-                                <span className="text-xs font-mono font-bold text-white/90">{formatDate(assignment.dueDate)}</span>
+                                <span className="text-xs font-mono font-bold text-foreground/90">{formatDate(assignment.dueDate)}</span>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg text-slate-400">
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/50 rounded-lg text-muted-foreground">
                             <FileText className="h-4 w-4 text-purple-500/70" />
                             <div className="flex flex-col">
                                 <span className="text-[9px] uppercase font-bold tracking-widest text-slate-600">Weightage</span>
-                                <span className="text-xs font-mono font-bold text-white/90">{assignment.points} Points</span>
+                                <span className="text-xs font-mono font-bold text-foreground/90">{assignment.points} Points</span>
                             </div>
                         </div>
                     </div>
@@ -270,7 +270,7 @@ function AssignmentCard({ assignment, onSuccess, onViewFeedback }: { assignment:
                                 assignment={assignment}
                                 onSuccess={onSuccess}
                                 trigger={
-                                    <Button className="bg-[var(--school-accent)] hover:bg-blue-600 text-white font-bold px-6 shadow-lg shadow-blue-500/20 border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 transition-all">
+                                    <Button className="bg-[var(--school-accent)] hover:bg-blue-600 text-foreground font-bold px-6 shadow-lg shadow-blue-500/20 border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 transition-all">
                                         <UploadCloud className="h-4 w-4 mr-2" />
                                         Turn In Work
                                     </Button>
@@ -279,7 +279,7 @@ function AssignmentCard({ assignment, onSuccess, onViewFeedback }: { assignment:
                         ) : (
                             <Button
                                 variant="outline"
-                                className="bg-transparent border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+                                className="bg-transparent border border-border text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all"
                                 onClick={() => {
                                     if (isGraded && onViewFeedback) {
                                         onViewFeedback()
@@ -301,9 +301,9 @@ function AssignmentCard({ assignment, onSuccess, onViewFeedback }: { assignment:
 
 function EmptyState({ message }: { message: string }) {
     return (
-        <div className="text-center py-12 border border-dashed border-white/10 rounded-xl bg-slate-900/50">
+        <div className="text-center py-12 border border-dashed border-border rounded-xl bg-card text-card-foreground/50">
             <CheckCircle2 className="h-12 w-12 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400">{message}</p>
+            <p className="text-muted-foreground">{message}</p>
         </div>
     )
 }

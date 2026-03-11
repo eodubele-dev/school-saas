@@ -85,14 +85,14 @@ export function SessionManagerStep({ onNext }: { onNext: () => void }) {
 
     return (
         <div className="space-y-6">
-            <div className="bg-slate-900 border border-white/10 rounded-xl p-6 md:p-8">
+            <div className="bg-card text-card-foreground border border-border rounded-xl p-6 md:p-8">
                 <div className="flex items-start justify-between mb-6">
                     <div>
-                        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                             <CheckCircle className="h-5 w-5 text-[var(--school-accent)]" />
                             Active Academic Session
                         </h2>
-                        <p className="text-slate-400 mt-1">
+                        <p className="text-muted-foreground mt-1">
                             Set the current academic year and term. This controls enrollment, billing, and report cards.
                         </p>
                     </div>
@@ -106,16 +106,16 @@ export function SessionManagerStep({ onNext }: { onNext: () => void }) {
                             value={sessionYear}
                             onChange={(e) => setSessionYear(e.target.value)}
                             placeholder="e.g. 2023/2024"
-                            className="bg-slate-950 border-white/10 text-white placeholder:text-slate-600"
+                            className="bg-slate-950 border-border text-foreground placeholder:text-slate-600"
                         />
-                        <p className="text-xs text-slate-500">The main academic cycle identifier.</p>
+                        <p className="text-xs text-muted-foreground">The main academic cycle identifier.</p>
                     </div>
 
                     {/* Term */}
                     <div className="space-y-2">
                         <Label className="text-slate-300">Current Term <span className="text-red-500">*</span></Label>
                         <Select value={term} onValueChange={setTerm}>
-                            <SelectTrigger className="bg-slate-950 border-white/10 text-white">
+                            <SelectTrigger className="bg-slate-950 border-border text-foreground">
                                 <SelectValue placeholder="Select Term" />
                             </SelectTrigger>
                             <SelectContent>
@@ -134,7 +134,7 @@ export function SessionManagerStep({ onNext }: { onNext: () => void }) {
                             type="date"
                             value={startDate ? format(startDate, "yyyy-MM-dd") : ""}
                             onChange={(e) => setStartDate(e.target.value ? new Date(e.target.value) : undefined)}
-                            className="bg-slate-950 border-white/10 text-white [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+                            className="bg-slate-950 border-border text-foreground [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
                         />
                     </div>
 
@@ -145,7 +145,7 @@ export function SessionManagerStep({ onNext }: { onNext: () => void }) {
                             type="date"
                             value={endDate ? format(endDate, "yyyy-MM-dd") : ""}
                             onChange={(e) => setEndDate(e.target.value ? new Date(e.target.value) : undefined)}
-                            className="bg-slate-950 border-white/10 text-white [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+                            className="bg-slate-950 border-border text-foreground [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
                         />
                     </div>
                 </div>
@@ -154,7 +154,7 @@ export function SessionManagerStep({ onNext }: { onNext: () => void }) {
                     <Button
                         onClick={handleSave}
                         disabled={saving}
-                        className="bg-[var(--school-accent)] hover:bg-[var(--school-accent)]/90 text-white min-w-[150px]"
+                        className="bg-[var(--school-accent)] hover:bg-[var(--school-accent)]/90 text-foreground min-w-[150px]"
                     >
                         {saving ? (
                             <>

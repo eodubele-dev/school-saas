@@ -18,8 +18,8 @@ function RatingInput({ value, onChange }: { value: number, onChange: (v: number)
                     className={`
                         h-6 w-6 rounded text-[10px] font-bold transition-colors
                         ${value === num
-                            ? 'bg-cyan-500 text-white shadow-[0_0_10px_rgba(6,182,212,0.5)]'
-                            : 'bg-slate-800 text-slate-500 hover:bg-slate-700'}
+                            ? 'bg-cyan-500 text-foreground shadow-[0_0_10px_rgba(6,182,212,0.5)]'
+                            : 'bg-slate-800 text-muted-foreground hover:bg-slate-700'}
                     `}
                 >
                     {num}
@@ -104,8 +104,8 @@ export function AffectiveDomainGrid({ students }: { students: any[] }) {
         <div className="space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-4">
                 <div>
-                    <h3 className="text-white font-bold text-lg">Termly Affective Domain</h3>
-                    <p className="text-slate-400 text-sm">End-of-term behavioral assessment (1-5 Scale).</p>
+                    <h3 className="text-foreground font-bold text-lg">Termly Affective Domain</h3>
+                    <p className="text-muted-foreground text-sm">End-of-term behavioral assessment (1-5 Scale).</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     <Button variant="outline" size="sm" onClick={() => applyToAll('neatness', 5)} className="border-cyan-500/20 text-cyan-400 hover:bg-cyan-950 hover:text-cyan-400">
@@ -120,18 +120,18 @@ export function AffectiveDomainGrid({ students }: { students: any[] }) {
                     <Button variant="outline" size="sm" onClick={() => applyToAll('attentiveness', 5)} className="border-cyan-500/20 text-cyan-400 hover:bg-cyan-950 hover:text-cyan-400">
                         All Focused: 5
                     </Button>
-                    <Button onClick={handleSaveAll} disabled={saving} className="bg-cyan-600 hover:bg-cyan-700 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)] min-w-[160px]">
+                    <Button onClick={handleSaveAll} disabled={saving} className="bg-cyan-600 hover:bg-cyan-700 text-foreground shadow-[0_0_15px_rgba(6,182,212,0.3)] min-w-[160px]">
                         {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                         Save All Ratings
                     </Button>
                 </div>
             </div>
 
-            <div className="rounded-lg border border-white/5 bg-slate-900 overflow-hidden">
+            <div className="rounded-lg border border-border/50 bg-card text-card-foreground overflow-hidden">
                 <Table>
                     <TableHeader className="bg-slate-950">
-                        <TableRow className="border-white/5 hover:bg-transparent">
-                            <TableHead className="text-white w-[200px]">Student</TableHead>
+                        <TableRow className="border-border/50 hover:bg-transparent">
+                            <TableHead className="text-foreground w-[200px]">Student</TableHead>
                             <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Punc.</TableHead>
                             <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Neat.</TableHead>
                             <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Polite.</TableHead>
@@ -140,12 +140,12 @@ export function AffectiveDomainGrid({ students }: { students: any[] }) {
                             <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Lead.</TableHead>
                             <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Focus</TableHead>
                             <TableHead className="text-center text-xs w-[80px] text-cyan-100/70">Peers</TableHead>
-                            <TableHead className="text-white">Auto-Remark (AI)</TableHead>
+                            <TableHead className="text-foreground">Auto-Remark (AI)</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {students.map((student) => (
-                            <TableRow key={student.id} className="border-white/5 hover:bg-slate-800/50">
+                            <TableRow key={student.id} className="border-border/50 hover:bg-slate-800/50">
                                 <TableCell className="font-medium text-slate-200">
                                     {student.full_name}
                                 </TableCell>
@@ -201,7 +201,7 @@ export function AffectiveDomainGrid({ students }: { students: any[] }) {
                                     <div className="flex gap-2">
                                         <div className="relative flex-1">
                                             <input
-                                                className="w-full bg-slate-950 border border-white/10 rounded px-2 py-1 text-xs text-slate-300"
+                                                className="w-full bg-slate-950 border border-border rounded px-2 py-1 text-xs text-slate-300"
                                                 value={ratings[student.id]?.remark || ""}
                                                 onChange={(e) => updateRating(student.id, 'remark', e.target.value)}
                                                 placeholder="Generates here..."

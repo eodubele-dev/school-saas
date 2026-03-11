@@ -22,20 +22,20 @@ export function QuizResult({ score, totalPoints, percentage, questions, answers 
 
     return (
         <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6">
-            <Card className="max-w-2xl w-full bg-slate-900 border-white/5 overflow-hidden">
-                <div className="p-12 text-center border-b border-white/5 bg-gradient-to-b from-slate-900 to-slate-900/50">
-                    <div className="mb-4 inline-block px-4 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-slate-400">
+            <Card className="max-w-2xl w-full bg-card text-card-foreground border-border/50 overflow-hidden">
+                <div className="p-12 text-center border-b border-border/50 bg-gradient-to-b from-slate-900 to-slate-900/50">
+                    <div className="mb-4 inline-block px-4 py-1 rounded-full bg-secondary/50 border border-border text-xs font-mono text-muted-foreground">
                         Quiz Completed
                     </div>
                     <div className={`text-6xl font-black mb-2 ${feedback.color}`}>
                         {Math.round(percentage)}%
                     </div>
-                    <p className="text-xl font-medium text-white mb-2">{feedback.text}</p>
-                    <p className="text-slate-400">You scored {score} out of {totalPoints} points</p>
+                    <p className="text-xl font-medium text-foreground mb-2">{feedback.text}</p>
+                    <p className="text-muted-foreground">You scored {score} out of {totalPoints} points</p>
                 </div>
 
                 <div className="p-8 space-y-6">
-                    <h3 className="text-white font-bold border-b border-white/5 pb-2">Review Answers</h3>
+                    <h3 className="text-foreground font-bold border-b border-border/50 pb-2">Review Answers</h3>
 
                     <Accordion type="single" collapsible className="w-full">
                         {questions.map((q: any, i: number) => {
@@ -45,7 +45,7 @@ export function QuizResult({ score, totalPoints, percentage, questions, answers 
                             const isCorrect = userAns === q.correct_answer // Assuming correct_answer is available for review
 
                             return (
-                                <AccordionItem key={q.id} value={q.id} className="border-white/5">
+                                <AccordionItem key={q.id} value={q.id} className="border-border/50">
                                     <AccordionTrigger className="hover:no-underline py-4">
                                         <div className="flex gap-4 text-left w-full">
                                             <div className="mt-1">
@@ -56,7 +56,7 @@ export function QuizResult({ score, totalPoints, percentage, questions, answers 
                                                 )}
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-sm font-medium text-white">{q.question_text}</p>
+                                                <p className="text-sm font-medium text-foreground">{q.question_text}</p>
                                             </div>
                                         </div>
                                     </AccordionTrigger>
@@ -76,8 +76,8 @@ export function QuizResult({ score, totalPoints, percentage, questions, answers 
 
                                         {/* Correct Answer */}
                                         {!isCorrect && (
-                                            <div className="p-3 bg-slate-950 rounded border border-white/5 text-sm">
-                                                <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Correct Answer</span>
+                                            <div className="p-3 bg-slate-950 rounded border border-border/50 text-sm">
+                                                <span className="block text-xs text-muted-foreground uppercase tracking-wider mb-1">Correct Answer</span>
                                                 <div className="text-green-400 font-bold">{q[q.correct_answer] || "Option " + q.correct_answer}</div>
                                             </div>
                                         )}
@@ -100,7 +100,7 @@ export function QuizResult({ score, totalPoints, percentage, questions, answers 
                     <div className="flex gap-4 pt-4">
                         <Button
                             onClick={() => router.push('/dashboard/student/learning')}
-                            className="flex-1 bg-slate-800 hover:bg-slate-700 text-white"
+                            className="flex-1 bg-slate-800 hover:bg-slate-700 text-foreground"
                         >
                             <Home className="h-4 w-4 mr-2" /> Return to Hub
                         </Button>

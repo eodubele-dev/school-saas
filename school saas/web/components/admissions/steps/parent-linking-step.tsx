@@ -122,17 +122,17 @@ export function ParentLinkingStep() {
         <div className="space-y-6">
             <div className="space-y-6 max-w-xl">
                 {/* Search Mode */}
-                <div className="space-y-4 p-4 border border-white/10 rounded-lg bg-slate-950/50">
+                <div className="space-y-4 p-4 border border-border rounded-lg bg-slate-950/50">
                     <div className="flex items-center gap-2 mb-2">
                         <Search className="h-4 w-4 text-[var(--school-accent)]" />
-                        <h3 className="font-semibold text-white">Find Existing Parent</h3>
+                        <h3 className="font-semibold text-foreground">Find Existing Parent</h3>
                     </div>
                     <div className="flex gap-2">
                         <Input
                             placeholder="Search by Parent Name or Phone Number..."
                             value={parentSearchQuery}
                             onChange={(e) => setData({ parentSearchQuery: e.target.value })}
-                            className="bg-slate-900 border-white/10 text-white"
+                            className="bg-card text-card-foreground border-border text-foreground"
                         />
                         <Button onClick={handleSearch} disabled={searching}>
                             {searching ? "..." : "Search"}
@@ -144,7 +144,7 @@ export function ParentLinkingStep() {
                         {searchResults.map(p => (
                             <div
                                 key={p.id}
-                                className="flex items-center justify-between p-3 rounded bg-slate-900 border border-white/5 hover:border-[var(--school-accent)] cursor-pointer"
+                                className="flex items-center justify-between p-3 rounded bg-card text-card-foreground border border-border/50 hover:border-[var(--school-accent)] cursor-pointer"
                                 onClick={() => setData({
                                     parentId: p.id,
                                     // Store phone as well for the server action
@@ -159,8 +159,8 @@ export function ParentLinkingStep() {
                                 })}
                             >
                                 <div>
-                                    <p className="text-sm font-medium text-white">{p.full_name}</p>
-                                    <p className="text-xs text-slate-500">{p.phone}</p>
+                                    <p className="text-sm font-medium text-foreground">{p.full_name}</p>
+                                    <p className="text-xs text-muted-foreground">{p.phone}</p>
                                 </div>
                                 {data.parentId === p.id && <CheckCircle className="h-4 w-4 text-green-500" />}
                             </div>
@@ -170,10 +170,10 @@ export function ParentLinkingStep() {
 
                 <div className="relative">
                     <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t border-white/10" />
+                        <span className="w-full border-t border-border" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-slate-950 px-2 text-slate-500">Or Create New</span>
+                        <span className="bg-slate-950 px-2 text-muted-foreground">Or Create New</span>
                     </div>
                 </div>
 
@@ -181,7 +181,7 @@ export function ParentLinkingStep() {
                 {!debtWarning.isWarning && (
                     <Button
                         type="button"
-                        className="w-full border-2 border-dashed border-white/20 bg-slate-800 text-white hover:border-[var(--school-accent)] hover:bg-slate-700 transition-all duration-300 antialiased font-bold py-8 group shadow-lg"
+                        className="w-full border-2 border-dashed border-white/20 bg-slate-800 text-foreground hover:border-[var(--school-accent)] hover:bg-slate-700 transition-all duration-300 antialiased font-bold py-8 group shadow-lg"
                         onClick={() => {
                             setData({ isNewParent: !isNewParent, parentId: null });
                         }}
@@ -194,28 +194,28 @@ export function ParentLinkingStep() {
                 )}
 
                 {isNewParent && (
-                    <div className="p-4 border border-white/10 rounded-lg space-y-4 bg-slate-900/30">
+                    <div className="p-4 border border-border rounded-lg space-y-4 bg-card text-card-foreground/30">
                         <Input
                             placeholder="Parent First Name"
-                            className="bg-slate-900 border-white/10 text-white"
+                            className="bg-card text-card-foreground border-border text-foreground"
                             value={data.parentData?.firstName || ''}
                             onChange={(e) => setData({ parentData: { ...data.parentData!, firstName: e.target.value } })}
                         />
                         <Input
                             placeholder="Parent Last Name"
-                            className="bg-slate-900 border-white/10 text-white"
+                            className="bg-card text-card-foreground border-border text-foreground"
                             value={data.parentData?.lastName || ''}
                             onChange={(e) => setData({ parentData: { ...data.parentData!, lastName: e.target.value } })}
                         />
                         <Input
                             placeholder="Parent Phone Number"
-                            className="bg-slate-900 border-white/10 text-white"
+                            className="bg-card text-card-foreground border-border text-foreground"
                             value={data.parentData?.phone || ''}
                             onChange={(e) => setData({ parentData: { ...data.parentData!, phone: e.target.value } })}
                         />
                         <Input
                             placeholder="Email Address"
-                            className="bg-slate-900 border-white/10 text-white"
+                            className="bg-card text-card-foreground border-border text-foreground"
                             value={data.parentData?.email || ''}
                             onChange={(e) => setData({ parentData: { ...data.parentData!, email: e.target.value } })}
                         />
@@ -243,7 +243,7 @@ export function ParentLinkingStep() {
                             <label className="flex items-start gap-3 p-3 bg-red-900/20 border border-red-500/30 rounded-lg cursor-pointer hover:bg-red-900/30 transition-colors">
                                 <input
                                     type="checkbox"
-                                    className="mt-1 h-4 w-4 rounded border-red-500/50 bg-slate-900 accent-red-500"
+                                    className="mt-1 h-4 w-4 rounded border-red-500/50 bg-card text-card-foreground accent-red-500"
                                     checked={bypassDebtFlag}
                                     onChange={(e) => setBypassDebtFlag(e.target.checked)}
                                 />
@@ -261,14 +261,14 @@ export function ParentLinkingStep() {
                     variant="ghost"
                     type="button"
                     onClick={() => setStep(2)}
-                    className="text-slate-300 hover:text-white hover:bg-white/5 transition-colors duration-200 antialiased"
+                    className="text-slate-300 hover:text-foreground hover:bg-secondary/50 transition-colors duration-200 antialiased"
                 >
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
                 <Button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="bg-[var(--school-accent)] hover:brightness-110 text-white min-w-[140px]"
+                    className="bg-[var(--school-accent)] hover:brightness-110 text-foreground min-w-[140px]"
                 >
                     {loading ? "Admitting..." : "Complete Admission"}
                 </Button>

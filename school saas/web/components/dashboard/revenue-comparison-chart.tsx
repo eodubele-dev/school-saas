@@ -11,7 +11,7 @@ const data = [
 
 const InterCampusRevenueChart = () => {
     return (
-        <div className="bg-[#0A0A0B] border border-white/10 rounded-[2.5rem] p-10 shadow-2xl col-span-2">
+        <div className="bg-[#0A0A0B] border border-border rounded-[2.5rem] p-10 shadow-2xl col-span-2">
             <div className="flex justify-between items-start mb-10">
                 <div>
                     <h2 className="text-2xl font-black italic uppercase text-amber-500 tracking-tighter">
@@ -44,11 +44,11 @@ const InterCampusRevenueChart = () => {
             </div>
 
             {/* 🚀 Recovery Leaders Legend */}
-            <div className="mt-8 grid grid-cols-3 gap-4 border-t border-white/5 pt-8">
+            <div className="mt-8 grid grid-cols-3 gap-4 border-t border-border/50 pt-8">
                 {data.map(campus => (
                     <div key={campus.name} className="text-center">
                         <p className="text-[10px] text-gray-600 uppercase font-mono">{campus.name}_Recovery</p>
-                        <p className="text-xl font-black text-white">{campus.rate}</p>
+                        <p className="text-xl font-black text-foreground">{campus.rate}</p>
                     </div>
                 ))}
             </div>

@@ -54,12 +54,12 @@ export function AnalyticsHeader({ grades }: AnalyticsHeaderProps) {
 
 function StatCard({ label, value, icon: Icon, color, bg }: any) {
     return (
-        <Card className={`p-4 border border-white/5 flex items-center justify-between ${bg}`}>
+        <Card className={`p-4 border border-border/50 flex items-center justify-between ${bg}`}>
             <div>
-                <p className="text-xs text-slate-400 uppercase tracking-wider font-bold mb-1">{label}</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold mb-1">{label}</p>
                 <div className={`text-2xl font-bold ${color}`}>{value}</div>
             </div>
-            <div className={`p-2 rounded-full bg-white/5 ${color}`}>
+            <div className={`p-2 rounded-full bg-secondary/50 ${color}`}>
                 <Icon className="h-5 w-5" />
             </div>
         </Card>

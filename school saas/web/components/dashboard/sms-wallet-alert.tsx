@@ -44,7 +44,7 @@ export function SMSWalletAlert({ balance }: SMSWalletAlertProps) {
                         </div>
 
                         <div>
-                            <p className="text-white text-sm font-black tracking-tight flex items-center gap-2">
+                            <p className="text-foreground text-sm font-black tracking-tight flex items-center gap-2">
                                 {isCritical ? 'Institutional Communication Halted' : 'Low Communication Credits'}
                                 {isCritical && <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping" />}
                             </p>
@@ -52,8 +52,8 @@ export function SMSWalletAlert({ balance }: SMSWalletAlertProps) {
                                 Balance: <span className={isCritical ? 'text-red-300 font-black' : 'text-amber-300 font-black'}>
                                     ₦{balance.toLocaleString()}
                                 </span>
-                                <span className="mx-2 opacity-30 text-white">//</span>
-                                Est. Units: <span className="text-white font-black underline decoration-white/20 underline-offset-2">~{Math.floor(balance / 5)}</span>
+                                <span className="mx-2 opacity-30 text-foreground">//</span>
+                                Est. Units: <span className="text-foreground font-black underline decoration-white/20 underline-offset-2">~{Math.floor(balance / 5)}</span>
                             </p>
                         </div>
                     </div>
@@ -63,8 +63,8 @@ export function SMSWalletAlert({ balance }: SMSWalletAlertProps) {
                             <button
                                 onClick={open}
                                 className={`group relative px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.03] active:scale-95 flex items-center gap-2 overflow-hidden shadow-2xl ${isCritical
-                                    ? 'bg-red-600 text-white shadow-red-950/40'
-                                    : 'bg-amber-600 text-white shadow-amber-950/40'
+                                    ? 'bg-red-600 text-foreground shadow-red-950/40'
+                                    : 'bg-amber-600 text-foreground shadow-amber-950/40'
                                     }`}
                             >
                                 <span className="relative z-10">Top Up Wallet</span>

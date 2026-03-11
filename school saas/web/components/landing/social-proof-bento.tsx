@@ -45,11 +45,11 @@ export function SocialProofBento() {
 
             <div className="container px-4 md:px-6 relative z-10">
                 <div className="text-center max-w-2xl mx-auto mb-16">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700/50 text-slate-400 text-xs font-mono mb-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700/50 text-muted-foreground text-xs font-mono mb-6">
                         <Check className="w-3 h-3 text-emerald-500" />
                         TRUSTED_BY_LEADERS
                     </div>
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                    <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
                         Join 500+ <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Elite Institutions.</span>
                     </h2>
                 </div>
@@ -103,10 +103,10 @@ function TestimonialCard({ data, delay }: { data: any, delay: number }) {
                     )}
                 </p>
 
-                <div className="border-t border-white/5 pt-6 flex items-center justify-between">
+                <div className="border-t border-border/50 pt-6 flex items-center justify-between">
                     <div>
-                        <div className="text-white font-bold">{data.name}</div>
-                        <div className="text-xs text-slate-500">{data.role}</div>
+                        <div className="text-foreground font-bold">{data.name}</div>
+                        <div className="text-xs text-muted-foreground">{data.role}</div>
                     </div>
 
                     {data.tag && (

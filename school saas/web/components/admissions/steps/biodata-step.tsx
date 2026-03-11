@@ -88,7 +88,7 @@ export function BiodataStep() {
                             <Input
                                 value={firstName}
                                 onChange={(e) => setData({ firstName: e.target.value })}
-                                className="bg-slate-950 border-white/10 text-white"
+                                className="bg-slate-950 border-border text-foreground"
                                 placeholder="e.g. David"
                             />
                         </div>
@@ -97,7 +97,7 @@ export function BiodataStep() {
                             <Input
                                 value={lastName}
                                 onChange={(e) => setData({ lastName: e.target.value })}
-                                className="bg-slate-950 border-white/10 text-white"
+                                className="bg-slate-950 border-border text-foreground"
                                 placeholder="e.g. Okonkwo"
                             />
                         </div>
@@ -108,7 +108,7 @@ export function BiodataStep() {
                         <Input
                             value={middleName}
                             onChange={(e) => setData({ middleName: e.target.value })}
-                            className="bg-slate-950 border-white/10 text-white"
+                            className="bg-slate-950 border-border text-foreground"
                         />
                     </div>
 
@@ -119,13 +119,13 @@ export function BiodataStep() {
                                 type="date"
                                 value={dob || ''}
                                 onChange={(e) => setData({ dob: e.target.value })}
-                                className="bg-slate-950 border-white/10 text-white"
+                                className="bg-slate-950 border-border text-foreground"
                             />
                         </div>
                         <div className="space-y-2">
                             <Label className="text-slate-300">Gender <span className="text-red-500">*</span></Label>
                             <Select value={gender} onValueChange={(val) => setData({ gender: val })}>
-                                <SelectTrigger className="bg-slate-950 border-white/10 text-white transition-all duration-200 focus:border-[var(--school-accent)]">
+                                <SelectTrigger className="bg-slate-950 border-border text-foreground transition-all duration-200 focus:border-[var(--school-accent)]">
                                     <SelectValue placeholder="Select" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -140,7 +140,7 @@ export function BiodataStep() {
                         <div className="space-y-2">
                             <Label className="text-slate-300">Blood Group</Label>
                             <Select value={bloodGroup} onValueChange={(val) => setData({ bloodGroup: val })}>
-                                <SelectTrigger className="bg-slate-950 border-white/10 text-white transition-all duration-200 focus:border-[var(--school-accent)]">
+                                <SelectTrigger className="bg-slate-950 border-border text-foreground transition-all duration-200 focus:border-[var(--school-accent)]">
                                     <SelectValue placeholder="Optional" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -158,7 +158,7 @@ export function BiodataStep() {
                         <div className="space-y-2">
                             <Label className="text-slate-300">Genotype</Label>
                             <Select value={genotype} onValueChange={(val) => setData({ genotype: val })}>
-                                <SelectTrigger className="bg-slate-950 border-white/10 text-white transition-all duration-200 focus:border-[var(--school-accent)]">
+                                <SelectTrigger className="bg-slate-950 border-border text-foreground transition-all duration-200 focus:border-[var(--school-accent)]">
                                     <SelectValue placeholder="Optional" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -180,7 +180,7 @@ export function BiodataStep() {
                         ) : preview ? (
                             <Image src={preview} alt="Passport" fill className="object-cover" />
                         ) : (
-                            <Upload className="h-8 w-8 text-slate-500" />
+                            <Upload className="h-8 w-8 text-muted-foreground" />
                         )}
                         <input
                             type="file"
@@ -190,7 +190,7 @@ export function BiodataStep() {
                             onChange={handlePhotoUpload}
                         />
                     </div>
-                    <p className="text-xs text-slate-500 text-center">
+                    <p className="text-xs text-muted-foreground text-center">
                         Upload Passport<br />(White Background, Max 2MB)
                     </p>
                 </div>
@@ -199,7 +199,7 @@ export function BiodataStep() {
             <div className="flex justify-end pt-4">
                 <Button
                     onClick={handleNext}
-                    className="bg-[var(--school-accent)] hover:brightness-110 text-white"
+                    className="bg-[var(--school-accent)] hover:brightness-110 text-foreground"
                 >
                     Next Step <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>

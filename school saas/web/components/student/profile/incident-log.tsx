@@ -7,17 +7,17 @@ import { CheckCircle2, AlertTriangle, MessageSquare } from "lucide-react"
 
 export function IncidentLog({ incidents }: { incidents: any[] }) {
     return (
-        <Card className="p-6 bg-slate-900 border-white/5 h-full flex flex-col">
+        <Card className="p-6 bg-card text-card-foreground border-border/50 h-full flex flex-col">
             <div className="mb-4">
-                <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                <h3 className="text-foreground font-bold text-lg flex items-center gap-2">
                     <MessageSquare className="h-5 w-5 text-cyan-400" />
                     Remarks & Incidents
                 </h3>
-                <p className="text-sm text-slate-400">Timeline of reports and notes.</p>
+                <p className="text-sm text-muted-foreground">Timeline of reports and notes.</p>
             </div>
 
             <ScrollArea className="flex-1 pr-4">
-                <div className="space-y-4 relative border-l border-white/10 ml-2 pl-6 py-2">
+                <div className="space-y-4 relative border-l border-border ml-2 pl-6 py-2">
                     {incidents.map((incident, idx) => (
                         <div key={idx} className="relative">
                             {/* Dot */}
@@ -25,24 +25,24 @@ export function IncidentLog({ incidents }: { incidents: any[] }) {
                                 incident.type === 'disciplinary' ? 'bg-amber-500' : 'bg-slate-500'
                                 }`} />
 
-                            <div className={`p-3 rounded-lg border border-white/5 ${incident.type === 'positive' ? 'bg-cyan-500/5' :
+                            <div className={`p-3 rounded-lg border border-border/50 ${incident.type === 'positive' ? 'bg-cyan-500/5' :
                                 incident.type === 'disciplinary' ? 'bg-amber-500/5' : 'bg-slate-950'
                                 }`}>
                                 <div className="flex justify-between items-start mb-1">
                                     <h4 className={`text-sm font-bold ${incident.type === 'positive' ? 'text-cyan-400' :
-                                        incident.type === 'disciplinary' ? 'text-amber-400' : 'text-white'
+                                        incident.type === 'disciplinary' ? 'text-amber-400' : 'text-foreground'
                                         }`}>
                                         {incident.title}
                                     </h4>
-                                    <span className="text-[10px] text-slate-500 whitespace-nowrap">{formatDate(incident.occurred_at)}</span>
+                                    <span className="text-[10px] text-muted-foreground whitespace-nowrap">{formatDate(incident.occurred_at)}</span>
                                 </div>
-                                {incident.description && <p className="text-xs text-slate-400">{incident.description}</p>}
+                                {incident.description && <p className="text-xs text-muted-foreground">{incident.description}</p>}
                             </div>
                         </div>
                     ))}
 
                     {incidents.length === 0 && (
-                        <p className="text-sm text-slate-500 italic">No remarks recorded yet.</p>
+                        <p className="text-sm text-muted-foreground italic">No remarks recorded yet.</p>
                     )}
                 </div>
             </ScrollArea>

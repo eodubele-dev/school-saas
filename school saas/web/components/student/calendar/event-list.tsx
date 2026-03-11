@@ -60,7 +60,7 @@ export function EventList({ events: initialEvents }: EventListProps) {
             case 'holiday': return <PartyPopper className="h-4 w-4 text-pink-500" />
             case 'sports': return <Trophy className="h-4 w-4 text-amber-500" />
             case 'exam': return <Clock className="h-4 w-4 text-red-500" />
-            default: return <CalendarDays className="h-4 w-4 text-slate-500" />
+            default: return <CalendarDays className="h-4 w-4 text-muted-foreground" />
         }
     }
 
@@ -70,7 +70,7 @@ export function EventList({ events: initialEvents }: EventListProps) {
             case 'holiday': return "bg-pink-500/10 border-pink-500/20 text-pink-500"
             case 'sports': return "bg-amber-500/10 border-amber-500/20 text-amber-500"
             case 'exam': return "bg-red-500/10 border-red-500/20 text-red-500"
-            default: return "bg-slate-500/10 border-slate-500/20 text-slate-500"
+            default: return "bg-slate-500/10 border-slate-500/20 text-muted-foreground"
         }
     }
 
@@ -122,14 +122,14 @@ export function EventList({ events: initialEvents }: EventListProps) {
             <div className="space-y-8">
                 {Object.entries(groupedEvents).map(([month, monthEvents]) => (
                     <div key={month} className="space-y-4">
-                        <h3 className="text-lg font-semibold text-slate-400 sticky top-0 bg-slate-950/80 backdrop-blur-sm py-2 z-10">
+                        <h3 className="text-lg font-semibold text-muted-foreground sticky top-0 bg-slate-950/80 backdrop-blur-sm py-2 z-10">
                             {month}
                         </h3>
                         <div className="grid gap-3">
                             {monthEvents.map(event => (
                                 <div
                                     key={event.id}
-                                    className="group flex gap-4 p-4 rounded-xl bg-slate-900/50 border border-white/5 hover:border-white/10 hover:bg-slate-900 transition-all"
+                                    className="group flex gap-4 p-4 rounded-xl bg-card text-card-foreground/50 border border-border/50 hover:border-border hover:bg-card text-card-foreground transition-all"
                                 >
                                     <div className={cn(
                                         "flex-shrink-0 w-16 h-16 rounded-lg flex flex-col items-center justify-center border",
@@ -142,10 +142,10 @@ export function EventList({ events: initialEvents }: EventListProps) {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-start justify-between gap-2">
                                             <div>
-                                                <h4 className="text-white font-medium group-hover:text-[var(--school-accent)] transition-colors truncate">
+                                                <h4 className="text-foreground font-medium group-hover:text-[var(--school-accent)] transition-colors truncate">
                                                     {event.title}
                                                 </h4>
-                                                <p className="text-sm text-slate-500 mt-1 line-clamp-2">
+                                                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                                                     {event.description}
                                                 </p>
                                             </div>
@@ -162,8 +162,8 @@ export function EventList({ events: initialEvents }: EventListProps) {
                 ))}
 
                 {filteredEvents.length === 0 && (
-                    <div className="py-12 text-center border border-dashed border-white/10 rounded-xl">
-                        <p className="text-slate-500">No events found for this category.</p>
+                    <div className="py-12 text-center border border-dashed border-border rounded-xl">
+                        <p className="text-muted-foreground">No events found for this category.</p>
                     </div>
                 )}
             </div>

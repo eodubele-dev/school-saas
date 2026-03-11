@@ -47,9 +47,9 @@ export function SystemPulse() {
     }
 
     return (
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-900/50 rounded-lg border border-slate-800">
+        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-card text-card-foreground/50 rounded-lg border border-border">
             <Activity size={14} className={`${getColor()} animate-pulse`} />
-            <span className={`text-[10px] font-mono ${status === 'offline' ? 'text-red-400' : 'text-slate-400'}`}>
+            <span className={`text-[10px] font-mono ${status === 'offline' ? 'text-red-400' : 'text-muted-foreground'}`}>
                 {getText()}
             </span>
         </div>

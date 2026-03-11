@@ -30,7 +30,7 @@ export function QuickActions() {
                                         <MessageSquare className="h-5 w-5" />
                                     </Button>
                                 </TooltipTrigger>
-                                <TooltipContent side="left" className="bg-slate-900 text-amber-500 border-amber-500/20">
+                                <TooltipContent side="left" className="bg-card text-card-foreground text-amber-500 border-amber-500/20">
                                     <p>Broadcast to Staff</p>
                                 </TooltipContent>
                             </Tooltip>
@@ -48,7 +48,7 @@ export function QuickActions() {
                                         <Calculator className="h-5 w-5" />
                                     </Button>
                                 </TooltipTrigger>
-                                <TooltipContent side="left" className="bg-slate-900 text-amber-500 border-amber-500/20">
+                                <TooltipContent side="left" className="bg-card text-card-foreground text-amber-500 border-amber-500/20">
                                     <p>Bank Reconciliation</p>
                                 </TooltipContent>
                             </Tooltip>
@@ -66,7 +66,7 @@ export function QuickActions() {
                                         <FileText className="h-5 w-5" />
                                     </Button>
                                 </TooltipTrigger>
-                                <TooltipContent side="left" className="bg-slate-900 text-amber-500 border-amber-500/20">
+                                <TooltipContent side="left" className="bg-card text-card-foreground text-amber-500 border-amber-500/20">
                                     <p>Financial Report</p>
                                 </TooltipContent>
                             </Tooltip>

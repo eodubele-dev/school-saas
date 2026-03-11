@@ -12,13 +12,13 @@ export function ParentAttendanceAudit({
     auditLogs: any[]
 }) {
     return (
-        <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl w-full">
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-white/5 pb-6 gap-4">
+        <div className="bg-card text-card-foreground/50 backdrop-blur-xl border border-border rounded-3xl p-6 md:p-8 shadow-2xl w-full">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-border/50 pb-6 gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-white uppercase tracking-tight">Attendance Audit Trail</h2>
-                    <p className="text-slate-500 text-sm mt-1">Forensic log for <span className="text-cyan-400 font-medium">{studentName}</span></p>
+                    <h2 className="text-2xl font-bold text-foreground uppercase tracking-tight">Attendance Audit Trail</h2>
+                    <p className="text-muted-foreground text-sm mt-1">Forensic log for <span className="text-cyan-400 font-medium">{studentName}</span></p>
                 </div>
-                <div className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl flex items-center gap-3">
+                <div className="bg-secondary/50 border border-border px-4 py-2 rounded-xl flex items-center gap-3">
                     <ShieldAlert size={16} className="text-emerald-500" />
                     <div>
                         <p className="text-[10px] font-mono text-slate-600 uppercase leading-none mb-0.5">Audit_Integrity</p>
@@ -30,7 +30,7 @@ export function ParentAttendanceAudit({
             {/* 📊 Chronological Audit Feed */}
             <div className="space-y-4">
                 {auditLogs.length === 0 ? (
-                    <div className="text-center py-12 text-slate-500">
+                    <div className="text-center py-12 text-muted-foreground">
                         <p>No attendance records found for this period.</p>
                     </div>
                 ) : (
@@ -48,7 +48,7 @@ export function ParentAttendanceAudit({
                         )
 
                         return (
-                            <div key={log.id} className="group relative flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 bg-white/[0.02] border border-white/5 p-5 rounded-2xl hover:border-white/20 transition-all">
+                            <div key={log.id} className="group relative flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 bg-white/[0.02] border border-border/50 p-5 rounded-2xl hover:border-white/20 transition-all">
                                 {/* Status Indicator */}
                                 <div className={`w-3 h-3 rounded-full shadow-[0_0_10px] mt-2 md:mt-0 ${isAbsent ? 'bg-red-500 shadow-red-500/20' :
                                     isLate ? 'bg-amber-400 shadow-amber-400/20' :
@@ -64,7 +64,7 @@ export function ParentAttendanceAudit({
                                         <Clock size={14} className="text-emerald-500/70" />
                                         <div className="flex flex-col">
                                             <span className="text-[10px] text-emerald-500 uppercase leading-none">Clock In</span>
-                                            <span className="text-sm font-mono text-slate-400">
+                                            <span className="text-sm font-mono text-muted-foreground">
                                                 {log.clock_in_time ? format(new Date(log.clock_in_time), 'hh:mm a') : format(new Date(log.created_at), 'hh:mm a')}
                                             </span>
                                         </div>
@@ -73,7 +73,7 @@ export function ParentAttendanceAudit({
                                         <Clock size={14} className="text-orange-500/70" />
                                         <div className="flex flex-col">
                                             <span className="text-[10px] text-orange-500 uppercase leading-none">Clock Out</span>
-                                            <span className="text-sm font-mono text-slate-400">
+                                            <span className="text-sm font-mono text-muted-foreground">
                                                 {log.clock_out_time ? format(new Date(log.clock_out_time), 'hh:mm a') : '--:--'}
                                             </span>
                                         </div>
@@ -82,7 +82,7 @@ export function ParentAttendanceAudit({
                                         <MapPin size={14} className="text-slate-600" />
                                         <span className={`text-[10px] font-mono uppercase tracking-wide ${isLate ? 'text-amber-500/70' :
                                             isAbsent ? 'text-red-500/70' :
-                                                'text-slate-500'
+                                                'text-muted-foreground'
                                             }`}>
                                             {locationStatus}
                                         </span>
@@ -97,7 +97,7 @@ export function ParentAttendanceAudit({
                                         }`}>{String(log.status).toUpperCase()}</p>
 
                                     {log.clocked_out?.full_name && (
-                                        <p className="text-[10px] text-slate-500 mt-1">
+                                        <p className="text-[10px] text-muted-foreground mt-1">
                                             Checked out by: <span className="text-slate-300">{log.clocked_out.full_name}</span>
                                         </p>
                                     )}

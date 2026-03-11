@@ -16,11 +16,11 @@ export function TeacherDashboard({ tier = 'starter' }: { tier?: string }) {
     if (loading) {
         return (
             <div className="space-y-8 animate-pulse">
-                <div className="h-64 bg-slate-900/50 rounded-3xl" />
+                <div className="h-64 bg-card text-card-foreground/50 rounded-3xl" />
                 <div className="grid gap-6 md:grid-cols-3">
-                    <div className="h-32 bg-slate-900/50 rounded-xl" />
-                    <div className="h-32 bg-slate-900/50 rounded-xl" />
-                    <div className="h-32 bg-slate-900/50 rounded-xl" />
+                    <div className="h-32 bg-card text-card-foreground/50 rounded-xl" />
+                    <div className="h-32 bg-card text-card-foreground/50 rounded-xl" />
+                    <div className="h-32 bg-card text-card-foreground/50 rounded-xl" />
                 </div>
             </div>
         )
@@ -74,9 +74,9 @@ export function TeacherDashboard({ tier = 'starter' }: { tier?: string }) {
 
             {/* 📖 Academic Resources & Schedule */}
             <div className="grid gap-6">
-                <Card className="bg-[#0f172a]/80 border-white/10 backdrop-blur-xl shadow-lg group rounded-2xl">
+                <Card className="bg-[#0f172a]/80 border-border backdrop-blur-xl shadow-lg group rounded-2xl">
                     <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="text-[10px] font-black text-slate-500 uppercase tracking-widest font-mono">
+                        <CardTitle className="text-[10px] font-black text-muted-foreground uppercase tracking-widest font-mono">
                             Upcoming Lessons
                         </CardTitle>
                         <span className="text-[10px] text-blue-400 bg-blue-400/5 px-2 py-1 rounded-full uppercase font-mono border border-blue-400/10">
@@ -88,12 +88,12 @@ export function TeacherDashboard({ tier = 'starter' }: { tier?: string }) {
                             {upcomingLessons.length > 0 ? upcomingLessons.map((lesson) => (
                                 <div
                                     key={lesson.id}
-                                    className="flex items-center gap-4 group/item p-4 rounded-xl hover:bg-white/5 transition-all border border-transparent hover:border-white/10 cursor-pointer"
+                                    className="flex items-center gap-4 group/item p-4 rounded-xl hover:bg-secondary/50 transition-all border border-transparent hover:border-border cursor-pointer"
                                 >
                                     <div className="w-1.5 h-12 bg-blue-500 rounded-full group-hover/item:bg-blue-400 transition-all group-hover/item:shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
                                     <div className="flex-1">
                                         <p className="font-bold text-slate-100 group-hover/item:text-blue-400 transition-colors">{lesson.title}</p>
-                                        <p className="text-sm text-slate-500 font-medium">{lesson.subject} • {new Date(lesson.date).toLocaleDateString()}</p>
+                                        <p className="text-sm text-muted-foreground font-medium">{lesson.subject} • {new Date(lesson.date).toLocaleDateString()}</p>
                                     </div>
                                     <div className="opacity-0 group-hover/item:opacity-100 transition-opacity">
                                         <button
@@ -108,8 +108,8 @@ export function TeacherDashboard({ tier = 'starter' }: { tier?: string }) {
                                     </div>
                                 </div>
                             )) : (
-                                <div className="text-center py-12 border border-dashed border-white/5 rounded-2xl">
-                                    <p className="text-sm text-slate-500 font-medium italic">No upcoming lessons scheduled.</p>
+                                <div className="text-center py-12 border border-dashed border-border/50 rounded-2xl">
+                                    <p className="text-sm text-muted-foreground font-medium italic">No upcoming lessons scheduled.</p>
                                 </div>
                             )}
                         </div>

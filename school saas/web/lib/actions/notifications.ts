@@ -132,3 +132,47 @@ import { SMS_CONFIG } from '@/lib/constants/communication'
 export async function getMonthlyVolumeEstimates() {
     return SMS_CONFIG.ESTIMATES
 }
+
+export async function getUserNotifications() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return { success: false, data: [] }
+
+    const { data: notifications, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20)
+
+    if (error) {
+        console.error("Failed to fetch notifications:", error)
+        return { success: false, data: [] }
+    }
+
+    return { success: true, data: notifications || [] }
+}
+
+export async function markNotificationsAsRead() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return { success: false }
+
+    const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false)
+
+    if (error) {
+        console.error("Failed to mark notifications read:", error)
+        return { success: false }
+    }
+
+    // Revalidate header path to trigger a fresh Server Component render if used
+    revalidatePath('/', 'layout')
+
+    return { success: true }
+}

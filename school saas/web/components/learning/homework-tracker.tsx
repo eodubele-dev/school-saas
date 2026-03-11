@@ -7,15 +7,15 @@ import { toast } from "sonner";
 export const HomeworkTracker = ({ tasks = [] }: { tasks?: any[] }) => {
     const activeTasks = tasks && tasks.length > 0 ? tasks : [];
     return (
-        <div className="bg-slate-950/40 backdrop-blur-md border border-white/10 rounded-3xl p-5 shadow-2xl animate-in fade-in duration-500 delay-100 flex flex-col">
+        <div className="bg-slate-950/40 backdrop-blur-md border border-border rounded-3xl p-5 shadow-2xl animate-in fade-in duration-500 delay-100 flex flex-col">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-3">
                     <div className="bg-orange-500/10 p-2.5 rounded-xl border border-orange-500/20">
                         <PenTool className="text-orange-500" size={20} />
                     </div>
                     <div>
-                        <h2 className="text-lg font-bold text-white uppercase tracking-tight">Assignments</h2>
-                        <p className="text-slate-500 text-xs">{activeTasks.filter(t => t.status !== 'completed').length} Pending Tasks</p>
+                        <h2 className="text-lg font-bold text-foreground uppercase tracking-tight">Assignments</h2>
+                        <p className="text-muted-foreground text-xs">{activeTasks.filter(t => t.status !== 'completed').length} Pending Tasks</p>
                     </div>
                 </div>
             </div>
@@ -23,13 +23,13 @@ export const HomeworkTracker = ({ tasks = [] }: { tasks?: any[] }) => {
             <div className="flex-1 space-y-3">
                 {activeTasks.length > 0 ? (
                     activeTasks.map((task) => (
-                        <div key={task.id} className="bg-white/5 border border-white/5 rounded-2xl p-4 hover:border-white/10 transition-all group relative overflow-hidden">
+                        <div key={task.id} className="bg-secondary/50 border border-border/50 rounded-2xl p-4 hover:border-border transition-all group relative overflow-hidden">
                             {task.priority === 'high' && task.status !== 'completed' && (
                                 <div className="absolute right-0 top-0 bg-red-500 w-12 h-12 rotate-45 translate-x-6 -translate-y-6"></div>
                             )}
 
                             <div className="flex justify-between items-start mb-2">
-                                <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider bg-black/30 px-2 py-0.5 rounded-md">
+                                <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider bg-black/30 px-2 py-0.5 rounded-md">
                                     {task.subject}
                                 </span>
                                 {task.status === 'completed' ? (
@@ -44,7 +44,7 @@ export const HomeworkTracker = ({ tasks = [] }: { tasks?: any[] }) => {
                                 )}
                             </div>
 
-                            <h3 className={`text-sm font-bold mb-1 ${task.status === 'completed' ? 'text-slate-500 line-through' : 'text-white'}`}>
+                            <h3 className={`text-sm font-bold mb-1 ${task.status === 'completed' ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
                                 {task.title}
                             </h3>
 
@@ -58,7 +58,7 @@ export const HomeworkTracker = ({ tasks = [] }: { tasks?: any[] }) => {
                                     </button>
                                     <button
                                         onClick={() => toast.success("Loading Details", { description: `Opening details for: ${task.title}` })}
-                                        className="px-3 bg-white/10 rounded-lg text-white hover:bg-white/20 text-[10px] font-bold uppercase transition-colors"
+                                        className="px-3 bg-white/10 rounded-lg text-foreground hover:bg-white/20 text-[10px] font-bold uppercase transition-colors"
                                     >
                                         Details
                                     </button>
@@ -67,16 +67,16 @@ export const HomeworkTracker = ({ tasks = [] }: { tasks?: any[] }) => {
                         </div>
                     ))
                 ) : (
-                    <div className="text-center py-10 border border-dashed border-white/10 rounded-2xl">
+                    <div className="text-center py-10 border border-dashed border-border rounded-2xl">
                         <FileCheck className="mx-auto text-slate-700 mb-3" size={32} />
-                        <p className="text-slate-500 text-sm">No pending assignments.</p>
+                        <p className="text-muted-foreground text-sm">No pending assignments.</p>
                     </div>
                 )}
             </div >
 
-            <div className="mt-6 bg-slate-900/50 p-3 rounded-xl border border-white/5 flex items-center gap-3">
-                <AlertCircle size={16} className="text-slate-500" />
-                <p className="text-[10px] text-slate-500 leading-tight">
+            <div className="mt-6 bg-card text-card-foreground/50 p-3 rounded-xl border border-border/50 flex items-center gap-3">
+                <AlertCircle size={16} className="text-muted-foreground" />
+                <p className="text-[10px] text-muted-foreground leading-tight">
                     Assignments account for <strong className="text-slate-300">20%</strong> of the Continuous Assessment score.
                 </p>
             </div>

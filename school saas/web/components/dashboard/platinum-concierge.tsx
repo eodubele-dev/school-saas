@@ -91,7 +91,7 @@ export function PlatinumConcierge({
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-6 bg-slate-950/40 backdrop-blur-xl border border-white/10 p-1.5 mb-8 rounded-xl shadow-lg">
+                <TabsList className="grid w-full grid-cols-6 bg-slate-950/40 backdrop-blur-xl border border-border p-1.5 mb-8 rounded-xl shadow-lg">
                     <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all duration-300">Overview</TabsTrigger>
                     <TabsTrigger value="security" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all duration-300">Security</TabsTrigger>
                     <TabsTrigger value="health" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all duration-300">Health</TabsTrigger>
@@ -113,7 +113,7 @@ export function PlatinumConcierge({
                             </CardHeader>
                             <CardContent className="relative z-10">
                                 <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-cyan-200">--</div>
-                                <p className="text-xs text-slate-500 uppercase tracking-widest font-bold mt-1">No active passes</p>
+                                <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold mt-1">No active passes</p>
                             </CardContent>
                         </Card>
                         <Card className="bg-gradient-to-br from-rose-950/40 via-slate-950/40 to-slate-950/60 border-rose-900/40 backdrop-blur-2xl shadow-2xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-rose-900/20 hover:border-rose-700/50 transition-all duration-500 cursor-pointer pt-1">
@@ -166,8 +166,8 @@ export function PlatinumConcierge({
                                 <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
                                 <span className="text-xs font-bold text-yellow-400 uppercase tracking-wider">Executive Service</span>
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-2">Need immediate assistance?</h3>
-                            <p className="text-slate-400 text-sm max-w-lg mb-4">
+                            <h3 className="text-xl font-bold text-foreground mb-2">Need immediate assistance?</h3>
+                            <p className="text-muted-foreground text-sm max-w-lg mb-4">
                                 Use your Platinum Priority Uplink to contact the executive support team directly. Bypass standard queues.
                             </p>
                             <Button
@@ -185,13 +185,13 @@ export function PlatinumConcierge({
                 <TabsContent value="security" className="space-y-6">
                     <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                                 <Shield className="h-5 w-5 text-cyan-400" /> Pickup Authorization
                             </h3>
                             <PickupAuthorization data={pickupAuth} />
                         </div>
                         <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                                 <Clock className="h-5 w-5 text-cyan-400" /> Gate Pass Generator
                             </h3>
                             <GatePassGenerator studentId={studentId} />
@@ -203,13 +203,13 @@ export function PlatinumConcierge({
                 <TabsContent value="health" className="space-y-6">
                     <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                                 <Activity className="h-5 w-5 text-rose-400" /> Medical Log
                             </h3>
                             <MedicalIncidentLog outcomes={medicalLogs} />
                         </div>
                         <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                                 <AlertTriangle className="h-5 w-5 text-rose-400" /> Allergy Alerts
                             </h3>
                             <AllergyAlertManager alerts={healthAlerts} />
@@ -221,13 +221,13 @@ export function PlatinumConcierge({
                 <TabsContent value="academics" className="space-y-6">
                     <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                                 <BookOpen className="h-5 w-5 text-emerald-400" /> Curriculum Roadmap
                             </h3>
                             <CurriculumRoadmap milestones={liveCurriculum} />
                         </div>
                         <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                                 <Bell className="h-5 w-5 text-emerald-400" /> Homework Tracker
                             </h3>
                             <HomeworkTracker tasks={assignments} />
@@ -239,13 +239,13 @@ export function PlatinumConcierge({
                 <TabsContent value="voice" className="space-y-6">
                     <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                                 <MessageSquare className="h-5 w-5 text-amber-400" /> PTA Scheduler
                             </h3>
                             <PTAScheduler slots={ptaSlots} studentId={studentId} />
                         </div>
                         <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                                 <Star className="h-5 w-5 text-amber-400" /> Feedback Hub
                             </h3>
                             <FeedbackHub studentId={studentId} />
@@ -255,14 +255,14 @@ export function PlatinumConcierge({
 
                 {/* SUPPORT TAB */}
                 <TabsContent value="support" className="space-y-6">
-                    <Card className="bg-slate-950/40 backdrop-blur-md border-white/5">
+                    <Card className="bg-slate-950/40 backdrop-blur-md border-border/50">
                         <CardHeader>
-                            <CardTitle className="text-white flex items-center gap-2">
+                            <CardTitle className="text-foreground flex items-center gap-2">
                                 <Headphones className="h-5 w-5 text-cyan-400" /> Executive Support Suite
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <p className="text-slate-400 text-sm">
+                            <p className="text-muted-foreground text-sm">
                                 As a Platinum member, you have 24/7 access to our dedicated executive support team.
                                 Resolve issues instantly with your private priority channel.
                             </p>
@@ -280,9 +280,9 @@ export function PlatinumConcierge({
                                     <Button
                                         size="lg"
                                         variant="outline"
-                                        className="w-full bg-transparent border-white/10 hover:bg-cyan-500/10 hover:border-cyan-500/50 hover:text-cyan-400 text-white h-20 flex flex-col items-center justify-center gap-2 transition-all group"
+                                        className="w-full bg-transparent border-border hover:bg-cyan-500/10 hover:border-cyan-500/50 hover:text-cyan-400 text-foreground h-20 flex flex-col items-center justify-center gap-2 transition-all group"
                                     >
-                                        <CreditCard className="h-6 w-6 text-slate-400 group-hover:text-cyan-400 transition-colors" />
+                                        <CreditCard className="h-6 w-6 text-muted-foreground group-hover:text-cyan-400 transition-colors" />
                                         <span>Billing & Invoices</span>
                                     </Button>
                                 </Link>
@@ -290,9 +290,9 @@ export function PlatinumConcierge({
                                     <Button
                                         size="lg"
                                         variant="outline"
-                                        className="w-full bg-transparent border-white/10 hover:bg-cyan-500/10 hover:border-cyan-500/50 hover:text-cyan-400 text-white h-20 flex flex-col items-center justify-center gap-2 transition-all group"
+                                        className="w-full bg-transparent border-border hover:bg-cyan-500/10 hover:border-cyan-500/50 hover:text-cyan-400 text-foreground h-20 flex flex-col items-center justify-center gap-2 transition-all group"
                                     >
-                                        <Shield className="h-6 w-6 text-slate-400 group-hover:text-cyan-400 transition-colors" />
+                                        <Shield className="h-6 w-6 text-muted-foreground group-hover:text-cyan-400 transition-colors" />
                                         <span>Audit Logs</span>
                                     </Button>
                                 </Link>

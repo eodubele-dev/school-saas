@@ -15,18 +15,18 @@ export function SubjectGrid({ subjects }: { subjects: any[] }) {
             {subjects.map(subject => (
                 <Drawer key={subject.id}>
                     <DrawerTrigger asChild>
-                        <Card className="p-4 bg-slate-900 border-white/5 hover:border-[var(--school-accent)]/50 transition-colors cursor-pointer group">
+                        <Card className="p-4 bg-card text-card-foreground border-border/50 hover:border-[var(--school-accent)]/50 transition-colors cursor-pointer group">
                             <div className="flex justify-between items-start mb-3">
-                                <div className={`h-8 w-8 rounded-full ${subject.color} flex items-center justify-center text-white font-bold text-xs`}>
+                                <div className={`h-8 w-8 rounded-full ${subject.color} flex items-center justify-center text-foreground font-bold text-xs`}>
                                     {subject.name.substring(0, 2)}
                                 </div>
-                                <ChevronRight className="h-4 w-4 text-slate-500 group-hover:text-white transition-colors" />
+                                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                             </div>
 
-                            <h3 className="font-bold text-white truncate mb-1">{subject.name}</h3>
+                            <h3 className="font-bold text-foreground truncate mb-1">{subject.name}</h3>
 
                             <div className="space-y-1">
-                                <div className="flex justify-between text-xs text-slate-400">
+                                <div className="flex justify-between text-xs text-muted-foreground">
                                     <span>CA Score</span>
                                     <span>{subject.ca} / {subject.target}</span>
                                 </div>
@@ -39,10 +39,10 @@ export function SubjectGrid({ subjects }: { subjects: any[] }) {
                         </Card>
                     </DrawerTrigger>
 
-                    <DrawerContent className="bg-slate-950 border-white/10">
+                    <DrawerContent className="bg-slate-950 border-border">
                         <div className="max-w-2xl mx-auto w-full p-6 space-y-4">
                             <DrawerHeader>
-                                <DrawerTitle className="text-2xl font-bold text-white flex items-center gap-2">
+                                <DrawerTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
                                     <BookOpen className="h-6 w-6 text-[var(--school-accent)]" />
                                     {subject.name} - Lesson Notes
                                 </DrawerTitle>
@@ -51,12 +51,12 @@ export function SubjectGrid({ subjects }: { subjects: any[] }) {
                             {/* Mock Lesson Notes Content */}
                             <div className="space-y-4">
                                 {[1, 2, 3].map(i => (
-                                    <div key={i} className="p-4 rounded-lg bg-slate-900 border border-white/5 flex justify-between items-center">
+                                    <div key={i} className="p-4 rounded-lg bg-card text-card-foreground border border-border/50 flex justify-between items-center">
                                         <div>
-                                            <h4 className="text-white font-medium">Week {i}: Introduction to Topic</h4>
-                                            <p className="text-sm text-slate-400">Uploaded by Mr. Teacher • 2 days ago</p>
+                                            <h4 className="text-foreground font-medium">Week {i}: Introduction to Topic</h4>
+                                            <p className="text-sm text-muted-foreground">Uploaded by Mr. Teacher • 2 days ago</p>
                                         </div>
-                                        <Button variant="outline" size="sm" className="border-white/10 text-slate-300">View</Button>
+                                        <Button variant="outline" size="sm" className="border-border text-slate-300">View</Button>
                                     </div>
                                 ))}
                             </div>

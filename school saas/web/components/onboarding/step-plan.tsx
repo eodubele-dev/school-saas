@@ -99,48 +99,63 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4" >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {plans.map((plan) => (
-                    <div
-                        key={plan.id}
-                        className={`p-6 rounded-3xl cursor-pointer transition-all relative border ${data.plan === plan.id
-                            ? 'bg-blue-600/10 border-blue-500 shadow-[0_0_30px_rgba(37,99,235,0.2)]'
-                            : 'bg-white/[0.03] backdrop-blur-md border-white/10 hover:border-white/20 hover:bg-white/[0.05]'
-                            }`}
-                        onClick={() => {
-                            if (!isPaying && !isSubmitting) updateData('plan', plan.id)
-                        }}
-                    >
-                        {plan.isPopular && (
-                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-400 to-blue-500 text-black text-[10px] font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
-                                <Sparkles className="h-3 w-3 fill-black" /> BEST VALUE
+                {plans.map((plan) => {
+                    const isSelected = data.plan === plan.id;
+                    const isPopular = plan.isPopular;
+                    const isNew = plan.isNew;
+
+                    return (
+                        <div
+                            key={plan.id}
+                            className={`
+                                relative flex flex-col p-6 rounded-2xl border transition-all duration-200 cursor-pointer
+                                ${isSelected
+                                    ? 'border-blue-500 bg-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.1)] ring-1 ring-blue-500'
+                                    : 'border-border bg-card text-card-foreground/40 hover:border-blue-500/50 hover:bg-card text-card-foreground/50'
+                                }
+                            `}
+                            onClick={() => {
+                                if (!isPaying && !isSubmitting) updateData('plan', plan.id)
+                            }}
+                        >
+                            {isPopular && (
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-foreground text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1 sm:py-1.5 rounded-full uppercase tracking-wider shadow-lg whitespace-nowrap">
+                                    Recommended
+                                </div>
+                            )}
+                            {isNew && (!isPopular) && (
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-foreground text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1 sm:py-1.5 rounded-full uppercase tracking-wider shadow-lg whitespace-nowrap">
+                                    Pilot Program
+                                </div>
+                            )}
+
+                            <div className="mb-6 flex-1 text-center pt-2">
+                                <h3 className="text-xl font-semibold text-foreground mb-2">{plan.name}</h3>
+                                <div className="flex items-center justify-center gap-1 mb-3">
+                                    <span className="text-3xl font-bold text-foreground tracking-tight">{plan.price}</span>
+                                    <span className="text-sm text-muted-foreground font-medium">{plan.period}</span>
+                                </div>
+                                <p className="text-xs text-muted-foreground leading-relaxed min-h-[40px]">
+                                    {plan.description}
+                                </p>
                             </div>
-                        )}
-                        {plan.isNew && (
-                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
-                                <Zap className="h-3 w-3 fill-white" /> PILOT
-                            </div>
-                        )}
-                        <div className="text-center mb-6 pt-2">
-                            <h3 className="font-bold text-white text-lg">{plan.name}</h3>
-                            <div className="text-3xl font-bold text-white mt-2">
-                                {plan.price}
-                                <span className="text-sm font-normal text-slate-500 ml-1">{plan.period}</span>
-                            </div>
-                            <p className="text-xs text-slate-400 mt-2 leading-relaxed">{plan.description}</p>
+
+                            <ul className="space-y-3 mb-6 mt-auto">
+                                {plan.features.map((feature, i) => (
+                                    <li key={i} className="flex items-start gap-2 text-xs text-slate-300">
+                                        <div className="mt-0.5 rounded-full bg-blue-500/10 p-0.5 shrink-0">
+                                            <Check className="h-3 w-3 text-blue-400" />
+                                        </div>
+                                        <span className="leading-snug text-left">{feature}</span>
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
-                        <ul className="space-y-3 mb-6">
-                            {plan.features.map((feature, i) => (
-                                <li key={i} className="text-[11px] text-slate-300 flex items-start gap-2">
-                                    <Check className="h-3.5 w-3.5 text-cyan-400 mt-0.5 shrink-0" />
-                                    {feature}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                ))}
+                    )
+                })}
             </div>
 
-            <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-[11px] text-slate-400 flex gap-4">
+            <div className="bg-secondary/50 p-4 rounded-2xl border border-border text-[11px] text-muted-foreground flex gap-4">
                 <Shield className="h-5 w-5 text-cyan-500 shrink-0" />
                 <p>
                     {data.plan === 'pilot'
@@ -154,14 +169,14 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
                 <button
                     onClick={onBack}
                     disabled={isSubmitting || isPaying}
-                    className="px-8 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors border border-transparent hover:border-white/10 font-medium"
+                    className="px-8 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors border border-transparent hover:border-border font-medium"
                 >
                     Back
                 </button>
                 <button
                     onClick={handleAction}
                     disabled={!data.plan || isSubmitting || isPaying}
-                    className={`flex-1 ${data.plan === 'pilot' ? 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-500/20' : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20'} text-white font-bold h-12 rounded-xl transition-all shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 group`}
+                    className={`flex-1 ${data.plan === 'pilot' ? 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-500/20' : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20'} text-foreground font-bold h-12 rounded-xl transition-all shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 group`}
                 >
                     {isPaying || isSubmitting ? (
                         <>

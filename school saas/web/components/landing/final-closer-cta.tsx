@@ -40,18 +40,18 @@ export function FinalCloserCta() {
                                 MISSION_CRITICAL
                             </div>
 
-                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
                                 Give Your Teachers <br />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Their Time Back.</span>
                             </h2>
 
-                            <p className="text-lg text-slate-400 mb-10 max-w-md">
+                            <p className="text-lg text-muted-foreground mb-10 max-w-md">
                                 Join 50+ elite schools in Lagos transforming their campus operations today. Security, revenue, and logistics—solved.
                             </p>
 
                             <Button
                                 onClick={openExecutiveDemo}
-                                className="h-14 px-8 text-lg font-bold bg-blue-600 hover:bg-cyan-500 text-white rounded-full shadow-[0_0_40px_rgba(37,99,235,0.5)] hover:shadow-[0_0_50px_#06b6d4] transition-all duration-300 animate-pulse w-fit group"
+                                className="h-14 px-8 text-lg font-bold bg-blue-600 hover:bg-cyan-500 text-foreground rounded-full shadow-[0_0_40px_rgba(37,99,235,0.5)] hover:shadow-[0_0_50px_#06b6d4] transition-all duration-300 animate-pulse w-fit group"
                             >
                                 Book My Executive Demo
                                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />

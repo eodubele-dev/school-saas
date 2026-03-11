@@ -23,7 +23,7 @@ export function AcademicWizard({ domain }: { domain: string }) {
     return (
         <div className="flex flex-col h-full">
             {/* Step Indicator */}
-            <div className="flex border-b border-white/10 bg-slate-900/50 px-6 py-4">
+            <div className="flex border-b border-border bg-card text-card-foreground/50 px-6 py-4">
                 {steps.map((s, idx) => (
                     <div key={s.number} className="flex items-center">
                         <div className={cn(
@@ -31,14 +31,14 @@ export function AcademicWizard({ domain }: { domain: string }) {
                             step === s.number
                                 ? "bg-[var(--school-accent)]/10 text-[var(--school-accent)] border border-[var(--school-accent)]/20"
                                 : step > s.number
-                                    ? "text-slate-400"
+                                    ? "text-muted-foreground"
                                     : "text-slate-600"
                         )}
                             onClick={() => step > s.number && setStep(s.number)}
                         >
                             <span className={cn(
                                 "flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold",
-                                step === s.number ? "bg-[var(--school-accent)] text-white" : "bg-slate-800 text-slate-500"
+                                step === s.number ? "bg-[var(--school-accent)] text-foreground" : "bg-slate-800 text-muted-foreground"
                             )}>
                                 {s.number}
                             </span>

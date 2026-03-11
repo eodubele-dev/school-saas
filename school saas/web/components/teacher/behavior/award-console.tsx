@@ -90,8 +90,8 @@ export function AwardConsole({ students }: { students: any[] }) {
         <div className="space-y-6">
             <div className="flex md:flex-row flex-col justify-between items-start md:items-center gap-4">
                 <div className="space-y-1">
-                    <h3 className="text-white font-bold text-xl tracking-tight">Instant Recognition</h3>
-                    <p className="text-slate-400 text-sm font-sans">Elevate student morale with character-driven achievements.</p>
+                    <h3 className="text-foreground font-bold text-xl tracking-tight">Instant Recognition</h3>
+                    <p className="text-muted-foreground text-sm font-sans">Elevate student morale with character-driven achievements.</p>
                 </div>
             </div>
 
@@ -103,10 +103,10 @@ export function AwardConsole({ students }: { students: any[] }) {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setSelectedStudent(student)}
                     >
-                        <Card className="p-5 bg-black/40 border-white/5 hover:border-cyan-500/40 cursor-pointer transition-all hover:bg-slate-900/60 group backdrop-blur-xl relative overflow-hidden rounded-3xl shadow-2xl">
+                        <Card className="p-5 bg-black/40 border-border/50 hover:border-cyan-500/40 cursor-pointer transition-all hover:bg-card text-card-foreground/60 group backdrop-blur-xl relative overflow-hidden rounded-3xl shadow-2xl">
                             <div className="flex flex-col items-center text-center gap-4 relative z-10">
                                 <div className="relative">
-                                    <Avatar className="h-20 w-20 border-2 border-slate-800 bg-slate-950 group-hover:border-cyan-500/60 transition-all duration-500 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                                    <Avatar className="h-20 w-20 border-2 border-border bg-slate-950 group-hover:border-cyan-500/60 transition-all duration-500 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
                                         <AvatarImage src={student.avatar_url} className="object-cover" />
                                         <AvatarFallback className="bg-slate-950 text-2xl font-black text-slate-700 group-hover:text-cyan-400 transition-colors">
                                             {student.full_name.substring(0, 2).toUpperCase()}
@@ -115,8 +115,8 @@ export function AwardConsole({ students }: { students: any[] }) {
                                     <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-emerald-500 border-4 border-black box-content" />
                                 </div>
                                 <div className="space-y-1">
-                                    <span className="text-sm font-black text-white block truncate w-32 tracking-tight">{student.full_name}</span>
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono">#{student.id.split('-')[0]}</span>
+                                    <span className="text-sm font-black text-foreground block truncate w-32 tracking-tight">{student.full_name}</span>
+                                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono">#{student.id.split('-')[0]}</span>
                                 </div>
                             </div>
                             <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -127,7 +127,7 @@ export function AwardConsole({ students }: { students: any[] }) {
 
             {/* Hyper-Premium Obsidian Drawer */}
             <Sheet open={!!selectedStudent} onOpenChange={(open) => !open && setSelectedStudent(null)}>
-                <SheetContent side="right" className="bg-[#050506] backdrop-blur-3xl border-l border-white/5 text-white sm:max-w-md p-0 overflow-hidden flex flex-col shadow-[-20px_0_100px_rgba(0,0,0,0.8)]">
+                <SheetContent side="right" className="bg-[#050506] backdrop-blur-3xl border-l border-border/50 text-foreground sm:max-w-md p-0 overflow-hidden flex flex-col shadow-[-20px_0_100px_rgba(0,0,0,0.8)]">
                     <div className="flex-1 overflow-y-auto px-8 py-10 space-y-10 custom-scrollbar">
                         {/* Digital Identity Header */}
                         <div className="relative group">
@@ -142,7 +142,7 @@ export function AwardConsole({ students }: { students: any[] }) {
                                 <div className="space-y-1">
                                     <h3 className="text-slate-900 font-extrabold text-2xl leading-none tracking-tighter">{selectedStudent?.full_name}</h3>
                                     <div className="flex items-center gap-3">
-                                        <Badge variant="outline" className="border-slate-200 text-slate-400 font-mono text-[10px] uppercase font-bold px-2.5 py-1 whitespace-nowrap">
+                                        <Badge variant="outline" className="border-slate-200 text-muted-foreground font-mono text-[10px] uppercase font-bold px-2.5 py-1 whitespace-nowrap">
                                             ID: {selectedStudent?.id?.split('-')[0] || 'ST-781AAA'}
                                         </Badge>
                                         <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -153,9 +153,9 @@ export function AwardConsole({ students }: { students: any[] }) {
 
                         <div className="space-y-6">
                             <div className="flex items-center gap-4 px-1">
-                                <div className="h-[1px] flex-1 bg-white/5" />
-                                <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500/80">Select Character Badge</h4>
-                                <div className="h-[1px] flex-1 bg-white/5" />
+                                <div className="h-[1px] flex-1 bg-secondary/50" />
+                                <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/80">Select Character Badge</h4>
+                                <div className="h-[1px] flex-1 bg-secondary/50" />
                             </div>
 
                             {/* Floating Gem Award Grid */}
@@ -175,13 +175,13 @@ export function AwardConsole({ students }: { students: any[] }) {
                                                     relative p-5 rounded-[2rem] border transition-all duration-500 flex flex-col items-center gap-3 group
                                                     ${isSelected
                                                         ? `${badge.border} bg-white/[0.07] ${badge.activeGlow}`
-                                                        : 'bg-white/[0.02] border-white/5 hover:border-white/10 hover:bg-white/[0.04]'}
+                                                        : 'bg-white/[0.02] border-border/50 hover:border-border hover:bg-white/[0.04]'}
                                                 `}
                                             >
                                                 <div className={`p-3 rounded-2xl transition-all duration-500 ${isSelected ? 'scale-125 rotate-6' : 'group-hover:scale-110'} ${badge.color} ${isSelected ? badge.glow : ''}`}>
                                                     <Icon className="h-7 w-7 stroke-[2.5]" />
                                                 </div>
-                                                <span className={`text-[10px] font-black uppercase tracking-widest text-center leading-none ${isSelected ? 'text-white' : 'text-slate-600'}`}>
+                                                <span className={`text-[10px] font-black uppercase tracking-widest text-center leading-none ${isSelected ? 'text-foreground' : 'text-slate-600'}`}>
                                                     {badge.title}
                                                 </span>
                                                 {isSelected && (
@@ -190,7 +190,7 @@ export function AwardConsole({ students }: { students: any[] }) {
                                                         className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-2xl"
                                                     >
                                                         <div className="bg-cyan-500 rounded-full p-0.5">
-                                                            <Check className="h-2.5 w-2.5 text-white stroke-[4px]" />
+                                                            <Check className="h-2.5 w-2.5 text-foreground stroke-[4px]" />
                                                         </div>
                                                     </motion.div>
                                                 )}
@@ -208,7 +208,7 @@ export function AwardConsole({ students }: { students: any[] }) {
                                 className="space-y-4"
                             >
                                 <div className="flex items-center justify-between px-1">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Forensic Comment</label>
+                                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Forensic Comment</label>
                                     <span className="text-[9px] text-cyan-500/50 font-mono italic">Optional entry</span>
                                 </div>
                                 <div className="group relative">
@@ -217,7 +217,7 @@ export function AwardConsole({ students }: { students: any[] }) {
                                         placeholder={`Reason for ${selectedBadge.title} recognition...`}
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
-                                        className="relative bg-black/60 border-white/10 text-white h-16 rounded-2xl px-6 focus:border-cyan-500/50 placeholder:text-slate-700 transition-all font-sans text-sm"
+                                        className="relative bg-black/60 border-border text-foreground h-16 rounded-2xl px-6 focus:border-cyan-500/50 placeholder:text-slate-700 transition-all font-sans text-sm"
                                     />
                                 </div>
                             </motion.div>
@@ -225,7 +225,7 @@ export function AwardConsole({ students }: { students: any[] }) {
                     </div>
 
                     {/* Platinum Control Hub */}
-                    <div className="p-8 bg-black/60 border-t border-white/5 backdrop-blur-2xl space-y-6">
+                    <div className="p-8 bg-black/60 border-t border-border/50 backdrop-blur-2xl space-y-6">
                         <div className="relative group">
                             <div className="absolute -inset-1 bg-cyan-500/30 rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition duration-500"></div>
                             <Button
@@ -251,9 +251,9 @@ export function AwardConsole({ students }: { students: any[] }) {
                                 Forensic System <span className="text-cyan-400">Locked</span>
                             </p>
                             <div className="flex items-center gap-4 w-full">
-                                <div className="h-[1px] flex-1 bg-white/5" />
+                                <div className="h-[1px] flex-1 bg-secondary/50" />
                                 <div className="h-1 w-1 rounded-full bg-slate-800" />
-                                <div className="h-[1px] flex-1 bg-white/5" />
+                                <div className="h-[1px] flex-1 bg-secondary/50" />
                             </div>
                         </div>
                     </div>

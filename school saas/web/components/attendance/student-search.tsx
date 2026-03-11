@@ -29,14 +29,14 @@ export function StudentSearch({ students }: { students: any[] }) {
 
     return (
         <div className="mb-6">
-            <label className="block text-xs font-medium text-slate-400 mb-2">Search Student</label>
+            <label className="block text-xs font-medium text-muted-foreground mb-2">Search Student</label>
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                     <Button
                         variant="outline"
                         role="combobox"
                         aria-expanded={open}
-                        className="w-full justify-between bg-slate-900 border-white/10 text-white hover:bg-slate-800 hover:text-white"
+                        className="w-full justify-between bg-card text-card-foreground border-border text-foreground hover:bg-slate-800 hover:text-foreground"
                     >
                         {selectedStudent
                             ? `${selectedStudent.full_name} (${selectedStudent.details})`
@@ -44,9 +44,9 @@ export function StudentSearch({ students }: { students: any[] }) {
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[300px] p-0 bg-slate-950 border-white/10 text-white">
+                <PopoverContent className="w-[300px] p-0 bg-slate-950 border-border text-foreground">
                     <Command className="bg-transparent">
-                        <CommandInput placeholder="Search by name or class..." className="text-white" />
+                        <CommandInput placeholder="Search by name or class..." className="text-foreground" />
                         <CommandList>
                             <CommandEmpty>No student found.</CommandEmpty>
                             <CommandGroup>
@@ -60,7 +60,7 @@ export function StudentSearch({ students }: { students: any[] }) {
                                             router.push(`?${params.toString()}`)
                                             setOpen(false)
                                         }}
-                                        className="text-slate-300 aria-selected:bg-white/10 aria-selected:text-white cursor-pointer"
+                                        className="text-slate-300 aria-selected:bg-white/10 aria-selected:text-foreground cursor-pointer"
                                     >
                                         <Check
                                             className={cn(
@@ -70,7 +70,7 @@ export function StudentSearch({ students }: { students: any[] }) {
                                         />
                                         <div className="flex flex-col">
                                             <span>{student.full_name}</span>
-                                            <span className="text-[10px] text-slate-500">{student.details}</span>
+                                            <span className="text-[10px] text-muted-foreground">{student.details}</span>
                                         </div>
                                     </CommandItem>
                                 ))}

@@ -15,11 +15,11 @@ export function MobileShell({ children, domain }: { children: React.ReactNode, d
     ]
 
     return (
-        <div className="flex flex-col h-screen bg-slate-950 max-w-md mx-auto relative border-x border-white/5 shadow-2xl">
+        <div className="flex flex-col h-screen bg-slate-950 max-w-md mx-auto relative border-x border-border/50 shadow-2xl">
             {/* Header */}
-            <header className="h-16 border-b border-white/10 flex items-center justify-between px-4 bg-slate-900 z-10">
-                <div className="font-bold text-lg text-white tracking-tight">EduFlow<span className="text-[var(--school-accent)]">.Mobile</span></div>
-                <button className="p-2 text-slate-400">
+            <header className="h-16 border-b border-border flex items-center justify-between px-4 bg-card text-card-foreground z-10">
+                <div className="font-bold text-lg text-foreground tracking-tight">EduFlow<span className="text-[var(--school-accent)]">.Mobile</span></div>
+                <button className="p-2 text-muted-foreground">
                     <Menu className="h-6 w-6" />
                 </button>
             </header>
@@ -30,14 +30,14 @@ export function MobileShell({ children, domain }: { children: React.ReactNode, d
             </main>
 
             {/* Bottom Navigation */}
-            <nav className="h-16 absolute bottom-0 left-0 right-0 bg-slate-900 border-t border-white/10 flex items-center justify-around z-20 pb-safe">
+            <nav className="h-16 absolute bottom-0 left-0 right-0 bg-card text-card-foreground border-t border-border flex items-center justify-around z-20 pb-safe">
                 {NAV_ITEMS.map(({ icon: Icon, label, href }) => {
                     const isActive = pathname === href || pathname.startsWith(href + '/')
                     return (
                         <Link
                             key={label}
                             href={href.replace('/mobile/teacher', `/${domain}/mobile/teacher`)}
-                            className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive ? 'text-[var(--school-accent)]' : 'text-slate-500 hover:text-slate-300'}`}
+                            className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive ? 'text-[var(--school-accent)]' : 'text-muted-foreground hover:text-slate-300'}`}
                         >
                             <Icon className={`h-6 w-6 transition-transform ${isActive ? 'scale-110' : ''}`} strokeWidth={isActive ? 2.5 : 2} />
                             <span className="text-[10px] font-medium">{label}</span>

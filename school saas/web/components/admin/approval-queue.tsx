@@ -46,18 +46,18 @@ export function ApprovalQueue({ initialItems, domain }: { initialItems: PendingI
                 items={lessonPlans}
                 onSelect={setSelectedItem}
                 filter={
-                    <div className="flex gap-1 bg-slate-950 p-0.5 rounded border border-white/5">
+                    <div className="flex gap-1 bg-slate-950 p-0.5 rounded border border-border/50">
                         <button
                             onClick={(e) => { e.stopPropagation(); setLessonFilter('all'); }}
-                            className={cn("px-2 py-0.5 text-[10px] rounded transition-colors", lessonFilter === 'all' ? "bg-indigo-600 text-white" : "text-slate-500 hover:text-slate-300")}
+                            className={cn("px-2 py-0.5 text-[10px] rounded transition-colors", lessonFilter === 'all' ? "bg-indigo-600 text-foreground" : "text-muted-foreground hover:text-slate-300")}
                         >All</button>
                         <button
                             onClick={(e) => { e.stopPropagation(); setLessonFilter('lesson_plan'); }}
-                            className={cn("px-2 py-0.5 text-[10px] rounded transition-colors", lessonFilter === 'lesson_plan' ? "bg-indigo-600 text-white" : "text-slate-500 hover:text-slate-300")}
+                            className={cn("px-2 py-0.5 text-[10px] rounded transition-colors", lessonFilter === 'lesson_plan' ? "bg-indigo-600 text-foreground" : "text-muted-foreground hover:text-slate-300")}
                         >Plans</button>
                         <button
                             onClick={(e) => { e.stopPropagation(); setLessonFilter('lesson_note'); }}
-                            className={cn("px-2 py-0.5 text-[10px] rounded transition-colors", lessonFilter === 'lesson_note' ? "bg-indigo-600 text-white" : "text-slate-500 hover:text-slate-300")}
+                            className={cn("px-2 py-0.5 text-[10px] rounded transition-colors", lessonFilter === 'lesson_note' ? "bg-indigo-600 text-foreground" : "text-muted-foreground hover:text-slate-300")}
                         >Notes</button>
                     </div>
                 }
@@ -97,14 +97,14 @@ function QueueList({ title, icon: Icon, items, onSelect, accent, filter }: {
     filter?: React.ReactNode
 }) {
     return (
-        <Card className="bg-slate-900/50 border-white/10 flex flex-col h-full overflow-hidden">
-            <div className="p-4 border-b border-white/10 bg-slate-900 flex justify-between items-center">
+        <Card className="bg-card text-card-foreground/50 border-border flex flex-col h-full overflow-hidden">
+            <div className="p-4 border-b border-border bg-card text-card-foreground flex justify-between items-center">
                 <div className="flex items-center gap-2">
                     <Icon className={cn("h-5 w-5", accent || "text-[var(--school-accent)]")} />
-                    <h3 className="font-bold text-white uppercase tracking-tight text-xs">{title}</h3>
+                    <h3 className="font-bold text-foreground uppercase tracking-tight text-xs">{title}</h3>
                 </div>
                 {filter}
-                <Badge variant="outline" className="bg-slate-800/50 text-slate-400 border-white/10">
+                <Badge variant="outline" className="bg-slate-800/50 text-muted-foreground border-border">
                     {items.length} Pending
                 </Badge>
             </div>
@@ -114,22 +114,22 @@ function QueueList({ title, icon: Icon, items, onSelect, accent, filter }: {
                         <button
                             key={item.id}
                             onClick={() => onSelect(item)}
-                            className="w-full text-left p-4 rounded-lg hover:bg-white/5 transition-all group border border-transparent hover:border-white/5 flex justify-between items-center"
+                            className="w-full text-left p-4 rounded-lg hover:bg-secondary/50 transition-all group border border-transparent hover:border-border/50 flex justify-between items-center"
                         >
                             <div>
                                 <h4 className="font-medium text-slate-200 group-hover:text-blue-400 transition-colors">{item.title}</h4>
-                                <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                                     <span>{item.submitted_by}</span>
                                     <span>•</span>
                                     <Clock className="h-3 w-3" />
                                     <span>{formatDate(item.submitted_at)}</span>
                                 </div>
                             </div>
-                            <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-white transition-colors" />
+                            <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-foreground transition-colors" />
                         </button>
                     ))}
                     {items.length === 0 && (
-                        <div className="flex flex-col items-center justify-center h-40 text-slate-500 opacity-50">
+                        <div className="flex flex-col items-center justify-center h-40 text-muted-foreground opacity-50">
                             <p className="text-sm">All caught up!</p>
                         </div>
                     )}

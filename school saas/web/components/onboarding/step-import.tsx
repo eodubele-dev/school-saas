@@ -13,9 +13,9 @@ interface StepImportProps {
 
 export function StepImport({ data, updateData, onNext, onBack }: StepImportProps) {
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-white/[0.03] backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-white/[0.03] backdrop-blur-md p-8 rounded-3xl border border-border shadow-2xl">
             <div className="text-center">
-                <h2 className="text-2xl font-bold text-white mb-2">Student Registry Migration</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-2">Student Registry Migration</h2>
                 <p className="text-gray-400">Import your existing student records to auto-populate the command center.</p>
             </div>
 
@@ -26,7 +26,7 @@ export function StepImport({ data, updateData, onNext, onBack }: StepImportProps
                         <UploadCloud className="h-6 w-6" />
                     </div>
                     <div>
-                        <h4 className="text-white font-semibold flex items-center gap-2">
+                        <h4 className="text-foreground font-semibold flex items-center gap-2">
                             Bulk Migration Active
                             <span className="text-[10px] bg-cyan-500 text-black font-bold px-1.5 py-0.5 rounded">BETA</span>
                         </h4>
@@ -37,7 +37,7 @@ export function StepImport({ data, updateData, onNext, onBack }: StepImportProps
                 </div>
 
                 {/* Dropzone */}
-                <div className="border-2 border-dashed border-white/10 p-12 rounded-3xl flex flex-col items-center justify-center bg-black/20 hover:bg-black/40 hover:border-cyan-500/30 transition-all cursor-pointer group relative overflow-hidden">
+                <div className="border-2 border-dashed border-border p-12 rounded-3xl flex flex-col items-center justify-center bg-black/20 hover:bg-black/40 hover:border-cyan-500/30 transition-all cursor-pointer group relative overflow-hidden">
                     <input
                         type="file"
                         accept=".csv,.xlsx"
@@ -51,8 +51,8 @@ export function StepImport({ data, updateData, onNext, onBack }: StepImportProps
                             }
                         }}
                     />
-                    <div className="h-16 w-16 bg-white/5 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <FileSpreadsheet className="h-8 w-8 text-slate-400 group-hover:text-white" />
+                    <div className="h-16 w-16 bg-secondary/50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <FileSpreadsheet className="h-8 w-8 text-muted-foreground group-hover:text-foreground" />
                     </div>
                     <div className="bg-white text-black px-6 py-2 rounded-full font-bold group-hover:bg-cyan-400 transition-colors shadow-lg z-0">
                         Select CSV File
@@ -64,13 +64,13 @@ export function StepImport({ data, updateData, onNext, onBack }: StepImportProps
             <div className="flex gap-4 pt-4">
                 <button
                     onClick={onBack}
-                    className="px-6 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors border border-transparent hover:border-white/10"
+                    className="px-6 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors border border-transparent hover:border-border"
                 >
                     Back
                 </button>
                 <Button
                     onClick={onNext}
-                    className="flex-1 bg-[#0066FF] hover:bg-blue-600 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/20"
+                    className="flex-1 bg-[#0066FF] hover:bg-blue-600 text-foreground font-bold h-12 rounded-xl shadow-lg shadow-blue-500/20"
                 >
                     Continue to Final Review <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>

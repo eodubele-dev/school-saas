@@ -15,7 +15,7 @@ export function ExportReportButton() {
         <Button
             onClick={handleExport}
             variant="outline"
-            className="border-slate-800 bg-black/20 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 hover:border-emerald-500/30 gap-2"
+            className="border-border bg-black/20 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 hover:border-emerald-500/30 gap-2"
         >
             <Printer className="h-4 w-4" />
             Generate Compliance Report

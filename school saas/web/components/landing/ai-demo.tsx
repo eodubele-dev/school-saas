@@ -34,7 +34,7 @@ export function AiDemo() {
 
     return (
         <section className="py-24 container mx-auto px-4">
-            <div className="bg-gradient-to-br from-obsidian to-black border border-white/10 rounded-2xl p-8 md:p-12 overflow-hidden relative">
+            <div className="bg-gradient-to-br from-obsidian to-black border border-border rounded-2xl p-8 md:p-12 overflow-hidden relative">
                 {/* Decorative background */}
                 <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-neon-purple/20 rounded-full blur-[80px]" />
 
@@ -44,14 +44,14 @@ export function AiDemo() {
                             <Sparkles className="h-5 w-5" />
                             <span>Gemini AI Demo</span>
                         </div>
-                        <h2 className="text-3xl font-bold text-white mb-4">
+                        <h2 className="text-3xl font-bold text-foreground mb-4">
                             Write Report Cards in <br />
                             <span className="text-emerald-green">Milliseconds</span>
                         </h2>
-                        <p className="text-slate-400 mb-6">
+                        <p className="text-muted-foreground mb-6">
                             Don&apos;t spend weeks writing remarks manually. Let our fine-tuned AI analyze student performance and generate personalized, empathetic comments instantly.
                         </p>
-                        <ul className="space-y-2 text-sm text-slate-400 mb-8">
+                        <ul className="space-y-2 text-sm text-muted-foreground mb-8">
                             <li className="flex items-center gap-2"><CheckMark /> Context-aware analysis</li>
                             <li className="flex items-center gap-2"><CheckMark /> Tone adjustment (Encouraging/Stern)</li>
                             <li className="flex items-center gap-2"><CheckMark /> Zero spelling errors</li>
@@ -59,10 +59,10 @@ export function AiDemo() {
                     </div>
 
                     <div className="w-full max-w-md mx-auto">
-                        <Card className="bg-black/50 border-white/10 shadow-2xl backdrop-blur-md">
+                        <Card className="bg-black/50 border-border shadow-2xl backdrop-blur-md">
                             <CardContent className="p-6 space-y-6">
                                 <div>
-                                    <label className="text-xs font-medium text-slate-400 uppercase">Input Student Score</label>
+                                    <label className="text-xs font-medium text-muted-foreground uppercase">Input Student Score</label>
                                     <div className="flex items-center gap-4 mt-2">
                                         <input
                                             type="range"
@@ -72,21 +72,21 @@ export function AiDemo() {
                                             onChange={(e) => setScore(Number(e.target.value))}
                                             className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-green"
                                         />
-                                        <span className="text-2xl font-bold text-white w-12">{score}%</span>
+                                        <span className="text-2xl font-bold text-foreground w-12">{score}%</span>
                                     </div>
                                 </div>
 
                                 <Button
                                     onClick={generateRemark}
                                     disabled={loading}
-                                    className="w-full bg-neon-purple hover:bg-violet-600 text-white"
+                                    className="w-full bg-neon-purple hover:bg-violet-600 text-foreground"
                                 >
                                     {loading ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Sparkles className="mr-2 h-4 w-4" />}
                                     Generate AI Remark
                                 </Button>
 
-                                <div className="bg-obsidian rounded-lg p-4 min-h-[100px] border border-white/5">
-                                    <label className="text-xs font-medium text-slate-500 mb-1 block">AI Output:</label>
+                                <div className="bg-obsidian rounded-lg p-4 min-h-[100px] border border-border/50">
+                                    <label className="text-xs font-medium text-muted-foreground mb-1 block">AI Output:</label>
                                     {remark ? (
                                         <p className="text-slate-200 text-sm leading-relaxed animate-in fade-in">{remark}</p>
                                     ) : (

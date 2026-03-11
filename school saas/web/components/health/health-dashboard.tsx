@@ -25,7 +25,7 @@ export function HealthDashboardClient({ initialData }: { initialData: any }) {
         <div className="space-y-6">
             <Tabs defaultValue="incidents" className="w-full">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                    <TabsList className="bg-slate-900/50 border border-slate-800 p-1">
+                    <TabsList className="bg-card text-card-foreground/50 border border-border p-1">
                         <TabsTrigger
                             value="incidents"
                             className="data-[state=active]:bg-indigo-500/20 data-[state=active]:text-indigo-300 transition-all font-medium"
@@ -46,7 +46,7 @@ export function HealthDashboardClient({ initialData }: { initialData: any }) {
                     <div className="flex items-center gap-3">
                         <Button
                             onClick={() => setIncidentModalOpen(true)}
-                            className="bg-indigo-600 hover:bg-indigo-500 text-white border-none shadow-[0_0_15px_rgba(79,70,229,0.3)] transition-all font-semibold"
+                            className="bg-indigo-600 hover:bg-indigo-500 text-foreground border-none shadow-[0_0_15px_rgba(79,70,229,0.3)] transition-all font-semibold"
                         >
                             <Plus className="w-4 h-4 mr-2" /> Log Incident
                         </Button>
@@ -61,14 +61,14 @@ export function HealthDashboardClient({ initialData }: { initialData: any }) {
                 </div>
 
                 <TabsContent value="incidents" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="bg-slate-950/40 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden shadow-2xl relative">
+                    <div className="bg-slate-950/40 backdrop-blur-md border border-border/50 rounded-2xl overflow-hidden shadow-2xl relative">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] pointer-events-none" />
 
-                        <div className="p-6 border-b border-white/5 bg-slate-900/40">
-                            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <div className="p-6 border-b border-border/50 bg-card text-card-foreground/40">
+                            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                                 <Activity className="w-5 h-5 text-indigo-400" /> Recent Medical Incidents
                             </h3>
-                            <p className="text-slate-400 text-sm mt-1">Real-time tracking of student clinic visits.</p>
+                            <p className="text-muted-foreground text-sm mt-1">Real-time tracking of student clinic visits.</p>
                         </div>
 
                         <div className="p-0 sm:p-6 pb-2">
@@ -76,12 +76,12 @@ export function HealthDashboardClient({ initialData }: { initialData: any }) {
                                 <div className="text-center py-12">
                                     <Stethoscope className="w-12 h-12 text-slate-700 mx-auto mb-3" />
                                     <h4 className="text-slate-300 font-medium tracking-wide">No Medical Incidents</h4>
-                                    <p className="text-slate-500 text-sm mt-1">The clinic log is currently empty.</p>
+                                    <p className="text-muted-foreground text-sm mt-1">The clinic log is currently empty.</p>
                                 </div>
                             ) : (
                                 <div className="space-y-4">
                                     {incidents.map((incident: any) => (
-                                        <div key={incident.id} className="bg-slate-900/40 border border-white/5 rounded-xl p-5 hover:border-white/10 transition-colors">
+                                        <div key={incident.id} className="bg-card text-card-foreground/40 border border-border/50 rounded-xl p-5 hover:border-border transition-colors">
                                             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                                                 <div className="flex items-start gap-4">
                                                     <div className="mt-1 bg-slate-800 p-2.5 rounded-lg border border-slate-700">
@@ -89,7 +89,7 @@ export function HealthDashboardClient({ initialData }: { initialData: any }) {
                                                     </div>
                                                     <div>
                                                         <div className="flex flex-wrap items-center gap-2 mb-1">
-                                                            <h4 className="text-white font-bold">{incident.student?.full_name}</h4>
+                                                            <h4 className="text-foreground font-bold">{incident.student?.full_name}</h4>
                                                             <Badge variant="outline" className={`text-[10px] uppercase font-bold tracking-widest ${incident.type === 'Injury' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
                                                                 incident.type === 'Emergency' ? 'bg-red-500/20 text-red-500 border-red-500/30 animate-pulse' :
                                                                     'bg-blue-500/10 text-blue-400 border-blue-500/20'
@@ -98,16 +98,16 @@ export function HealthDashboardClient({ initialData }: { initialData: any }) {
                                                             </Badge>
                                                         </div>
                                                         <p className="text-slate-300 text-sm font-medium">{incident.title}</p>
-                                                        <p className="text-slate-400 text-xs mt-2 leading-relaxed max-w-2xl"><span className="text-slate-500 uppercase text-[10px] font-bold tracking-widest mr-2">Treatment:</span>{incident.treatment}</p>
+                                                        <p className="text-muted-foreground text-xs mt-2 leading-relaxed max-w-2xl"><span className="text-muted-foreground uppercase text-[10px] font-bold tracking-widest mr-2">Treatment:</span>{incident.treatment}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col items-start md:items-end gap-2 shrink-0 md:min-w-[150px]">
-                                                    <div className="flex items-center text-xs text-slate-500 font-mono bg-black/40 px-2.5 py-1 rounded-md">
+                                                    <div className="flex items-center text-xs text-muted-foreground font-mono bg-black/40 px-2.5 py-1 rounded-md">
                                                         <Clock className="w-3 h-3 mr-1.5" />
                                                         {incident.incident_date} • {incident.incident_time}
                                                     </div>
                                                     <div className="flex items-center justify-between w-full md:w-auto md:justify-end gap-3 mt-1">
-                                                        <span className="text-[10px] text-slate-500 uppercase tracking-widest bg-slate-900 px-2 py-0.5 rounded border border-white/5">{incident.nurse_name}</span>
+                                                        <span className="text-[10px] text-muted-foreground uppercase tracking-widest bg-card text-card-foreground px-2 py-0.5 rounded border border-border/50">{incident.nurse_name}</span>
                                                         <Badge variant="outline" className={`text-[10px] uppercase font-bold tracking-widest ${incident.status === 'Back to Class' ? 'text-emerald-400 border-emerald-500/20' : 'text-amber-400 border-amber-500/20'
                                                             }`}>
                                                             {incident.status}
@@ -149,8 +149,8 @@ export function HealthDashboardClient({ initialData }: { initialData: any }) {
 
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
-                                                    <h4 className="text-white font-bold">{alert.student?.full_name}</h4>
-                                                    <p className="text-slate-500 font-mono text-xs mt-0.5">{alert.student?.admission_number}</p>
+                                                    <h4 className="text-foreground font-bold">{alert.student?.full_name}</h4>
+                                                    <p className="text-muted-foreground font-mono text-xs mt-0.5">{alert.student?.admission_number}</p>
                                                 </div>
                                                 <Badge variant="outline" className={`text-[10px] uppercase font-bold tracking-widest ${alert.severity === 'Severe' || alert.severity === 'Critical' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-amber-500/10 text-amber-400 border-amber-500/30'}`}>
                                                     {alert.severity}
@@ -163,11 +163,11 @@ export function HealthDashboardClient({ initialData }: { initialData: any }) {
                                                 </p>
                                             </div>
 
-                                            <p className="text-slate-400 text-xs leading-relaxed">
+                                            <p className="text-muted-foreground text-xs leading-relaxed">
                                                 {alert.notes}
                                             </p>
 
-                                            <div className="mt-4 pt-4 border-t border-rose-500/10 flex items-center justify-between text-[10px] text-slate-500 uppercase tracking-widest">
+                                            <div className="mt-4 pt-4 border-t border-rose-500/10 flex items-center justify-between text-[10px] text-muted-foreground uppercase tracking-widest">
                                                 <span>Logged: {new Date(alert.created_at).toLocaleDateString()}</span>
                                             </div>
                                         </div>
@@ -181,10 +181,10 @@ export function HealthDashboardClient({ initialData }: { initialData: any }) {
 
             {/* Modals */}
             <Dialog open={isIncidentModalOpen} onOpenChange={setIncidentModalOpen}>
-                <DialogContent className="sm:max-w-[500px] bg-slate-950 border-slate-800 text-slate-200">
+                <DialogContent className="sm:max-w-[500px] bg-slate-950 border-border text-slate-200">
                     <DialogHeader>
                         <DialogTitle className="text-xl">Log Medical Incident</DialogTitle>
-                        <DialogDescription className="text-slate-400">
+                        <DialogDescription className="text-muted-foreground">
                             Record a new clinic visit or treatment administered to a student.
                         </DialogDescription>
                     </DialogHeader>

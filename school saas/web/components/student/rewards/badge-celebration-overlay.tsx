@@ -70,15 +70,15 @@ export const BadgeCelebrationOverlay = ({ badge, onDismiss, onAddToPortfolio }: 
                         <h2 className="text-sm font-mono text-emerald-500 uppercase tracking-[0.5em] mb-4 drop-shadow-sm">
                             New_Achievement_Unlocked
                         </h2>
-                        <h1 className="text-5xl font-black italic text-white uppercase tracking-tighter mb-4 drop-shadow-lg">
+                        <h1 className="text-5xl font-black italic text-foreground uppercase tracking-tighter mb-4 drop-shadow-lg">
                             {badge.title}
                         </h1>
-                        <p className="text-slate-400 text-lg mb-2 max-w-sm mx-auto italic">
+                        <p className="text-muted-foreground text-lg mb-2 max-w-sm mx-auto italic">
                             "{badge.comment || badge.description}"
                         </p>
 
                         {badge.awarded_by_name && (
-                            <div className="flex items-center justify-center gap-2 mb-10 text-slate-500 text-sm">
+                            <div className="flex items-center justify-center gap-2 mb-10 text-muted-foreground text-sm">
                                 <User size={14} />
                                 <span>Issued by {badge.awarded_by_name}</span>
                             </div>
@@ -88,13 +88,13 @@ export const BadgeCelebrationOverlay = ({ badge, onDismiss, onAddToPortfolio }: 
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={onAddToPortfolio}
-                            className="bg-white text-black font-black px-12 py-4 rounded-2xl hover:bg-emerald-400 hover:text-white transition-all uppercase text-xs tracking-widest shadow-[0_20px_40px_rgba(255,255,255,0.1)] mb-4"
+                            className="bg-white text-black font-black px-12 py-4 rounded-2xl hover:bg-emerald-400 hover:text-foreground transition-all uppercase text-xs tracking-widest shadow-[0_20px_40px_rgba(255,255,255,0.1)] mb-4"
                         >
                             Add to Growth Portfolio
                         </motion.button>
 
                         <div>
-                            <button onClick={onDismiss} className="text-slate-600 hover:text-white text-xs uppercase tracking-widest transition-colors">
+                            <button onClick={onDismiss} className="text-slate-600 hover:text-foreground text-xs uppercase tracking-widest transition-colors">
                                 Dismiss
                             </button>
                         </div>

@@ -49,7 +49,7 @@ export const AdmissionLetter = React.forwardRef<HTMLDivElement, AdmissionLetterP
                     <h1 className="text-4xl font-bold tracking-tight text-[var(--school-accent)] uppercase" style={{ fontFamily: "'Playfair Display', serif" }}>
                         {schoolName}
                     </h1>
-                    <p className="text-lg italic text-slate-500 font-medium mb-1">
+                    <p className="text-lg italic text-muted-foreground font-medium mb-1">
                         {motto}
                     </p>
                     <p className="text-sm font-medium text-slate-600">
@@ -95,19 +95,19 @@ export const AdmissionLetter = React.forwardRef<HTMLDivElement, AdmissionLetterP
             {/* Data Grid */}
             <div className="relative z-10 my-6 bg-slate-50 border border-slate-200 p-5 rounded-lg grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                    <p className="text-[9pt] uppercase text-slate-500 font-bold">Student ID</p>
+                    <p className="text-[9pt] uppercase text-muted-foreground font-bold">Student ID</p>
                     <p className="font-mono text-lg font-bold">{data.admissionNumber}</p>
                 </div>
                 <div className="space-y-1">
-                    <p className="text-[9pt] uppercase text-slate-500 font-bold">House</p>
+                    <p className="text-[9pt] uppercase text-muted-foreground font-bold">House</p>
                     <p className="text-lg font-bold">{data.house || 'Assigned on Arrival'}</p>
                 </div>
                 <div className="space-y-1">
-                    <p className="text-[9pt] uppercase text-slate-500 font-bold">Admission Date</p>
+                    <p className="text-[9pt] uppercase text-muted-foreground font-bold">Admission Date</p>
                     <p className="text-lg font-bold">{format(new Date(), 'MMM dd, yyyy')}</p>
                 </div>
                 <div className="space-y-1">
-                    <p className="text-[9pt] uppercase text-slate-500 font-bold">Class</p>
+                    <p className="text-[9pt] uppercase text-muted-foreground font-bold">Class</p>
                     <p className="text-lg font-bold">{data.className || data.classId}</p>
                 </div>
             </div>
@@ -141,13 +141,13 @@ export const AdmissionLetter = React.forwardRef<HTMLDivElement, AdmissionLetterP
                             />
                         )}
                         <p className="font-serif italic text-lg mb-1">{tenant?.settings?.principal_name || 'The Principal'}</p>
-                        <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Principal's Signature</p>
+                        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Principal's Signature</p>
                     </div>
                 </div>
             </div>
 
             {/* Footer */}
-            <footer className="absolute bottom-[10mm] left-[20mm] right-[20mm] border-t border-slate-100 pt-2 flex justify-between text-[8pt] text-slate-400 font-medium no-print">
+            <footer className="absolute bottom-[10mm] left-[20mm] right-[20mm] border-t border-slate-100 pt-2 flex justify-between text-[8pt] text-muted-foreground font-medium no-print">
                 <p>Generated via EduFlow Platinum Edition • {format(new Date(), 'yyyy-MM-dd')}</p>
                 <p>Page 1 of 1</p>
             </footer>

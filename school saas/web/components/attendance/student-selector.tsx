@@ -9,9 +9,9 @@ export function StudentSelector({ students }: { students: any[] }) {
 
     return (
         <div className="mb-6">
-            <label className="block text-xs font-medium text-slate-400 mb-2">Select Student</label>
+            <label className="block text-xs font-medium text-muted-foreground mb-2">Select Student</label>
             <select
-                className="w-full max-w-sm bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full max-w-sm bg-card text-card-foreground border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 value={currentId}
                 onChange={(e) => {
                     const params = new URLSearchParams(searchParams)

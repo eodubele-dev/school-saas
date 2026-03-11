@@ -55,7 +55,7 @@ const PaymentCard = ({ tx, index }: { tx: TransactionAlert, index: number }) => 
                         <Check className="text-emerald-400" size={18} />
                     </div>
                     <div>
-                        <h3 className="text-sm font-bold text-white tracking-tight">Payment Received</h3>
+                        <h3 className="text-sm font-bold text-foreground tracking-tight">Payment Received</h3>
                         <p className="text-xs text-emerald-400/80 font-medium">Auto-Reconciling</p>
                     </div>
                 </div>
@@ -66,19 +66,19 @@ const PaymentCard = ({ tx, index }: { tx: TransactionAlert, index: number }) => 
 
             <div className="grid grid-cols-2 gap-4 mb-5">
                 <div>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Total Amount</p>
-                    <p className="text-2xl font-black text-white">₦{tx.total.toLocaleString()}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mb-1">Total Amount</p>
+                    <p className="text-2xl font-black text-foreground">₦{tx.total.toLocaleString()}</p>
                 </div>
                 <div>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Payer Family</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mb-1">Payer Family</p>
                     <p className="text-sm font-bold text-slate-200 truncate">{tx.familyName}</p>
                 </div>
             </div>
 
             <div className="space-y-2 mb-5">
                 {tx.items.map((item, idx) => (
-                    <div key={idx} className="flex justify-between text-xs border-b border-white/5 pb-2">
-                        <span className="text-slate-400 truncate pr-2">{item.student} <span className="text-slate-500 text-[10px] capitalize">({item.category})</span></span>
+                    <div key={idx} className="flex justify-between text-xs border-b border-border/50 pb-2">
+                        <span className="text-muted-foreground truncate pr-2">{item.student} <span className="text-muted-foreground text-[10px] capitalize">({item.category})</span></span>
                         <span className="text-slate-200 font-medium">₦{item.amount.toLocaleString()}</span>
                     </div>
                 ))}
@@ -92,7 +92,7 @@ const PaymentCard = ({ tx, index }: { tx: TransactionAlert, index: number }) => 
                 >
                     {isReconciling ? <Loader2 size={16} className="animate-spin" /> : <><CheckCircle2 size={16} /> Mark Reconciled</>}
                 </button>
-                <Link href="/dashboard/bursar/finance/collections" className="px-4 bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 text-slate-300 hover:text-emerald-400 text-xs font-bold py-2.5 rounded-xl transition-all flex items-center justify-center group">
+                <Link href="/dashboard/bursar/finance/collections" className="px-4 bg-secondary/50 hover:bg-emerald-500/10 border border-border hover:border-emerald-500/30 text-slate-300 hover:text-emerald-400 text-xs font-bold py-2.5 rounded-xl transition-all flex items-center justify-center group">
                     Ledger <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform ml-1" />
                 </Link>
             </div>

@@ -11,7 +11,7 @@ export function AttendancePortal() {
                 {/* Left Column: Clock In & Students */}
                 <div className="flex-1 space-y-6">
                     <section>
-                        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                             <span className="bg-[hsl(var(--school-accent))] w-1 h-6 rounded-full block"></span>
                             Staff Clock-In
                         </h2>
@@ -19,7 +19,7 @@ export function AttendancePortal() {
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                             <span className="bg-[hsl(var(--school-accent))] w-1 h-6 rounded-full block"></span>
                             Student Register
                         </h2>
@@ -30,7 +30,7 @@ export function AttendancePortal() {
                 {/* Right Column: History (Sidebar on desktop, stacked on mobile) */}
                 <div className="w-full md:w-80 space-y-6">
                     <section>
-                        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                             <span className="bg-[hsl(var(--school-accent))] w-1 h-6 rounded-full block"></span>
                             Attendance History
                         </h2>

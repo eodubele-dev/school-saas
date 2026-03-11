@@ -98,31 +98,31 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
 
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-    if (loading) return <div className="p-8 text-center text-slate-500 animate-pulse">Initializing Timetable Engine...</div>
+    if (loading) return <div className="p-8 text-center text-muted-foreground animate-pulse">Initializing Timetable Engine...</div>
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-xl font-bold text-white">Timetable Manager Hub</h2>
-                    <p className="text-slate-400">Construct your school's daily schedule. Link subjects and teachers to specific class arms.</p>
+                    <h2 className="text-xl font-bold text-foreground">Timetable Manager Hub</h2>
+                    <p className="text-muted-foreground">Construct your school's daily schedule. Link subjects and teachers to specific class arms.</p>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                 {/* Left: Add Slot Form */}
-                <Card className="bg-slate-900 border-white/10 h-fit xl:sticky xl:top-0">
+                <Card className="bg-card text-card-foreground border-border h-fit xl:sticky xl:top-0">
                     <CardContent className="p-6 space-y-4">
-                        <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2 mb-2">
+                        <h3 className="text-sm font-bold text-foreground uppercase tracking-widest flex items-center gap-2 mb-2">
                             <Plus className="h-4 w-4 text-[var(--school-accent)]" />
                             Provision New Slot
                         </h3>
 
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label className="text-xs text-slate-500">Academic Day</Label>
+                                <Label className="text-xs text-muted-foreground">Academic Day</Label>
                                 <Select value={day} onValueChange={setDay}>
-                                    <SelectTrigger className="bg-slate-950 border-white/5 text-white">
+                                    <SelectTrigger className="bg-slate-950 border-border/50 text-foreground">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -133,29 +133,29 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label className="text-xs text-slate-500">Start Time</Label>
+                                    <Label className="text-xs text-muted-foreground">Start Time</Label>
                                     <Input
                                         type="time"
                                         value={startTime}
                                         onChange={e => setStartTime(e.target.value)}
-                                        className="bg-slate-950 border-white/5 text-white"
+                                        className="bg-slate-950 border-border/50 text-foreground"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs text-slate-500">End Time</Label>
+                                    <Label className="text-xs text-muted-foreground">End Time</Label>
                                     <Input
                                         type="time"
                                         value={endTime}
                                         onChange={e => setEndTime(e.target.value)}
-                                        className="bg-slate-950 border-white/5 text-white"
+                                        className="bg-slate-950 border-border/50 text-foreground"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label className="text-xs text-slate-500">Target Class (Arm)</Label>
+                                <Label className="text-xs text-muted-foreground">Target Class (Arm)</Label>
                                 <Select value={classId} onValueChange={setClassId}>
-                                    <SelectTrigger className="bg-slate-950 border-white/5 text-white">
+                                    <SelectTrigger className="bg-slate-950 border-border/50 text-foreground">
                                         <SelectValue placeholder="Select Class" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -165,9 +165,9 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
                             </div>
 
                             <div className="space-y-2">
-                                <Label className="text-xs text-slate-500">Subject</Label>
+                                <Label className="text-xs text-muted-foreground">Subject</Label>
                                 <Select value={subjectId} onValueChange={setSubjectId}>
-                                    <SelectTrigger className="bg-slate-950 border-white/5 text-white">
+                                    <SelectTrigger className="bg-slate-950 border-border/50 text-foreground">
                                         <SelectValue placeholder="Select Subject" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -177,9 +177,9 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
                             </div>
 
                             <div className="space-y-2">
-                                <Label className="text-xs text-slate-500">Assigned Teacher</Label>
+                                <Label className="text-xs text-muted-foreground">Assigned Teacher</Label>
                                 <Select value={teacherId} onValueChange={setTeacherId}>
-                                    <SelectTrigger className="bg-slate-950 border-white/5 text-white">
+                                    <SelectTrigger className="bg-slate-950 border-border/50 text-foreground">
                                         <SelectValue placeholder="Choose Instructor" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -191,7 +191,7 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
                             <Button
                                 onClick={handleAddSlot}
                                 disabled={saving}
-                                className="w-full bg-[var(--school-accent)] text-white font-bold"
+                                className="w-full bg-[var(--school-accent)] text-foreground font-bold"
                             >
                                 {saving ? "Synchronizing..." : "Add to Timetable"}
                             </Button>
@@ -207,7 +207,7 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
 
                         return (
                             <div key={d} className="space-y-3">
-                                <h4 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <h4 className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
                                     <Calendar className="h-3 w-3" />
                                     {d} Timeline
                                 </h4>
@@ -215,26 +215,26 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
                                     {daySlots.map(slot => (
                                         <div
                                             key={slot.id}
-                                            className="group flex items-center justify-between p-4 bg-slate-900/40 border border-white/5 rounded-xl hover:bg-slate-900/60 hover:border-white/10 transition-all"
+                                            className="group flex items-center justify-between p-4 bg-card text-card-foreground/40 border border-border/50 rounded-xl hover:bg-card text-card-foreground/60 hover:border-border transition-all"
                                         >
                                             <div className="flex items-center gap-6">
-                                                <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-950 border border-white/5 min-w-[100px]">
+                                                <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-950 border border-border/50 min-w-[100px]">
                                                     <div className="flex items-center gap-1.5 text-[10px] font-mono text-cyan-400">
                                                         <Clock className="h-2.5 w-2.5" />
                                                         {slot.start_time.slice(0, 5)}
                                                     </div>
                                                     <div className="text-[10px] font-mono text-slate-600">to</div>
-                                                    <div className="text-[10px] font-mono text-slate-500">
+                                                    <div className="text-[10px] font-mono text-muted-foreground">
                                                         {slot.end_time.slice(0, 5)}
                                                     </div>
                                                 </div>
 
                                                 <div className="space-y-1">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-bold text-white uppercase tracking-tight">{slot.subject?.name}</span>
-                                                        <span className="text-[10px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-slate-400 font-bold">{slot.class?.name}</span>
+                                                        <span className="text-sm font-bold text-foreground uppercase tracking-tight">{slot.subject?.name}</span>
+                                                        <span className="text-[10px] bg-secondary/50 border border-border px-2 py-0.5 rounded text-muted-foreground font-bold">{slot.class?.name}</span>
                                                     </div>
-                                                    <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                                         <User className="h-3 w-3" />
                                                         {slot.teacher?.full_name}
                                                     </div>
@@ -257,17 +257,17 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
                     })}
 
                     {slots.length === 0 && (
-                        <div className="p-20 text-center border-2 border-dashed border-white/5 rounded-2xl">
+                        <div className="p-20 text-center border-2 border-dashed border-border/50 rounded-2xl">
                             <BookOpen className="h-10 w-10 text-slate-800 mx-auto mb-4" />
-                            <p className="text-slate-500 font-medium">Timetable is currently empty.</p>
+                            <p className="text-muted-foreground font-medium">Timetable is currently empty.</p>
                             <p className="text-xs text-slate-600 mt-1">Begin by provisioning slots using the control panel on the left.</p>
                         </div>
                     )}
                 </div>
             </div>
 
-            <div className="flex justify-between pt-8 border-t border-white/5">
-                <Button variant="ghost" onClick={onPrev} className="text-slate-400 hover:text-slate-200 hover:bg-white/10 transition-colors">
+            <div className="flex justify-between pt-8 border-t border-border/50">
+                <Button variant="ghost" onClick={onPrev} className="text-muted-foreground hover:text-slate-200 hover:bg-white/10 transition-colors">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back to Grading
                 </Button>
                 <div className="flex items-center gap-2 text-emerald-500 font-bold text-sm">

@@ -55,7 +55,7 @@ export function ExecutiveModals() {
         <>
             {/* 1. Tenant Preview Modal (Try It Free / Start Free) */}
             <Dialog open={isTenantPreviewOpen} onOpenChange={closeTenantPreview}>
-                <DialogContent className="sm:max-w-md bg-[#0A0A0B] border border-white/10 text-white p-0 overflow-hidden">
+                <DialogContent className="sm:max-w-md bg-[#0A0A0B] border border-border text-foreground p-0 overflow-hidden">
                     <div className="absolute inset-0 bg-blue-900/10 pointer-events-none" />
 
                     <div className="p-6 relative z-10">
@@ -64,7 +64,7 @@ export function ExecutiveModals() {
                                 <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
                                 Instant Tenant Preview
                             </DialogTitle>
-                            <p className="text-slate-400 text-sm">
+                            <p className="text-muted-foreground text-sm">
                                 Enter your school's name to see your secure workspace URL generated in real-time.
                             </p>
                         </DialogHeader>
@@ -78,7 +78,7 @@ export function ExecutiveModals() {
                                         value={schoolName}
                                         onChange={(e) => setSchoolName(e.target.value)}
                                         placeholder="e.g. Achievers Minds Academy"
-                                        className={`bg-slate-900/50 border-slate-800 text-lg h-14 pl-4 transition-all duration-300 focus:ring-0 focus:ring-offset-0 ${schoolName ? 'border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.3)]' : 'focus:border-blue-500'}`}
+                                        className={`bg-card text-card-foreground/50 border-border text-lg h-14 pl-4 transition-all duration-300 focus:ring-0 focus:ring-offset-0 ${schoolName ? 'border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.3)]' : 'focus:border-blue-500'}`}
                                     />
                                     {/* Neon Pulse Border Effect when typing */}
                                     {isTyping && (
@@ -94,13 +94,13 @@ export function ExecutiveModals() {
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
                                         exit={{ opacity: 0, height: 0 }}
-                                        className="bg-slate-950/50 rounded-lg p-3 border border-white/5 flex items-center justify-between"
+                                        className="bg-slate-950/50 rounded-lg p-3 border border-border/50 flex items-center justify-between"
                                     >
                                         <div className="flex items-center gap-2 overflow-hidden">
                                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                            <span className="text-slate-500 text-xs font-mono">https://</span>
+                                            <span className="text-muted-foreground text-xs font-mono">https://</span>
                                             <span className="text-cyan-400 font-mono font-bold truncate">{subdomain}</span>
-                                            <span className="text-slate-500 text-xs font-mono">.eduflow.ng/login</span>
+                                            <span className="text-muted-foreground text-xs font-mono">.eduflow.ng/login</span>
                                         </div>
                                         <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
                                     </motion.div>
@@ -122,7 +122,7 @@ export function ExecutiveModals() {
 
             {/* 2. Executive Demo Modal (Platinum Closer) */}
             <Dialog open={isExecutiveDemoOpen} onOpenChange={closeExecutiveDemo}>
-                <DialogContent className="sm:max-w-3xl bg-[#0f1115]/95 backdrop-blur-xl border border-white/10 text-white p-0 gap-0 overflow-hidden shadow-2xl">
+                <DialogContent className="sm:max-w-3xl bg-[#0f1115]/95 backdrop-blur-xl border border-border text-foreground p-0 gap-0 overflow-hidden shadow-2xl">
                     <div className="grid md:grid-cols-5 h-[600px]">
                         {/* Sidebar / Info */}
                         <div className="md:col-span-2 bg-gradient-to-b from-slate-900 to-black p-6 relative">
@@ -137,7 +137,7 @@ export function ExecutiveModals() {
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-sm text-slate-200">Mobile-First Walkthrough</h4>
-                                        <p className="text-xs text-slate-500 mt-1">See how parents receive results on WhatsApp & SMS.</p>
+                                        <p className="text-xs text-muted-foreground mt-1">See how parents receive results on WhatsApp & SMS.</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-3">
@@ -146,7 +146,7 @@ export function ExecutiveModals() {
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-sm text-slate-200">Bespoke Rollout Plan</h4>
-                                        <p className="text-xs text-slate-500 mt-1">We'll map your current report card format to EduFlow live.</p>
+                                        <p className="text-xs text-muted-foreground mt-1">We'll map your current report card format to EduFlow live.</p>
                                     </div>
                                 </div>
                             </div>
@@ -170,7 +170,7 @@ export function ExecutiveModals() {
                             {/* Close Button needed because we removed default padding */}
                             <button
                                 onClick={closeExecutiveDemo}
-                                className="absolute top-4 right-4 z-50 p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"
+                                className="absolute top-4 right-4 z-50 p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-muted-foreground transition-colors"
                             >
                                 <X className="w-4 h-4" />
                             </button>

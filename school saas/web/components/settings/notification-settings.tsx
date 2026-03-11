@@ -190,27 +190,27 @@ export function NotificationSettings() {
 
     if (loading) {
         return (
-            <div className="bg-black/40 backdrop-blur-xl rounded-3xl border border-white/10 p-8 max-w-5xl mx-auto">
+            <div className="bg-black/40 backdrop-blur-xl rounded-3xl border border-border p-8 max-w-5xl mx-auto">
                 <div className="animate-pulse space-y-4">
-                    <div className="h-8 bg-white/5 rounded w-1/3" />
-                    <div className="h-4 bg-white/5 rounded w-2/3" />
+                    <div className="h-8 bg-secondary/50 rounded w-1/3" />
+                    <div className="h-4 bg-secondary/50 rounded w-2/3" />
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="bg-black/40 backdrop-blur-xl rounded-3xl border border-white/10 p-8 max-w-5xl mx-auto">
+        <div className="bg-black/40 backdrop-blur-xl rounded-3xl border border-border p-8 max-w-5xl mx-auto">
             {/* Header */}
-            <header className="mb-8 pb-6 border-b border-white/10">
+            <header className="mb-8 pb-6 border-b border-border">
                 <div className="flex items-start justify-between">
                     <div>
-                        <h2 className="text-2xl font-bold text-white tracking-tight">Notification Engine</h2>
-                        <p className="text-slate-500 text-sm mt-1">Configure automated SMS triggers to optimize your communication wallet.</p>
+                        <h2 className="text-2xl font-bold text-foreground tracking-tight">Notification Engine</h2>
+                        <p className="text-muted-foreground text-sm mt-1">Configure automated SMS triggers to optimize your communication wallet.</p>
                     </div>
                     <div className="text-right">
-                        <p className="text-[10px] text-slate-500 uppercase font-mono tracking-widest">Est. Monthly Volume</p>
-                        <p className="text-2xl font-bold text-cyan-400 mt-1">{calculateTotalVolume()}<span className="text-sm text-slate-500 ml-1">SMS/student</span></p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-mono tracking-widest">Est. Monthly Volume</p>
+                        <p className="text-2xl font-bold text-cyan-400 mt-1">{calculateTotalVolume()}<span className="text-sm text-muted-foreground ml-1">SMS/student</span></p>
                         <p className="text-[10px] text-slate-600 mt-1">≈ ₦{(calculateTotalVolume() * SMS_CONFIG.UNIT_COST).toLocaleString()} per student</p>
                     </div>
                 </div>
@@ -225,8 +225,8 @@ export function NotificationSettings() {
                                 <category.icon className="h-4 w-4 text-cyan-400" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-white tracking-tight">{category.title}</h3>
-                                <p className="text-[10px] text-slate-500">{category.description}</p>
+                                <h3 className="text-sm font-bold text-foreground tracking-tight">{category.title}</h3>
+                                <p className="text-[10px] text-muted-foreground">{category.description}</p>
                             </div>
                         </div>
 
@@ -236,17 +236,17 @@ export function NotificationSettings() {
                                     key={setting.key}
                                     className={`flex items-center justify-between p-4 rounded-2xl transition-all ${setting.isCritical
                                         ? 'bg-cyan-500/5 border border-cyan-500/20'
-                                        : 'bg-white/5 border border-white/5 hover:border-white/10'
+                                        : 'bg-secondary/50 border border-border/50 hover:border-border'
                                         }`}
                                 >
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2">
-                                            <p className="text-white font-medium text-sm">{setting.label}</p>
+                                            <p className="text-foreground font-medium text-sm">{setting.label}</p>
                                             {setting.isCritical && (
                                                 <Lock className="h-3 w-3 text-cyan-400" />
                                             )}
                                         </div>
-                                        <p className={`text-xs mt-0.5 ${setting.isCritical ? 'text-cyan-400/60 font-mono' : 'text-slate-500'}`}>
+                                        <p className={`text-xs mt-0.5 ${setting.isCritical ? 'text-cyan-400/60 font-mono' : 'text-muted-foreground'}`}>
                                             {setting.description}
                                         </p>
                                         <p className="text-[10px] text-slate-600 mt-1 font-mono">
@@ -268,12 +268,12 @@ export function NotificationSettings() {
             </div>
 
             {/* Footer Info */}
-            <div className="mt-8 pt-6 border-t border-white/10">
-                <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/5">
+            <div className="mt-8 pt-6 border-t border-border">
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-secondary/50 border border-border/50">
                     <Bell className="h-5 w-5 text-cyan-400 shrink-0 mt-0.5" />
                     <div>
-                        <p className="text-sm text-white font-medium">Wallet Impact Preview</p>
-                        <p className="text-xs text-slate-500 mt-1">
+                        <p className="text-sm text-foreground font-medium">Wallet Impact Preview</p>
+                        <p className="text-xs text-muted-foreground mt-1">
                             These estimates help you predict SMS costs. Actual volume varies based on student count,
                             attendance patterns, and payment behavior. System-critical alerts cannot be disabled to
                             maintain forensic audit standards.

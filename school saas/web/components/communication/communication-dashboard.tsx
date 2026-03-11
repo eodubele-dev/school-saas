@@ -18,8 +18,8 @@ export function CommunicationDashboard({ initialRole }: { initialRole?: string }
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex flex-col gap-2">
-                <h2 className="text-2xl font-bold text-white">Communication Hub</h2>
-                <p className="text-sm text-slate-400">
+                <h2 className="text-2xl font-bold text-foreground">Communication Hub</h2>
+                <p className="text-sm text-muted-foreground">
                     {isParent
                         ? "Communicate directly with school staff and teachers."
                         : "Manage broadcasts, follow up on absentees, and configure automated alerts."}
@@ -28,16 +28,16 @@ export function CommunicationDashboard({ initialRole }: { initialRole?: string }
 
             <Tabs key={role || 'loading'} defaultValue={isParent ? "chat" : isStaff ? "absentees" : "chat"} className="space-y-6">
                 {role && (
-                    <TabsList className="bg-slate-900 border border-white/5 p-1 text-slate-400">
+                    <TabsList className="bg-card text-card-foreground border border-border/50 p-1 text-muted-foreground">
                         {isStaff && (
-                            <TabsTrigger value="absentees" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">Daily Absentees</TabsTrigger>
+                            <TabsTrigger value="absentees" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-foreground">Daily Absentees</TabsTrigger>
                         )}
                         {isAdmin && (
-                            <TabsTrigger value="broadcast" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">Broadcast</TabsTrigger>
+                            <TabsTrigger value="broadcast" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-foreground">Broadcast</TabsTrigger>
                         )}
-                        <TabsTrigger value="chat" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">Parent Chat</TabsTrigger>
+                        <TabsTrigger value="chat" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-foreground">Parent Chat</TabsTrigger>
                         {isAdmin && (
-                            <TabsTrigger value="settings" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">Settings</TabsTrigger>
+                            <TabsTrigger value="settings" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-foreground">Settings</TabsTrigger>
                         )}
                     </TabsList>
                 )}

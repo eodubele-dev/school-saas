@@ -54,15 +54,15 @@ export function TierManager({ currentTier, schoolName, subdomain }: TierManagerP
 
     return (
         <>
-            <div className="bg-[#111113] border border-white/5 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 group hover:border-cyan-500/30 transition-all">
+            <div className="bg-[#111113] border border-border/50 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 group hover:border-cyan-500/30 transition-all">
                 <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-xl bg-white/5 flex items-center justify-center relative overflow-hidden">
-                        <Rocket className="h-6 w-6 text-slate-400 group-hover:text-cyan-400 transition-colors relative z-10" />
+                    <div className="h-12 w-12 rounded-xl bg-secondary/50 flex items-center justify-center relative overflow-hidden">
+                        <Rocket className="h-6 w-6 text-muted-foreground group-hover:text-cyan-400 transition-colors relative z-10" />
                         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div>
-                        <h4 className="text-white font-bold text-sm">Institutional Tier Management</h4>
-                        <p className="text-[10px] text-slate-500 uppercase tracking-widest font-mono mt-0.5">
+                        <h4 className="text-foreground font-bold text-sm">Institutional Tier Management</h4>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono mt-0.5">
                             Status: <span className="text-cyan-400 font-black">{currentTier.toUpperCase()}</span>
                         </p>
                     </div>

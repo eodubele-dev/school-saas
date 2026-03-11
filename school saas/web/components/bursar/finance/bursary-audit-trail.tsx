@@ -86,26 +86,26 @@ export const BursaryAuditTrail: React.FC<BursaryAuditTrailProps> = ({
                 }
             }
         `}} />
-            <Card id="printable-audit-trail" className="bg-slate-900 border-white/10 shadow-sm max-w-5xl mx-auto print:bg-white print:text-black print:p-8 print:border-none print:shadow-none">
+            <Card id="printable-audit-trail" className="bg-card text-card-foreground border-border shadow-sm max-w-5xl mx-auto print:bg-white print:text-black print:p-8 print:border-none print:shadow-none">
                 {/* 🏛️ Header */}
-                <CardHeader className="flex flex-row justify-between items-start border-b border-white/10 pb-8 shrink-0 print:border-black">
+                <CardHeader className="flex flex-row justify-between items-start border-b border-border pb-8 shrink-0 print:border-black">
                     <div className="space-y-2">
                         <div className="flex items-center gap-3">
                             <div className="bg-cyan-500/10 p-2 rounded-xl border border-cyan-500/20 print:hidden">
                                 <ShieldAlert className="text-cyan-400" size={24} />
                             </div>
-                            <CardTitle className="text-2xl font-bold text-white tracking-tight print:text-black">
+                            <CardTitle className="text-2xl font-bold text-foreground tracking-tight print:text-black">
                                 Monthly Bursary Audit Transcript
                             </CardTitle>
                         </div>
                         <div className="flex flex-col gap-1 mt-4">
-                            <p className="text-xs font-medium text-slate-400 print:text-gray-600">
-                                Institution: <span className="text-white font-medium print:text-black">{institutionName}</span>
+                            <p className="text-xs font-medium text-muted-foreground print:text-gray-600">
+                                Institution: <span className="text-foreground font-medium print:text-black">{institutionName}</span>
                             </p>
-                            <p className="text-xs font-medium text-slate-400 print:text-gray-600">
+                            <p className="text-xs font-medium text-muted-foreground print:text-gray-600">
                                 Audit ID: <span className="text-cyan-400 font-medium">{auditId}</span>
                             </p>
-                            <p className="text-xs font-medium text-slate-400 print:text-gray-600">
+                            <p className="text-xs font-medium text-muted-foreground print:text-gray-600">
                                 Reporting Period: <span className="text-slate-300 font-medium print:text-gray-800">{period}</span>
                             </p>
                         </div>
@@ -125,24 +125,24 @@ export const BursaryAuditTrail: React.FC<BursaryAuditTrailProps> = ({
                     {/* 📋 Section 1: Statistical Summary */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-2">
-                            <BarChart3 className="text-slate-400" size={18} />
+                            <BarChart3 className="text-muted-foreground" size={18} />
                             <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider print:text-black">1. Statistical Summary (System Performance)</h2>
                         </div>
-                        <div className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden print:border-black">
+                        <div className="bg-white/[0.02] border border-border/50 rounded-xl overflow-hidden print:border-black">
                             <table className="w-full text-left border-collapse">
-                                <thead className="bg-white/5 print:bg-gray-100">
+                                <thead className="bg-secondary/50 print:bg-gray-100">
                                     <tr>
-                                        <th className="py-4 px-6 text-xs font-semibold text-slate-400 uppercase tracking-wider print:text-black">Metric</th>
-                                        <th className="py-4 px-6 text-xs font-semibold text-slate-400 uppercase tracking-wider print:text-black">Value</th>
-                                        <th className="py-4 px-6 text-xs font-semibold text-slate-400 uppercase tracking-wider print:text-black">Audit Significance</th>
+                                        <th className="py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wider print:text-black">Metric</th>
+                                        <th className="py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wider print:text-black">Value</th>
+                                        <th className="py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wider print:text-black">Audit Significance</th>
                                     </tr>
                                 </thead>
                                 <tbody className="text-sm">
                                     {auditStats.map((stat, idx) => (
-                                        <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.04] transition-colors print:border-gray-200">
+                                        <tr key={idx} className="border-b border-border/50 hover:bg-white/[0.04] transition-colors print:border-gray-200">
                                             <td className="py-4 px-6 text-slate-300 print:text-black">{stat.label}</td>
-                                            <td className="py-4 px-6 text-white font-bold print:text-black">{stat.value}</td>
-                                            <td className="py-4 px-6 text-slate-400 print:text-gray-600">{stat.significance}</td>
+                                            <td className="py-4 px-6 text-foreground font-bold print:text-black">{stat.value}</td>
+                                            <td className="py-4 px-6 text-muted-foreground print:text-gray-600">{stat.significance}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -153,38 +153,38 @@ export const BursaryAuditTrail: React.FC<BursaryAuditTrailProps> = ({
                     {/* 🛡️ Section 2: Detailed Deviation Ledger */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-2">
-                            <FileText className="text-slate-400" size={18} />
+                            <FileText className="text-muted-foreground" size={18} />
                             <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider print:text-black">2. Detailed Deviation Ledger (The Forensic Trail)</h2>
                         </div>
-                        <div className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden print:border-black">
+                        <div className="bg-white/[0.02] border border-border/50 rounded-xl overflow-hidden print:border-black">
                             <table className="w-full text-left border-collapse">
-                                <thead className="bg-white/5 print:bg-gray-100">
+                                <thead className="bg-secondary/50 print:bg-gray-100">
                                     <tr>
-                                        <th className="py-4 px-6 text-xs font-semibold text-slate-400 uppercase tracking-wider print:text-black">Date</th>
-                                        <th className="py-4 px-6 text-xs font-semibold text-slate-400 uppercase tracking-wider print:text-black">Staff Member</th>
-                                        <th className="py-4 px-6 text-xs font-semibold text-slate-400 uppercase tracking-wider print:text-black">Deviation Type</th>
-                                        <th className="py-4 px-6 text-xs font-semibold text-slate-400 uppercase tracking-wider print:text-black">Admin Authorizer</th>
-                                        <th className="py-4 px-6 text-xs font-semibold text-slate-400 uppercase tracking-wider print:text-black">Forensic Proof ID</th>
+                                        <th className="py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wider print:text-black">Date</th>
+                                        <th className="py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wider print:text-black">Staff Member</th>
+                                        <th className="py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wider print:text-black">Deviation Type</th>
+                                        <th className="py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wider print:text-black">Admin Authorizer</th>
+                                        <th className="py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wider print:text-black">Forensic Proof ID</th>
                                     </tr>
                                 </thead>
                                 <tbody className="text-sm">
                                     {ledger.map((entry, idx) => (
-                                        <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.04] transition-colors print:border-gray-200">
+                                        <tr key={idx} className="border-b border-border/50 hover:bg-white/[0.04] transition-colors print:border-gray-200">
                                             <td className="py-4 px-6 text-slate-300 print:text-black">{entry.date}</td>
-                                            <td className="py-4 px-6 text-white font-medium print:text-black">{entry.staffName}</td>
+                                            <td className="py-4 px-6 text-foreground font-medium print:text-black">{entry.staffName}</td>
                                             <td className="py-4 px-6">
                                                 <div className="flex flex-col">
                                                     <span className="text-amber-500 font-medium print:text-black">{entry.deviationType}</span>
-                                                    <span className="text-xs text-slate-500 mt-0.5">[{entry.distance}m Deviation]</span>
+                                                    <span className="text-xs text-muted-foreground mt-0.5">[{entry.distance}m Deviation]</span>
                                                 </div>
                                             </td>
                                             <td className="py-4 px-6 text-cyan-400 font-medium print:text-black">{entry.authorizer}</td>
-                                            <td className="py-4 px-6 font-mono text-slate-400 text-xs print:text-black">{entry.proofId}</td>
+                                            <td className="py-4 px-6 font-mono text-muted-foreground text-xs print:text-black">{entry.proofId}</td>
                                         </tr>
                                     ))}
                                     {ledger.length === 0 && (
                                         <tr>
-                                            <td colSpan={5} className="py-12 text-center text-slate-500 font-medium tracking-wide">
+                                            <td colSpan={5} className="py-12 text-center text-muted-foreground font-medium tracking-wide">
                                                 Zero Deviations Recorded In This Period
                                             </td>
                                         </tr>
@@ -201,21 +201,21 @@ export const BursaryAuditTrail: React.FC<BursaryAuditTrailProps> = ({
                             <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider print:text-black">3. Administrative Justification & Notes</h2>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-white/5 border border-white/5 p-6 rounded-xl print:border-black">
+                            <div className="bg-secondary/50 border border-border/50 p-6 rounded-xl print:border-black">
                                 <p className="text-xs font-bold text-slate-300 uppercase mb-3 tracking-wider">Manual Overrides</p>
-                                <p className="text-sm text-slate-400 leading-relaxed print:text-black">
+                                <p className="text-sm text-muted-foreground leading-relaxed print:text-black">
                                     All {stats.manualOverrides} overrides were accompanied by mandatory photo evidence uploaded through the Attendance Dispute view.
                                 </p>
                             </div>
-                            <div className="bg-white/5 border border-white/5 p-6 rounded-xl print:border-black">
+                            <div className="bg-secondary/50 border border-border/50 p-6 rounded-xl print:border-black">
                                 <p className="text-xs font-bold text-slate-300 uppercase mb-3 tracking-wider">Identity Pinning</p>
-                                <p className="text-sm text-slate-400 leading-relaxed print:text-black">
+                                <p className="text-sm text-muted-foreground leading-relaxed print:text-black">
                                     Each authorization was signed by the Admin Principal's unique JWT credential, ensuring no staff member could self-authorize.
                                 </p>
                             </div>
-                            <div className="bg-white/5 border border-white/5 p-6 rounded-xl print:border-black">
+                            <div className="bg-secondary/50 border border-border/50 p-6 rounded-xl print:border-black">
                                 <p className="text-xs font-bold text-slate-300 uppercase mb-3 tracking-wider">Payroll Impact</p>
-                                <p className="text-sm text-slate-400 leading-relaxed print:text-black">
+                                <p className="text-sm text-muted-foreground leading-relaxed print:text-black">
                                     Reconciled totals were adjusted for the {stats.disputeRejections} unexcused absences detected by the Smart Attendance engine.
                                 </p>
                             </div>
@@ -223,23 +223,23 @@ export const BursaryAuditTrail: React.FC<BursaryAuditTrailProps> = ({
                     </div>
 
                     {/* 🖋️ Certification of Integrity */}
-                    <div className="pt-12 border-t border-white/10 space-y-12 print:border-black print:pt-20">
-                        <p className="text-sm text-slate-400 text-center max-w-2xl mx-auto print:text-black">
+                    <div className="pt-12 border-t border-border space-y-12 print:border-black print:pt-20">
+                        <p className="text-sm text-muted-foreground text-center max-w-2xl mx-auto print:text-black">
                             I, the undersigned, certify that this report is a direct extract from the System Audit & Integrity Log. No records have been modified, deleted, or suppressed.
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-3xl mx-auto">
                             <div className="text-center space-y-4">
                                 <div className="h-px bg-white/20 w-full print:bg-black" />
                                 <div>
-                                    <p className="text-sm font-bold text-white uppercase tracking-wider print:text-black">{bursarName}</p>
-                                    <p className="text-xs text-slate-500 font-medium uppercase mt-1">Financial Controller, {institutionName}</p>
+                                    <p className="text-sm font-bold text-foreground uppercase tracking-wider print:text-black">{bursarName}</p>
+                                    <p className="text-xs text-muted-foreground font-medium uppercase mt-1">Financial Controller, {institutionName}</p>
                                 </div>
                             </div>
                             <div className="text-center space-y-4">
                                 <div className="h-px bg-white/20 w-full print:bg-black" />
                                 <div>
-                                    <p className="text-sm font-bold text-white uppercase tracking-wider print:text-black">{proprietorName}</p>
-                                    <p className="text-xs text-slate-500 font-medium uppercase mt-1">Group Proprietor</p>
+                                    <p className="text-sm font-bold text-foreground uppercase tracking-wider print:text-black">{proprietorName}</p>
+                                    <p className="text-xs text-muted-foreground font-medium uppercase mt-1">Group Proprietor</p>
                                 </div>
                             </div>
                         </div>
@@ -249,13 +249,13 @@ export const BursaryAuditTrail: React.FC<BursaryAuditTrailProps> = ({
                     <div className="flex justify-center gap-6 pt-6 pb-4 print:hidden">
                         <button
                             onClick={handlePrint}
-                            className="bg-white/5 hover:bg-white/10 text-white font-semibold px-8 py-3 rounded-lg flex items-center gap-2 transition-all border border-white/10 text-sm"
+                            className="bg-secondary/50 hover:bg-white/10 text-foreground font-semibold px-8 py-3 rounded-lg flex items-center gap-2 transition-all border border-border text-sm"
                         >
                             <Printer size={16} /> Print Audit Transcript
                         </button>
                         <button
                             onClick={handleExportPDF}
-                            className="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-8 py-3 rounded-lg flex items-center gap-2 transition-all text-sm"
+                            className="bg-cyan-600 hover:bg-cyan-500 text-foreground font-semibold px-8 py-3 rounded-lg flex items-center gap-2 transition-all text-sm"
                         >
                             <Download size={16} /> Export as Forensic PDF
                         </button>

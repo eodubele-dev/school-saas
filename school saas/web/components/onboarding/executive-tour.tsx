@@ -96,7 +96,7 @@ export function ExecutiveTour({ enabled = true }: { enabled?: boolean }) {
             target: '#revenue-card',
             content: (
                 <div>
-                    <h4 className="font-bold text-white mb-1">The Financial Pulse</h4>
+                    <h4 className="font-bold text-foreground mb-1">The Financial Pulse</h4>
                     <p className="text-sm text-slate-300">Your school's heartbeat. See real-time fee collections and projected revenue at a glance.</p>
                 </div>
             ),
@@ -105,7 +105,7 @@ export function ExecutiveTour({ enabled = true }: { enabled?: boolean }) {
             target: '#sidebar-audit',
             content: (
                 <div>
-                    <h4 className="font-bold text-white mb-1">Integrity Guard</h4>
+                    <h4 className="font-bold text-foreground mb-1">Integrity Guard</h4>
                     <p className="text-sm text-slate-300">Total Transparency. Every grade change and deleted invoice is logged here. Your data is immutable.</p>
                 </div>
             ),
@@ -115,7 +115,7 @@ export function ExecutiveTour({ enabled = true }: { enabled?: boolean }) {
             target: '#staff-attendance-gauge',
             content: (
                 <div>
-                    <h4 className="font-bold text-white mb-1">Staff Presence</h4>
+                    <h4 className="font-bold text-foreground mb-1">Staff Presence</h4>
                     <p className="text-sm text-slate-300">Who is in class? Monitor teacher attendance and clock-ins in real-time from your office.</p>
                 </div>
             ),
@@ -124,7 +124,7 @@ export function ExecutiveTour({ enabled = true }: { enabled?: boolean }) {
             target: '#nudge-debtors-btn',
             content: (
                 <div>
-                    <h4 className="font-bold text-white mb-1">Recover Fees Faster</h4>
+                    <h4 className="font-bold text-foreground mb-1">Recover Fees Faster</h4>
                     <p className="text-sm text-slate-300">One tap sends a professional SMS reminder to all parents with outstanding balances.</p>
                 </div>
             ),

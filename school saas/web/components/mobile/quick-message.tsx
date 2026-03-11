@@ -30,9 +30,9 @@ export function QuickMessage() {
     }
 
     return (
-        <Card className="p-4 bg-slate-900 border-white/5 space-y-4">
+        <Card className="p-4 bg-card text-card-foreground border-border/50 space-y-4">
             <div className="flex justify-between items-center">
-                <h3 className="text-white font-bold text-sm">Quick Broadcast</h3>
+                <h3 className="text-foreground font-bold text-sm">Quick Broadcast</h3>
                 <Button variant="destructive" size="sm" className="h-7 text-[10px] uppercase font-bold px-2">
                     <AlertTriangle className="h-3 w-3 mr-1" /> Emergency
                 </Button>
@@ -43,12 +43,12 @@ export function QuickMessage() {
                     value={msg}
                     onChange={(e) => setMsg(e.target.value)}
                     placeholder="Type message or tap Mic..."
-                    className="bg-slate-950 border-white/10 h-24 text-base"
+                    className="bg-slate-950 border-border h-24 text-base"
                 />
                 <Button
                     size="icon"
                     variant="ghost"
-                    className={`absolute bottom-2 right-2 h-8 w-8 ${isRecording ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-slate-400'}`}
+                    className={`absolute bottom-2 right-2 h-8 w-8 ${isRecording ? 'bg-red-500/20 text-red-500 animate-pulse' : 'text-muted-foreground'}`}
                     onClick={startRecording}
                 >
                     <Mic className="h-4 w-4" />
@@ -60,14 +60,14 @@ export function QuickMessage() {
                     <button
                         key={tag}
                         onClick={() => setMsg(prev => prev + ` [${tag}: Details here]`)}
-                        className="text-[10px] whitespace-nowrap bg-slate-800 text-slate-300 px-3 py-1.5 rounded-full border border-white/5 hover:bg-slate-700 hover:text-white transition-colors"
+                        className="text-[10px] whitespace-nowrap bg-slate-800 text-slate-300 px-3 py-1.5 rounded-full border border-border/50 hover:bg-slate-700 hover:text-foreground transition-colors"
                     >
                         {tag}
                     </button>
                 ))}
             </div>
 
-            <Button className="w-full bg-[var(--school-accent)] text-white" onClick={sendBroadcast} disabled={!msg}>
+            <Button className="w-full bg-[var(--school-accent)] text-foreground" onClick={sendBroadcast} disabled={!msg}>
                 <Send className="h-4 w-4 mr-2" /> Send to All Parents
             </Button>
         </Card>

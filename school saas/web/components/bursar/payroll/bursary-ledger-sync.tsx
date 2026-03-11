@@ -46,7 +46,7 @@ export const BursaryLedgerSync: React.FC<BursaryLedgerSyncProps> = ({ reconciled
     };
 
     return (
-        <div className="bg-[#0A0A0B] border border-white/10 rounded-3xl p-8 shadow-2xl max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700">
+        <div className="bg-[#0A0A0B] border border-border rounded-3xl p-8 shadow-2xl max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700">
             {/* 💳 Banking Header */}
             <div className="flex flex-col md:flex-row justify-between items-start mb-12 gap-6">
                 <div>
@@ -54,22 +54,22 @@ export const BursaryLedgerSync: React.FC<BursaryLedgerSyncProps> = ({ reconciled
                         <div className="bg-cyan-500/10 p-2 rounded-xl border border-cyan-500/20">
                             <DatabaseZap size={24} className="text-cyan-400" />
                         </div>
-                        <h2 className="text-2xl font-black text-white tracking-tighter uppercase">Ledger Synchronization</h2>
+                        <h2 className="text-2xl font-black text-foreground tracking-tighter uppercase">Ledger Synchronization</h2>
                     </div>
-                    <p className="text-slate-500 text-[10px] font-mono uppercase tracking-[0.3em]">
+                    <p className="text-muted-foreground text-[10px] font-mono uppercase tracking-[0.3em]">
                         Batch_ID: #{batchId} // Forensic_Audit: Active_Safe
                     </p>
                 </div>
-                <div className="text-right bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total_Batch_Value</p>
-                    <p className="text-3xl font-black text-white tracking-tighter">₦{totalBatchValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                <div className="text-right bg-white/[0.02] border border-border/50 p-4 rounded-2xl">
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Total_Batch_Value</p>
+                    <p className="text-3xl font-black text-foreground tracking-tighter">₦{totalBatchValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                 </div>
             </div>
 
             {/* 📊 Bank-Ready Table */}
-            <div className="bg-black/40 rounded-2xl border border-white/5 overflow-hidden mb-10 shadow-inner">
+            <div className="bg-black/40 rounded-2xl border border-border/50 overflow-hidden mb-10 shadow-inner">
                 <table className="w-full text-left border-collapse">
-                    <thead className="bg-white/5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                    <thead className="bg-secondary/50 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
                         <tr>
                             <th className="py-5 px-8">Account Name</th>
                             <th className="py-5 px-8">Bank / Account_Instructions</th>
@@ -79,21 +79,21 @@ export const BursaryLedgerSync: React.FC<BursaryLedgerSyncProps> = ({ reconciled
                     </thead>
                     <tbody className="text-sm">
                         {reconciledPayroll.map((entry) => (
-                            <tr key={entry.id} className="border-b border-white/5 hover:bg-white/[0.03] transition-all group">
+                            <tr key={entry.id} className="border-b border-border/50 hover:bg-white/[0.03] transition-all group">
                                 <td className="py-5 px-8">
                                     <div className="flex flex-col">
-                                        <span className="font-bold text-slate-200 group-hover:text-white transition-colors uppercase tracking-tight">{entry.staffName}</span>
-                                        <span className="text-[10px] text-slate-500 font-mono mt-0.5">{entry.accountName}</span>
+                                        <span className="font-bold text-slate-200 group-hover:text-foreground transition-colors uppercase tracking-tight">{entry.staffName}</span>
+                                        <span className="text-[10px] text-muted-foreground font-mono mt-0.5">{entry.accountName}</span>
                                     </div>
                                 </td>
                                 <td className="py-5 px-8">
                                     <div className="flex items-center gap-3">
-                                        <div className="bg-white/5 p-1.5 rounded-lg border border-white/5">
-                                            <Landmark size={14} className="text-slate-400" />
+                                        <div className="bg-secondary/50 p-1.5 rounded-lg border border-border/50">
+                                            <Landmark size={14} className="text-muted-foreground" />
                                         </div>
                                         <div className="flex flex-col">
                                             <span className="text-[11px] text-slate-300 font-bold uppercase">{entry.bankName}</span>
-                                            <span className="text-[10px] text-slate-500 font-mono mt-1 tracking-widest">{entry.accountNo}</span>
+                                            <span className="text-[10px] text-muted-foreground font-mono mt-1 tracking-widest">{entry.accountNo}</span>
                                         </div>
                                     </div>
                                 </td>
@@ -124,7 +124,7 @@ export const BursaryLedgerSync: React.FC<BursaryLedgerSyncProps> = ({ reconciled
                 </div>
                 <button
                     onClick={handleDownloadCSV}
-                    className="w-full md:w-auto bg-cyan-600 hover:bg-cyan-500 text-white font-black px-10 py-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-[0_0_30px_rgba(8,145,178,0.3)] hover:shadow-[0_0_40px_rgba(8,145,178,0.4)] active:scale-95 uppercase text-xs tracking-widest group"
+                    className="w-full md:w-auto bg-cyan-600 hover:bg-cyan-500 text-foreground font-black px-10 py-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-[0_0_30px_rgba(8,145,178,0.3)] hover:shadow-[0_0_40px_rgba(8,145,178,0.4)] active:scale-95 uppercase text-xs tracking-widest group"
                 >
                     <FileDown size={20} className="group-hover:animate-bounce" /> DOWNLOAD_BULK_PAYMENT_PAYROLL
                 </button>

@@ -26,8 +26,8 @@ export function BiometricGate({ onUnlock }: { onUnlock: () => void }) {
                 <div className="mx-auto h-16 w-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
                     <Lock className="h-8 w-8 text-amber-500" />
                 </div>
-                <h1 className="text-2xl font-bold text-white tracking-tight">Executive Access</h1>
-                <p className="text-slate-400 text-sm max-w-xs mx-auto">
+                <h1 className="text-2xl font-bold text-foreground tracking-tight">Executive Access</h1>
+                <p className="text-muted-foreground text-sm max-w-xs mx-auto">
                     This dashboard contains sensitive financial data. Biometric verification required.
                 </p>
             </div>
@@ -57,7 +57,7 @@ export function BiometricGate({ onUnlock }: { onUnlock: () => void }) {
                         >
                             <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl group-hover:bg-amber-500/30 transition-all" />
                             <Fingerprint className="relative h-32 w-32 text-slate-600 group-hover:text-amber-500 transition-colors" />
-                            <div className="mt-4 text-xs font-mono text-slate-500 uppercase tracking-widest">
+                            <div className="mt-4 text-xs font-mono text-muted-foreground uppercase tracking-widest">
                                 Tap to Verify ID
                             </div>
                         </motion.button>

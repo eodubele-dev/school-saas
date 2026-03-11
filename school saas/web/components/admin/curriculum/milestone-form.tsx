@@ -107,13 +107,13 @@ export function MilestoneForm({ isOpen, onClose, studentId, initialData, onSucce
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-[500px] bg-[#0A0A0B] border-white/10 text-white shadow-2xl overflow-hidden">
+            <DialogContent className="sm:max-w-[500px] bg-[#0A0A0B] border-border text-foreground shadow-2xl overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-blue-600" />
                 <DialogHeader className="pt-4">
                     <DialogTitle className="text-xl font-bold tracking-tight">
                         {isEditing ? "Edit Milestone" : "Add New Milestone"}
                     </DialogTitle>
-                    <DialogDescription className="text-slate-400">
+                    <DialogDescription className="text-muted-foreground">
                         {isEditing ? "Update the student's curriculum progression." : "Assign a new topic or module to the student's roadmap."}
                     </DialogDescription>
                 </DialogHeader>
@@ -128,7 +128,7 @@ export function MilestoneForm({ isOpen, onClose, studentId, initialData, onSucce
                                     <FormItem>
                                         <FormLabel className="text-slate-300 text-xs uppercase tracking-widest font-bold">Subject</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="e.g. Mathematics" className="bg-white/5 border-white/10 focus-visible:ring-cyan-500 text-white" {...field} />
+                                            <Input placeholder="e.g. Mathematics" className="bg-secondary/50 border-border focus-visible:ring-cyan-500 text-foreground" {...field} />
                                         </FormControl>
                                         <FormMessage className="text-red-400 text-xs" />
                                     </FormItem>
@@ -141,7 +141,7 @@ export function MilestoneForm({ isOpen, onClose, studentId, initialData, onSucce
                                     <FormItem>
                                         <FormLabel className="text-slate-300 text-xs uppercase tracking-widest font-bold">Grade Level</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="e.g. JSS 2" className="bg-white/5 border-white/10 focus-visible:ring-cyan-500 text-white" {...field} />
+                                            <Input placeholder="e.g. JSS 2" className="bg-secondary/50 border-border focus-visible:ring-cyan-500 text-foreground" {...field} />
                                         </FormControl>
                                         <FormMessage className="text-red-400 text-xs" />
                                     </FormItem>
@@ -156,7 +156,7 @@ export function MilestoneForm({ isOpen, onClose, studentId, initialData, onSucce
                                 <FormItem>
                                     <FormLabel className="text-slate-300 text-xs uppercase tracking-widest font-bold">Topic / Unit</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="e.g. Algebraic Expressions" className="bg-white/5 border-white/10 focus-visible:ring-cyan-500 text-white" {...field} />
+                                        <Input placeholder="e.g. Algebraic Expressions" className="bg-secondary/50 border-border focus-visible:ring-cyan-500 text-foreground" {...field} />
                                     </FormControl>
                                     <FormMessage className="text-red-400 text-xs" />
                                 </FormItem>
@@ -171,7 +171,7 @@ export function MilestoneForm({ isOpen, onClose, studentId, initialData, onSucce
                                     <FormItem>
                                         <FormLabel className="text-slate-300 text-xs uppercase tracking-widest font-bold">Week Range</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="e.g. Week 1-2" className="bg-white/5 border-white/10 focus-visible:ring-cyan-500 text-white" {...field} />
+                                            <Input placeholder="e.g. Week 1-2" className="bg-secondary/50 border-border focus-visible:ring-cyan-500 text-foreground" {...field} />
                                         </FormControl>
                                         <FormMessage className="text-red-400 text-xs" />
                                     </FormItem>
@@ -185,11 +185,11 @@ export function MilestoneForm({ isOpen, onClose, studentId, initialData, onSucce
                                         <FormLabel className="text-slate-300 text-xs uppercase tracking-widest font-bold">Status</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
-                                                <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-cyan-500">
+                                                <SelectTrigger className="bg-secondary/50 border-border text-foreground focus:ring-cyan-500">
                                                     <SelectValue placeholder="Select status" />
                                                 </SelectTrigger>
                                             </FormControl>
-                                            <SelectContent className="bg-slate-900 border-white/10 text-white">
+                                            <SelectContent className="bg-card text-card-foreground border-border text-foreground">
                                                 <SelectItem value="locked">Locked</SelectItem>
                                                 <SelectItem value="in-progress">In Progress</SelectItem>
                                                 <SelectItem value="completed">Completed</SelectItem>

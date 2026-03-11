@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Bell,
     Search,
@@ -38,6 +38,8 @@ import { SystemPulse } from "@/components/layout/top-bar/system-pulse"
 import { AttendancePip } from "@/components/layout/top-bar/attendance-pip"
 import { SMSWalletMonitor } from "@/components/layout/top-bar/sms-wallet"
 import { ReconciliationAction } from "@/components/layout/top-bar/reconciliation-action"
+import { usePreferencesStore } from '@/lib/stores/preferences-store'
+import { getUserNotifications, markNotificationsAsRead } from '@/lib/actions/notifications'
 
 interface DynamicTopBarProps {
     user: any
@@ -71,6 +73,44 @@ export function DynamicTopBar({
     const normalizedRole = role.toUpperCase()
     const router = useRouter()
 
+    // Notifications State
+    const [notifications, setNotifications] = useState<any[]>([])
+    const [unreadCount, setUnreadCount] = useState(0)
+    const [isNotifOpen, setIsNotifOpen] = useState(false)
+    const preferences = usePreferencesStore()
+
+    useEffect(() => {
+        const fetchNotifs = async () => {
+            const res = await getUserNotifications()
+            if (res.success && res.data) {
+                // Filter based on preferences matrix (in_app)
+                const inAppPrefs = preferences.notifications.in_app as any
+                const validNotifs = res.data.filter((n: any) => {
+                    if (n.type === 'emergency' || n.type === 'system') return true
+                    if (n.type === 'academic' && inAppPrefs?.academic === false) return false
+                    if (n.type === 'financial' && inAppPrefs?.financial === false) return false
+                    if (n.type === 'security' && inAppPrefs?.security === false) return false
+                    return true
+                })
+                setNotifications(validNotifs)
+                setUnreadCount(validNotifs.filter((n: any) => !n.is_read).length)
+            }
+        }
+        // User must be authenticated so we only fetch once on load or preference change
+        fetchNotifs()
+    }, [preferences.notifications.in_app])
+
+    const handleNotifOpen = async (open: boolean) => {
+        setIsNotifOpen(open)
+        if (open && unreadCount > 0) {
+            // Optimistic update
+            setUnreadCount(0)
+            setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+            // Mark as read in DB
+            await markNotificationsAsRead()
+        }
+    }
+
     const renderRoleUtilities = () => {
         switch (normalizedRole) {
             case 'ADMIN':
@@ -87,12 +127,12 @@ export function DynamicTopBar({
                                     </span>
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56 bg-slate-950 border-slate-800 text-slate-200">
+                            <DropdownMenuContent className="w-56 bg-slate-950 border-border text-slate-200">
                                 <DropdownMenuLabel>Switch Campus</DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-slate-800" />
                                 {campuses.length > 0 ? (
                                     campuses.map((campus: any) => (
-                                        <DropdownMenuItem key={campus.id} className="focus:bg-slate-900 focus:text-amber-500">
+                                        <DropdownMenuItem key={campus.id} className="focus:bg-card text-card-foreground focus:text-amber-500">
                                             <MapPin className="mr-2 h-4 w-4" /> {campus.name}
                                         </DropdownMenuItem>
                                     ))
@@ -108,7 +148,7 @@ export function DynamicTopBar({
 
                         {/* Settings Hidden as requested */}
                         {/* <Link href="/dashboard/settings">
-                            <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white hidden sm:flex">
+                            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hidden sm:flex">
                                 <Settings size={20} />
                             </Button>
                         </Link> */}
@@ -125,7 +165,7 @@ export function DynamicTopBar({
                                     <span>{campuses.length > 0 ? campuses[0].name.toUpperCase() : 'MAIN'}</span>
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-48 bg-slate-950 border-slate-800">
+                            <DropdownMenuContent className="w-48 bg-slate-950 border-border">
                                 {campuses.length > 0 ? (
                                     campuses.map((campus: any) => (
                                         <DropdownMenuItem key={campus.id}>{campus.name}</DropdownMenuItem>
@@ -158,13 +198,13 @@ export function DynamicTopBar({
                                     </span>
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56 bg-slate-950 border-slate-800 text-slate-200">
+                            <DropdownMenuContent className="w-56 bg-slate-950 border-border text-slate-200">
                                 <DropdownMenuLabel>Select Classroom</DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-slate-800" />
                                 {teacherClasses.length > 0 ? (
                                     teacherClasses.map((ac: any) => (
                                         <DropdownMenuItem key={ac.id}>
-                                            {ac.name} <span className="text-slate-500 ml-1 text-xs">({ac.subject})</span>
+                                            {ac.name} <span className="text-muted-foreground ml-1 text-xs">({ac.subject})</span>
                                         </DropdownMenuItem>
                                     ))
                                 ) : (
@@ -212,7 +252,7 @@ export function DynamicTopBar({
     }
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-[#0A0A0B]/80 backdrop-blur-md">
+        <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-[#0A0A0B]/80 backdrop-blur-md">
             <div className="flex h-16 items-center px-4 md:px-8 gap-4 justify-between">
 
                 {/* ZONE 1: BRANDING & MOBILE TRIGGER */}
@@ -226,7 +266,7 @@ export function DynamicTopBar({
                 <div className="flex-1 max-w-2xl px-2 md:px-8 flex items-center gap-4">
                     <OmniSearch role={role} />
                     {activeSession && (
-                        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-slate-300 whitespace-nowrap">
+                        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/50 border border-border text-xs font-medium text-slate-300 whitespace-nowrap">
                             <Activity className="h-3 w-3 text-[var(--school-accent)]" />
                             {activeSession}
                         </div>
@@ -243,22 +283,35 @@ export function DynamicTopBar({
                     <div className="h-6 w-px bg-white/10 hidden sm:block" />
 
                     {/* Notifications */}
-                    <DropdownMenu>
+                    <DropdownMenu open={isNotifOpen} onOpenChange={handleNotifOpen}>
                         <DropdownMenuTrigger asChild>
-                            <button className="relative text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5 outline-none">
+                            <button className="relative text-muted-foreground hover:text-foreground transition-colors p-2 rounded-full hover:bg-secondary/50 outline-none">
                                 <Bell size={20} />
-                                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 border border-[#0A0A0B]" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 border border-[#0A0A0B]" />
+                                )}
                             </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-80 bg-[#0A0A0B] border-slate-800 text-slate-200">
+                        <DropdownMenuContent align="end" className="w-80 bg-[#0A0A0B] border-border text-slate-200">
                             <DropdownMenuLabel>
                                 Notifications
-                                <span className="ml-2 text-xs text-slate-500 font-normal">(0 New)</span>
+                                <span className="ml-2 text-xs text-muted-foreground font-normal">({unreadCount} New)</span>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-slate-800" />
-                            <div className="p-8 text-center text-sm text-slate-500 flex flex-col items-center gap-2">
-                                <Bell className="h-8 w-8 opacity-20" />
-                                <p>You're all caught up!</p>
+                            <div className="max-h-[70vh] overflow-y-auto">
+                                {notifications.length > 0 ? (
+                                    notifications.map(n => (
+                                        <div key={n.id} className="p-3 border-b border-slate-800 last:border-0 hover:bg-slate-900 transition-colors">
+                                            <p className="text-sm font-medium text-slate-100">{n.title}</p>
+                                            <p className="text-xs text-muted-foreground mt-1">{n.message}</p>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="p-8 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
+                                        <Bell className="h-8 w-8 opacity-20" />
+                                        <p>You're all caught up!</p>
+                                    </div>
+                                )}
                             </div>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -266,7 +319,7 @@ export function DynamicTopBar({
                     {/* Help */}
                     <button
                         onClick={() => toast.info("Help Center coming soon!")}
-                        className="text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5 hidden sm:block outline-none"
+                        className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-full hover:bg-secondary/50 hidden sm:block outline-none"
                     >
                         <HelpCircle size={20} />
                     </button>

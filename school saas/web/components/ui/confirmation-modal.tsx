@@ -35,7 +35,7 @@ export function ConfirmationModal({
 }: ConfirmationModalProps) {
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-md bg-slate-950 border-white/10 shadow-2xl">
+            <DialogContent className="max-w-md bg-slate-950 border-border shadow-2xl">
                 <DialogHeader>
                     <div className="flex items-center gap-3 mb-2">
                         <div className={cn(
@@ -46,9 +46,9 @@ export function ConfirmationModal({
                         )}>
                             {variant === "destructive" ? <AlertTriangle className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
                         </div>
-                        <DialogTitle className="text-xl font-bold text-white">{title}</DialogTitle>
+                        <DialogTitle className="text-xl font-bold text-foreground">{title}</DialogTitle>
                     </div>
-                    <DialogDescription className="text-slate-400 text-sm leading-relaxed">
+                    <DialogDescription className="text-muted-foreground text-sm leading-relaxed">
                         {description}
                     </DialogDescription>
                 </DialogHeader>
@@ -56,7 +56,7 @@ export function ConfirmationModal({
                     <Button
                         variant="ghost"
                         onClick={onClose}
-                        className="text-slate-400 hover:text-white hover:bg-white/5 font-medium"
+                        className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 font-medium"
                     >
                         {cancelText}
                     </Button>
@@ -67,9 +67,9 @@ export function ConfirmationModal({
                         }}
                         className={cn(
                             "font-bold uppercase tracking-widest px-6",
-                            variant === "default" && "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20",
-                            variant === "destructive" && "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20",
-                            variant === "warning" && "bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-500/20"
+                            variant === "default" && "bg-blue-600 hover:bg-blue-700 text-foreground shadow-lg shadow-blue-500/20",
+                            variant === "destructive" && "bg-red-600 hover:bg-red-700 text-foreground shadow-lg shadow-red-500/20",
+                            variant === "warning" && "bg-amber-600 hover:bg-amber-700 text-foreground shadow-lg shadow-amber-500/20"
                         )}
                     >
                         {confirmText}

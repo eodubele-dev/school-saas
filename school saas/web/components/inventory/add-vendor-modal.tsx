@@ -66,35 +66,35 @@ export function AddVendorModal({ vendor, open, onOpenChange }: AddVendorModalPro
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="bg-slate-900 border-white/10 text-white sm:max-w-[425px]">
+            <DialogContent className="bg-card text-card-foreground border-border text-foreground sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>{vendor ? "Edit Vendor" : "Add New Vendor"}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div className="space-y-2">
                         <Label>Vendor Name</Label>
-                        <Input {...register("name", { required: true })} className="bg-slate-950 border-white/10" placeholder="e.g. Acme Supplies" />
+                        <Input {...register("name", { required: true })} className="bg-slate-950 border-border" placeholder="e.g. Acme Supplies" />
                     </div>
 
                     <div className="space-y-2">
                         <Label>Contact Person</Label>
-                        <Input {...register("contact_person")} className="bg-slate-950 border-white/10" placeholder="e.g. John Doe" />
+                        <Input {...register("contact_person")} className="bg-slate-950 border-border" placeholder="e.g. John Doe" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>Phone</Label>
-                            <Input {...register("phone")} className="bg-slate-950 border-white/10" placeholder="080..." />
+                            <Input {...register("phone")} className="bg-slate-950 border-border" placeholder="080..." />
                         </div>
                         <div className="space-y-2">
                             <Label>Email</Label>
-                            <Input type="email" {...register("email")} className="bg-slate-950 border-white/10" placeholder="vendor@example.com" />
+                            <Input type="email" {...register("email")} className="bg-slate-950 border-border" placeholder="vendor@example.com" />
                         </div>
                     </div>
 
                     <div className="space-y-2">
                         <Label>Address</Label>
-                        <Textarea {...register("address")} className="bg-slate-950 border-white/10 min-h-[80px]" placeholder="Full business address..." />
+                        <Textarea {...register("address")} className="bg-slate-950 border-border min-h-[80px]" placeholder="Full business address..." />
                     </div>
 
                     <DialogFooter>

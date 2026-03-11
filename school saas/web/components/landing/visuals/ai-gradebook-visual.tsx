@@ -22,8 +22,8 @@ export function AiGradebookVisual() {
     }, [])
 
     return (
-        <div className="bg-slate-950 rounded-xl border border-slate-800 shadow-xl overflow-hidden max-w-md w-full font-sans">
-            <div className="bg-slate-900 p-3 border-b border-slate-800 flex items-center justify-between">
+        <div className="bg-slate-950 rounded-xl border border-border shadow-xl overflow-hidden max-w-md w-full font-sans">
+            <div className="bg-card text-card-foreground p-3 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8">
                         <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=David" />
@@ -31,7 +31,7 @@ export function AiGradebookVisual() {
                     </Avatar>
                     <div className="leading-none">
                         <div className="text-sm font-bold text-slate-200">David Odubele</div>
-                        <div className="text-[10px] text-slate-500">JSS 2A • Mathematics</div>
+                        <div className="text-[10px] text-muted-foreground">JSS 2A • Mathematics</div>
                     </div>
                 </div>
                 <div className="bg-blue-500/10 text-blue-400 text-[10px] px-2 py-1 rounded font-mono border border-blue-500/20">
@@ -41,13 +41,13 @@ export function AiGradebookVisual() {
 
             <div className="p-4 space-y-4">
                 <div className="flex gap-2">
-                    <div className="flex-1 bg-slate-900 rounded p-2 border border-slate-800">
-                        <div className="text-[10px] text-slate-500 mb-1">C.A Test</div>
-                        <div className="text-lg font-bold text-white">18<span className="text-slate-600 text-xs">/20</span></div>
+                    <div className="flex-1 bg-card text-card-foreground rounded p-2 border border-border">
+                        <div className="text-[10px] text-muted-foreground mb-1">C.A Test</div>
+                        <div className="text-lg font-bold text-foreground">18<span className="text-slate-600 text-xs">/20</span></div>
                     </div>
-                    <div className="flex-1 bg-slate-900 rounded p-2 border border-slate-800">
-                        <div className="text-[10px] text-slate-500 mb-1">Exam</div>
-                        <div className="text-lg font-bold text-white">64<span className="text-slate-600 text-xs">/70</span></div>
+                    <div className="flex-1 bg-card text-card-foreground rounded p-2 border border-border">
+                        <div className="text-[10px] text-muted-foreground mb-1">Exam</div>
+                        <div className="text-lg font-bold text-foreground">64<span className="text-slate-600 text-xs">/70</span></div>
                     </div>
                     <div className="flex-1 bg-green-500/10 rounded p-2 border border-green-500/20">
                         <div className="text-[10px] text-green-400 mb-1">Total</div>
@@ -59,13 +59,13 @@ export function AiGradebookVisual() {
                     <div className="absolute -top-3 left-2 px-1 bg-slate-950 text-[10px] text-purple-400 flex items-center gap-1">
                         <Sparkles className="h-3 w-3" /> AI Remark
                     </div>
-                    <div className="h-24 bg-slate-900/50 border border-purple-500/30 rounded-lg p-3 text-xs text-slate-300 leading-relaxed font-mono relative">
+                    <div className="h-24 bg-card text-card-foreground/50 border border-purple-500/30 rounded-lg p-3 text-xs text-slate-300 leading-relaxed font-mono relative">
                         {text}
                         <span className="w-1.5 h-3 bg-purple-500 inline-block ml-0.5 animate-blink align-middle"></span>
                     </div>
                 </div>
 
-                <button className="w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg text-xs font-bold shadow-lg shadow-purple-900/20 flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
+                <button className="w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-foreground rounded-lg text-xs font-bold shadow-lg shadow-purple-900/20 flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
                     <Bot className="h-4 w-4" />
                     Regenerate with Gemini
                 </button>

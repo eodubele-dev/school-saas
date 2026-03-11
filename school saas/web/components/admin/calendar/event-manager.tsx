@@ -82,29 +82,29 @@ export function EventManager({ initialEvents }: { initialEvents: SchoolEvent[] }
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="relative w-full sm:w-72">
                     <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                        <Calendar className="h-4 w-4 text-slate-500" />
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <input
                         type="text"
                         placeholder="Search events..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-slate-900 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        className="w-full bg-card text-card-foreground border border-border rounded-xl py-2 pl-9 pr-4 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-indigo-500"
                     />
                 </div>
                 <Button
                     onClick={handleCreateNew}
-                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white shadow-[0_0_15px_rgba(79,70,229,0.3)] gap-2 whitespace-nowrap"
+                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-foreground shadow-[0_0_15px_rgba(79,70,229,0.3)] gap-2 whitespace-nowrap"
                 >
                     <Plus className="h-4 w-4" />
                     Publish Event
                 </Button>
             </div>
 
-            <div className="bg-slate-900/50 border border-white/5 rounded-2xl overflow-hidden">
+            <div className="bg-card text-card-foreground/50 border border-border/50 rounded-2xl overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm whitespace-nowrap">
-                        <thead className="bg-slate-900/80 border-b border-white/5 text-slate-400">
+                        <thead className="bg-card text-card-foreground/80 border-b border-border/50 text-muted-foreground">
                             <tr>
                                 <th className="px-6 py-4 font-medium">Event Details</th>
                                 <th className="px-6 py-4 font-medium">Date & Time</th>
@@ -116,7 +116,7 @@ export function EventManager({ initialEvents }: { initialEvents: SchoolEvent[] }
                         <tbody className="divide-y divide-white/5">
                             {filteredEvents.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
+                                    <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">
                                         <CalendarDays className="h-10 w-10 mx-auto mb-3 opacity-20" />
                                         <p>{searchQuery ? "No events match your search." : "No calendar events found."}</p>
                                     </td>
@@ -125,18 +125,18 @@ export function EventManager({ initialEvents }: { initialEvents: SchoolEvent[] }
                                 filteredEvents.map((event) => (
                                     <tr key={event.id} className="hover:bg-slate-800/50 transition-colors group">
                                         <td className="px-6 py-4">
-                                            <div className="font-bold text-white mb-1 group-hover:text-indigo-300 transition-colors">
+                                            <div className="font-bold text-foreground mb-1 group-hover:text-indigo-300 transition-colors">
                                                 {event.title}
                                             </div>
                                             {event.description && (
-                                                <div className="text-xs text-slate-500 truncate max-w-[250px]">
+                                                <div className="text-xs text-muted-foreground truncate max-w-[250px]">
                                                     {event.description}
                                                 </div>
                                             )}
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2 text-slate-300">
-                                                <Clock className="h-3.5 w-3.5 text-slate-500" />
+                                                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                                                 {new Date(event.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                                 {event.end_date && ` - ${new Date(event.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}
                                             </div>
@@ -162,11 +162,11 @@ export function EventManager({ initialEvents }: { initialEvents: SchoolEvent[] }
                                         <td className="px-6 py-4 text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 data-[state=open]:bg-indigo-500/10 data-[state=open]:text-indigo-400">
+                                                    <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 data-[state=open]:bg-indigo-500/10 data-[state=open]:text-indigo-400">
                                                         <MoreVertical className="h-4 w-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="bg-slate-900 border-white/10 text-slate-200 w-40">
+                                                <DropdownMenuContent align="end" className="bg-card text-card-foreground border-border text-slate-200 w-40">
                                                     <DropdownMenuItem
                                                         className="focus:bg-slate-800 focus:text-indigo-400 cursor-pointer text-indigo-400 flex items-center gap-2"
                                                         onClick={() => handleEdit(event)}
@@ -174,7 +174,7 @@ export function EventManager({ initialEvents }: { initialEvents: SchoolEvent[] }
                                                         <Pencil className="h-4 w-4" />
                                                         Edit Event
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuSeparator className="bg-white/5" />
+                                                    <DropdownMenuSeparator className="bg-secondary/50" />
                                                     <DropdownMenuItem
                                                         className="focus:bg-red-500/10 focus:text-red-500 cursor-pointer text-red-500 flex items-center gap-2"
                                                         onClick={() => handleDelete(event.id)}

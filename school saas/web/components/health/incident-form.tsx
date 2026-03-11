@@ -74,18 +74,18 @@ export function IncidentForm({ students, onSuccess }: { students: any[], onSucce
                     name="studentId"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="text-slate-400">Student</FormLabel>
+                            <FormLabel className="text-muted-foreground">Student</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl className="bg-slate-900 border-slate-800 text-slate-200 focus:ring-indigo-500/50">
+                                <FormControl className="bg-card text-card-foreground border-border text-slate-200 focus:ring-indigo-500/50">
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a student" />
                                     </SelectTrigger>
                                 </FormControl>
-                                <SelectContent className="bg-slate-900 border-slate-800 text-slate-200 custom-scrollbar max-h-[200px]">
+                                <SelectContent className="bg-card text-card-foreground border-border text-slate-200 custom-scrollbar max-h-[200px]">
                                     {students.map((s) => (
                                         <SelectItem key={s.id} value={s.id} className="hover:bg-slate-800 transition-colors cursor-pointer">
                                             <span className="font-medium text-slate-200">{s.full_name}</span>
-                                            <span className="text-slate-500 text-xs ml-2 font-mono">{s.admission_number}</span>
+                                            <span className="text-muted-foreground text-xs ml-2 font-mono">{s.admission_number}</span>
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -101,9 +101,9 @@ export function IncidentForm({ students, onSuccess }: { students: any[], onSucce
                         name="date"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="text-slate-400">Date</FormLabel>
+                                <FormLabel className="text-muted-foreground">Date</FormLabel>
                                 <FormControl>
-                                    <Input type="date" className="bg-slate-900 border-slate-800 text-slate-200 focus:border-indigo-500/50" {...field} />
+                                    <Input type="date" className="bg-card text-card-foreground border-border text-slate-200 focus:border-indigo-500/50" {...field} />
                                 </FormControl>
                                 <FormMessage className="text-red-400 text-xs" />
                             </FormItem>
@@ -114,9 +114,9 @@ export function IncidentForm({ students, onSuccess }: { students: any[], onSucce
                         name="time"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="text-slate-400">Time</FormLabel>
+                                <FormLabel className="text-muted-foreground">Time</FormLabel>
                                 <FormControl>
-                                    <Input type="time" className="bg-slate-900 border-slate-800 text-slate-200 focus:border-indigo-500/50" {...field} />
+                                    <Input type="time" className="bg-card text-card-foreground border-border text-slate-200 focus:border-indigo-500/50" {...field} />
                                 </FormControl>
                                 <FormMessage className="text-red-400 text-xs" />
                             </FormItem>
@@ -129,14 +129,14 @@ export function IncidentForm({ students, onSuccess }: { students: any[], onSucce
                     name="type"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="text-slate-400">Incident Type</FormLabel>
+                            <FormLabel className="text-muted-foreground">Incident Type</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl className="bg-slate-900 border-slate-800 text-slate-200 focus:ring-indigo-500/50">
+                                <FormControl className="bg-card text-card-foreground border-border text-slate-200 focus:ring-indigo-500/50">
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
                                 </FormControl>
-                                <SelectContent className="bg-slate-900 border-slate-800 text-slate-200">
+                                <SelectContent className="bg-card text-card-foreground border-border text-slate-200">
                                     <SelectItem value="Illness">Illness</SelectItem>
                                     <SelectItem value="Injury">Injury</SelectItem>
                                     <SelectItem value="Routine">Routine</SelectItem>
@@ -153,9 +153,9 @@ export function IncidentForm({ students, onSuccess }: { students: any[], onSucce
                     name="title"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="text-slate-400">Title</FormLabel>
+                            <FormLabel className="text-muted-foreground">Title</FormLabel>
                             <FormControl>
-                                <Input placeholder="e.g., Headache and fever" className="bg-slate-900 border-slate-800 text-slate-200 focus:border-indigo-500/50" {...field} />
+                                <Input placeholder="e.g., Headache and fever" className="bg-card text-card-foreground border-border text-slate-200 focus:border-indigo-500/50" {...field} />
                             </FormControl>
                             <FormMessage className="text-red-400 text-xs" />
                         </FormItem>
@@ -167,9 +167,9 @@ export function IncidentForm({ students, onSuccess }: { students: any[], onSucce
                     name="treatment"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="text-slate-400">Treatment / Notes</FormLabel>
+                            <FormLabel className="text-muted-foreground">Treatment / Notes</FormLabel>
                             <FormControl>
-                                <Textarea placeholder="Details of treatment administered..." className="bg-slate-900 border-slate-800 text-slate-200 focus:border-indigo-500/50 min-h-[80px]" {...field} />
+                                <Textarea placeholder="Details of treatment administered..." className="bg-card text-card-foreground border-border text-slate-200 focus:border-indigo-500/50 min-h-[80px]" {...field} />
                             </FormControl>
                             <FormMessage className="text-red-400 text-xs" />
                         </FormItem>
@@ -181,14 +181,14 @@ export function IncidentForm({ students, onSuccess }: { students: any[], onSucce
                     name="status"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="text-slate-400">Outcome Status</FormLabel>
+                            <FormLabel className="text-muted-foreground">Outcome Status</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl className="bg-slate-900 border-slate-800 text-slate-200 focus:ring-indigo-500/50">
+                                <FormControl className="bg-card text-card-foreground border-border text-slate-200 focus:ring-indigo-500/50">
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select outcome" />
                                     </SelectTrigger>
                                 </FormControl>
-                                <SelectContent className="bg-slate-900 border-slate-800 text-slate-200">
+                                <SelectContent className="bg-card text-card-foreground border-border text-slate-200">
                                     <SelectItem value="Back to Class">Back to Class</SelectItem>
                                     <SelectItem value="Sent Home">Sent Home</SelectItem>
                                     <SelectItem value="Under Observation">Under Observation</SelectItem>
@@ -203,7 +203,7 @@ export function IncidentForm({ students, onSuccess }: { students: any[], onSucce
                     <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_15px_rgba(79,70,229,0.3)] w-full sm:w-auto"
+                        className="bg-indigo-600 hover:bg-indigo-500 text-foreground shadow-[0_0_15px_rgba(79,70,229,0.3)] w-full sm:w-auto"
                     >
                         {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Log Medical Incident"}
                     </Button>

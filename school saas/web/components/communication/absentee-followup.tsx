@@ -62,14 +62,14 @@ export function AbsenteeFollowUp() {
     if (loading) return <div className="h-40 flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-blue-500" /></div>
 
     return (
-        <Card className="bg-slate-900 border-white/5 p-6">
+        <Card className="bg-card text-card-foreground border-border/50 p-6">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                         <AlertCircle className="h-5 w-5 text-red-400" />
                         Daily Absentees
                     </h3>
-                    <p className="text-sm text-slate-400">Students marked absent today ({formatDate(new Date())})</p>
+                    <p className="text-sm text-muted-foreground">Students marked absent today ({formatDate(new Date())})</p>
                 </div>
                 <Button
                     onClick={handleBulkNotify}
@@ -82,21 +82,21 @@ export function AbsenteeFollowUp() {
             </div>
 
             {absentees.length === 0 ? (
-                <div className="text-center py-10 text-slate-500 flex flex-col items-center">
+                <div className="text-center py-10 text-muted-foreground flex flex-col items-center">
                     <CheckCircle className="h-10 w-10 mb-2 text-emerald-500/50" />
                     <p>No absentees recorded today.</p>
                 </div>
             ) : (
                 <div className="space-y-2">
                     {absentees.map((record: any) => (
-                        <div key={record.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                        <div key={record.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-white/10 transition-colors">
                             <div className="flex items-center gap-3">
                                 <Avatar className="h-8 w-8 bg-slate-800">
                                     <AvatarFallback>{record.student?.full_name?.[0] || 'S'}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <p className="text-sm font-medium text-white">{record.student?.full_name || 'Unknown Student'}</p>
-                                    <p className="text-xs text-slate-400">Class: {record.student?.class_id || 'N/A'}</p>
+                                    <p className="text-sm font-medium text-foreground">{record.student?.full_name || 'Unknown Student'}</p>
+                                    <p className="text-xs text-muted-foreground">Class: {record.student?.class_id || 'N/A'}</p>
                                 </div>
                             </div>
                             <span className="text-xs text-red-400 font-medium px-2 py-1 rounded bg-red-400/10 border border-red-400/20">

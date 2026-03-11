@@ -10,10 +10,10 @@ export function SettlementsTab({ initialData }: { initialData: any[] }) {
     return (
         <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-3">
-                <Card className="bg-slate-900 border-white/5">
+                <Card className="bg-card text-card-foreground border-border/50">
                     <CardHeader className="pb-2">
-                        <CardDescription className="text-slate-400">Total Processed</CardDescription>
-                        <CardTitle className="text-2xl font-bold text-white flex items-center gap-2">
+                        <CardDescription className="text-muted-foreground">Total Processed</CardDescription>
+                        <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
                             <NairaIcon className="h-5 w-5 text-cyan-400" />
                             {initialData.reduce((acc, curr) => acc + curr.amount, 0).toLocaleString()}
                         </CardTitle>
@@ -21,35 +21,35 @@ export function SettlementsTab({ initialData }: { initialData: any[] }) {
                 </Card>
             </div>
 
-            <Card className="bg-slate-900 border-white/5">
+            <Card className="bg-card text-card-foreground border-border/50">
                 <Table>
                     <TableHeader className="bg-slate-800/50">
-                        <TableRow className="border-white/5 hover:bg-transparent">
-                            <TableHead className="text-slate-400">Transaction ID</TableHead>
-                            <TableHead className="text-slate-400">Student</TableHead>
-                            <TableHead className="text-slate-400">Amount</TableHead>
-                            <TableHead className="text-slate-400">Fee (2.5%)</TableHead>
-                            <TableHead className="text-slate-400">Net</TableHead>
-                            <TableHead className="text-slate-400">Settlement</TableHead>
-                            <TableHead className="text-right text-slate-400">Status</TableHead>
+                        <TableRow className="border-border/50 hover:bg-transparent">
+                            <TableHead className="text-muted-foreground">Transaction ID</TableHead>
+                            <TableHead className="text-muted-foreground">Student</TableHead>
+                            <TableHead className="text-muted-foreground">Amount</TableHead>
+                            <TableHead className="text-muted-foreground">Fee (2.5%)</TableHead>
+                            <TableHead className="text-muted-foreground">Net</TableHead>
+                            <TableHead className="text-muted-foreground">Settlement</TableHead>
+                            <TableHead className="text-right text-muted-foreground">Status</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {initialData.map((trx) => (
                             <TableRow
                                 key={trx.id}
-                                className={`border-white/5 hover:bg-white/5 transition-all duration-500 ${trx.status === 'success' ? 'shadow-[0_0_15px_-3px_rgba(34,211,238,0.1)]' : ''}`}
+                                className={`border-border/50 hover:bg-secondary/50 transition-all duration-500 ${trx.status === 'success' ? 'shadow-[0_0_15px_-3px_rgba(34,211,238,0.1)]' : ''}`}
                             >
-                                <TableCell className="font-mono text-[10px] text-slate-400">
+                                <TableCell className="font-mono text-[10px] text-muted-foreground">
                                     {trx.reference || trx.id.slice(0, 8)}
                                 </TableCell>
                                 <TableCell className="text-slate-200 font-medium">
                                     {trx.studentName}
                                 </TableCell>
-                                <TableCell className="text-white">
+                                <TableCell className="text-foreground">
                                     ₦{trx.amount.toLocaleString()}
                                 </TableCell>
-                                <TableCell className="text-slate-500">
+                                <TableCell className="text-muted-foreground">
                                     ₦{(trx.amount * 0.025).toLocaleString()}
                                 </TableCell>
                                 <TableCell className="text-cyan-400 font-bold">
@@ -77,7 +77,7 @@ export function SettlementsTab({ initialData }: { initialData: any[] }) {
                     </TableBody>
                 </Table>
                 {initialData.length === 0 && (
-                    <div className="p-12 text-center text-slate-500">
+                    <div className="p-12 text-center text-muted-foreground">
                         <CreditCard className="h-12 w-12 mx-auto mb-4 opacity-10" />
                         <p>No Paystack transactions found for this period.</p>
                     </div>

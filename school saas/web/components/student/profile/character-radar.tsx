@@ -16,13 +16,13 @@ export function CharacterRadar({ behavior }: { behavior: any }) {
     ]
 
     return (
-        <Card className="p-6 bg-slate-900 border-white/5 h-full">
+        <Card className="p-6 bg-card text-card-foreground border-border/50 h-full">
             <div className="mb-4">
-                <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                <h3 className="text-foreground font-bold text-lg flex items-center gap-2">
                     <BrainCircuit className="h-5 w-5 text-[var(--school-accent)]" />
                     Character Radar
                 </h3>
-                <p className="text-sm text-slate-400">Behavioral Assessment (Scale 1-5)</p>
+                <p className="text-sm text-muted-foreground">Behavioral Assessment (Scale 1-5)</p>
             </div>
 
             <div className="h-[250px] w-full">

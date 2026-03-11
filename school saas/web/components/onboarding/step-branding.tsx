@@ -34,16 +34,16 @@ export function StepBranding({ data, updateData, onNext, onBack }: StepBrandingP
     }, [data.subdomain])
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-white/[0.03] backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-white/[0.03] backdrop-blur-md p-8 rounded-3xl border border-border shadow-2xl">
             <div className="text-center">
-                <h2 className="text-2xl font-bold text-white mb-2">Establish Your Identity</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-2">Establish Your Identity</h2>
                 <p className="text-gray-400">Upload your school crest and define your brand colors.</p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-8 items-start">
                 {/* Logo Upload Area */}
                 <div className="flex flex-col items-center gap-4 w-full md:w-auto">
-                    <div className="w-48 h-48 rounded-3xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center bg-black/40 hover:border-[#00F5FF]/50 transition-all cursor-pointer group relative overflow-hidden">
+                    <div className="w-48 h-48 rounded-3xl border-2 border-dashed border-border flex flex-col items-center justify-center bg-black/40 hover:border-[#00F5FF]/50 transition-all cursor-pointer group relative overflow-hidden">
                         {/* Hidden Input for file */}
                         <input
                             type="file"
@@ -76,28 +76,28 @@ export function StepBranding({ data, updateData, onNext, onBack }: StepBrandingP
                 {/* Form Fields */}
                 <div className="flex-1 space-y-6 w-full">
                     <div className="grid gap-2">
-                        <Label className="text-slate-400">School Name</Label>
+                        <Label className="text-muted-foreground">School Name</Label>
                         <Input
                             placeholder="e.g. Springfield International School"
                             value={data.schoolName}
                             onChange={(e) => updateData('schoolName', e.target.value)}
-                            className="bg-white/5 border-white/10 text-white focus:border-[#00F5FF]/50"
+                            className="bg-secondary/50 border-border text-foreground focus:border-[#00F5FF]/50"
                         />
                     </div>
 
                     <div className="grid gap-2 relative">
-                        <Label className="text-slate-400">Subdomain (Dashboard URL)</Label>
+                        <Label className="text-muted-foreground">Subdomain (Dashboard URL)</Label>
                         <div className="relative">
                             <Input
                                 placeholder="springfield"
-                                className="pr-32 bg-white/5 border-white/10 text-white focus:border-[#00F5FF]/50"
+                                className="pr-32 bg-secondary/50 border-border text-foreground focus:border-[#00F5FF]/50"
                                 value={data.subdomain}
                                 onChange={(e) => {
                                     const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')
                                     updateData('subdomain', val)
                                 }}
                             />
-                            <div className="absolute right-3 top-2.5 text-sm text-slate-500">
+                            <div className="absolute right-3 top-2.5 text-sm text-muted-foreground">
                                 .eduflow.ng
                             </div>
                         </div>
@@ -119,7 +119,7 @@ export function StepBranding({ data, updateData, onNext, onBack }: StepBrandingP
                     {/* Platinum Color Picker */}
                     <div>
                         <label className="block text-sm font-mono text-cyan-400 mb-2 tracking-widest uppercase">Platinum Accent Color</label>
-                        <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+                        <div className="flex items-center gap-4 bg-secondary/50 p-4 rounded-2xl border border-border">
                             <input
                                 type="color"
                                 value={data.brandColor || '#00F5FF'}
@@ -127,8 +127,8 @@ export function StepBranding({ data, updateData, onNext, onBack }: StepBrandingP
                                 className="w-12 h-12 bg-transparent cursor-pointer rounded-lg overflow-hidden border-none"
                             />
                             <div className="flex flex-col">
-                                <span className="text-white font-mono uppercase">{data.brandColor || '#00F5FF'}</span>
-                                <span className="text-xs text-slate-500">Primary UI Emphasis</span>
+                                <span className="text-foreground font-mono uppercase">{data.brandColor || '#00F5FF'}</span>
+                                <span className="text-xs text-muted-foreground">Primary UI Emphasis</span>
                             </div>
                         </div>
                     </div>
@@ -140,14 +140,14 @@ export function StepBranding({ data, updateData, onNext, onBack }: StepBrandingP
                     <Button
                         variant="ghost"
                         onClick={onBack}
-                        className="flex-1 text-slate-400 hover:text-white border border-white/5 hover:bg-white/5"
+                        className="flex-1 text-muted-foreground hover:text-foreground border border-border/50 hover:bg-secondary/50"
                     >
                         Back
                     </Button>
                 )}
                 <Button
                     onClick={onNext}
-                    className="flex-[2] bg-[#0066FF] hover:bg-blue-600 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/20"
+                    className="flex-[2] bg-[#0066FF] hover:bg-blue-600 text-foreground font-bold h-12 rounded-xl shadow-lg shadow-blue-500/20"
                     disabled={!available || !data.schoolName}
                 >
                     Initialize Campus Environment

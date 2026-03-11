@@ -79,14 +79,14 @@ export function StaffInviteModal({ domain }: { domain: string }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-[var(--school-accent)] text-white hover:brightness-110 shadow-lg shadow-[var(--school-accent)]/20">
+                <Button className="bg-[var(--school-accent)] text-foreground hover:brightness-110 shadow-lg shadow-[var(--school-accent)]/20">
                     <UserPlus className="mr-2 h-4 w-4" /> Add Staff Member
                 </Button>
             </DialogTrigger>
-            <DialogContent className="bg-slate-900 border-white/10 text-white sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+            <DialogContent className="bg-card text-card-foreground border-border text-foreground sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Staff Onboarding</DialogTitle>
-                    <DialogDescription className="text-slate-400">
+                    <DialogDescription className="text-muted-foreground">
                         Create a new staff profile. Credentials will be sent securely.
                     </DialogDescription>
                 </DialogHeader>
@@ -96,7 +96,7 @@ export function StaffInviteModal({ domain }: { domain: string }) {
                         <div className="space-y-2">
                             <Label>First Name</Label>
                             <Input
-                                className="bg-slate-950 border-white/10"
+                                className="bg-slate-950 border-border"
                                 value={formData.firstName}
                                 onChange={e => setFormData({ ...formData, firstName: e.target.value })}
                             />
@@ -104,7 +104,7 @@ export function StaffInviteModal({ domain }: { domain: string }) {
                         <div className="space-y-2">
                             <Label>Last Name</Label>
                             <Input
-                                className="bg-slate-950 border-white/10"
+                                className="bg-slate-950 border-border"
                                 value={formData.lastName}
                                 onChange={e => setFormData({ ...formData, lastName: e.target.value })}
                             />
@@ -114,9 +114,9 @@ export function StaffInviteModal({ domain }: { domain: string }) {
                     <div className="space-y-2">
                         <Label>Email Address</Label>
                         <div className="relative">
-                            <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                            <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
-                                className="bg-slate-950 border-white/10 pl-9"
+                                className="bg-slate-950 border-border pl-9"
                                 placeholder="staff@school.com"
                                 value={formData.email}
                                 onChange={e => setFormData({ ...formData, email: e.target.value })}
@@ -127,9 +127,9 @@ export function StaffInviteModal({ domain }: { domain: string }) {
                     <div className="space-y-2">
                         <Label>Phone Number (for SMS Credentials)</Label>
                         <div className="relative">
-                            <Phone className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                            <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
-                                className="bg-slate-950 border-white/10 pl-9"
+                                className="bg-slate-950 border-border pl-9"
                                 placeholder="+234..."
                                 value={formData.phone}
                                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
@@ -144,10 +144,10 @@ export function StaffInviteModal({ domain }: { domain: string }) {
                                 value={formData.role}
                                 onValueChange={val => setFormData({ ...formData, role: val })}
                             >
-                                <SelectTrigger className="bg-slate-950 border-white/10">
+                                <SelectTrigger className="bg-slate-950 border-border">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-slate-900 border-white/10 text-white">
+                                <SelectContent className="bg-card text-card-foreground border-border text-foreground">
                                     <SelectItem value="admin">Admin</SelectItem>
                                     <SelectItem value="teacher">Teacher</SelectItem>
                                     <SelectItem value="bursar">Bursar</SelectItem>
@@ -160,7 +160,7 @@ export function StaffInviteModal({ domain }: { domain: string }) {
                         <div className="space-y-2">
                             <Label>Designation</Label>
                             <Input
-                                className="bg-slate-950 border-white/10"
+                                className="bg-slate-950 border-border"
                                 placeholder="e.g. Senior Science Master"
                                 value={formData.designation}
                                 onChange={e => setFormData({ ...formData, designation: e.target.value })}
@@ -171,7 +171,7 @@ export function StaffInviteModal({ domain }: { domain: string }) {
                     <div className="space-y-2">
                         <Label>Department (Optional)</Label>
                         <Input
-                            className="bg-slate-950 border-white/10"
+                            className="bg-slate-950 border-border"
                             placeholder="e.g. Science"
                             value={formData.department}
                             onChange={e => setFormData({ ...formData, department: e.target.value })}
@@ -181,7 +181,7 @@ export function StaffInviteModal({ domain }: { domain: string }) {
                     <div className="space-y-3 pt-2">
                         <Label className="flex items-center gap-2">
                             Digital Signature
-                            <span className="text-xs text-slate-500 font-normal">(Required for reports/vouchers)</span>
+                            <span className="text-xs text-muted-foreground font-normal">(Required for reports/vouchers)</span>
                         </Label>
                         <SignaturePad
                             onEnd={(dataUrl) => setFormData(prev => ({ ...prev, signature: dataUrl }))}
@@ -193,11 +193,11 @@ export function StaffInviteModal({ domain }: { domain: string }) {
                 </div>
 
                 <DialogFooter className="gap-2 sm:gap-0">
-                    <Button variant="ghost" onClick={() => setOpen(false)} className="text-slate-400">Cancel</Button>
+                    <Button variant="ghost" onClick={() => setOpen(false)} className="text-muted-foreground">Cancel</Button>
                     <Button
                         onClick={handleInvite}
                         disabled={loading || !formData.signature}
-                        className="bg-[var(--school-accent)] text-white hover:brightness-110"
+                        className="bg-[var(--school-accent)] text-foreground hover:brightness-110"
                     >
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Save & Send Credentials

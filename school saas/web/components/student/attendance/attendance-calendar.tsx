@@ -31,9 +31,9 @@ export function AttendanceCalendar({ history }: AttendanceCalendarProps) {
     const prevMonth = () => setCurrentDate(subMonths(currentDate, 1))
 
     return (
-        <div className="bg-slate-900 border border-white/5 rounded-xl p-6">
+        <div className="bg-card text-card-foreground border border-border/50 rounded-xl p-6">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-white">
+                <h3 className="text-xl font-bold text-foreground">
                     {format(currentDate, "MMMM yyyy")}
                 </h3>
                 <div className="flex gap-2">
@@ -48,7 +48,7 @@ export function AttendanceCalendar({ history }: AttendanceCalendarProps) {
 
             <div className="grid grid-cols-7 gap-2 mb-2 text-center">
                 {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-                    <div key={day} className="text-sm font-medium text-slate-500 py-2">
+                    <div key={day} className="text-sm font-medium text-muted-foreground py-2">
                         {day}
                     </div>
                 ))}
@@ -68,7 +68,7 @@ export function AttendanceCalendar({ history }: AttendanceCalendarProps) {
                             key={date.toString()}
                             className={cn(
                                 "h-10 md:h-14 rounded-lg flex flex-col items-center justify-center relative border transition-all",
-                                isToday ? "border-amber-500/50 bg-amber-500/5" : "border-slate-800/50 bg-slate-950",
+                                isToday ? "border-amber-500/50 bg-amber-500/5" : "border-border/50 bg-slate-950",
                                 status === 'present' && "bg-emerald-500/10 border-emerald-500/30",
                                 status === 'absent' && "bg-red-500/10 border-red-500/30",
                                 status === 'late' && "bg-amber-500/10 border-amber-500/30",
@@ -77,7 +77,7 @@ export function AttendanceCalendar({ history }: AttendanceCalendarProps) {
                         >
                             <span className={cn(
                                 "text-sm",
-                                isToday ? "text-amber-500 font-bold" : "text-slate-400"
+                                isToday ? "text-amber-500 font-bold" : "text-muted-foreground"
                             )}>
                                 {format(date, "d")}
                             </span>
@@ -91,7 +91,7 @@ export function AttendanceCalendar({ history }: AttendanceCalendarProps) {
                 })}
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-4 justify-center text-xs text-slate-400">
+            <div className="mt-6 flex flex-wrap gap-4 justify-center text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Present
                 </div>

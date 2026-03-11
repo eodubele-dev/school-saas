@@ -57,19 +57,19 @@ export function AddItemModal({ open, onOpenChange, categories, vendors }: AddIte
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="bg-slate-900 border-white/10 text-white sm:max-w-[425px]">
+            <DialogContent className="bg-card text-card-foreground border-border text-foreground sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>Add New Inventory Item</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div className="space-y-2">
                         <Label>Item Name</Label>
-                        <Input {...register("name", { required: true })} className="bg-slate-950 border-white/10" placeholder="e.g. A4 Paper" />
+                        <Input {...register("name", { required: true })} className="bg-slate-950 border-border" placeholder="e.g. A4 Paper" />
                     </div>
 
                     <div className="space-y-2">
                         <Label>SKU (Optional)</Label>
-                        <Input {...register("sku")} className="bg-slate-950 border-white/10" placeholder="e.g. SCH-001" />
+                        <Input {...register("sku")} className="bg-slate-950 border-border" placeholder="e.g. SCH-001" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -77,16 +77,16 @@ export function AddItemModal({ open, onOpenChange, categories, vendors }: AddIte
                             <Label>Category</Label>
                             <Input {...register("category_id")} className="hidden" />
                             <Select value={categoryId} onValueChange={(v) => setValue("category_id", v)}>
-                                <SelectTrigger className="bg-slate-950 border-white/10 w-full">
+                                <SelectTrigger className="bg-slate-950 border-border w-full">
                                     <SelectValue placeholder="Select Category..." />
                                 </SelectTrigger>
-                                <SelectContent className="bg-slate-900 border-white/10 text-white">
+                                <SelectContent className="bg-card text-card-foreground border-border text-foreground">
                                     {categories && categories.length > 0 ? (
                                         categories.map(cat => (
                                             <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                                         ))
                                     ) : (
-                                        <div className="p-2 text-xs text-slate-500">No categories found</div>
+                                        <div className="p-2 text-xs text-muted-foreground">No categories found</div>
                                     )}
                                 </SelectContent>
                             </Select>
@@ -94,10 +94,10 @@ export function AddItemModal({ open, onOpenChange, categories, vendors }: AddIte
                         <div className="space-y-2">
                             <Label>Unit Type</Label>
                             <Select value={unitType} onValueChange={setUnitType}>
-                                <SelectTrigger className="bg-slate-950 border-white/10">
+                                <SelectTrigger className="bg-slate-950 border-border">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-slate-900 border-white/10 text-white">
+                                <SelectContent className="bg-card text-card-foreground border-border text-foreground">
                                     <SelectItem value="unit">Unit</SelectItem>
                                     <SelectItem value="box">Box</SelectItem>
                                     <SelectItem value="ream">Ream</SelectItem>
@@ -111,33 +111,33 @@ export function AddItemModal({ open, onOpenChange, categories, vendors }: AddIte
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>Initial Qty</Label>
-                            <Input type="number" {...register("quantity_on_hand")} className="bg-slate-950 border-white/10" defaultValue={0} />
+                            <Input type="number" {...register("quantity_on_hand")} className="bg-slate-950 border-border" defaultValue={0} />
                         </div>
                         <div className="space-y-2">
                             <Label>Reorder Level</Label>
-                            <Input type="number" {...register("reorder_level")} className="bg-slate-950 border-white/10" defaultValue={10} />
+                            <Input type="number" {...register("reorder_level")} className="bg-slate-950 border-border" defaultValue={10} />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>Unit Cost (₦)</Label>
-                            <Input type="number" step="0.01" {...register("unit_cost")} className="bg-slate-950 border-white/10" placeholder="0.00" />
+                            <Input type="number" step="0.01" {...register("unit_cost")} className="bg-slate-950 border-border" placeholder="0.00" />
                         </div>
                         <div className="space-y-2">
                             <Label>Vendor (Optional)</Label>
                             <Input {...register("vendor_id")} className="hidden" />
                             <Select value={vendorId} onValueChange={(v) => setValue("vendor_id", v)}>
-                                <SelectTrigger className="bg-slate-950 border-white/10 w-full">
+                                <SelectTrigger className="bg-slate-950 border-border w-full">
                                     <SelectValue placeholder="Select Vendor..." />
                                 </SelectTrigger>
-                                <SelectContent className="bg-slate-900 border-white/10 text-white">
+                                <SelectContent className="bg-card text-card-foreground border-border text-foreground">
                                     {vendors && vendors.length > 0 ? (
                                         vendors.map(v => (
                                             <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
                                         ))
                                     ) : (
-                                        <div className="p-2 text-xs text-slate-500">No vendors found</div>
+                                        <div className="p-2 text-xs text-muted-foreground">No vendors found</div>
                                     )}
                                 </SelectContent>
                             </Select>

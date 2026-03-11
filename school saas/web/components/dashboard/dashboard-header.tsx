@@ -70,7 +70,7 @@ export const DashboardHeader = ({ user, role, schoolName }: DashboardHeaderProps
                     accent: "from-slate-500/20 to-transparent",
                     border: "border-slate-500/30",
                     glow: "shadow-[0_0_20px_rgba(148,163,184,0.2)]",
-                    textColor: "text-slate-400"
+                    textColor: "text-muted-foreground"
                 }
         }
     }
@@ -84,20 +84,20 @@ export const DashboardHeader = ({ user, role, schoolName }: DashboardHeaderProps
             className={`mb-12 relative z-10 p-8 rounded-[2rem] border ${content.border} bg-gradient-to-br ${content.accent} backdrop-blur-xl ${content.glow}`}
         >
             <div className="flex flex-col gap-2">
-                <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-white uppercase italic">
-                    {schoolName} <span className="font-light text-slate-400">{content.title}</span>
+                <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-foreground uppercase italic">
+                    {schoolName} <span className="font-light text-muted-foreground">{content.title}</span>
                 </h1>
 
                 <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] tracking-[0.2em] uppercase">
-                    <span className="text-slate-500">Role:</span>
+                    <span className="text-muted-foreground">Role:</span>
                     <span className={`${content.textColor} font-black`}>{role}</span>
                     <span className="text-slate-700 mx-1">//</span>
-                    <span className="text-slate-500">System_ID:</span>
+                    <span className="text-muted-foreground">System_ID:</span>
                     <span className="text-slate-300">{user.id.slice(0, 8)}</span>
-                    <span className="ml-2 px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[8px] text-slate-500">IDENTITY_VERIFIED</span>
+                    <span className="ml-2 px-2 py-0.5 rounded bg-secondary/50 border border-border text-[8px] text-muted-foreground">IDENTITY_VERIFIED</span>
                 </div>
 
-                <p className="mt-2 text-sm text-slate-400 font-medium tracking-wide">
+                <p className="mt-2 text-sm text-muted-foreground font-medium tracking-wide">
                     {content.subtext}
                 </p>
             </div>

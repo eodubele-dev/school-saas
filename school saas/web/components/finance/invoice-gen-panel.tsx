@@ -40,25 +40,25 @@ export function InvoiceGenerationPanel({ activeSession, domain }: { activeSessio
     }
 
     return (
-        <Card className="bg-gradient-to-br from-slate-900 to-slate-950 border-white/10 relative overflow-hidden">
+        <Card className="bg-gradient-to-br from-slate-900 to-slate-950 border-border relative overflow-hidden">
             <div className="absolute top-0 right-0 p-32 bg-[var(--school-accent)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
 
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
+                <CardTitle className="flex items-center gap-2 text-foreground">
                     <Zap className="h-5 w-5 text-yellow-400 fill-yellow-400" />
                     One-Click Invoicing
                 </CardTitle>
-                <CardDescription className="text-slate-400">
+                <CardDescription className="text-muted-foreground">
                     Automatically generate bills for all students based on the active matrix.
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
-                    <div className="p-4 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+                    <div className="p-4 rounded-lg bg-secondary/50 border border-border flex items-center justify-between">
                         <div>
-                            <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Active Period</p>
+                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Active Period</p>
                             {activeSession ? (
-                                <p className="text-lg font-bold text-white mt-1">{activeSession.term} {activeSession.session}</p>
+                                <p className="text-lg font-bold text-foreground mt-1">{activeSession.term} {activeSession.session}</p>
                             ) : (
                                 <p className="text-red-400 text-sm mt-1">Not Set</p>
                             )}
@@ -72,7 +72,7 @@ export function InvoiceGenerationPanel({ activeSession, domain }: { activeSessio
                         <AlertDialogTrigger asChild>
                             <Button
                                 disabled={loading || !activeSession}
-                                className="w-full h-12 text-base font-bold bg-[var(--school-accent)] text-white hover:brightness-110 shadow-lg shadow-[var(--school-accent)]/20"
+                                className="w-full h-12 text-base font-bold bg-[var(--school-accent)] text-foreground hover:brightness-110 shadow-lg shadow-[var(--school-accent)]/20"
                             >
                                 {loading ? (
                                     <>
@@ -83,23 +83,23 @@ export function InvoiceGenerationPanel({ activeSession, domain }: { activeSessio
                                 )}
                             </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent className="bg-slate-950 border-white/10">
+                        <AlertDialogContent className="bg-slate-950 border-border">
                             <AlertDialogHeader>
-                                <AlertDialogTitle className="text-white flex items-center gap-2">
+                                <AlertDialogTitle className="text-foreground flex items-center gap-2">
                                     <AlertTriangle className="h-5 w-5 text-amber-500" />
                                     Confirm Bulk Generation
                                 </AlertDialogTitle>
-                                <AlertDialogDescription className="text-slate-400">
+                                <AlertDialogDescription className="text-muted-foreground">
                                     This will generate pending invoices for <strong>ALL active students</strong> for the
-                                    <span className="text-white font-bold ml-1">{activeSession?.term} {activeSession?.session}</span> session.
+                                    <span className="text-foreground font-bold ml-1">{activeSession?.term} {activeSession?.session}</span> session.
 
                                     <br /><br />
                                     Existing invoices for this term will be skipped. Are you sure you want to proceed?
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                                <AlertDialogCancel className="bg-transparent text-slate-400 border-white/10 hover:bg-white/5 hover:text-white">Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleGenerate} className="bg-[var(--school-accent)] text-white font-bold">
+                                <AlertDialogCancel className="bg-transparent text-muted-foreground border-border hover:bg-secondary/50 hover:text-foreground">Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleGenerate} className="bg-[var(--school-accent)] text-foreground font-bold">
                                     Yes, Generate Bills
                                 </AlertDialogAction>
                             </AlertDialogFooter>

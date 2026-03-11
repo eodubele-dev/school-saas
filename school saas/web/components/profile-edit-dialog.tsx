@@ -70,10 +70,10 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
                     <span className="hidden md:inline">Edit Profile</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-slate-950 border-white/10 text-slate-200">
+            <DialogContent className="sm:max-w-md bg-slate-950 border-border text-slate-200">
                 <DialogHeader>
-                    <DialogTitle className="text-white">Edit Profile</DialogTitle>
-                    <DialogDescription className="text-slate-400">
+                    <DialogTitle className="text-foreground">Edit Profile</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
                         Make changes to your profile here. Click save when you're done.
                     </DialogDescription>
                 </DialogHeader>
@@ -81,10 +81,10 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
                 <form action={handleSubmit} className="space-y-6 py-4">
                     {/* Avatar Upload */}
                     <div className="flex flex-col items-center gap-4">
-                        <Avatar className="h-24 w-24 border-2 border-dashed border-slate-700 bg-slate-900">
+                        <Avatar className="h-24 w-24 border-2 border-dashed border-slate-700 bg-card text-card-foreground">
                             <AvatarImage src={previewUrl || ""} className="object-cover" />
                             <AvatarFallback className="bg-slate-800">
-                                <User className="h-10 w-10 text-slate-500" />
+                                <User className="h-10 w-10 text-muted-foreground" />
                             </AvatarFallback>
                         </Avatar>
 
@@ -112,7 +112,7 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
                                 id="fullName"
                                 name="fullName"
                                 defaultValue={profile?.full_name}
-                                className="bg-slate-900 border-white/10 text-white focus:border-cyan-500/50"
+                                className="bg-card text-card-foreground border-border text-foreground focus:border-cyan-500/50"
                                 required
                             />
                         </div>
@@ -129,7 +129,7 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
                                 name="phone"
                                 defaultValue={profile?.phone || ""}
                                 placeholder="+234..."
-                                className="bg-slate-900 border-white/10 text-white focus:border-cyan-500/50"
+                                className="bg-card text-card-foreground border-border text-foreground focus:border-cyan-500/50"
                             />
                         </div>
 
@@ -145,16 +145,16 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
                                 // We should pass user email to this component ideally.
                                 // For now, we'll skip or just disable if empty.
                                 disabled
-                                className="bg-slate-900/50 border-white/5 text-slate-500 cursor-not-allowed"
+                                className="bg-card text-card-foreground/50 border-border/50 text-muted-foreground cursor-not-allowed"
                             />
                         </div>
                     </div>
 
                     <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="text-slate-400 hover:text-white hover:bg-white/5">
+                        <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground hover:bg-secondary/50">
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={isLoading} className="bg-cyan-600 hover:bg-cyan-500 text-white">
+                        <Button type="submit" disabled={isLoading} className="bg-cyan-600 hover:bg-cyan-500 text-foreground">
                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Save Changes
                         </Button>

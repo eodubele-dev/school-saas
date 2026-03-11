@@ -135,18 +135,18 @@ export function StudentRegister() {
     }
 
     if (loading) {
-        return <div className="h-64 flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-slate-500" /></div>
+        return <div className="h-64 flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
     }
 
     if (!isVerified) {
         return (
-            <Card className="p-8 text-center bg-slate-900 border-white/5 flex flex-col items-center gap-4">
+            <Card className="p-8 text-center bg-card text-card-foreground border-border/50 flex flex-col items-center gap-4">
                 <div className="h-16 w-16 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
                     <Loader2 className="h-8 w-8 text-blue-500 animate-pulse" />
                 </div>
                 <div>
-                    <h3 className="text-white font-bold">Session Locked</h3>
-                    <p className="text-slate-400 text-sm mt-1">You must Clock In to access the Class Register.</p>
+                    <h3 className="text-foreground font-bold">Session Locked</h3>
+                    <p className="text-muted-foreground text-sm mt-1">You must Clock In to access the Class Register.</p>
                 </div>
             </Card>
         )
@@ -154,8 +154,8 @@ export function StudentRegister() {
 
     if (!classInfo) {
         return (
-            <Card className="p-8 text-center bg-slate-900 border-white/5">
-                <p className="text-slate-400">No class assigned to you found.</p>
+            <Card className="p-8 text-center bg-card text-card-foreground border-border/50">
+                <p className="text-muted-foreground">No class assigned to you found.</p>
             </Card>
         )
     }
@@ -163,11 +163,11 @@ export function StudentRegister() {
     const absentCount = Object.values(attendance).filter(a => a.status === 'absent').length
 
     return (
-        <Card className="flex flex-col h-[600px] bg-slate-900 border-white/5 overflow-hidden">
-            <div className="p-4 border-b border-white/5 flex items-center justify-between bg-slate-950/30">
+        <Card className="flex flex-col h-[600px] bg-card text-card-foreground border-border/50 overflow-hidden">
+            <div className="p-4 border-b border-border/50 flex items-center justify-between bg-slate-950/30">
                 <div>
-                    <h3 className="font-bold text-white text-lg">{classInfo.name} Register</h3>
-                    <p className="text-xs text-slate-500">{formatDate(new Date())}</p>
+                    <h3 className="font-bold text-foreground text-lg">{classInfo.name} Register</h3>
+                    <p className="text-xs text-muted-foreground">{formatDate(new Date())}</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <Badge variant="outline" className="bg-red-500/10 text-red-400 border-red-500/20">
@@ -186,15 +186,15 @@ export function StudentRegister() {
                         return (
                             <div key={student.id} className="p-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors">
                                 <div className="flex items-center gap-3">
-                                    <Avatar className="h-10 w-10 border border-white/10">
+                                    <Avatar className="h-10 w-10 border border-border">
                                         <AvatarImage src={student.photo_url} />
-                                        <AvatarFallback className="bg-slate-800 text-slate-400 text-xs">
+                                        <AvatarFallback className="bg-slate-800 text-muted-foreground text-xs">
                                             {student.first_name[0]}{student.last_name[0]}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div>
                                         <p className="font-bold text-sm text-slate-200">{student.first_name} {student.last_name}</p>
-                                        <p className="text-xs text-slate-500">{student.admission_number}</p>
+                                        <p className="text-xs text-muted-foreground">{student.admission_number}</p>
                                     </div>
                                 </div>
 
@@ -222,7 +222,7 @@ export function StudentRegister() {
                                         <Button
                                             size="sm"
                                             variant="outline"
-                                            className="ml-2 h-8 bg-slate-800 border-white/10 text-slate-300 hover:bg-slate-700 hover:text-white"
+                                            className="ml-2 h-8 bg-slate-800 border-border text-slate-300 hover:bg-slate-700 hover:text-foreground"
                                             onClick={async (e) => {
                                                 e.stopPropagation() // Prevent row click if any
                                                 const promise = clockOutStudent(student.id, getLocalToday(), classInfo!.id)
@@ -250,7 +250,7 @@ export function StudentRegister() {
                 </div>
             </div>
 
-            <div className="p-4 bg-slate-950/50 border-t border-white/5">
+            <div className="p-4 bg-slate-950/50 border-t border-border/50">
                 <Button
                     className="w-full bg-[hsl(var(--school-accent))] hover:opacity-90 font-bold gap-2"
                     onClick={handleSubmit}

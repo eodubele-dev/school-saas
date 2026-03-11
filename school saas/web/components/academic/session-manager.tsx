@@ -31,13 +31,13 @@ export function SessionManager({ currentSession, domain }: { currentSession?: an
     }
 
     return (
-        <Card className="bg-slate-900 border-white/10">
+        <Card className="bg-card text-card-foreground border-border">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
+                <CardTitle className="flex items-center gap-2 text-foreground">
                     <Calendar className="h-5 w-5 text-[var(--school-accent)]" />
                     Global Session Management
                 </CardTitle>
-                <CardDescription className="text-slate-400">
+                <CardDescription className="text-muted-foreground">
                     Set the active academic session. This locks/unlocks grade entry globally.
                 </CardDescription>
             </CardHeader>
@@ -48,7 +48,7 @@ export function SessionManager({ currentSession, domain }: { currentSession?: an
                         <Input
                             value={formData.session}
                             onChange={(e) => setFormData({ ...formData, session: e.target.value })}
-                            className="bg-slate-950 border-white/10 text-white"
+                            className="bg-slate-950 border-border text-foreground"
                             placeholder="e.g. 2025/2026"
                         />
                     </div>
@@ -58,10 +58,10 @@ export function SessionManager({ currentSession, domain }: { currentSession?: an
                             value={formData.term}
                             onValueChange={(val) => setFormData({ ...formData, term: val })}
                         >
-                            <SelectTrigger className="bg-slate-950 border-white/10 text-white">
+                            <SelectTrigger className="bg-slate-950 border-border text-foreground">
                                 <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-slate-950 border-white/10 text-white">
+                            <SelectContent className="bg-slate-950 border-border text-foreground">
                                 <SelectItem value="First Term">First Term</SelectItem>
                                 <SelectItem value="Second Term">Second Term</SelectItem>
                                 <SelectItem value="Third Term">Third Term</SelectItem>
@@ -77,7 +77,7 @@ export function SessionManager({ currentSession, domain }: { currentSession?: an
                             type="date"
                             value={formData.startDate}
                             onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                            className="bg-slate-950 border-white/10 text-white"
+                            className="bg-slate-950 border-border text-foreground"
                         />
                     </div>
                     <div className="space-y-2">
@@ -86,7 +86,7 @@ export function SessionManager({ currentSession, domain }: { currentSession?: an
                             type="date"
                             value={formData.endDate}
                             onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                            className="bg-slate-950 border-white/10 text-white"
+                            className="bg-slate-950 border-border text-foreground"
                         />
                     </div>
                 </div>
@@ -94,7 +94,7 @@ export function SessionManager({ currentSession, domain }: { currentSession?: an
                 <Button
                     onClick={handleSave}
                     disabled={loading}
-                    className="w-full bg-[var(--school-accent)] text-white hover:brightness-110"
+                    className="w-full bg-[var(--school-accent)] text-foreground hover:brightness-110"
                 >
                     {loading ? "Saving..." : "Set as Active Session"}
                 </Button>

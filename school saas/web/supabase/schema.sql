@@ -2,7 +2,7 @@
 create extension if not exists "uuid-ossp";
 
 -- Tenants (Schools)
-create table public.tenants (
+create table if not exists public.tenants (
   id uuid default gen_random_uuid() primary key,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   name text not null,
@@ -14,7 +14,7 @@ create table public.tenants (
 
 -- Create profiles table (extends auth.users)
 -- Note: auth.users is managed by Supabase. We link to it via ID.
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid references auth.users on delete cascade primary key,
   tenant_id uuid references public.tenants(id),
   full_name text,
@@ -160,3 +160,32 @@ create policy "Hostel rooms viewable by tenant" on public.hostel_rooms
       and h.tenant_id = get_auth_tenant_id()
     )
   );
+
+-- User Preferences Table
+create table if not exists public.user_preferences (
+    id uuid default gen_random_uuid() primary key,
+    user_id uuid references auth.users(id) not null unique,
+    theme text default 'system',
+    language text default 'en-NG',
+    font_size integer default 100,
+    hide_financial_figures boolean default false,
+    notifications jsonb default '{"in_app":{"security":true,"academic":true,"financial":true,"emergency":true},"email":{"security":true,"academic":true,"financial":true,"emergency":true},"sms":{"security":false,"academic":false,"financial":false,"emergency":true}}'::jsonb,
+    updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.user_preferences enable row level security;
+
+drop policy if exists "Users can view own preferences" on public.user_preferences;
+create policy "Users can view own preferences" 
+    on public.user_preferences for select 
+    using (auth.uid() = user_id);
+
+drop policy if exists "Users can insert own preferences" on public.user_preferences;
+create policy "Users can insert own preferences" 
+    on public.user_preferences for insert 
+    with check (auth.uid() = user_id);
+
+drop policy if exists "Users can update own preferences" on public.user_preferences;
+create policy "Users can update own preferences" 
+    on public.user_preferences for update 
+    using (auth.uid() = user_id);

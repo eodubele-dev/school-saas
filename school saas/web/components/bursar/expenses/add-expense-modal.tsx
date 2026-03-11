@@ -66,7 +66,7 @@ export function AddExpenseModal({ onSuccess, children }: AddExpenseModalProps) {
             <DialogTrigger asChild>
                 {children}
             </DialogTrigger>
-            <DialogContent className="bg-slate-900 border-white/5 text-white sm:max-w-[425px]">
+            <DialogContent className="bg-card text-card-foreground border-border/50 text-foreground sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Receipt className="h-4 w-4 text-[hsl(var(--school-accent))]" />
@@ -79,7 +79,7 @@ export function AddExpenseModal({ onSuccess, children }: AddExpenseModalProps) {
                         <div className="space-y-2">
                             <Label>Category</Label>
                             <Select name="category_id" required>
-                                <SelectTrigger className="bg-slate-950 border-white/10 text-white">
+                                <SelectTrigger className="bg-slate-950 border-border text-foreground">
                                     <SelectValue placeholder="Select..." />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -96,7 +96,7 @@ export function AddExpenseModal({ onSuccess, children }: AddExpenseModalProps) {
                                 name="date"
                                 required
                                 defaultValue={new Date().toISOString().split('T')[0]}
-                                className="bg-slate-950 border-white/10 text-white"
+                                className="bg-slate-950 border-border text-foreground"
                             />
                         </div>
                     </div>
@@ -108,7 +108,7 @@ export function AddExpenseModal({ onSuccess, children }: AddExpenseModalProps) {
                             name="amount"
                             required
                             placeholder="0.00"
-                            className="bg-slate-950 border-white/10 text-white font-mono text-lg"
+                            className="bg-slate-950 border-border text-foreground font-mono text-lg"
                         />
                     </div>
 
@@ -118,7 +118,7 @@ export function AddExpenseModal({ onSuccess, children }: AddExpenseModalProps) {
                             name="vendor"
                             required
                             placeholder="e.g. Electric Corp, John Doe"
-                            className="bg-slate-950 border-white/10 text-white"
+                            className="bg-slate-950 border-border text-foreground"
                         />
                     </div>
 
@@ -127,21 +127,21 @@ export function AddExpenseModal({ onSuccess, children }: AddExpenseModalProps) {
                         <Textarea
                             name="description"
                             placeholder="Details about the expense..."
-                            className="bg-slate-950 border-white/10 text-white resize-none"
+                            className="bg-slate-950 border-border text-foreground resize-none"
                         />
                     </div>
 
                     <div className="space-y-2">
                         <Label>Receipt (Optional)</Label>
-                        <div className="border border-dashed border-white/10 rounded-lg p-4 flex flex-col items-center justify-center bg-slate-950/50 hover:bg-slate-950 cursor-pointer transition-colors relative">
+                        <div className="border border-dashed border-border rounded-lg p-4 flex flex-col items-center justify-center bg-slate-950/50 hover:bg-slate-950 cursor-pointer transition-colors relative">
                             <input
                                 type="file"
                                 accept="image/*,.pdf"
                                 className="absolute inset-0 opacity-0 cursor-pointer"
                                 onChange={(e) => setFile(e.target.files?.[0] || null)}
                             />
-                            <UploadCloud className="h-6 w-6 text-slate-400 mb-2" />
-                            <span className="text-xs text-slate-400">
+                            <UploadCloud className="h-6 w-6 text-muted-foreground mb-2" />
+                            <span className="text-xs text-muted-foreground">
                                 {file ? file.name : "Click to upload receipt"}
                             </span>
                         </div>

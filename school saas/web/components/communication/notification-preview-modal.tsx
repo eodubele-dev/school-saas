@@ -30,19 +30,19 @@ export function NotificationPreviewModal({
                     initial={{ opacity: 0, scale: 0.9, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    className="bg-[#0A0A0B] border border-white/10 rounded-[2.5rem] max-w-md w-full overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)]"
+                    className="bg-[#0A0A0B] border border-border rounded-[2.5rem] max-w-md w-full overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)]"
                 >
                     {/* 📱 Mobile Mockup Header */}
-                    <div className="p-6 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
+                    <div className="p-6 border-b border-border/50 bg-white/[0.02] flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-white/5 rounded-xl">
-                                <Smartphone className="text-slate-400" size={18} />
+                            <div className="p-2 bg-secondary/50 rounded-xl">
+                                <Smartphone className="text-muted-foreground" size={18} />
                             </div>
-                            <h3 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Parent_SMS_Preview</h3>
+                            <h3 className="text-[10px] font-black text-foreground uppercase tracking-[0.3em]">Parent_SMS_Preview</h3>
                         </div>
                         <button
                             onClick={onCancel}
-                            className="p-2 hover:bg-white/5 rounded-full text-gray-500 hover:text-white transition-all group"
+                            className="p-2 hover:bg-secondary/50 rounded-full text-gray-500 hover:text-foreground transition-all group"
                         >
                             <X size={20} className="group-hover:rotate-90 transition-transform duration-300" />
                         </button>
@@ -50,9 +50,9 @@ export function NotificationPreviewModal({
 
                     {/* 💬 The SMS Bubble Perspective */}
                     <div className="p-10 bg-gradient-to-b from-black/20 to-transparent">
-                        <div className="bg-[#1C1C1E] rounded-3xl p-5 ml-auto max-w-[90%] border border-white/5 relative shadow-2xl space-y-3">
+                        <div className="bg-[#1C1C1E] rounded-3xl p-5 ml-auto max-w-[90%] border border-border/50 relative shadow-2xl space-y-3">
                             <p className="text-sm text-slate-200 leading-relaxed">
-                                🌟 <span className="font-bold text-white">High-Recognition Alert:</span> Hi Parent, we are proud to inform you that <span className="text-cyan-400 font-bold">{studentName}</span> has just been awarded the <span className="text-purple-400 font-bold">{badgeTitle}</span> badge! 🎓
+                                🌟 <span className="font-bold text-foreground">High-Recognition Alert:</span> Hi Parent, we are proud to inform you that <span className="text-cyan-400 font-bold">{studentName}</span> has just been awarded the <span className="text-purple-400 font-bold">{badgeTitle}</span> badge! 🎓
                             </p>
                             {teacherNote && (
                                 <div className="border-l-2 border-cyan-500/30 pl-3 py-1 bg-cyan-500/5 rounded-r-lg">
@@ -61,11 +61,11 @@ export function NotificationPreviewModal({
                                     </p>
                                 </div>
                             )}
-                            <div className="pt-2 flex justify-between items-center text-[9px] text-slate-500 font-mono">
+                            <div className="pt-2 flex justify-between items-center text-[9px] text-muted-foreground font-mono">
                                 <span>eduflow.app/portal</span>
                                 <span>Deliverable: NOW</span>
                             </div>
-                            <div className="absolute -right-2 top-6 w-5 h-5 bg-[#1C1C1E] rotate-45 border-r border-t border-white/5"></div>
+                            <div className="absolute -right-2 top-6 w-5 h-5 bg-[#1C1C1E] rotate-45 border-r border-t border-border/50"></div>
                         </div>
 
                         <div className="mt-8 flex flex-col items-center gap-2">
@@ -84,7 +84,7 @@ export function NotificationPreviewModal({
                                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                     <span className="text-[10px] font-black uppercase tracking-widest font-mono">Credit_Status: {creditStatus}_Ready</span>
                                 </div>
-                                <div className="text-[9px] text-slate-500 font-mono uppercase">
+                                <div className="text-[9px] text-muted-foreground font-mono uppercase">
                                     Audit_Tag: <span className="text-slate-300">{auditTag}</span>
                                 </div>
                             </div>
@@ -102,7 +102,7 @@ export function NotificationPreviewModal({
 
                             <button
                                 onClick={onCancel}
-                                className="w-full bg-white/[0.03] text-slate-500 hover:text-white py-4 rounded-2xl border border-white/10 hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 font-bold text-xs uppercase tracking-widest shadow-inner"
+                                className="w-full bg-white/[0.03] text-muted-foreground hover:text-foreground py-4 rounded-2xl border border-border hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 font-bold text-xs uppercase tracking-widest shadow-inner"
                             >
                                 Re-Edit Message
                             </button>

@@ -58,19 +58,19 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
     }
 
     return (
-        <Card className="bg-slate-900 border-white/10 h-full flex flex-col">
+        <Card className="bg-card text-card-foreground border-border h-full flex flex-col">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
+                <CardTitle className="flex items-center gap-2 text-foreground">
                     <Tag className="h-5 w-5 text-[var(--school-accent)]" />
                     Fee Categories
                 </CardTitle>
-                <CardDescription className="text-slate-400">Define the types of fees collected (e.g., Tuition, Bus).</CardDescription>
+                <CardDescription className="text-muted-foreground">Define the types of fees collected (e.g., Tuition, Bus).</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 space-y-6">
-                <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2 items-end border-b border-white/5 pb-6">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2 items-end border-b border-border/50 pb-6">
                     <div className="flex-1 space-y-2">
                         <label className="text-xs font-medium text-slate-300">Category Name</label>
-                        <Input {...register("name", { required: true, minLength: 2 })} placeholder="e.g. Technology Fee" className="bg-slate-950 border-white/10 text-white" />
+                        <Input {...register("name", { required: true, minLength: 2 })} placeholder="e.g. Technology Fee" className="bg-slate-950 border-border text-foreground" />
                     </div>
                     {/* Switch handling can be tricky with simple register in some UI libraries, assuming standard checkbox behavior works or controlled needed. 
                         For shadcn Switch, it's controlled. Let's use a standard checkbox with custom style or Controlled Switch.
@@ -80,24 +80,24 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
                         <input type="checkbox" {...register("is_mandatory")} className="h-4 w-4 rounded border-gray-300 bg-slate-950 accent-[var(--school-accent)]" id="mandatory" />
                         <label htmlFor="mandatory" className="text-sm font-medium text-slate-300">Mandatory?</label>
                     </div>
-                    <Button type="submit" disabled={!isValid || loading || isSubmitting} size="sm" className="mb-0.5 bg-[var(--school-accent)] text-white">
+                    <Button type="submit" disabled={!isValid || loading || isSubmitting} size="sm" className="mb-0.5 bg-[var(--school-accent)] text-foreground">
                         <Plus className="h-4 w-4" /> Add
                     </Button>
                 </form>
 
-                <div className="rounded-md border border-white/10 overflow-hidden flex flex-col justify-between min-h-[420px]">
+                <div className="rounded-md border border-border overflow-hidden flex flex-col justify-between min-h-[420px]">
                     <div className="flex-1">
                         <Table>
                             <TableHeader className="bg-slate-950">
-                                <TableRow className="border-white/10 hover:bg-transparent">
-                                    <TableHead className="text-slate-400">Name</TableHead>
-                                    <TableHead className="text-slate-400">Type</TableHead>
+                                <TableRow className="border-border hover:bg-transparent">
+                                    <TableHead className="text-muted-foreground">Name</TableHead>
+                                    <TableHead className="text-muted-foreground">Type</TableHead>
                                     <TableHead className="w-10"></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {currentCategories.map((cat) => (
-                                    <TableRow key={cat.id} className="border-white/5 hover:bg-white/5">
+                                    <TableRow key={cat.id} className="border-border/50 hover:bg-secondary/50">
                                         <TableCell className="font-medium text-slate-200">{cat.name}</TableCell>
                                         <TableCell>
                                             <span className={`text-xs px-2 py-1 rounded-full ${cat.is_mandatory ? 'bg-red-500/10 text-red-400' : 'bg-blue-500/10 text-blue-400'}`}>
@@ -107,22 +107,22 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
                                         <TableCell>
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-red-500">
+                                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-red-500">
                                                         <Trash2 className="h-3 w-3" />
                                                     </Button>
                                                 </AlertDialogTrigger>
-                                                <AlertDialogContent className="bg-slate-950 border-white/10">
+                                                <AlertDialogContent className="bg-slate-950 border-border">
                                                     <AlertDialogHeader>
-                                                        <AlertDialogTitle className="text-white text-left">Delete Category?</AlertDialogTitle>
-                                                        <AlertDialogDescription className="text-slate-400 text-left">
-                                                            Are you sure you want to delete <span className="text-white font-bold">{cat.name}</span>?
+                                                        <AlertDialogTitle className="text-foreground text-left">Delete Category?</AlertDialogTitle>
+                                                        <AlertDialogDescription className="text-muted-foreground text-left">
+                                                            Are you sure you want to delete <span className="text-foreground font-bold">{cat.name}</span>?
                                                             <br />
                                                             This will also remove all associated fee entries from the matrix. This action cannot be undone.
                                                         </AlertDialogDescription>
                                                     </AlertDialogHeader>
                                                     <AlertDialogFooter>
-                                                        <AlertDialogCancel className="bg-transparent text-slate-400 border-white/10 hover:bg-white/5 hover:text-white">Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleDelete(cat.id)} className="bg-red-600 hover:bg-red-700 text-white font-bold">
+                                                        <AlertDialogCancel className="bg-transparent text-muted-foreground border-border hover:bg-secondary/50 hover:text-foreground">Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDelete(cat.id)} className="bg-red-600 hover:bg-red-700 text-foreground font-bold">
                                                             Delete
                                                         </AlertDialogAction>
                                                     </AlertDialogFooter>
@@ -135,8 +135,8 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
                         </Table>
                     </div>
                     {totalPages > 1 && (
-                        <div className="flex items-center justify-between px-4 py-3 bg-slate-950 border-t border-white/5">
-                            <div className="text-sm text-slate-400">
+                        <div className="flex items-center justify-between px-4 py-3 bg-slate-950 border-t border-border/50">
+                            <div className="text-sm text-muted-foreground">
                                 Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, categories.length)} of {categories.length} categories
                             </div>
                             <div className="flex gap-1">
@@ -146,7 +146,7 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
                                     size="sm"
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                     disabled={currentPage === 1}
-                                    className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white"
+                                    className="bg-card text-card-foreground border-border text-slate-300 hover:bg-slate-800 hover:text-foreground"
                                 >
                                     Previous
                                 </Button>
@@ -156,7 +156,7 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
                                     size="sm"
                                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white"
+                                    className="bg-card text-card-foreground border-border text-slate-300 hover:bg-slate-800 hover:text-foreground"
                                 >
                                     Next
                                 </Button>

@@ -102,28 +102,28 @@ export function PermissionsModal({ user, isOpen, onClose }: PermissionsModalProp
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="bg-slate-900 border-white/10 text-white sm:max-w-md">
+            <DialogContent className="bg-card text-card-foreground border-border text-foreground sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Shield className="h-5 w-5 text-[var(--school-accent)]" />
                         Staff Permissions
                     </DialogTitle>
-                    <DialogDescription className="text-slate-400">
-                        Configure granular access rights for <span className="text-white">{user?.full_name}</span>.
+                    <DialogDescription className="text-muted-foreground">
+                        Configure granular access rights for <span className="text-foreground">{user?.full_name}</span>.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="py-6 space-y-6">
                     {fetching ? (
                         <div className="flex justify-center py-4">
-                            <Loader2 className="h-6 w-6 animate-spin text-slate-500" />
+                            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                         </div>
                     ) : (
                         <>
                             <div className="flex items-center justify-between space-x-2">
                                 <div className="space-y-0.5">
                                     <Label className="text-base text-slate-200">View Financial Records</Label>
-                                    <p className="text-xs text-slate-500">Access to invoices, payments, and revenue charts.</p>
+                                    <p className="text-xs text-muted-foreground">Access to invoices, payments, and revenue charts.</p>
                                 </div>
                                 <Switch
                                     checked={permissions.can_view_financials}
@@ -135,7 +135,7 @@ export function PermissionsModal({ user, isOpen, onClose }: PermissionsModalProp
                             <div className="flex items-center justify-between space-x-2">
                                 <div className="space-y-0.5">
                                     <Label className="text-base text-slate-200">Edit Published Results</Label>
-                                    <p className="text-xs text-slate-500">Ability to modify student grades after approval.</p>
+                                    <p className="text-xs text-muted-foreground">Ability to modify student grades after approval.</p>
                                 </div>
                                 <Switch
                                     checked={permissions.can_edit_results}
@@ -147,7 +147,7 @@ export function PermissionsModal({ user, isOpen, onClose }: PermissionsModalProp
                             <div className="flex items-center justify-between space-x-2">
                                 <div className="space-y-0.5">
                                     <Label className="text-base text-slate-200">Send Bulk SMS</Label>
-                                    <p className="text-xs text-slate-500">Permission to send broadcast messages to parents.</p>
+                                    <p className="text-xs text-muted-foreground">Permission to send broadcast messages to parents.</p>
                                 </div>
                                 <Switch
                                     checked={permissions.can_send_bulk_sms}
@@ -160,11 +160,11 @@ export function PermissionsModal({ user, isOpen, onClose }: PermissionsModalProp
                 </div>
 
                 <DialogFooter>
-                    <Button variant="ghost" onClick={onClose} className="text-slate-400 hover:text-white">Cancel</Button>
+                    <Button variant="ghost" onClick={onClose} className="text-muted-foreground hover:text-foreground">Cancel</Button>
                     <Button
                         onClick={handleSave}
                         disabled={loading || fetching}
-                        className="bg-[var(--school-accent)] text-white shadow-lg shadow-blue-500/20"
+                        className="bg-[var(--school-accent)] text-foreground shadow-lg shadow-blue-500/20"
                     >
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Save Permissions

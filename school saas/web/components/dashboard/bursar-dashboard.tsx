@@ -37,16 +37,17 @@ import { SMSTransactionWidget } from "@/components/dashboard/sms-transaction-wid
 import { BursarPaymentAlert } from "@/components/bursar/payment-alert"
 import { exportMonthlyFinanceReport } from "@/lib/actions/export-finance"
 import { toast } from "sonner"
+import { FinancialText } from "@/components/ui/financial-text"
 
 function MetricCard({ title, amount, subtitle, icon: Icon, trend, colorClass }: any) {
     return (
-        <Card className="bg-slate-900 border-white/10 relative overflow-hidden group pt-2">
+        <Card className="bg-card text-card-foreground border-border relative overflow-hidden group pt-2">
             {/* 🌈 Thick Top Border Action */}
             <div className={cn("absolute top-0 left-0 right-0 h-1.5", colorClass)} />
 
             <div className={cn("absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl -mr-12 -mt-12 opacity-10 transition-opacity group-hover:opacity-20", colorClass)}></div>
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{title}</CardTitle>
+                <CardTitle className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{title}</CardTitle>
                 <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center border transition-all duration-300 group-hover:scale-110",
                     colorClass.replace('bg-', 'bg-').concat('/10'),
                     colorClass.replace('bg-', 'text-').replace('500', '400'),
@@ -56,9 +57,9 @@ function MetricCard({ title, amount, subtitle, icon: Icon, trend, colorClass }: 
                 </div>
             </CardHeader>
             <CardContent>
-                <div className="text-3xl font-black text-white tracking-tighter">₦{amount.toLocaleString()}</div>
+                <div className="text-3xl font-black text-foreground tracking-tighter"><FinancialText value={`₦${amount.toLocaleString()}`} /></div>
                 <div className="flex items-center gap-2 mt-1">
-                    <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">{subtitle}</p>
+                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{subtitle}</p>
                     {trend && (
                         <span className="text-[10px] px-1.5 py-0.5 font-bold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                             {trend}
@@ -76,7 +77,7 @@ function CircularRate({ percentage }: { percentage: number }) {
     const offset = circumference - (percentage / 100) * circumference
 
     return (
-        <Card className="bg-slate-900 border-white/10 h-full flex flex-col justify-center items-center p-6">
+        <Card className="bg-card text-card-foreground border-border h-full flex flex-col justify-center items-center p-6">
             <div className="relative inline-flex items-center justify-center">
                 <svg width="100" height="100" className="transform -rotate-90">
                     <circle
@@ -102,11 +103,11 @@ function CircularRate({ percentage }: { percentage: number }) {
                     />
                 </svg>
                 <div className="absolute text-center">
-                    <span className="text-xl font-bold text-white">{percentage}%</span>
-                    <p className="text-[10px] text-slate-500 leading-none">Collected</p>
+                    <span className="text-xl font-bold text-foreground">{percentage}%</span>
+                    <p className="text-[10px] text-muted-foreground leading-none">Collected</p>
                 </div>
             </div>
-            <p className="mt-4 text-xs font-medium text-slate-400">Collection Rate</p>
+            <p className="mt-4 text-xs font-medium text-muted-foreground">Collection Rate</p>
         </Card>
     )
 }
@@ -157,18 +158,18 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-white tracking-tight">Bursar Command Center</h1>
-                    <p className="text-slate-400 text-sm">Financial overview for <span className="text-[var(--school-accent)] font-medium">{term}</span></p>
+                    <h1 className="text-2xl font-bold text-foreground tracking-tight">Bursar Command Center</h1>
+                    <p className="text-muted-foreground text-sm">Financial overview for <span className="text-[var(--school-accent)] font-medium">{term}</span></p>
                 </div>
                 <div className="flex items-center gap-2">
                     {/* SMS Status for Bursar */}
                     {(stats.smsBalance !== undefined) && (
-                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${stats.smsBalance < 2000 ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 'bg-white/5 border-white/10 text-slate-400'}`}>
+                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${stats.smsBalance < 2000 ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 'bg-secondary/50 border-border text-muted-foreground'}`}>
                             <Zap className={`h-3.5 w-3.5 ${stats.smsBalance < 2000 ? 'fill-current' : ''}`} />
-                            <span className="text-[10px] font-bold uppercase tracking-tight">Wallet: ₦{stats.smsBalance.toLocaleString()}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-tight">Wallet: <FinancialText value={`₦${stats.smsBalance.toLocaleString()}`} /></span>
                         </div>
                     )}
-                    <Button variant="outline" size="sm" onClick={handleExport} className="bg-slate-900 border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <Button variant="outline" size="sm" onClick={handleExport} className="bg-card text-card-foreground border-border text-slate-300 hover:bg-slate-800 hover:text-foreground">
                         <Download className="h-4 w-4 mr-2" /> Export Monthly
                     </Button>
                     <ManualPaymentModal onSuccess={() => window.location.reload()} />
@@ -204,10 +205,10 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Collection Trend Chart */}
-                <Card className="lg:col-span-2 bg-slate-900 border-white/10">
+                <Card className="lg:col-span-2 bg-card text-card-foreground border-border">
                     <CardHeader>
-                        <CardTitle className="text-white text-base">Collections Trend (30 Days)</CardTitle>
-                        <CardDescription className="text-slate-500">Daily revenue accumulation</CardDescription>
+                        <CardTitle className="text-foreground text-base">Collections Trend (30 Days)</CardTitle>
+                        <CardDescription className="text-muted-foreground">Daily revenue accumulation</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -246,26 +247,26 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                 {/* Quick Actions & Recent Transactions */}
                 <div className="flex flex-col gap-6">
                     {/* Recent Transactions */}
-                    <Card className="flex-1 overflow-hidden bg-slate-900 border-white/10 flex flex-col min-h-[250px]">
+                    <Card className="flex-1 overflow-hidden bg-card text-card-foreground border-border flex flex-col min-h-[250px]">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-white text-base">Recent Payments</CardTitle>
+                            <CardTitle className="text-foreground text-base">Recent Payments</CardTitle>
                         </CardHeader>
                         <CardContent className="p-0">
                             {recentTransactions.length > 0 ? (
                                 <div className="divide-y divide-white/5">
                                     {recentTransactions.map((trx: any) => (
-                                        <div key={trx.id} className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors group">
+                                        <div key={trx.id} className="p-4 flex items-center justify-between hover:bg-secondary/50 transition-colors group">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                                     <Receipt className="h-4 w-4 text-emerald-400" />
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-medium text-slate-200">{trx.students?.full_name}</p>
-                                                    <p className="text-[10px] text-slate-500 uppercase">{trx.method} • {formatDate(trx.date)}</p>
+                                                    <p className="text-[10px] text-muted-foreground uppercase">{trx.method} • {formatDate(trx.date)}</p>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-sm font-bold text-white">₦{trx.amount.toLocaleString()}</p>
+                                                <p className="text-sm font-bold text-foreground"><FinancialText value={`₦${trx.amount.toLocaleString()}`} /></p>
                                                 <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <ArrowUpRight className="h-3 w-3 text-[var(--school-accent)]" />
                                                 </Button>
@@ -276,49 +277,49 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                             ) : (
                                 <div className="p-12 text-center">
                                     <Clock className="h-8 w-8 text-slate-800 mx-auto mb-2" />
-                                    <p className="text-xs text-slate-500">No recent transactions</p>
+                                    <p className="text-xs text-muted-foreground">No recent transactions</p>
                                 </div>
                             )}
                         </CardContent>
                     </Card>
 
                     {/* Quick Tools */}
-                    <Card className="shrink-0 bg-slate-900 border-white/10">
+                    <Card className="shrink-0 bg-card text-card-foreground border-border">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-white text-base">Quick Reports</CardTitle>
+                            <CardTitle className="text-foreground text-base">Quick Reports</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <Link href="/dashboard/bursar/finance/collections" className="block w-full">
-                                <div className="p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/10 transition-all flex items-center justify-between group">
+                                <div className="p-3 rounded-lg bg-secondary/50 border border-border/50 hover:border-border hover:bg-white/10 transition-all flex items-center justify-between group">
                                     <div className="flex items-center gap-3">
                                         <div className="h-8 w-8 rounded-md bg-rose-500/10 flex items-center justify-center">
                                             <FileText className="h-4 w-4 text-rose-500" />
                                         </div>
                                         <span className="text-sm font-medium text-slate-200">Debtors List</span>
                                     </div>
-                                    <ArrowUpRight className="h-4 w-4 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </div>
                             </Link>
                             <Link href="/dashboard/bursar/finance/reconciliation" className="block w-full">
-                                <div className="p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/10 transition-all flex items-center justify-between group">
+                                <div className="p-3 rounded-lg bg-secondary/50 border border-border/50 hover:border-border hover:bg-white/10 transition-all flex items-center justify-between group">
                                     <div className="flex items-center gap-3">
                                         <div className="h-8 w-8 rounded-md bg-amber-500/10 flex items-center justify-center">
                                             <Zap className="h-4 w-4 text-amber-500" />
                                         </div>
                                         <span className="text-sm font-medium text-slate-200">Live Oversight</span>
                                     </div>
-                                    <ArrowUpRight className="h-4 w-4 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </div>
                             </Link>
                             <Link href="/dashboard/bursar/finance/audit" className="block w-full">
-                                <div className="p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/10 transition-all flex items-center justify-between group">
+                                <div className="p-3 rounded-lg bg-secondary/50 border border-border/50 hover:border-border hover:bg-white/10 transition-all flex items-center justify-between group">
                                     <div className="flex items-center gap-3">
                                         <div className="h-8 w-8 rounded-md bg-cyan-500/10 flex items-center justify-center">
                                             <ShieldAlert className="h-4 w-4 text-cyan-500" />
                                         </div>
                                         <span className="text-sm font-medium text-slate-200">Audit Transcript</span>
                                     </div>
-                                    <ArrowUpRight className="h-4 w-4 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </div>
                             </Link>
                         </CardContent>

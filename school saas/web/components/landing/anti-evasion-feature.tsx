@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 
 export function AntiEvasionFeature() {
     return (
-        <section className="py-24 bg-slate-950 px-6 border-t border-b border-white/5 relative overflow-hidden">
+        <section className="py-24 bg-slate-950 px-6 border-t border-b border-border/50 relative overflow-hidden">
             {/* Background Effects */}
             <div className="absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-red-500/5 rounded-full blur-[120px] -translate-y-1/2 pointer-events-none" />
             <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[100px] pointer-events-none" />
@@ -41,7 +41,7 @@ export function AntiEvasionFeature() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.3, duration: 0.6 }}
-                                className="text-4xl md:text-5xl font-extrabold text-white leading-[1.1]"
+                                className="text-4xl md:text-5xl font-extrabold text-foreground leading-[1.1]"
                             >
                                 Stop Fee Evasion <br />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-amber-500">Dead in Its Tracks.</span>
@@ -51,7 +51,7 @@ export function AntiEvasionFeature() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.4, duration: 0.6 }}
-                                className="text-lg text-slate-400 leading-relaxed max-w-xl"
+                                className="text-lg text-muted-foreground leading-relaxed max-w-xl"
                             >
                                 Tired of parents jumping to a new school just to avoid paying outstanding fees? EduFlow networks all our partner schools together to flag evasive parents <i>before</i> you admit them.
                             </motion.p>
@@ -75,8 +75,8 @@ export function AntiEvasionFeature() {
                                         <feature.icon className={`h-5 w-5 text-${feature.color}-400`} />
                                     </div>
                                     <div>
-                                        <h4 className="text-white font-semibold mb-1">{feature.title}</h4>
-                                        <p className="text-slate-400 text-sm leading-relaxed">{feature.desc}</p>
+                                        <h4 className="text-foreground font-semibold mb-1">{feature.title}</h4>
+                                        <p className="text-muted-foreground text-sm leading-relaxed">{feature.desc}</p>
                                     </div>
                                 </motion.div>
                             ))}
@@ -102,18 +102,18 @@ export function AntiEvasionFeature() {
                         <motion.div
                             animate={{ y: [0, -15, 0] }}
                             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                            className="relative bg-[#050B20]/80 rounded-2xl border border-white/10 shadow-2xl overflow-hidden backdrop-blur-xl"
+                            className="relative bg-[#050B20]/80 rounded-2xl border border-border shadow-2xl overflow-hidden backdrop-blur-xl"
                         >
                             {/* Browser Top Bar */}
-                            <div className="flex items-center px-4 py-3 border-b border-white/5 bg-white/[0.02]">
+                            <div className="flex items-center px-4 py-3 border-b border-border/50 bg-white/[0.02]">
                                 <div className="flex gap-2">
                                     <div className="w-3 h-3 rounded-full bg-slate-700/50" />
                                     <div className="w-3 h-3 rounded-full bg-slate-700/50" />
                                     <div className="w-3 h-3 rounded-full bg-slate-700/50" />
                                 </div>
-                                <div className="mx-auto bg-slate-900 border border-white/5 rounded-md px-4 py-1 flex items-center gap-2">
-                                    <LockKeyhole className="h-3 w-3 text-slate-500" />
-                                    <span className="text-xs text-slate-500 font-mono">admin.eduflow/admissions</span>
+                                <div className="mx-auto bg-card text-card-foreground border border-border/50 rounded-md px-4 py-1 flex items-center gap-2">
+                                    <LockKeyhole className="h-3 w-3 text-muted-foreground" />
+                                    <span className="text-xs text-muted-foreground font-mono">admin.eduflow/admissions</span>
                                 </div>
                             </div>
 

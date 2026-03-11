@@ -15,11 +15,11 @@ export function VisualProofSection() {
                             <Sparkles className="h-3 w-3" />
                             AI Report Architect
                         </div>
-                        <h2 className="text-3xl md:text-5xl font-bold text-white">
+                        <h2 className="text-3xl md:text-5xl font-bold text-foreground">
                             Write 500 Report Cards <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">In Under 2 Minutes.</span>
                         </h2>
-                        <p className="text-lg text-slate-400 leading-relaxed max-w-lg">
+                        <p className="text-lg text-muted-foreground leading-relaxed max-w-lg">
                             Stop spending weekends writing generic comments. Our AI analyzes every test score and generates personalized, professional behavioral remarks instantly.
                         </p>
                     </div>
@@ -40,11 +40,11 @@ export function VisualProofSection() {
                             <Smartphone className="h-3 w-3" />
                             Parent Mobile App
                         </div>
-                        <h2 className="text-3xl md:text-5xl font-bold text-white">
+                        <h2 className="text-3xl md:text-5xl font-bold text-foreground">
                             The &quot;Pay-to-Unlock&quot; <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Revenue Engine.</span>
                         </h2>
-                        <p className="text-lg text-slate-400 leading-relaxed max-w-lg ml-auto">
+                        <p className="text-lg text-muted-foreground leading-relaxed max-w-lg ml-auto">
                             Automatic fee enforcement. Parents can see their child&apos;s face and attendance, but results are blurred until school fees are cleared.
                         </p>
                     </div>
@@ -57,11 +57,11 @@ export function VisualProofSection() {
                             <Zap className="h-3 w-3" />
                             Offline-First Engine
                         </div>
-                        <h2 className="text-3xl md:text-5xl font-bold text-white">
+                        <h2 className="text-3xl md:text-5xl font-bold text-foreground">
                             Optimized for <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">Real Devices.</span>
                         </h2>
-                        <p className="text-lg text-slate-400 leading-relaxed max-w-lg">
+                        <p className="text-lg text-muted-foreground leading-relaxed max-w-lg">
                             Your teachers don't use iPhones. We designed our high-speed attendance toggle specifically for Infinix and Tecno devices running on 3G.
                         </p>
                     </div>

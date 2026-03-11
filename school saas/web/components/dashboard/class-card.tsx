@@ -21,7 +21,7 @@ export function ClassCard({ classItem, onClick, isSelected }: ClassCardProps) {
                 cursor-pointer overflow-hidden transition-all duration-300 relative group
                 ${isSelected
                     ? 'border-[var(--school-accent)] bg-[var(--school-accent)]/10 ring-1 ring-[var(--school-accent)]'
-                    : 'border-white/10 bg-slate-900/50 hover:bg-slate-900 hover:border-white/20 hover:shadow-xl hover:translate-y-[-2px]'
+                    : 'border-border bg-card text-card-foreground/50 hover:bg-card text-card-foreground hover:border-white/20 hover:shadow-xl hover:translate-y-[-2px]'
                 }
             `}
         >
@@ -36,15 +36,15 @@ export function ClassCard({ classItem, onClick, isSelected }: ClassCardProps) {
 
             <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
-                    <div className={`p-3 rounded-xl ${isSelected ? 'bg-[var(--school-accent)] text-white' : 'bg-slate-800 text-slate-400 group-hover:bg-[var(--school-accent)] group-hover:text-white transition-colors'}`}>
+                    <div className={`p-3 rounded-xl ${isSelected ? 'bg-[var(--school-accent)] text-foreground' : 'bg-slate-800 text-muted-foreground group-hover:bg-[var(--school-accent)] group-hover:text-foreground transition-colors'}`}>
                         <GraduationCap className="h-6 w-6" />
                     </div>
                 </div>
 
-                <h3 className="text-lg font-bold text-white group-hover:text-[var(--school-accent)] transition-colors">{classItem.name}</h3>
-                <p className="text-xs text-slate-400 mb-4">{classItem.grade_level} • {isFormTeacher ? 'Class Manager' : classItem.subject}</p>
+                <h3 className="text-lg font-bold text-foreground group-hover:text-[var(--school-accent)] transition-colors">{classItem.name}</h3>
+                <p className="text-xs text-muted-foreground mb-4">{classItem.grade_level} • {isFormTeacher ? 'Class Manager' : classItem.subject}</p>
 
-                <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-950/30 p-2 rounded w-fit">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground bg-slate-950/30 p-2 rounded w-fit">
                     <Users className="h-4 w-4" />
                     <span className="font-semibold text-slate-300">{classItem.student_count}</span>
                     <span>students</span>

@@ -74,18 +74,18 @@ export function VendorManager({ initialVendors }: VendorManagerProps) {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center bg-slate-900 p-4 rounded-xl border border-white/5">
+            <div className="flex justify-between items-center bg-card text-card-foreground p-4 rounded-xl border border-border/50">
                 <div className="relative w-72">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search vendors..."
-                        className="pl-9 bg-slate-950 border-white/10 text-white placeholder:text-slate-500"
+                        className="pl-9 bg-slate-950 border-border text-foreground placeholder:text-muted-foreground"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
 
-                <Button className="bg-[var(--school-accent)] text-white" onClick={() => {
+                <Button className="bg-[var(--school-accent)] text-foreground" onClick={() => {
                     setEditingVendor(null)
                     setIsAddOpen(true)
                 }}>
@@ -93,10 +93,10 @@ export function VendorManager({ initialVendors }: VendorManagerProps) {
                 </Button>
             </div>
 
-            <div className="rounded-xl border border-white/5 overflow-hidden">
+            <div className="rounded-xl border border-border/50 overflow-hidden">
                 <Table>
-                    <TableHeader className="bg-slate-900 text-slate-400">
-                        <TableRow className="border-white/5 hover:bg-transparent">
+                    <TableHeader className="bg-card text-card-foreground text-muted-foreground">
+                        <TableRow className="border-border/50 hover:bg-transparent">
                             <TableHead className="w-[300px]">Vendor Details</TableHead>
                             <TableHead>Contact Person</TableHead>
                             <TableHead>Contact Info</TableHead>
@@ -106,15 +106,15 @@ export function VendorManager({ initialVendors }: VendorManagerProps) {
                     </TableHeader>
                     <TableBody className="bg-slate-950/50">
                         {filteredVendors.length > 0 ? filteredVendors.map((vendor) => (
-                            <TableRow key={vendor.id} className="border-white/5 hover:bg-transparent transition-colors">
+                            <TableRow key={vendor.id} className="border-border/50 hover:bg-transparent transition-colors">
                                 <TableCell>
-                                    <div className="font-bold text-white">{vendor.name}</div>
+                                    <div className="font-bold text-foreground">{vendor.name}</div>
                                 </TableCell>
                                 <TableCell className="text-slate-300">
                                     {vendor.contact_person || '-'}
                                 </TableCell>
                                 <TableCell>
-                                    <div className="flex flex-col gap-1 text-xs text-slate-400">
+                                    <div className="flex flex-col gap-1 text-xs text-muted-foreground">
                                         {vendor.phone && (
                                             <div className="flex items-center gap-2">
                                                 <Phone className="h-3 w-3" /> {vendor.phone}
@@ -127,7 +127,7 @@ export function VendorManager({ initialVendors }: VendorManagerProps) {
                                         )}
                                     </div>
                                 </TableCell>
-                                <TableCell className="text-slate-400 max-w-[200px] truncate">
+                                <TableCell className="text-muted-foreground max-w-[200px] truncate">
                                     <div className="flex items-start gap-2">
                                         <MapPin className="h-3 w-3 mt-1 shrink-0" />
                                         <span className="truncate">{vendor.address || '-'}</span>
@@ -136,15 +136,15 @@ export function VendorManager({ initialVendors }: VendorManagerProps) {
                                 <TableCell>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-white hover:bg-white/10 transition-colors">
+                                            <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors">
                                                 <MoreVertical className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="bg-slate-900 border-white/10">
+                                        <DropdownMenuContent align="end" className="bg-card text-card-foreground border-border">
                                             <DropdownMenuItem onClick={() => {
                                                 setEditingVendor(vendor)
                                                 setIsAddOpen(true)
-                                            }} className="text-slate-300 focus:bg-slate-800 focus:text-white cursor-pointer">
+                                            }} className="text-slate-300 focus:bg-slate-800 focus:text-foreground cursor-pointer">
                                                 <Edit className="mr-2 h-4 w-4" /> Edit
                                             </DropdownMenuItem>
                                             <DropdownMenuItem onClick={() => setDeleteVendor(vendor)} className="text-red-500 focus:bg-red-950/20 focus:text-red-400 cursor-pointer">
@@ -156,7 +156,7 @@ export function VendorManager({ initialVendors }: VendorManagerProps) {
                             </TableRow>
                         )) : (
                             <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center text-slate-500">
+                                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                                     No vendors found.
                                 </TableCell>
                             </TableRow>
@@ -172,17 +172,17 @@ export function VendorManager({ initialVendors }: VendorManagerProps) {
             />
 
             <AlertDialog open={!!deleteVendor} onOpenChange={(v) => !v && setDeleteVendor(null)}>
-                <AlertDialogContent className="bg-slate-950 border-white/10 text-white">
+                <AlertDialogContent className="bg-slate-950 border-border text-foreground">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Delete Vendor?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-slate-400">
-                            Are you sure you want to delete <span className="font-bold text-white">{deleteVendor?.name}</span>?
+                        <AlertDialogDescription className="text-muted-foreground">
+                            Are you sure you want to delete <span className="font-bold text-foreground">{deleteVendor?.name}</span>?
                             This will not delete items associated with this vendor, but it will remove the vendor reference.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-transparent text-slate-400 border-white/10 hover:bg-white/5 hover:text-white">Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white border-none">
+                        <AlertDialogCancel className="bg-transparent text-muted-foreground border-border hover:bg-secondary/50 hover:text-foreground">Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-foreground border-none">
                             Delete Vendor
                         </AlertDialogAction>
                     </AlertDialogFooter>

@@ -86,7 +86,7 @@ export function OfflineAttendance() {
                     <span>{isOnline ? 'ONLINE' : 'OFFLINE MODE'}</span>
                 </div>
                 {pendingSync > 0 && (
-                    <Button size="sm" variant="outline" className="h-7 text-xs border-white/10" onClick={handleSync} disabled={syncing || !isOnline}>
+                    <Button size="sm" variant="outline" className="h-7 text-xs border-border" onClick={handleSync} disabled={syncing || !isOnline}>
                         <RefreshCw className={`h-3 w-3 mr-1 ${syncing ? 'animate-spin' : ''}`} />
                         Sync ({pendingSync})
                     </Button>
@@ -97,12 +97,12 @@ export function OfflineAttendance() {
                 {MOCK_STUDENTS.map(student => {
                     const status = statusMap[student.id]
                     return (
-                        <Card key={student.id} className="p-4 bg-slate-900 border-white/5 flex items-center justify-between">
+                        <Card key={student.id} className="p-4 bg-card text-card-foreground border-border/50 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <Avatar className="h-10 w-10 border border-white/10">
+                                <Avatar className="h-10 w-10 border border-border">
                                     <AvatarFallback className="bg-slate-800 text-slate-300">{student.name.substring(0, 2)}</AvatarFallback>
                                 </Avatar>
-                                <span className="font-medium text-white">{student.name}</span>
+                                <span className="font-medium text-foreground">{student.name}</span>
                             </div>
 
                             <div className="flex gap-2">

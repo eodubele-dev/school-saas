@@ -61,7 +61,7 @@ export function QuizList({ classId, subjectId, onEdit, onNew }: QuizListProps) {
 
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center h-64 text-slate-500 gap-4">
+            <div className="flex flex-col items-center justify-center h-64 text-muted-foreground gap-4">
                 <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                 <p>Loading your assessments...</p>
             </div>
@@ -72,27 +72,27 @@ export function QuizList({ classId, subjectId, onEdit, onNew }: QuizListProps) {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-xl font-bold text-white">Active Assessments</h2>
-                    <p className="text-sm text-slate-500">Manage drafts and published quizzes</p>
+                    <h2 className="text-xl font-bold text-foreground">Active Assessments</h2>
+                    <p className="text-sm text-muted-foreground">Manage drafts and published quizzes</p>
                 </div>
                 <Button
                     onClick={onNew}
-                    className="bg-blue-600 hover:bg-blue-500 text-white gap-2 font-bold"
+                    className="bg-blue-600 hover:bg-blue-500 text-foreground gap-2 font-bold"
                 >
                     <Plus className="h-4 w-4" /> New Quiz
                 </Button>
             </div>
 
             {quizzes.length === 0 ? (
-                <div className="text-center py-20 bg-slate-900/40 border-2 border-dashed border-white/5 rounded-2xl">
+                <div className="text-center py-20 bg-card text-card-foreground/40 border-2 border-dashed border-border/50 rounded-2xl">
                     <BrainCircuit className="h-12 w-12 text-slate-700 mx-auto mb-4" />
-                    <p className="text-slate-400 font-medium">No assessments found for this subject.</p>
+                    <p className="text-muted-foreground font-medium">No assessments found for this subject.</p>
                     <p className="text-slate-600 text-sm mt-1">Create your first quiz to get started.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {quizzes.map((quiz) => (
-                        <Card key={quiz.id} className="bg-slate-900/60 border-white/5 p-5 hover:border-blue-500/30 transition-all group relative overflow-hidden">
+                        <Card key={quiz.id} className="bg-card text-card-foreground/60 border-border/50 p-5 hover:border-blue-500/30 transition-all group relative overflow-hidden">
                             <div className={`absolute top-0 right-0 px-3 py-1 text-[10px] font-black uppercase tracking-widest ${quiz.is_active ? 'bg-emerald-500/20 text-emerald-400' : 'bg-orange-500/20 text-orange-400'
                                 }`}>
                                 {quiz.is_active ? 'Published' : 'Draft'}
@@ -100,15 +100,15 @@ export function QuizList({ classId, subjectId, onEdit, onNew }: QuizListProps) {
 
                             <div className="space-y-4">
                                 <div className="space-y-1">
-                                    <h3 className="font-serif font-bold text-lg text-white group-hover:text-blue-400 transition-colors truncate pr-8">
+                                    <h3 className="font-serif font-bold text-lg text-foreground group-hover:text-blue-400 transition-colors truncate pr-8">
                                         {quiz.title}
                                     </h3>
-                                    <p className="text-[10px] text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
                                         <Clock className="h-3 w-3" /> {quiz.duration_minutes} Minutes
                                     </p>
                                 </div>
 
-                                <div className="flex items-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                                <div className="flex items-center gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">
                                     <span className="bg-slate-950 px-2 py-1 rounded flex items-center gap-1">
                                         <Shield className="h-3 w-3 text-blue-500" /> {quiz.total_questions} Questions
                                     </span>
@@ -117,7 +117,7 @@ export function QuizList({ classId, subjectId, onEdit, onNew }: QuizListProps) {
                                     </span>
                                 </div>
 
-                                <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                                <div className="pt-4 border-t border-border/50 flex items-center justify-between">
                                     <div className="text-[10px] text-slate-600 italic">
                                         Created {new Date(quiz.created_at).toLocaleDateString()}
                                     </div>
@@ -132,11 +132,11 @@ export function QuizList({ classId, subjectId, onEdit, onNew }: QuizListProps) {
                                         </Button>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-500">
+                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground">
                                                     <MoreVertical className="h-4 w-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="bg-slate-900 border-white/10 text-white">
+                                            <DropdownMenuContent align="end" className="bg-card text-card-foreground border-border text-foreground">
                                                 <DropdownMenuItem
                                                     onClick={() => handleDelete(quiz.id)}
                                                     className="text-red-400 focus:text-red-400 focus:bg-red-400/10 cursor-pointer"

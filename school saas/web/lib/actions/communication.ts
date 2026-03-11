@@ -94,7 +94,7 @@ export async function getDailyAbsentees() {
  * Sends SMS to a list of recipients using the integrated Termii service.
  * Optimized for parallel processing and bulk logging.
  */
-export async function sendBulkSMS(recipients: { phone: string, name: string }[], message: string) {
+export async function sendBulkSMS(recipients: { phone: string, name: string, id?: string }[], message: string) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
@@ -170,7 +170,8 @@ export async function sendBroadcast(
     channel: 'sms' | 'whatsapp' | 'email',
     audienceType: 'all_parents' | 'class' | 'staff',
     audienceId: string,
-    message: string
+    message: string,
+    category: 'academic' | 'financial' | 'security' | 'emergency' = 'academic'
 ) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -179,25 +180,25 @@ export async function sendBroadcast(
     const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
     if (!profile?.tenant_id) return { success: false, error: "Tenant context missing" }
 
-    let recipients: { phone: string, name: string }[] = []
+    let recipients: { id?: string, phone: string, name: string }[] = []
 
     try {
         if (audienceType === 'all_parents') {
             const { data: parents } = await supabase
                 .from('profiles')
-                .select('full_name, phone, phone_number')
+                .select('id, full_name, phone, phone_number')
                 .eq('tenant_id', profile.tenant_id)
                 .eq('role', 'parent')
 
             recipients = (parents || [])
                 .filter(p => p.phone || p.phone_number)
-                .map(p => ({ phone: (p.phone || p.phone_number)!, name: p.full_name || 'Parent' }))
+                .map(p => ({ id: p.id, phone: (p.phone || p.phone_number)!, name: p.full_name || 'Parent' }))
         } else if (audienceType === 'class') {
             const { data: students } = await supabase
                 .from('students')
                 .select(`
                     full_name,
-                    parent:profiles!parent_id(full_name, phone, phone_number)
+                    parent:profiles!parent_id(id, full_name, phone, phone_number)
                 `)
                 .eq('class_id', audienceId)
                 .eq('tenant_id', profile.tenant_id)
@@ -206,6 +207,7 @@ export async function sendBroadcast(
                 const parent = Array.isArray(s.parent) ? s.parent[0] : s.parent
                 const phone = (parent as any)?.phone || (parent as any)?.phone_number
                 return {
+                    id: (parent as any)?.id,
                     phone: phone,
                     name: (parent as any)?.full_name || 'Parent'
                 }
@@ -213,17 +215,45 @@ export async function sendBroadcast(
         } else if (audienceType === 'staff') {
             const { data: staff } = await supabase
                 .from('profiles')
-                .select('full_name, phone, phone_number')
+                .select('id, full_name, phone, phone_number')
                 .eq('tenant_id', profile.tenant_id)
                 .eq('role', 'teacher')
 
             recipients = (staff || [])
                 .filter(s => s.phone || s.phone_number)
-                .map(s => ({ phone: (s.phone || s.phone_number)!, name: s.full_name || 'Staff' }))
+                .map(s => ({ id: s.id, phone: (s.phone || s.phone_number)!, name: s.full_name || 'Staff' }))
         }
 
         if (recipients.length === 0) {
             return { success: false, error: "No valid recipients found with phone numbers" }
+        }
+
+        // Apply Notification Matrix Preferences
+        if (category !== 'emergency') {
+            const recipientIds = recipients.map(r => r.id).filter(Boolean) as string[]
+            if (recipientIds.length > 0) {
+                const { data: prefs } = await supabase
+                    .from('user_preferences')
+                    .select('user_id, notifications')
+                    .in('user_id', recipientIds)
+
+                if (prefs && prefs.length > 0) {
+                    const optOutIds = new Set(
+                        prefs.filter(p => {
+                            const n = p.notifications as any
+                            return n && n[channel] && n[channel][category] === false
+                        }).map(p => p.user_id)
+                    )
+
+                    const originalCount = recipients.length
+                    recipients = recipients.filter(r => !r.id || !optOutIds.has(r.id))
+                    console.log(`[BROADCAST] Notification Matrix applied: ${originalCount - recipients.length} users opted out of ${category} via ${channel}.`)
+                }
+            }
+        }
+
+        if (recipients.length === 0) {
+            return { success: true, message: "All recipients opted out of this notification type." }
         }
 
         if (channel === 'sms') {
@@ -632,7 +662,7 @@ export async function nudgeDebtors() {
                 balance,
                 student:students(
                     full_name,
-                    parent:profiles!parent_id(full_name, phone, phone_number)
+                    parent:profiles!parent_id(id, full_name, phone, phone_number)
                 )
             `)
             .eq('tenant_id', profile.tenant_id)
@@ -652,25 +682,58 @@ export async function nudgeDebtors() {
 
         // Filter valid debtors with phones
         const validDebtors = debtors.filter(record => {
-            const parent = record.student?.parent as any
+            const p = (record.student as any)?.parent
+            const parent = Array.isArray(p) ? p[0] : p
             const phone = parent?.phone || parent?.phone_number
-            return !!(phone && record.student?.full_name)
+            return !!(phone && (record.student as any)?.full_name)
         })
 
         if (validDebtors.length === 0) return { success: true, count: 0, message: "No debtors with valid phone numbers found." }
 
+        // Apply Notification Matrix Preferences (Financial SMS)
+        const parentIds = validDebtors.map(d => {
+            const p = (d.student as any)?.parent
+            return (Array.isArray(p) ? p[0] : p)?.id
+        }).filter(Boolean)
+        let optedOutParentIds = new Set<string>()
+
+        if (parentIds.length > 0) {
+            const { data: prefs } = await supabase
+                .from('user_preferences')
+                .select('user_id, notifications')
+                .in('user_id', parentIds)
+
+            if (prefs && prefs.length > 0) {
+                optedOutParentIds = new Set(
+                    prefs.filter(p => {
+                        const n = p.notifications as any
+                        return n && n.sms && n.sms.financial === false
+                    }).map(p => p.user_id)
+                )
+            }
+        }
+
+        const consentedDebtors = validDebtors.filter(d => {
+            const p = (d.student as any)?.parent
+            const pid = (Array.isArray(p) ? p[0] : p)?.id
+            return !pid || !optedOutParentIds.has(pid)
+        })
+
+        if (consentedDebtors.length === 0) return { success: true, count: 0, message: "All valid debtors have opted out of financial SMS." }
+
         // Process in small parallel batches to avoid timeouts but respect concurrency
         const BATCH_SIZE = 5
-        for (let i = 0; i < validDebtors.length; i += BATCH_SIZE) {
-            const batch = validDebtors.slice(i, i + BATCH_SIZE)
+        for (let i = 0; i < consentedDebtors.length; i += BATCH_SIZE) {
+            const batch = consentedDebtors.slice(i, i + BATCH_SIZE)
 
             // Check if we still have enough wallet balance
             if (currentBalance < (SMS_COST * batch.length)) break
 
             const results = await Promise.all(batch.map(async (record) => {
-                const parent = record.student?.parent as any
+                const p = (record.student as any)?.parent
+                const parent = Array.isArray(p) ? p[0] : p
                 const phone = parent?.phone || parent?.phone_number
-                const studentName = record.student?.full_name
+                const studentName = (record.student as any)?.full_name
                 const balance = record.balance
 
                 if (!phone) return { success: false }
@@ -718,9 +781,9 @@ export async function nudgeDebtors() {
             success: true,
             count: queuedCount,
             totalDebtors: debtors.length,
-            message: queuedCount === validDebtors.length
-                ? `Successfully nudged ${queuedCount} debtors.`
-                : `Processed ${queuedCount} of ${validDebtors.length} eligible debtors (stopped due to wallet balance or limit).`
+            message: queuedCount === consentedDebtors.length
+                ? `Successfully nudged ${queuedCount} debtors (${optedOutParentIds.size} opted out).`
+                : `Processed ${queuedCount} of ${consentedDebtors.length} eligible debtors (stopped due to wallet balance).`
         }
 
     } catch (error) {
