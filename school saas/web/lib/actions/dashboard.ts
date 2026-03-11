@@ -26,6 +26,26 @@ export async function getAdminStats() {
 
         const totalRevenue = (transactionsResult.data || []).reduce((sum, trx) => sum + (Number(trx.amount) || 0), 0)
 
+        // Finance Leakage Stats (Unpaid past due fees)
+        const todayStr = new Date().toISOString().split('T')[0]
+        const { data: unpaidFees } = await supabase
+            .from('fees')
+            .select('amount')
+            .eq('status', 'unpaid')
+            .lt('due_date', todayStr)
+
+        const revenueLeakage = (unpaidFees || []).reduce((sum, fee) => sum + (Number(fee.amount) || 0), 0)
+        const orphanedFeesCount = unpaidFees?.length || 0
+        const totalPotentialRevenue = totalRevenue + revenueLeakage
+        const recoveryRate = totalPotentialRevenue > 0 ? Math.round((totalRevenue / totalPotentialRevenue) * 100) : 0
+
+        // Hostel Stats
+        const { data: rooms } = await supabase.from('hostel_rooms').select('capacity, occupancy, maintenance_status')
+        const totalCapacity = (rooms || []).reduce((sum, r) => sum + (r.capacity || 0), 0)
+        const totalOccupancy = (rooms || []).reduce((sum, r) => sum + (r.occupancy || 0), 0)
+        const occupancyRate = totalCapacity > 0 ? Math.round((totalOccupancy / totalCapacity) * 100) : 0
+        const maintenanceAlerts = (rooms || []).filter(r => r.maintenance_status !== 'clean').length
+
         // Fetch recent 5 items across tables to simulate "Activity"
         // In a real dedicated system we'd have an 'events' table.
         // Here we just show "New Student Joined" etc based on created_at.
@@ -71,7 +91,16 @@ export async function getAdminStats() {
             totalTeachers: teachersResult.count || 0,
             totalClasses: classesResult.count || 0,
             totalRevenue,
-            recentActivity: activities
+            recentActivity: activities,
+            finance: {
+                revenueLeakage,
+                orphanedFeesCount,
+                recoveryRate
+            },
+            hostel: {
+                occupancyRate,
+                maintenanceAlerts
+            }
         }
 
     } catch (error) {
@@ -80,7 +109,9 @@ export async function getAdminStats() {
             totalStudents: 0,
             totalTeachers: 0,
             totalClasses: 0,
-            totalRevenue: 0
+            totalRevenue: 0,
+            finance: { revenueLeakage: 0, orphanedFeesCount: 0, recoveryRate: 0 },
+            hostel: { occupancyRate: 0, maintenanceAlerts: 0 }
         }
     }
 }

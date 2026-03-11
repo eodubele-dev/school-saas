@@ -226,42 +226,33 @@ export async function AdminDashboard({
                 <div className="space-y-6">
                     {/* Revenue Recovery Hub (Pilot/Premium Proof) */}
                     {(tier === 'pilot' || tier === 'platinum') && (
-                        <LockedSMSWidget
-                            tier={smsBalance > 0 ? 'platinum' : 'starter'}
-                            message="Funding required to resume automated revenue recovery nudges."
-                        >
-                            <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-6 relative overflow-hidden">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="p-2 rounded-lg bg-emerald-500/10">
-                                        <Activity className="h-5 w-5 text-emerald-400" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-sm font-bold text-white">Revenue Recovery Hub</h3>
-                                        <p className="text-[10px] text-slate-400">Lost Efficiency Analysis</p>
-                                    </div>
+                        <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-6 relative overflow-hidden h-full">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 rounded-lg bg-emerald-500/10">
+                                    <Activity className="h-5 w-5 text-emerald-400" />
                                 </div>
-                                <div className="space-y-4">
-                                    <div className="p-4 rounded-xl bg-black/40 border border-white/5">
-                                        <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Estimated Leakage Prevented</p>
-                                        <p className="text-2xl font-black text-emerald-400 mt-1">₦2,450,000</p>
-                                        <div className="mt-2 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                                            <div className="h-full bg-emerald-500 w-[65%]" />
-                                        </div>
-                                    </div>
-                                    <p className="text-[11px] text-slate-300 italic leading-relaxed">
-                                        &quot;Our Forensic Audit logs detected identifying 16 orphaned fee records. Automated recovery notifications are ready to deploy.&quot;
-                                    </p>
-                                    {smsBalance < 2000 && (
-                                        <div className="flex items-center gap-2 p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                                            <Zap className="h-3 w-3 text-amber-500" />
-                                            <p className="text-[10px] text-amber-500 font-bold uppercase">
-                                                {smsBalance <= 0 ? "SMS Wallet Empty: Operations Halted" : "SMS Wallet Low: Recovery Nudges Paused"}
-                                            </p>
-                                        </div>
-                                    )}
+                                <div>
+                                    <h3 className="text-sm font-bold text-white">Revenue Recovery Hub</h3>
+                                    <p className="text-[10px] text-slate-400">Lost Efficiency Analysis</p>
                                 </div>
                             </div>
-                        </LockedSMSWidget>
+                            <div className="space-y-4">
+                                <div className="p-4 rounded-xl bg-black/40 border border-white/5">
+                                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Estimated Leakage Prevented</p>
+                                    <p className="text-2xl font-black text-emerald-400 mt-1">₦{(stats?.finance?.revenueLeakage || 0).toLocaleString()}</p>
+                                    <div className="mt-2 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-emerald-500 transition-all duration-1000 ease-out"
+                                            style={{ width: `${stats?.finance?.recoveryRate || 0}%` }}
+                                        />
+                                    </div>
+                                </div>
+                                <p className="text-[11px] text-slate-300 italic leading-relaxed">
+                                    &quot;Our Forensic Audit logs detected identifying {stats?.finance?.orphanedFeesCount || 0} orphaned fee records. Automated recovery notifications are ready to deploy.&quot;
+                                </p>
+
+                            </div>
+                        </div>
                     )}
 
                     {/* Standard Premium Module with Soft-Lock */}
@@ -276,8 +267,8 @@ export async function AdminDashboard({
 
                                 <div className="space-y-3">
                                     {[
-                                        { label: 'Total Occupancy', val: '88%', color: 'bg-emerald-500' },
-                                        { label: 'Maintenance Alerts', val: '3 Active', color: 'bg-amber-500' }
+                                        { label: 'Total Occupancy', val: `${stats?.hostel?.occupancyRate || 0}%`, color: 'bg-emerald-500' },
+                                        { label: 'Maintenance Alerts', val: `${stats?.hostel?.maintenanceAlerts || 0} Active`, color: 'bg-amber-500' }
                                     ].map((item, i) => (
                                         <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5">
                                             <span className="text-xs text-slate-400">{item.label}</span>

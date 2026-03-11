@@ -30,46 +30,46 @@ export function LockedWidget({
     if (!isLocked) return <>{children}</>;
 
     return (
-        <div className="relative group overflow-hidden rounded-xl border border-white/5 bg-white/[0.01]">
+        <div className="relative group h-full w-full overflow-hidden rounded-xl">
             {/* Premium Module Badge */}
-            <div className="absolute top-3 right-3 z-30 px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 backdrop-blur-sm flex items-center gap-2">
-                <Crown className="h-2.5 w-2.5 text-cyan-400" />
-                <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-widest font-bold">Premium Module</span>
+            <div className="absolute top-3 right-3 z-30 px-2 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20 backdrop-blur-md flex items-center gap-2">
+                <Crown className="h-2.5 w-2.5 text-cyan-500 dark:text-cyan-400" />
+                <span className="text-[9px] font-mono text-cyan-600 dark:text-cyan-400 uppercase tracking-widest font-bold">Premium Module</span>
             </div>
 
             {/* Blurred Content Background (Data Preservation Visual) - Enhanced Blur */}
-            <div className="blur-[10px] grayscale opacity-20 pointer-events-none select-none h-full overflow-hidden">
+            <div className="blur-[10px] grayscale opacity-30 pointer-events-none select-none h-full overflow-hidden transition-all duration-300">
                 {children}
             </div>
 
-            {/* Lock Overlay - Heavier Blur */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-xl z-20 p-3 text-center">
+            {/* Lock Overlay - Modern Dashboard Glassmorphism */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0f172a]/90 backdrop-blur-lg z-20 p-4 text-center rounded-xl border border-white/5 shadow-2xl">
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     whileInView={{ scale: 1, opacity: 1 }}
                     viewport={{ once: true }}
-                    className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mb-3 shadow-[0_0_20px_rgba(0,245,255,0.1)]"
+                    className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(0,245,255,0.1)]"
                 >
-                    <ShieldAlert className="h-5 w-5 text-cyan-400" />
+                    <ShieldAlert className="h-6 w-6 text-cyan-400" />
                 </motion.div>
 
-                <h3 className="text-sm font-bold text-white mb-0.5 tracking-tight">Access Restricted</h3>
-                <p className="text-[9px] text-slate-400 mb-4 max-w-[180px] leading-relaxed uppercase tracking-wider font-medium">
+                <h3 className="text-base font-bold text-white mb-1 tracking-tight">Access Restricted</h3>
+                <p className="text-[10px] text-slate-400 mb-5 max-w-[220px] leading-relaxed uppercase tracking-widest font-medium">
                     {message}
                 </p>
 
                 <button
                     onClick={onUpgrade}
-                    className="group relative px-4 py-2 bg-white text-black text-[8px] font-black uppercase tracking-widest rounded-lg hover:scale-105 transition-all flex items-center gap-2 overflow-hidden"
+                    className="group relative px-5 py-2.5 bg-blue-600 border border-blue-500/50 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all flex items-center gap-2 overflow-hidden"
                 >
                     <span className="relative z-10">Expand Command Center</span>
-                    <Zap className="h-2.5 w-2.5 fill-current relative z-10" />
-                    <div className="absolute inset-0 bg-cyan-400 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                    <Zap className="h-3 w-3 fill-current relative z-10 text-white" />
+                    <div className="absolute inset-0 bg-blue-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                 </button>
 
-                <div className="mt-4 flex items-center gap-2 opacity-60">
-                    <div className="h-1 w-1 rounded-full bg-slate-400 animate-pulse" />
-                    <span className="text-[8px] font-mono text-slate-300 uppercase tracking-tighter">Forensic Data Preserved in Soft-Lock</span>
+                <div className="mt-5 flex items-center gap-2 opacity-70">
+                    <div className="h-1.5 w-1.5 rounded-full bg-slate-400 animate-pulse" />
+                    <span className="text-[9px] font-mono text-slate-300 uppercase tracking-wider">Forensic Data Preserved in Soft-Lock</span>
                 </div>
             </div>
 

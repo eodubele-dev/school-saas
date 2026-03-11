@@ -13,16 +13,23 @@ export default function NewCampusPage({ params }: { params: { domain: string } }
         const result = await createFactoryTenant(formData)
 
         if (result.error) {
-            // In a real app we'd show a toast here via client component or handle state
-            // For now, we'll just log it server side, maybe throw to error boundary
             console.error(result.error)
             throw new Error(result.error)
         }
 
         if (result.success) {
-            // Redirect to the new campus dashboard
-            // Assuming localhost development structure or wildcard dns
-            redirect(`//${result.tenant.slug}.localhost:3000/dashboard`)
+            // Dynamically determine the root domain from the current host
+            const { headers } = await import('next/headers')
+            const host = headers().get('host') || 'localhost:3000'
+
+            // Extract root domain (removes subdomain if present)
+            // e.g. 'admin.eduflow.ng' -> 'eduflow.ng', 'lekki.localhost:3000' -> 'localhost:3000'
+            const hostParts = host.split('.')
+            const rootDomain = hostParts.length > 2
+                ? hostParts.slice(1).join('.')
+                : host
+
+            redirect(`//${result.tenant.slug}.${rootDomain}/dashboard`)
         }
     }
 

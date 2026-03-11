@@ -27,28 +27,20 @@ export type TenantOption = {
 export async function getTenants(): Promise<TenantOption[]> {
     const supabase = createClient()
 
-    // In a real scenario with proper RLS bypass or "owner" role seeing all, 
-    // we would query: supabase.from('tenants').select('id, name, slug, logo_url')
+    const { data: realTenants, error } = await supabase
+        .from('tenants')
+        .select('id, name, slug, logo_url')
 
-    // For now, we'll return the demo tenant + some mocks to simulate multi-campus
-    // This allows the Switcher UI to be built and tested.
+    if (error) {
+        console.error("Error fetching tenants:", error)
+        return []
+    }
 
-    const { data: realTenants } = await supabase.from('tenants').select('id, name, slug, logo_url')
-
-    const mockTenants: TenantOption[] = [
-        { id: 'mock-1', name: 'Lekki Campus', slug: 'lekki', logoUrl: '/logos/lekki.png' },
-        { id: 'mock-2', name: 'Ikeja Campus', slug: 'ikeja', logoUrl: '/logos/ikeja.png' },
-        { id: 'mock-3', name: 'Victoria Island', slug: 'vi', logoUrl: '/logos/vi.png' }
-    ]
-
-    // Deduplicate if real tenants exist
-    const combined = [...(realTenants || []), ...mockTenants].filter((v, i, a) => a.findIndex(t => (t.slug === v.slug)) === i)
-
-    return combined.map(t => ({
+    return (realTenants || []).map(t => ({
         id: t.id,
         name: t.name,
         slug: t.slug,
-        logoUrl: 'logo_url' in t ? t.logo_url : t.logoUrl || undefined
+        logoUrl: t.logo_url || undefined
     }))
 }
 
