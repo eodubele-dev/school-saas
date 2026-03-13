@@ -60,23 +60,25 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="bg-[#0A0A0B] border-border text-foreground sm:max-w-[450px] overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-3xl -mr-16 -mt-16" />
+            <DialogContent className="bg-[#09090b] border-white/10 text-foreground sm:max-w-[420px] overflow-hidden p-0 shadow-2xl">
+                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-indigo-500/5 rounded-full blur-[100px] -mr-40 -mt-40 pointer-events-none" />
 
-                <DialogHeader>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
-                            <Zap className="h-5 w-5 text-cyan-400" />
+                <div className="p-6 pb-2">
+                    <DialogHeader>
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 rounded-lg bg-white/5 border border-white/10 shadow-sm">
+                                <Zap className="h-4 w-4 text-zinc-100" />
+                            </div>
+                            <DialogTitle className="text-xl font-semibold tracking-tight text-foreground">Institutional Wallet</DialogTitle>
                         </div>
-                        <DialogTitle className="text-xl font-bold tracking-tight text-foreground">Institutional Wallet</DialogTitle>
-                    </div>
-                    <DialogDescription className="text-muted-foreground text-sm leading-relaxed">
-                        Funding your wallet restores <span className="text-foreground font-medium">automated revenue recovery</span> and direct institutional communication channels.
-                    </DialogDescription>
-                </DialogHeader>
+                        <DialogDescription className="text-muted-foreground text-sm leading-relaxed mt-2">
+                            Top up your balance to maintain automated revenue recovery and direct communication channels.
+                        </DialogDescription>
+                    </DialogHeader>
+                </div>
 
-                <div className="space-y-6 py-4">
-                    <div className="grid grid-cols-1 gap-3">
+                <div className="space-y-4 px-6 py-2">
+                    <div className="grid grid-cols-1 gap-2.5">
                         {TOPUP_OPTIONS.map((opt) => (
                             <button
                                 key={opt.amount}
@@ -84,36 +86,38 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                                     setAmount(opt.amount)
                                     setIsCustom(false)
                                 }}
-                                className={`flex items-center justify-between p-4 rounded-xl border transition-all ${!isCustom && amount === opt.amount
-                                    ? "bg-cyan-500/10 border-cyan-500/50 shadow-[0_4px_20px_rgba(0,245,255,0.1)]"
-                                    : "bg-secondary/50 border-border/50 hover:bg-white/10"
+                                className={`flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 outline-none ${!isCustom && amount === opt.amount
+                                    ? "bg-zinc-900 border-zinc-500 ring-1 ring-zinc-500 shadow-sm"
+                                    : "bg-transparent border-white/10 hover:border-white/20 hover:bg-white/[0.02]"
                                     }`}
                             >
                                 <div className="text-left">
-                                    <p className="text-sm font-bold text-foreground">{opt.label}</p>
-                                    <p className="text-[10px] text-muted-foreground font-mono italic">{opt.est}</p>
+                                    <p className="text-sm font-medium text-zinc-100">{opt.label}</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">{opt.est}</p>
                                 </div>
-                                <p className="text-lg font-black text-foreground">₦{opt.amount.toLocaleString()}</p>
+                                <p className="text-base font-semibold text-zinc-100">₦{opt.amount.toLocaleString()}</p>
                             </button>
                         ))}
 
                         <button
                             onClick={() => setIsCustom(true)}
-                            className={`p-4 rounded-xl border transition-all text-left ${isCustom
-                                ? "bg-cyan-500/10 border-cyan-500/50"
-                                : "bg-secondary/50 border-border hover:bg-white/10"
+                            className={`p-3.5 rounded-xl border transition-all duration-200 outline-none text-left ${isCustom
+                                ? "bg-zinc-900 border-zinc-500 ring-1 ring-zinc-500 shadow-sm"
+                                : "bg-transparent border-white/10 hover:border-white/20 hover:bg-white/[0.02]"
                                 }`}
                         >
-                            <p className="text-sm font-bold text-foreground">Custom Amount</p>
+                            <div className="flex justify-between items-center w-full">
+                                <p className="text-sm font-medium text-zinc-100">Custom Amount</p>
+                            </div>
                             {isCustom && (
-                                <div className="mt-3 relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">₦</span>
+                                <div className="mt-3 relative" onClick={(e) => e.stopPropagation()}>
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">₦</span>
                                     <Input
                                         type="number"
                                         value={customAmount}
                                         onChange={(e) => setCustomAmount(e.target.value)}
                                         placeholder="Min: 1,000"
-                                        className="bg-black/40 border-border pl-8 focus-visible:ring-cyan-500/50 text-foreground"
+                                        className="bg-zinc-950 border-white/10 pl-8 focus-visible:ring-1 focus-visible:ring-zinc-400 text-foreground h-10 shadow-inner"
                                         autoFocus
                                     />
                                 </div>
@@ -121,23 +125,23 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 pb-2">
-                        <div className="flex items-center gap-2 p-2 bg-secondary/50 rounded-lg">
-                            <MessageSquare className="h-3 w-3 text-cyan-400" />
-                            <span className="text-[10px] text-muted-foreground">Instant Delivery</span>
+                    <div className="flex items-center justify-between px-1 pt-2 pb-1">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <MessageSquare className="h-3.5 w-3.5" />
+                            <span>Instant Delivery</span>
                         </div>
-                        <div className="flex items-center gap-2 p-2 bg-secondary/50 rounded-lg">
-                            <ShieldCheck className="h-3 w-3 text-emerald-400" />
-                            <span className="text-[10px] text-muted-foreground">Forensic Audit</span>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <ShieldCheck className="h-3.5 w-3.5 text-zinc-400" />
+                            <span>Secured by Paystack</span>
                         </div>
                     </div>
                 </div>
 
-                <DialogFooter className="flex gap-2">
+                <div className="p-6 pt-2 pb-6 flex gap-3 mt-1 bg-zinc-950 border-t border-white-[0.05]">
                     <Button
-                        variant="ghost"
+                        variant="outline"
                         onClick={() => onOpenChange(false)}
-                        className="text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                        className="flex-1 bg-transparent border-white/10 hover:bg-white/5 text-zinc-300 font-medium"
                         disabled={loading}
                     >
                         Cancel
@@ -145,21 +149,20 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                     <Button
                         onClick={handleTopUp}
                         disabled={loading || (isCustom && (!customAmount || Number(customAmount) < 1000))}
-                        className="bg-cyan-600 hover:bg-cyan-500 text-foreground font-bold px-8 shadow-lg shadow-cyan-900/20"
+                        className="flex-[2] bg-white hover:bg-zinc-200 text-black font-semibold shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-colors"
                     >
                         {loading ? (
                             <>
-                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                Initializing...
+                                <Loader2 className="h-4 w-4 animate-spin mr-2 opacity-70" />
+                                Processing...
                             </>
                         ) : (
                             <>
-                                <CreditCard className="h-4 w-4 mr-2" />
-                                Pay via Paystack
+                                Continue to Payment
                             </>
                         )}
                     </Button>
-                </DialogFooter>
+                </div>
             </DialogContent>
         </Dialog>
     )

@@ -1,7 +1,24 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Shield, DollarSign, Bell, Bus, GraduationCap, Lock } from 'lucide-react'
+import { Shield, Bell, Bus, GraduationCap, Lock, Zap } from 'lucide-react'
+
+const NairaIcon = (props: React.ComponentProps<'svg'>) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        {...props}
+    >
+        <path d="M6 21V3l12 18V3" />
+        <path d="M4 10h16" />
+        <path d="M4 14h16" />
+    </svg>
+)
 import { getNotificationSettings, updateNotificationSettings, getMonthlyVolumeEstimates } from '@/lib/actions/notifications'
 import { toast } from 'sonner'
 import { SMS_CONFIG } from '@/lib/constants/communication'
@@ -81,7 +98,7 @@ export function NotificationSettings() {
         {
             title: 'Financial & Revenue',
             description: 'Payment tracking and debt recovery communications',
-            icon: DollarSign,
+            icon: NairaIcon,
             settings: [
                 {
                     key: 'fee_reminders',
@@ -190,7 +207,7 @@ export function NotificationSettings() {
 
     if (loading) {
         return (
-            <div className="bg-black/40 backdrop-blur-xl rounded-3xl border border-border p-8 max-w-5xl mx-auto">
+            <div className="bg-card shadow-sm rounded-3xl border border-border p-8 max-w-5xl mx-auto">
                 <div className="animate-pulse space-y-4">
                     <div className="h-8 bg-secondary/50 rounded w-1/3" />
                     <div className="h-4 bg-secondary/50 rounded w-2/3" />
@@ -200,7 +217,7 @@ export function NotificationSettings() {
     }
 
     return (
-        <div className="bg-black/40 backdrop-blur-xl rounded-3xl border border-border p-8 max-w-5xl mx-auto">
+        <div className="bg-card shadow-sm rounded-3xl border border-border p-8 max-w-5xl mx-auto">
             {/* Header */}
             <header className="mb-8 pb-6 border-b border-border">
                 <div className="flex items-start justify-between">
@@ -210,8 +227,8 @@ export function NotificationSettings() {
                     </div>
                     <div className="text-right">
                         <p className="text-[10px] text-muted-foreground uppercase font-mono tracking-widest">Est. Monthly Volume</p>
-                        <p className="text-2xl font-bold text-cyan-400 mt-1">{calculateTotalVolume()}<span className="text-sm text-muted-foreground ml-1">SMS/student</span></p>
-                        <p className="text-[10px] text-slate-600 mt-1">≈ ₦{(calculateTotalVolume() * SMS_CONFIG.UNIT_COST).toLocaleString()} per student</p>
+                        <p className="text-2xl font-bold text-foreground mt-1">{calculateTotalVolume()}<span className="text-sm text-muted-foreground ml-1 font-mono">SMS/student</span></p>
+                        <p className="text-[10px] text-muted-foreground mt-1">≈ ₦{(calculateTotalVolume() * SMS_CONFIG.UNIT_COST).toLocaleString()} per student</p>
                     </div>
                 </div>
             </header>
@@ -220,13 +237,13 @@ export function NotificationSettings() {
             <div className="space-y-8">
                 {categories.map((category, idx) => (
                     <div key={idx} className="space-y-4">
-                        <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-cyan-500/10 flex items-center justify-center">
-                                <category.icon className="h-4 w-4 text-cyan-400" />
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="h-8 w-8 rounded-lg bg-secondary border border-border flex items-center justify-center shadow-sm">
+                                <category.icon className="h-4 w-4 text-foreground" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-foreground tracking-tight">{category.title}</h3>
-                                <p className="text-[10px] text-muted-foreground">{category.description}</p>
+                                <h3 className="text-sm font-semibold text-foreground tracking-tight">{category.title}</h3>
+                                <p className="text-[11px] text-muted-foreground">{category.description}</p>
                             </div>
                         </div>
 
@@ -234,22 +251,22 @@ export function NotificationSettings() {
                             {category.settings.map((setting) => (
                                 <div
                                     key={setting.key}
-                                    className={`flex items-center justify-between p-4 rounded-2xl transition-all ${setting.isCritical
-                                        ? 'bg-cyan-500/5 border border-cyan-500/20'
-                                        : 'bg-secondary/50 border border-border/50 hover:border-border'
+                                    className={`flex items-center justify-between p-4 rounded-2xl transition-all duration-200 ${setting.isCritical
+                                        ? 'bg-indigo-500/5 border border-indigo-500/20'
+                                        : 'bg-transparent border border-border/50 hover:border-border hover:bg-secondary/20'
                                         }`}
                                 >
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2">
                                             <p className="text-foreground font-medium text-sm">{setting.label}</p>
                                             {setting.isCritical && (
-                                                <Lock className="h-3 w-3 text-cyan-400" />
+                                                <Lock className="h-3 w-3 text-indigo-500 dark:text-indigo-400" />
                                             )}
                                         </div>
-                                        <p className={`text-xs mt-0.5 ${setting.isCritical ? 'text-cyan-400/60 font-mono' : 'text-muted-foreground'}`}>
+                                        <p className={`text-xs mt-0.5 ${setting.isCritical ? 'text-indigo-600 dark:text-indigo-400/80 font-mono' : 'text-muted-foreground'}`}>
                                             {setting.description}
                                         </p>
-                                        <p className="text-[10px] text-slate-600 mt-1 font-mono">
+                                        <p className="text-[10px] text-muted-foreground mt-1.5 font-mono">
                                             ~{setting.monthlyVolume} SMS/student/month
                                         </p>
                                     </div>
@@ -269,11 +286,11 @@ export function NotificationSettings() {
 
             {/* Footer Info */}
             <div className="mt-8 pt-6 border-t border-border">
-                <div className="flex items-start gap-3 p-4 rounded-xl bg-secondary/50 border border-border/50">
-                    <Bell className="h-5 w-5 text-cyan-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-secondary/30 border border-border/50">
+                    <Bell className="h-5 w-5 text-foreground shrink-0 mt-0.5" />
                     <div>
                         <p className="text-sm text-foreground font-medium">Wallet Impact Preview</p>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                             These estimates help you predict SMS costs. Actual volume varies based on student count,
                             attendance patterns, and payment behavior. System-critical alerts cannot be disabled to
                             maintain forensic audit standards.
@@ -297,15 +314,17 @@ function Toggle({ active, onClick, disabled = false, isCritical = false }: Toggl
         <button
             onClick={onClick}
             disabled={disabled}
-            className={`w-12 h-6 rounded-full transition-all flex items-center px-1 shrink-0 ${isCritical
-                ? 'bg-cyan-500/40 opacity-50 cursor-not-allowed'
+            className={`w-11 h-6 rounded-full transition-colors flex items-center px-0.5 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-foreground/20 ${isCritical
+                ? 'bg-indigo-500/20 opacity-60 cursor-not-allowed'
                 : active
-                    ? 'bg-cyan-500 hover:bg-cyan-400'
-                    : 'bg-white/10 hover:bg-white/20'
+                    ? 'bg-foreground'
+                    : 'bg-secondary hover:bg-secondary/80 border border-border'
                 } ${disabled && !isCritical ? 'opacity-50 cursor-wait' : ''}`}
         >
             <div
-                className={`w-4 h-4 rounded-full bg-white transition-transform ${active ? 'translate-x-6' : 'translate-x-0'
+                className={`w-5 h-5 rounded-full transition-transform duration-200 shadow-sm ${active 
+                    ? 'translate-x-[20px] bg-background' 
+                    : 'translate-x-0 bg-muted-foreground'
                     }`}
             />
         </button>

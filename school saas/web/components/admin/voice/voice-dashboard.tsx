@@ -15,11 +15,11 @@ export function VoiceDashboard({ ptaMeetings, feedbackSubmissions }: VoiceDashbo
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="bg-secondary/50 border border-border p-1 rounded-xl shadow-lg backdrop-blur-xl h-auto">
-                <TabsTrigger value="pta" className="rounded-lg py-2.5 px-6 data-[state=active]:bg-indigo-500/20 data-[state=active]:text-indigo-400 data-[state=active]:shadow-[0_0_15px_rgba(99,102,241,0.2)] transition-all font-semibold tracking-wide">
+            <TabsList className="bg-zinc-900 border border-white/10 p-1 rounded-xl shadow-sm h-auto inline-flex">
+                <TabsTrigger value="pta" className="rounded-lg py-2 px-6 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all font-medium text-zinc-400">
                     PTA Requests
                 </TabsTrigger>
-                <TabsTrigger value="feedback" className="rounded-lg py-2.5 px-6 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all font-semibold tracking-wide">
+                <TabsTrigger value="feedback" className="rounded-lg py-2 px-6 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all font-medium text-zinc-400">
                     Parent Feedback
                 </TabsTrigger>
             </TabsList>

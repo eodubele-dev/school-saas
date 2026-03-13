@@ -557,26 +557,58 @@ export async function getPaymentHistory(studentId: string) {
 }
 
 export async function generatePaystackLink(userType: string, amount: number, email: string) {
-    // In a real production app, this would make a server-side request to Paystack API
-    // to initialize a transaction and get an authorization URL.
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error("Unauthorized")
 
-    // For this demo/prototype:
-    // We return a specialized Paystack Test Checkout URL or a mock success URL
-    // If we want to simulate a real flow, we can use a standard Paystack test page if available,
-    // or just return a dummy URL that the frontend 'simulates' opening.
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, email, full_name').eq('id', user.id).single()
+    if (!profile) throw new Error("Profile not found")
 
-    // However, the frontend currently does: window.open(link, '_blank')
-    // Let's return a real-looking but safe URL.
-    // If we have a public key, we might construct a client-side link, but server-side init is better.
+    const tenantId = profile.tenant_id
+    const amountInKobo = Math.round(amount * 100)
+    const reference = `WALLET-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+    
+    // In production, you'd want a specific callback URL to verify and credit the SMS balance
+    const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`
 
-    return `https://checkout.paystack.com/qa/pay/demo-${Date.now()}`
-    // OR just return a success page from our own app?
-    // User wants to see "Redirecting to Paystack".
-    // Let's use a placeholder URL that looks legitimate.
+    const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY
+    if (!PAYSTACK_SECRET_KEY) {
+        console.warn("PAYSTACK_SECRET_KEY is missing. Using fallback demo link for local development.")
+        return "https://paystack.com/pay/school-saas-demo"
+    }
 
-    // If we want to actually test payment, we'd need keys. 
-    // Assuming simple demo:
-    return "https://paystack.com/pay/school-saas-demo"
+    try {
+        const response = await fetch('https://api.paystack.co/transaction/initialize', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email || profile.email || 'admin@school.com',
+                amount: amountInKobo,
+                reference: reference,
+                callback_url: callbackUrl,
+                metadata: {
+                    type: 'wallet_topup',
+                    tenant_id: tenantId,
+                    user_id: user.id
+                }
+            })
+        })
+
+        const data = await response.json()
+
+        if (!response.ok || !data.status) {
+            console.error("Paystack API Error:", data)
+            throw new Error(data.message || "Failed to initialize Paystack transaction")
+        }
+
+        return data.data.authorization_url
+    } catch (error: any) {
+        console.error("generatePaystackLink Exception:", error)
+        throw new Error("Network error during payment initialization")
+    }
 }
 
 // --- Bursar Utilities ---

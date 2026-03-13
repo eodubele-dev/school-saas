@@ -27,15 +27,13 @@ export default async function AdminVoicePage() {
     ])
 
     return (
-        <div className="p-8 space-y-8 max-w-7xl mx-auto relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-emerald-500/5 pointer-events-none -z-10 rounded-3xl" />
+        <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto">
             <div className="flex justify-between items-center">
-                <div className="space-y-1 relative">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 blur-xl z-0" />
-                    <h1 className="text-4xl font-black tracking-tight relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">
                         Voice & Feedback
                     </h1>
-                    <p className="text-slate-400 text-lg relative z-10 font-medium">Manage PTA scheduling requests and monitor parent feedback.</p>
+                    <p className="text-muted-foreground text-sm font-medium">Manage PTA scheduling requests and monitor parent feedback.</p>
                 </div>
             </div>
 
