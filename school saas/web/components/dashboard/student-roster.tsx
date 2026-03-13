@@ -17,15 +17,18 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { useState, useMemo } from "react"
+import { StudentEvaluationModal } from "../teacher/results/student-evaluation-modal"
 
 interface StudentRosterProps {
     students: StudentRosterItem[]
     className?: string
+    classId?: string
 }
 
-export function StudentRoster({ students, className }: StudentRosterProps) {
+export function StudentRoster({ students, className, classId }: StudentRosterProps) {
     const [search, setSearch] = useState("")
     const [statusFilter, setStatusFilter] = useState<string | null>(null)
+    const [evalStudent, setEvalStudent] = useState<{ id: string, name: string } | null>(null)
 
     const filteredStudents = useMemo(() => {
         return students.filter(s => {
@@ -203,6 +206,15 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
                                                     <Activity className="h-4 w-4 mr-2 text-rose-500" />
                                                     Log Behavior
                                                 </DropdownMenuItem>
+                                                {classId && (
+                                                    <DropdownMenuItem
+                                                        onClick={() => setEvalStudent({ id: student.id, name: student.full_name })}
+                                                        className="cursor-pointer font-semibold text-emerald-400 focus:text-emerald-300"
+                                                    >
+                                                        <div className="h-4 w-4 mr-2 border border-emerald-500 text-emerald-500 rounded flex items-center justify-center text-[10px] font-bold">R</div>
+                                                        End of Term Eval
+                                                    </DropdownMenuItem>
+                                                )}
                                                 <DropdownMenuItem
                                                     onClick={() => {
                                                         const notes = student.medical_info?.notes || "No medical notes on file."
@@ -214,7 +226,7 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
                                                     Medical Notes
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
-                                                    onClick={() => window.location.href = `/dashboard/teacher/gradebook`}
+                                                    onClick={() => window.location.href = classId ? `/dashboard/teacher/assessments?class_id=${classId}` : `/dashboard/teacher/assessments`}
                                                     className="cursor-pointer"
                                                 >
                                                     <div className="h-4 w-4 mr-2 border border-blue-500 text-blue-500 rounded flex items-center justify-center text-[10px] font-bold">G</div>
@@ -240,6 +252,17 @@ export function StudentRoster({ students, className }: StudentRosterProps) {
             <div className="p-4 border-t border-border/50 bg-slate-950/30 text-xs text-muted-foreground flex justify-between items-center">
                 <span>Showing {filteredStudents.length} of {students.length} students</span>
             </div>
+
+            {/* End of Term Result Evaluation Modal */}
+            {classId && evalStudent && (
+                <StudentEvaluationModal
+                    isOpen={!!evalStudent}
+                    onClose={() => setEvalStudent(null)}
+                    studentId={evalStudent.id}
+                    studentName={evalStudent.name}
+                    classId={classId}
+                />
+            )}
         </Card>
     )
 }

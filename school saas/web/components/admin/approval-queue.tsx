@@ -7,7 +7,7 @@ import { PendingItem } from "@/lib/actions/approvals"
 import { cn, formatDate } from "@/lib/utils"
 import { useState } from "react"
 import { ReviewModal } from "./review-modal"
-import { FileText, Calculator, Clock, ChevronRight, MapPin } from "lucide-react"
+import { FileText, Calculator, Clock, ChevronRight, MapPin, GraduationCap } from "lucide-react"
 
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -36,10 +36,11 @@ export function ApprovalQueue({ initialItems, domain }: { initialItems: PendingI
         return type === lessonFilter
     })
     const gradebooks = initialItems.filter(i => i.type === 'gradebook')
+    const termResults = initialItems.filter(i => i.type === 'term_result')
     const disputes = initialItems.filter(i => i.type === 'attendance_dispute')
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
             <QueueList
                 title="Lesson Plans"
                 icon={FileText}
@@ -69,6 +70,13 @@ export function ApprovalQueue({ initialItems, domain }: { initialItems: PendingI
                 icon={Calculator}
                 items={gradebooks}
                 onSelect={setSelectedItem}
+            />
+            <QueueList
+                title="Term Results"
+                icon={GraduationCap}
+                items={termResults}
+                onSelect={setSelectedItem}
+                accent="text-emerald-400"
             />
             <QueueList
                 title="Attendance Disputes"

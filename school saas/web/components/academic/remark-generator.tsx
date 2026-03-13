@@ -42,10 +42,10 @@ export function RemarkGenerator({ studentName, scores, currentRemark, onUpdate, 
             onClick={handleGenerate}
             disabled={loading}
             className="text-[var(--school-accent)] hover:text-foreground hover:bg-[var(--school-accent)]/20 h-6 px-2 text-xs"
-            title="Generate AI Remark"
+            title="Generate AI Subject Remark"
         >
             {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />}
-            {currentRemark ? "Regenerate" : "AI Remark"}
+            {currentRemark ? "Regenerate" : "AI Subject Remark"}
         </Button>
     )
 }

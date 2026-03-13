@@ -51,7 +51,7 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
 
         // 2. Server Action
         try {
-            const res = await approveItem(domain, item.id, item.type)
+            const res = await approveItem(domain, item.id, item.type as any, comment)
             if (res.success) {
                 toast.success("Approved & Stamped Successfully")
                 router.refresh()
@@ -75,7 +75,7 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
         }
         setIsProcessing(true)
         try {
-            const res = await rejectItem(domain, item.id, item.type, comment)
+            const res = await rejectItem(domain, item.id, item.type as any, comment)
             if (res.success) {
                 toast.success("Returned for corrections")
                 router.refresh()
@@ -119,7 +119,7 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                         </div>
 
                         {/* Content */}
-                        {item.type === 'lesson_plan' || item.type === 'lesson_note' || item.lesson_type === 'lesson_note' ? (
+                        {(item.type === 'lesson_plan' || (item as any).lesson_type === 'lesson_note') ? (
                             <div className="bg-white min-h-[600px] h-full flex flex-col">
                                 {/* Document Header - Fits the "Paper" look */}
                                 <div className="border-b border-slate-100 p-8 md:p-12 pb-6 mb-0">
@@ -186,6 +186,50 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                                     isProcessing={isProcessing}
                                 />
                             </div>
+                        ) : item.type === 'term_result' ? (
+                            <div className="flex flex-col h-full space-y-6">
+                                <div className="border-b border-slate-100 pb-4">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <div className="bg-emerald-50 text-emerald-700 border-emerald-200 uppercase tracking-widest text-xs font-bold px-3 py-1 rounded border">
+                                            End of Term Evaluation
+                                        </div>
+                                        <div className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-amber-200 flex items-center gap-1">
+                                            <Clock className="w-3 h-3" /> Pending Principal Review
+                                        </div>
+                                    </div>
+                                    <h2 className="text-2xl font-black text-slate-800">{item.title.replace('End of Term Eval: ', '')}</h2>
+                                    <div className="flex gap-4 text-sm font-mono mt-2 text-slate-500">
+                                        <span>Class: {item.details?.class_name}</span>
+                                        <span>Term: {item.details?.term}</span>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-6 flex-1">
+                                    <div className="space-y-4">
+                                        <h3 className="font-bold text-slate-700 border-b pb-2">Behavioral Attributes</h3>
+                                        <div className="bg-slate-50 rounded-lg border p-4 max-h-[300px] overflow-y-auto w-full">
+                                            <table className="w-full text-sm">
+                                                <tbody>
+                                                    {Object.entries(item.details?.affective_domain || {}).map(([key, val]) => (
+                                                        <tr key={key} className="border-b last:border-0 hover:bg-slate-100">
+                                                            <td className="py-2 text-slate-600">{key}</td>
+                                                            <td className="py-2 text-right font-bold text-emerald-600">{val as React.ReactNode} / 5</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4 flex flex-col">
+                                        <h3 className="font-bold text-slate-700 border-b pb-2">Teacher's Remark</h3>
+                                        <div className="bg-slate-50 rounded-lg flex-1 border p-4 italic text-slate-600 text-sm">
+                                            "{item.details?.teacher_remark || 'No remark provided.'}"
+                                        </div>
+                                        
+                                        <h3 className="font-bold text-slate-700 border-b pb-2 pt-4">Principal's Private Note / Rejection Reason</h3>
+                                        <p className="text-xs text-slate-500 mb-2">If rejecting, type the reason below. If approving, this will be saved internally but will not print on the result sheet (which is generated automatically).</p>
+                                    </div>
+                                </div>
+                            </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                                 <AlertCircle className="h-16 w-16 text-slate-300" />
@@ -240,8 +284,8 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                             <Button variant="destructive" onClick={handleReject} disabled={isProcessing || isStamped}>
                                 <XCircle className="h-4 w-4 mr-2" /> Needs Correction
                             </Button>
-                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-foreground" onClick={handleApprove} disabled={isProcessing || isStamped}>
-                                <CheckCircle className="h-4 w-4 mr-2" /> Approve & Stamp
+                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-foreground shadow-lg" onClick={handleApprove} disabled={isProcessing || isStamped}>
+                                <CheckCircle className="h-4 w-4 mr-2" /> {item.type === 'term_result' ? 'Approve & Publish' : 'Approve & Stamp'}
                             </Button>
                         </div>
                     </DialogFooter>

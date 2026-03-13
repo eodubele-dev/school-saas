@@ -119,7 +119,7 @@ export default function MyClassesPage() {
                                 <span className="animate-pulse text-slate-500">Loading roster...</span>
                             </div>
                         ) : selectedClassId ? (
-                            <StudentRoster students={roster} className="h-full border-0" />
+                            <StudentRoster students={roster} classId={selectedClassId} className="h-full border-0" />
                         ) : (
                             <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50 p-8 text-center">
                                 <Users className="h-16 w-16 mb-4" />

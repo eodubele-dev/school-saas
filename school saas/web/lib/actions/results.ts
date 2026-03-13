@@ -67,13 +67,13 @@ export async function getStudentResultData(studentId: string, term: string, sess
         const present = attendance?.filter(a => a.status === 'present').length || 0
         const absent = attendance?.filter(a => a.status === 'absent').length || 0
 
-        // 4. Fetch Report Card (Remarks)
+        // 4. Fetch Report Card (Remarks) from new term_results schema
         const { data: reportCard } = await supabase
-            .from('student_report_cards')
+            .from('term_results')
             .select('*')
             .eq('student_id', studentId)
             .eq('term', term)
-            .eq('session', session)
+            .eq('session_id', session)
             .single()
 
         // 5. Construct Data
@@ -204,3 +204,219 @@ export async function getStudentsForSelection(classId?: string) {
     const { data } = await query
     return data || []
 }
+
+// ------ NEW RESULT MANAGEMENT API ACTIONS ------
+
+export type ResultStatus = 'draft' | 'submitted_for_review' | 'approved_by_principal' | 'published'
+
+export type AffectiveDomain = {
+  [key: string]: number
+}
+
+import { model } from '@/lib/gemini'
+
+export async function generateOverallSummaryAI(studentName: string, affectiveDomain: AffectiveDomain) {
+    try {
+        // Calculate average to get a sense of general behavior
+        const ratings = Object.values(affectiveDomain)
+        const avg = ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 3
+        
+        // Extract strengths (< 4) and weaknesses (>= 4)
+        const strengths = Object.entries(affectiveDomain).filter(([_, val]) => val >= 4).map(([k]) => k)
+        const areasToImprove = Object.entries(affectiveDomain).filter(([_, val]) => val <= 2).map(([k]) => k)
+
+        const prompt = `
+            Act as an experienced Form Teacher in a prestigious school.
+            Generate a holistic, constructive end-of-term overall summary remark for ${studentName}.
+            
+            Context (Scores out of 5):
+            - Average Behavioral Score: ${avg.toFixed(1)}/5
+            - Strengths (>4): ${strengths.length > 0 ? strengths.join(', ') : 'General good behavior'}
+            - Areas to Improve (<2): ${areasToImprove.length > 0 ? areasToImprove.join(', ') : 'None specifically'}
+            
+            Rules:
+            1. Use British English.
+            2. High average (>4) should be highly commendatory about their character and social skills.
+            3. Average scores (~3) should encourage improvement or consistency.
+            4. If there are specific 'Areas to Improve', gently mention them as goals for next term.
+            5. Keep it to 2-3 concise sentences. No slang.
+            6. Focus on behavior, character, and overall disposition, NOT specific academic subjects.
+        `
+
+        const result = await model.generateContent(prompt)
+        const response = await result.response
+        const remark = response.text().trim()
+
+        return { success: true, remark }
+    } catch (error) {
+        console.error("AI Remark Error:", error)
+        return { success: false, error: "Failed to generate AI remark" }
+    }
+}
+
+export type TermResult = {
+  id: string
+  tenant_id: string
+  student_id: string
+  class_id: string
+  term: string
+  session_id: string
+  affective_domain: AffectiveDomain
+  teacher_remark: string | null
+  principal_remark: string | null
+  status: ResultStatus
+  created_at: string
+  updated_at: string
+}
+export async function getTermResult(studentId: string, classId: string, term: string, session: string) {
+  const supabase = createClient()
+  const { data } = await supabase
+    .from('term_results')
+    .select('affective_domain, teacher_remark, status')
+    .eq('student_id', studentId)
+    .eq('class_id', classId)
+    .eq('term', term)
+    .eq('session_id', session)
+    .maybeSingle()
+    
+  return data
+}
+
+export async function upsertStudentResult(
+  studentId: string,
+  classId: string,
+  term: string,
+  session: string,
+  affectiveDomain: AffectiveDomain,
+  teacherRemark: string,
+  status: ResultStatus = 'draft'
+) {
+  const supabase = createClient()
+
+  // Verify auth & profile
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+  if (userError || !userData.user) return { success: false, error: 'Unauthorized' }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tenant_id')
+    .eq('id', userData.user.id)
+    .single()
+
+  if (!profile?.tenant_id) return { success: false, error: 'No tenant found' }
+
+  const { data, error } = await supabase
+    .from('term_results')
+    .upsert({
+      tenant_id: profile.tenant_id,
+      student_id: studentId,
+      class_id: classId,
+      term: term,
+      session_id: session,
+      affective_domain: affectiveDomain,
+      teacher_remark: teacherRemark,
+      status: status,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'tenant_id, student_id, term, session_id' })
+    .select()
+    .single()
+
+  if (error) {
+    console.error("Error upserting result:", error)
+    return { success: false, error: error.message }
+  }
+
+  return { success: true, data }
+}
+
+export async function updatePrincipalRemark(
+  resultId: string,
+  principalRemark: string,
+  publish: boolean = false
+) {
+  const supabase = createClient()
+  
+  const statusToUpdate = publish ? 'published' : 'approved_by_principal'
+
+  const { data, error } = await supabase
+    .from('term_results')
+    .update({ 
+      principal_remark: principalRemark,
+      status: statusToUpdate,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', resultId)
+    .select()
+    .single()
+
+  if (error) {
+    console.error("Error updating principal remark:", error)
+    return { success: false, error: error.message }
+  }
+
+  return { success: true, data }
+}
+
+export async function publishResult(resultId: string) {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('term_results')
+    .update({ 
+      status: 'published',
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', resultId)
+    .select()
+    .single()
+
+  if (error) return { success: false, error: error.message }
+  return { success: true, data }
+}
+
+export async function getStudentsResults(classId: string, term: string, session: string) {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('term_results')
+    .select(`
+      *,
+      students:student_id (
+        id,
+        first_name,
+        last_name,
+        admission_number
+      )
+    `)
+    .eq('class_id', classId)
+    .eq('term', term)
+    .eq('session_id', session)
+
+  if (error) {
+    console.error("Error fetching results:", error)
+    return { success: false, error: error.message, data: [] }
+  }
+
+  return { success: true, data }
+}
+
+export async function getClassesPendingApproval() {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('term_results')
+    .select(`
+      *,
+      students:student_id ( id, first_name, last_name, admission_number ),
+      classes:class_id ( id, name )
+    `)
+    .eq('status', 'submitted_for_review')
+
+  if (error) {
+    console.error("Error fetching pending results:", error)
+    return { success: false, error: error.message, data: [] }
+  }
+
+  return { success: true, data }
+}
+

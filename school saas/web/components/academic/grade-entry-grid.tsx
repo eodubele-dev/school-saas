@@ -190,7 +190,7 @@ export function GradeEntryGrid({ initialGrades, classId, subjectId, userRole, do
                             <th className="px-2 py-3 w-20 text-center">Exam (60)</th>
                             <th className="px-2 py-3 w-20 text-center">Total</th>
                             <th className="px-2 py-3 w-16 text-center">Grade</th>
-                            <th className="px-4 py-3 min-w-[300px]">Remarks</th>
+                            <th className="px-4 py-3 min-w-[300px]">Subject Remarks</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">

@@ -101,7 +101,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
             const [profileRes, permissionsRes, students] = await Promise.all([
                 supabase.from('profiles').select('role, full_name').eq('id', user.id).single(),
                 supabase.from('staff_permissions').select('can_view_financials, can_edit_results, can_send_bulk_sms').eq('staff_id', user.id).single(),
-                userRole === 'parent' ? getParentChildren() : Promise.resolve([])
+                getParentChildren()
             ])
 
             const profile = profileRes.data
@@ -110,7 +110,10 @@ export async function Sidebar({ className, domain }: { className?: string, domai
                 if (profile.full_name) userName = profile.full_name
             }
             permissions = permissionsRes.data
-            linkedStudents = students as any[]
+            // Only set linked students if the role is confirmed as parent
+            if (userRole === 'parent') {
+                linkedStudents = students as any[]
+            }
         } catch (error) {
             console.error("[Sidebar] Profile Critical Error:", error)
             userRole = 'admin'

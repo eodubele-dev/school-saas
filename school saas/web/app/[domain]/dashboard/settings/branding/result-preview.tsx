@@ -64,6 +64,7 @@ export function ResultPreview({ data }: { data: any }) {
             address: data?.address || "123 School Address, State",
             motto: data?.motto || "Excellence in Knowledge",
             logo_url: data?.logo_url || "",
+            principal_signature_url: data?.theme_config?.settings?.principal_signature || "",
             theme: {
                 primary_color: data?.theme_config?.primary || "#2563eb",
                 secondary_color: data?.theme_config?.secondary || "#1e293b",
@@ -73,6 +74,7 @@ export function ResultPreview({ data }: { data: any }) {
         term_info: {
             term: "2nd",
             session: "2025/2026",
+            session_id: "preview-session-id",
             next_term_begins: "12th Jan, 2026",
             date_issued: new Date().toLocaleDateString('en-GB')
         },
@@ -93,11 +95,10 @@ export function ResultPreview({ data }: { data: any }) {
         },
         character: {
             affective_domain: {
-                "Punctuality": 5,
-                "Neatness": 4,
-                "Politeness": 5,
-                "Honesty": 5,
-                "Leadership": 4
+                "Punctuality": 5, "Neatness": 5, "Politeness": 5, "Honesty": 4, "Reliability": 5,
+                "Cooperation": 5, "Leadership": 4, "Respect": 5, "Self-Control": 4, "Empathy": 5,
+                "Attentiveness": 5, "Initiative": 4, "Perseverance": 5, "Organization": 4, "Participation": 5,
+                "Handwriting": 4, "Sports & Games": 5, "Arts & Crafts": 4, "Musical Skills": 3, "Fluency": 5
             },
             teacher_remark: "Daniel is a very brilliant and well-behaved student. He shows great leadership potential.",
             principal_remark: "An excellent performance. Keep up the good work and maintain this standard."

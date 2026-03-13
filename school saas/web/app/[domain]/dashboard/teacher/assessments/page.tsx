@@ -5,7 +5,7 @@ import { CBTManager } from "@/components/cbt/cbt-manager"
 import { getClassGrades } from "@/lib/actions/gradebook"
 import { getAssignments } from "@/lib/actions/assignments"
 import { createClient } from "@/lib/supabase/server"
-import { BookOpenCheck, FileText, BrainCircuit, Table } from "lucide-react"
+import { BookOpenCheck, FileText, BrainCircuit, Table, AlertCircle } from "lucide-react"
 
 export default async function AssessmentHubPage({ params, searchParams }: { params: { domain: string }, searchParams: { class_id?: string, subject_id?: string, tab?: string } }) {
     const supabase = createClient()
@@ -180,6 +180,12 @@ export default async function AssessmentHubPage({ params, searchParams }: { para
 
                 {/* Tab 1: Gradebook */}
                 <TabsContent value="gradebook" className="flex-1 mt-0">
+                    <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg flex items-start gap-3">
+                        <AlertCircle className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
+                        <div className="text-xs text-blue-200">
+                            <strong>Note:</strong> Grades entered here are securely saved to the database. At the end of the term, these academic scores are automatically combined with your Behavioral Evaluations (End of Term Eval) and sent to the Principal for approval before the final Result Sheet is published.
+                        </div>
+                    </div>
                     <div className="bg-slate-950/50 border border-white/5 rounded-xl p-1 h-full">
                         {gradesRes.success ? (
                             <GradeEntryGrid

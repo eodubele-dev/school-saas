@@ -2,7 +2,7 @@
 
 import { ResultData } from "@/types/results"
 import QRCode from 'qrcode'
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { format } from "date-fns"
 import Image from "next/image"
 
@@ -196,31 +196,67 @@ export function ResultSheet({ data }: { data: ResultData }) {
                         </tfoot>
                     </table>
                 </section>
+                {/* Skills and Development Behaviour Attribute (Full Width) */}
+                <section className="mb-8">
+                    <h3 className="text-xs font-black uppercase mb-2 px-3 py-2 tracking-widest text-center" style={{ backgroundColor: theme.primary_color, color: '#ffffff' }}>
+                        Skills and Development Behaviour Attribute
+                    </h3>
+                    <table className="w-full text-[11px] border-collapse border border-slate-300">
+                        <thead>
+                            <tr className="bg-slate-50 text-slate-600 uppercase tracking-widest font-black text-[10px]">
+                                <th className="border border-slate-300 px-2 py-1.5 text-left w-[20%]">Personal Dev.</th>
+                                <th className="border border-slate-300 px-2 py-1.5 text-center w-[5%] bg-slate-100">Rate</th>
+                                <th className="border border-slate-300 px-2 py-1.5 text-left w-[20%]">Social Behaviour</th>
+                                <th className="border border-slate-300 px-2 py-1.5 text-center w-[5%] bg-slate-100">Rate</th>
+                                <th className="border border-slate-300 px-2 py-1.5 text-left w-[20%]">Work Habits</th>
+                                <th className="border border-slate-300 px-2 py-1.5 text-center w-[5%] bg-slate-100">Rate</th>
+                                <th className="border border-slate-300 px-2 py-1.5 text-left w-[20%]">Practical Skills</th>
+                                <th className="border border-slate-300 px-2 py-1.5 text-center w-[5%] bg-slate-100">Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {(() => {
+                                const domains = data.character.affective_domain || {}
+                                
+                                const categories = [
+                                    ['Punctuality', 'Neatness', 'Politeness', 'Honesty', 'Reliability'],
+                                    ['Cooperation', 'Leadership', 'Respect', 'Self-Control', 'Empathy'],
+                                    ['Attentiveness', 'Initiative', 'Perseverance', 'Organization', 'Participation'],
+                                    ['Handwriting', 'Sports & Games', 'Arts & Crafts', 'Musical Skills', 'Fluency']
+                                ]
+
+                                const rows = []
+                                for (let i = 0; i < 5; i++) {
+                                    rows.push(
+                                        <tr key={i} className="even:bg-slate-50/50">
+                                            {categories.map((cat, catIdx) => {
+                                                const attr = cat[i]
+                                                const rating = domains[attr]
+                                                return (
+                                                    <React.Fragment key={`${catIdx}-${i}`}>
+                                                        <td className="border border-slate-300 px-2 py-1.5 font-semibold text-slate-700">{attr}</td>
+                                                        <td className="border border-slate-300 px-2 py-1.5 text-center font-black bg-slate-50/50" style={{ color: rating ? theme.primary_color : 'inherit' }}>
+                                                            {rating || '-'}
+                                                        </td>
+                                                    </React.Fragment>
+                                                )
+                                            })}
+                                        </tr>
+                                    )
+                                }
+                                return rows;
+                            })()}
+                        </tbody>
+                    </table>
+                    <div className="flex justify-between px-2 mt-2 text-[9px] text-muted-foreground font-semibold uppercase tracking-wider">
+                        <span>Rating Scale: 5 - Excellent, 4 - Good, 3 - Fair, 2 - Poor, 1 - Very Poor</span>
+                        <span>(-) Not Evaluated</span>
+                    </div>
+                </section>
 
                 {/* Character & Remarks & QR Footer */}
                 <div className="grid grid-cols-[1fr_200px] gap-8 mt-auto">
                     <div className="space-y-6">
-                        {/* Iconic Star Rating for Character (Static Demo for Platinum Polish) */}
-                        <div className="flex gap-6 mb-4">
-                            <div>
-                                <h3 className="text-[10px] font-bold uppercase text-muted-foreground mb-1">Punctuality</h3>
-                                <div className="flex text-yellow-500">
-                                    {'★★★★★'.split('').map((s, i) => <span key={i} className="text-lg leading-none text-yellow-500 drop-shadow-sm">{s}</span>)}
-                                </div>
-                            </div>
-                            <div>
-                                <h3 className="text-[10px] font-bold uppercase text-muted-foreground mb-1">Neatness</h3>
-                                <div className="flex text-yellow-500">
-                                    {'★★★★☆'.split('').map((s, i) => <span key={i} className="text-lg leading-none text-yellow-500 drop-shadow-sm">{s}</span>)}
-                                </div>
-                            </div>
-                            <div>
-                                <h3 className="text-[10px] font-bold uppercase text-muted-foreground mb-1">Leadership</h3>
-                                <div className="flex text-yellow-500">
-                                    {'★★★★★'.split('').map((s, i) => <span key={i} className="text-lg leading-none text-yellow-500 drop-shadow-sm">{s}</span>)}
-                                </div>
-                            </div>
-                        </div>
 
                         {/* Remarks */}
                         <div className="bg-slate-50 p-4 border rounded-lg relative overflow-hidden" style={{ borderColor: `${theme.primary_color}30` }}>
@@ -237,17 +273,26 @@ export function ResultSheet({ data }: { data: ResultData }) {
                             </div>
                             <h3 className="text-xs font-bold uppercase text-muted-foreground mb-2 flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: theme.accent_color }}></span>
-                                Principal's AI Summary
+                                Principal's Summary
                             </h3>
                             <p className="font-sans text-sm text-slate-300 leading-relaxed">"{data.character.principal_remark}"</p>
                         </div>
 
                         <div className="flex gap-8 pt-4">
                             <div className="w-40 text-center pt-1">
-                                <div className="h-12 w-full mb-1 flex items-end justify-center">
-                                    <span className="font-handwriting text-2xl text-slate-800 -rotate-3">Mrs. Alade</span>
+                                <div className="h-12 w-full mb-1 flex items-end justify-center relative">
+                                    {data.school_details.principal_signature_url ? (
+                                        <Image 
+                                            src={data.school_details.principal_signature_url} 
+                                            alt="Principal Signature" 
+                                            fill 
+                                            className="object-contain filter contrast-125 brightness-90 relative top-1" 
+                                        />
+                                    ) : (
+                                        <span className="font-handwriting text-2xl text-slate-800 -rotate-3">Principal</span>
+                                    )}
                                 </div>
-                                <div className="border-t border-slate-400 mx-auto w-32"></div>
+                                <div className="border-t border-slate-400 mx-auto w-32 relative z-10"></div>
                                 <p className="text-[10px] uppercase font-bold text-muted-foreground mt-1">Principal's Signature</p>
                             </div>
                             <div className="w-40 text-center pt-1">

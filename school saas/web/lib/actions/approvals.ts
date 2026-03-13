@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 
 export interface PendingItem {
     id: string
-    type: 'lesson_plan' | 'gradebook' | 'attendance_dispute'
+    type: 'lesson_plan' | 'gradebook' | 'attendance_dispute' | 'term_result'
     title: string
     submitted_by: string
     submitted_at: string
@@ -135,6 +135,39 @@ export async function getPendingApprovals() {
         })
     }
 
+    // 2.5 Fetch Pending Term Results
+    const { data: results } = await supabase
+        .from('term_results')
+        .select(`
+            *,
+            students:student_id ( full_name ),
+            classes:class_id ( name )
+        `)
+        .eq('tenant_id', profile?.tenant_id)
+        .eq('status', 'submitted_for_review')
+        .order('created_at', { ascending: false })
+
+    if (results) {
+        results.forEach((res: any) => {
+            pendingItems.push({
+                id: res.id,
+                type: 'term_result',
+                title: `End of Term Eval: ${res.students?.full_name || 'Unknown Student'}`,
+                submitted_by: 'Class Teacher', // In real app, we'd fetch the teacher assigned to this class
+                submitted_at: new Date(res.updated_at).toISOString(),
+                status: 'pending',
+                student_id: res.student_id,
+                details: {
+                    class_name: res.classes?.name,
+                    term: res.term,
+                    session: res.session_id,
+                    affective_domain: res.affective_domain,
+                    teacher_remark: res.teacher_remark
+                }
+            })
+        })
+    }
+
     // 3. Fetch Pending Incident Logs
     const { data: incidents } = await supabase
         .from('incident_logs')
@@ -201,7 +234,7 @@ export async function getPendingApprovals() {
 /**
  * Approve Item
  */
-export async function approveItem(domain: string, id: string, type: 'lesson_plan' | 'gradebook') {
+export async function approveItem(domain: string, id: string, type: 'lesson_plan' | 'gradebook' | 'attendance_dispute' | 'term_result', comment?: string) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: 'Unauthorized' }
@@ -277,6 +310,16 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
             })
 
         if (aError) return { success: false, error: aError.message }
+    } else if (type === 'term_result') {
+        const { error } = await supabase
+            .from('term_results')
+            .update({
+                status: 'published',
+                principal_remark: comment || 'Approved by Principal.',
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', id)
+        if (error) return { success: false, error: error.message }
     }
 
     // Audit Log
@@ -298,7 +341,7 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
 /**
  * Reject Item
  */
-export async function rejectItem(domain: string, id: string, type: 'lesson_plan' | 'gradebook', reason: string) {
+export async function rejectItem(domain: string, id: string, type: 'lesson_plan' | 'gradebook' | 'attendance_dispute' | 'term_result', reason: string) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: 'Unauthorized' }
@@ -341,6 +384,16 @@ export async function rejectItem(domain: string, id: string, type: 'lesson_plan'
                 status: 'declined',
                 resolved_by: user.id,
                 resolved_at: new Date().toISOString()
+            })
+            .eq('id', id)
+        if (error) return { success: false, error: error.message }
+    } else if (type === 'term_result') {
+        const { error } = await supabase
+            .from('term_results')
+            .update({
+                status: 'draft',
+                principal_remark: reason, // Store the rejection reason here
+                updated_at: new Date().toISOString()
             })
             .eq('id', id)
         if (error) return { success: false, error: error.message }
