@@ -8,7 +8,7 @@ import { StudentSelector } from "@/components/attendance/student-selector"
 export default async function AttendanceAuditPage({
     searchParams
 }: {
-    searchParams: { studentId?: string }
+    searchParams: { studentId?: string; page?: string }
 }) {
     // 1. Get Accessible Students (Parents sees kids, Staff sees all)
     const students = await getAuditStudents()
@@ -24,9 +24,10 @@ export default async function AttendanceAuditPage({
     // 2. Determine Scope (Default to first or use searchParam)
     const selectedStudentId = searchParams.studentId || students[0].id
     const selectedStudent = students.find(s => s.id === selectedStudentId) || students[0]
+    const currentPage = parseInt(searchParams.page || '1')
 
     // 3. Fetch Audit Logs
-    const { success, data: logs, error } = await getStudentAttendanceAudit(selectedStudent.id)
+    const { success, data: logs, error, pagination } = await getStudentAttendanceAudit(selectedStudent.id, currentPage)
 
     if (!success) {
         return (
@@ -55,6 +56,7 @@ export default async function AttendanceAuditPage({
             <ParentAttendanceAudit
                 studentName={selectedStudent.full_name}
                 auditLogs={logs || []}
+                pagination={pagination}
             />
         </div>
     )

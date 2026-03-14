@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Loader2, UserCheck, UserX, Clock, AlertCircle } from "lucide-react"
 import { getStaffAttendanceStats } from "@/lib/actions/admin-attendance"
+import { Input } from "@/components/ui/input"
 import { LeaveRequestManager } from "./leave-request-manager"
 import { format } from "date-fns"
 import { toast } from "sonner"
@@ -19,14 +20,28 @@ export function StaffAttendanceDashboard() {
     const [stats, setStats] = useState<any>(null)
     const [error, setError] = useState<string | null>(null)
     const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0])
+    
+    // Pagination & Search state
+    const [currentPage, setCurrentPage] = useState(1)
+    const [searchQuery, setSearchQuery] = useState("")
+    const [debouncedSearch, setDebouncedSearch] = useState("")
+
+    // Simple debounce for search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchQuery)
+            setCurrentPage(1) // Reset to page 1 on new search
+        }, 500)
+        return () => clearTimeout(timer)
+    }, [searchQuery])
 
     useEffect(() => {
-        loadStats(selectedDate)
-    }, [selectedDate])
+        loadStats(selectedDate, currentPage, debouncedSearch)
+    }, [selectedDate, currentPage, debouncedSearch])
 
-    const loadStats = async (date: string) => {
+    const loadStats = async (date: string, page = 1, search = "") => {
         setLoading(true)
-        const res = await getStaffAttendanceStats(date)
+        const res = await getStaffAttendanceStats(date, page, 20, search)
         if (res.success && res.data) {
             setStats(res.data)
         } else {
@@ -36,13 +51,13 @@ export function StaffAttendanceDashboard() {
         setLoading(false)
     }
 
-    if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-blue-500" /></div>
+    if (loading && !stats) return <div className="h-96 flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-blue-500" /></div>
 
-    if (error) return (
+    if (error && !stats) return (
         <div className="flex flex-col items-center justify-center h-64 gap-4">
             <AlertCircle className="h-10 w-10 text-red-500" />
             <div className="text-red-400">Failed to load statistics: {error}</div>
-            <Button onClick={() => loadStats(selectedDate)} variant="outline" className="border-border">Retry</Button>
+            <Button onClick={() => loadStats(selectedDate, currentPage, debouncedSearch)} variant="outline" className="border-border">Retry</Button>
         </div>
     )
 
@@ -61,7 +76,10 @@ export function StaffAttendanceDashboard() {
                     <input
                         type="date"
                         value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
+                        onChange={(e) => {
+                            setSelectedDate(e.target.value)
+                            setCurrentPage(1)
+                        }}
                         className="bg-transparent text-foreground text-sm border-none focus:ring-0 cursor-pointer [&::-webkit-calendar-picker-indicator]:invert"
                     />
                 </div>
@@ -101,23 +119,31 @@ export function StaffAttendanceDashboard() {
             {/* NEW: Smart Clock In for Admin/Staff */}
             <div className="mb-8">
                 <SmartClockIn onClockIn={() => {
-                    loadStats(selectedDate)
+                    loadStats(selectedDate, currentPage, debouncedSearch)
                     router.refresh()
                 }} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* 2. Live Attendance Table */}
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-2 space-y-4">
                     <Card className="bg-card text-card-foreground border-border/50 overflow-hidden">
-                        <div className="p-6 border-b border-border/50 flex justify-between items-center">
+                        <div className="p-6 border-b border-border/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
                                 <h3 className="text-lg font-bold text-foreground">Attendance Log</h3>
                                 <p className="text-sm text-muted-foreground">{format(new Date(selectedDate), 'EEEE, MMMM do, yyyy')}</p>
                             </div>
-                            <Badge variant="outline" className={`animate-pulse ${selectedDate === new Date().toISOString().split('T')[0] ? 'bg-green-500/20 text-green-400 border-green-500/40' : 'bg-slate-500/20 text-muted-foreground border-slate-500/40'}`}>
-                                {selectedDate === new Date().toISOString().split('T')[0] ? '● Live' : '○ History'}
-                            </Badge>
+                            <div className="flex items-center gap-3 w-full sm:w-auto">
+                                <Input 
+                                    placeholder="Search staff..." 
+                                    className="bg-slate-900 border-border max-w-[200px]"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                                <Badge variant="outline" className={`animate-pulse whitespace-nowrap ${selectedDate === new Date().toISOString().split('T')[0] ? 'bg-green-500/20 text-green-400 border-green-500/40' : 'bg-slate-500/20 text-muted-foreground border-slate-500/40'}`}>
+                                    {selectedDate === new Date().toISOString().split('T')[0] ? '● Live' : '○ History'}
+                                </Badge>
+                            </div>
                         </div>
 
                         <div className="overflow-x-auto">
@@ -128,31 +154,77 @@ export function StaffAttendanceDashboard() {
                                         <th className="px-6 py-3">Role</th>
                                         <th className="px-6 py-3">Status</th>
                                         <th className="px-6 py-3">Time In</th>
+                                        <th className="px-6 py-3">Time Out</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                    {stats.list.map((staff: any) => (
-                                        <tr key={staff.id} className="hover:bg-white/[0.02] transition-colors">
-                                            <td className="px-6 py-4 flex items-center gap-3">
-                                                <Avatar className="h-8 w-8">
-                                                    <AvatarImage src={staff.photo_url} />
-                                                    <AvatarFallback>{staff.first_name[0]}</AvatarFallback>
-                                                </Avatar>
-                                                <span className="font-medium text-slate-200">{staff.first_name} {staff.last_name}</span>
-                                            </td>
-                                            <td className="px-6 py-4 text-muted-foreground capitalize">{staff.role}</td>
-                                            <td className="px-6 py-4">
-                                                <StatusBadge status={staff.status} />
-                                            </td>
-                                            <td className="px-6 py-4 font-mono text-muted-foreground">
-                                                {staff.checkInTime ? staff.checkInTime.slice(0, 5) : '--:--'}
+                                    {stats.list.length > 0 ? (
+                                        stats.list.map((staff: any) => (
+                                            <tr key={staff.id} className="hover:bg-white/[0.02] transition-colors">
+                                                <td className="px-6 py-4 flex items-center gap-3">
+                                                    <Avatar className="h-8 w-8">
+                                                        <AvatarImage src={staff.photo_url} />
+                                                        <AvatarFallback>{staff.first_name[0]}</AvatarFallback>
+                                                    </Avatar>
+                                                    <span className="font-medium text-slate-200">{staff.first_name} {staff.last_name}</span>
+                                                </td>
+                                                <td className="px-6 py-4 text-muted-foreground capitalize">{staff.role}</td>
+                                                <td className="px-6 py-4">
+                                                    <StatusBadge status={staff.status} />
+                                                </td>
+                                                <td className="px-6 py-4 font-mono text-muted-foreground">
+                                                    <span className="text-[10px] text-emerald-500/70 block uppercase leading-none mb-1">In</span>
+                                                    {staff.checkInTime ? staff.checkInTime.slice(0, 5) : '--:--'}
+                                                </td>
+                                                <td className="px-6 py-4 font-mono text-muted-foreground">
+                                                    <span className="text-[10px] text-orange-500/70 block uppercase leading-none mb-1">Out</span>
+                                                    {staff.checkOutTime ? staff.checkOutTime.slice(0, 5) : '--:--'}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={5} className="px-6 py-20 text-center text-muted-foreground italic">
+                                                {loading ? 'Fetching records...' : 'No staff records found matching your criteria.'}
                                             </td>
                                         </tr>
-                                    ))}
+                                    )}
                                 </tbody>
                             </table>
                         </div>
                     </Card>
+
+                    {/* Pagination Controls */}
+                    {stats.pagination && stats.pagination.totalPages > 1 && (
+                        <div className="flex items-center justify-between px-2">
+                            <p className="text-xs text-muted-foreground">
+                                Showing <span className="text-foreground font-medium">{stats.list.length}</span> of <span className="text-foreground font-medium">{stats.pagination.totalCount}</span> staff members
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1 || loading}
+                                    className="h-8 border-border"
+                                >
+                                    Previous
+                                </Button>
+                                <div className="text-xs text-muted-foreground px-2">
+                                    Page {currentPage} of {stats.pagination.totalPages}
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(p => Math.min(stats.pagination.totalPages, p + 1))}
+                                    disabled={currentPage === stats.pagination.totalPages || loading}
+                                    className="h-8 border-border"
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* 3. Leave Manager - Sidebar */}

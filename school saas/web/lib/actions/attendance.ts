@@ -242,6 +242,7 @@ export async function sendAbsentNotification(
             .select(`
                 full_name,
                 parent_id,
+                class_id,
                 profiles!students_parent_id_fkey(phone),
                 classes!inner(name),
                 tenants!inner(name)
@@ -322,15 +323,25 @@ export async function sendAbsentNotification(
                 provider_ref: (smsResult.data as any)?.message_id || 'SENT'
             })
 
-            // Update attendance record to mark SMS as sent
-            await supabase
-                .from('student_attendance')
-                .update({
-                    sms_sent: true,
-                    sms_sent_at: new Date().toISOString()
-                })
-                .eq('student_id', studentId)
+            // Get Register ID to properly target the student_attendance record
+            const { data: register } = await supabase
+                .from('attendance_registers')
+                .select('id')
+                .eq('class_id', student.class_id)
                 .eq('date', date)
+                .maybeSingle()
+
+            if (register) {
+                // Update attendance record to mark SMS as sent
+                await supabase
+                    .from('student_attendance')
+                    .update({
+                        sms_sent: true,
+                        sms_sent_at: new Date().toISOString()
+                    })
+                    .eq('student_id', studentId)
+                    .eq('register_id', register.id)
+            }
 
             return { success: true }
         }

@@ -4,9 +4,11 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { sendAbsentNotification } from './attendance'
 
+export type AttendanceStatus = 'present' | 'absent' | 'excused' | 'late'
+
 export interface StudentAttendanceDTO {
     student_id: string
-    status: 'present' | 'absent' | 'excused' | 'late'
+    status: AttendanceStatus
     remarks?: string
 }
 
@@ -144,7 +146,7 @@ export async function markStudentAttendance(classId: string, date: string, recor
             return { success: false, error: 'Failed to access attendance register' }
         }
 
-        // 2. Prepare Payload with register_id
+        // 2. Prepare Payload using columns confirmed in migrations
         const payload = records.map(record => {
             const isPresent = record.status === 'present'
             return {
@@ -152,28 +154,67 @@ export async function markStudentAttendance(classId: string, date: string, recor
                 student_id: record.student_id,
                 status: record.status,
                 remarks: record.remarks,
-                // Set clock_in_time if present. Ideally we check if it already exists to not overwrite, 
-                // but for bulk markup we assume 'now'. In a refined version we'd use a COALESCE logic or separate update.
-                // For this MVP: If marking present, set clock_in.
                 clock_in_time: isPresent ? new Date().toISOString() : null
             }
         })
 
-        // 3. Upsert Student Records (requires Unique constraint on student_id, register_id)
+        // 3. Upsert Student Records using the (register_id, student_id) unique key
         const { error } = await supabase
             .from('student_attendance')
             .upsert(payload, { onConflict: 'register_id,student_id' })
-
         if (error) {
             console.error('Error saving records:', error)
             throw error
         }
 
-        revalidatePath('/dashboard/teacher/attendance')
+        revalidatePath('/', 'layout')
         return { success: true }
     } catch (error) {
         console.error('markStudentAttendance error:', error)
         return { success: false, error: 'Failed to save attendance' }
+    }
+}
+
+/**
+ * Mark attendance for multiple students (bulk action)
+ */
+export async function markBulkAttendance(
+    students: Array<{ studentId: string; classId: string; status: AttendanceStatus }>,
+    date: string
+): Promise<{ success: boolean; marked: number; failed: number; errors: string[] }> {
+    const results = {
+        success: true,
+        marked: 0,
+        failed: 0,
+        errors: [] as string[]
+    }
+
+    try {
+        // Map to DTO format
+        const records: StudentAttendanceDTO[] = students.map(s => ({
+            student_id: s.studentId,
+            status: s.status
+        }))
+
+        // Use the existing markStudentAttendance which handles upsert and registration
+        // For simplicity in this bulk call, we assume all students belong to the same class
+        // as the first one or we'd need to group them. In practice, bulk save is per class.
+        const classId = students[0]?.classId
+        if (!classId) return { success: false, marked: 0, failed: students.length, errors: ['No class ID provided'] }
+
+        const res = await markStudentAttendance(classId, date, records)
+        
+        if (res.success) {
+            results.marked = students.length
+        } else {
+            results.success = false
+            results.failed = students.length
+            results.errors = [res.error || 'Unknown error']
+        }
+
+        return results
+    } catch (error) {
+        return { success: false, marked: 0, failed: students.length, errors: [String(error)] }
     }
 }
 
@@ -206,31 +247,40 @@ export async function getStudentAttendanceHistory() {
 
         const { data: history, error } = await supabase
             .from('student_attendance')
-            .select('date, status, notes')
+            .select(`
+                status,
+                remarks,
+                attendance_registers!inner(date)
+            `)
             .eq('student_id', user.id)
-            .order('date', { ascending: false })
-
+            .order('attendance_registers(date)', { ascending: false })
         if (error) throw error
 
+        const mappedHistory = (history || []).map((r: any) => ({
+            date: r.attendance_registers?.date || 'Unknown',
+            status: r.status,
+            notes: r.remarks
+        }))
+
         const stats = {
-            present: history?.filter(r => r.status === 'present').length || 0,
-            late: history?.filter(r => r.status === 'late').length || 0,
-            absent: history?.filter(r => r.status === 'absent').length || 0,
-            excused: history?.filter(r => r.status === 'excused').length || 0,
+            present: mappedHistory.filter(r => r.status === 'present').length || 0,
+            late: mappedHistory.filter(r => r.status === 'late').length || 0,
+            absent: mappedHistory.filter(r => r.status === 'absent').length || 0,
+            excused: mappedHistory.filter(r => r.status === 'excused').length || 0,
             streak: 0 // Simplified
         }
 
         // Simple streak calculation (consecutive present days)
-        if (history && history.length > 0) {
+        if (mappedHistory.length > 0) {
             let streak = 0
-            for (const record of history) {
+            for (const record of mappedHistory) {
                 if (record.status === 'present') streak++
                 else break
             }
             stats.streak = streak
         }
 
-        return { history: history || [], stats }
+        return { history: mappedHistory, stats }
     } catch (error) {
         console.error('getStudentAttendanceHistory error:', error)
         return { history: [], stats: null }
@@ -385,7 +435,7 @@ export async function clockOutStudent(studentId: string, date: string, classId: 
 
         if (error) throw error
 
-        revalidatePath('/dashboard/teacher/attendance')
+        revalidatePath('/', 'layout')
         return { success: true }
     } catch (error) {
         console.error('clockOutStudent error:', error)

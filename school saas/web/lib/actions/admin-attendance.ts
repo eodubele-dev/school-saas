@@ -4,12 +4,9 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 /**
- * Get Staff Attendance Statistics for Today
+ * Get Staff Attendance Statistics for Today or Specific Date with Pagination and Search
  */
-/**
- * Get Staff Attendance Statistics for Today or Specific Date
- */
-export async function getStaffAttendanceStats(date?: string) {
+export async function getStaffAttendanceStats(date?: string, page = 1, pageSize = 20, search = '') {
     const supabase = createClient()
 
     try {
@@ -21,18 +18,17 @@ export async function getStaffAttendanceStats(date?: string) {
 
         const queryDate = date || new Date().toISOString().split('T')[0]
 
-        // Fetch all staff (teachers/admins)
-        // Schema check: profiles usually has full_name, not first/last in this project version
-        const { data: staff, error: staffError } = await supabase
+        // 1. Fetch ALL matching staff for global stats
+        let staffQuery = supabase
             .from('profiles')
             .select('id, full_name, role, avatar_url')
             .in('role', ['teacher', 'admin', 'principal'])
             .eq('tenant_id', profile.tenant_id)
-        // .eq('status', 'active') // Status column not confirmed in schema
-
+        
+        const { data: allStaff, error: staffError } = await staffQuery
         if (staffError) throw staffError
 
-        // Fetch attendance for queryDate
+        // 2. Fetch attendance for queryDate
         const { data: attendance, error: attError } = await supabase
             .from('staff_attendance')
             .select('*')
@@ -41,37 +37,49 @@ export async function getStaffAttendanceStats(date?: string) {
 
         if (attError) throw attError
 
-        // Calculate Stats
-        const totalStaff = staff.length
-        let present = 0
-        let late = 0
-        const presentIds = new Set()
+        // 3. Global Stats Calculation (Whole School)
+        const totalStaff = allStaff.length
+        let globalPresent = 0
+        let globalLate = 0
+        const attendanceMap = new Map()
 
         attendance.forEach(record => {
-            presentIds.add(record.staff_id)
-            present++
-
-            // Late logic: after 8:05 AM
+            attendanceMap.set(record.staff_id, record)
+            globalPresent++
             if (record.check_in_time) {
                 const [hours, minutes] = record.check_in_time.split(':').map(Number)
                 if (hours > 8 || (hours === 8 && minutes > 5)) {
-                    late++
+                    globalLate++
                 }
             }
         })
 
-        const absent = totalStaff - present
+        // 4. Paginated & Filtered List for Table
+        let filteredStaff = allStaff
+        if (search) {
+            const lowSearch = search.toLowerCase()
+            filteredStaff = allStaff.filter(s => 
+                (s.full_name || '').toLowerCase().includes(lowSearch)
+            )
+        }
 
-        // Build list for the table
-        const attendanceList = staff.map(s => {
-            const record = attendance.find(r => r.staff_id === s.id)
+        const totalFiltered = filteredStaff.length
+        const from = (page - 1) * pageSize
+        const to = from + pageSize
+        const staffSlice = filteredStaff.slice(from, to)
+
+        // Build list for the table using pre-fetched attendance
+        const attendanceList = staffSlice.map(s => {
+            const record = attendanceMap.get(s.id)
             let status = 'absent'
             let checkIn = null
+            let checkOut = null
             let isLate = false
 
             if (record) {
                 status = 'present'
                 checkIn = record.check_in_time
+                checkOut = record.check_out_time
                 if (checkIn) {
                     const [h, m] = checkIn.split(':').map(Number)
                     if (h > 8 || (h === 8 && m > 5)) {
@@ -90,9 +98,10 @@ export async function getStaffAttendanceStats(date?: string) {
                 first_name: firstName,
                 last_name: lastName,
                 role: s.role,
-                photo_url: s.avatar_url, // Mapped from avatar_url
+                photo_url: s.avatar_url,
                 status,
                 checkInTime: checkIn,
+                checkOutTime: checkOut,
                 isLate
             }
         })
@@ -100,8 +109,19 @@ export async function getStaffAttendanceStats(date?: string) {
         return {
             success: true,
             data: {
-                summary: { total: totalStaff, present, late, absent },
-                list: attendanceList
+                summary: { 
+                    total: totalStaff, 
+                    present: globalPresent, 
+                    late: globalLate, 
+                    absent: totalStaff - globalPresent 
+                },
+                list: attendanceList,
+                pagination: {
+                    page,
+                    pageSize,
+                    totalCount: totalFiltered,
+                    totalPages: Math.ceil(totalFiltered / pageSize)
+                }
             }
         }
 

@@ -1,22 +1,31 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { formatDate } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Send, Save } from "lucide-react"
+import { Loader2, Send, Save, ChevronDown, Check, X, HelpCircle } from "lucide-react"
 import { toast } from "sonner"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { getAssignedClass, getClassStudents, markStudentAttendance, sendAbsenceSMS, clockOutStudent, getClassAttendance, StudentAttendanceDTO } from "@/lib/actions/student-attendance"
 import { getClockInStatus } from "@/lib/actions/staff-clock-in"
 
 export function StudentRegister() {
+    const router = useRouter()
     const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
     const [classInfo, setClassInfo] = useState<{ id: string, name: string } | null>(null)
     const [students, setStudents] = useState<any[]>([])
-    const [attendance, setAttendance] = useState<Record<string, { status: 'present' | 'absent' | 'excused', remarks?: string, clockOutTime?: string }>>({})
+    const [attendance, setAttendance] = useState<Record<string, { status: 'present' | 'absent' | 'excused', remarks?: string, clockOutTime?: string, smsSent?: boolean }>>({})
+    const [savingStatus, setSavingStatus] = useState<Record<string, boolean>>({}) // Track per-student saving
     const [isVerified, setIsVerified] = useState(false)
 
     // Helper for local date YYYY-MM-DD
@@ -69,7 +78,8 @@ export function StudentRegister() {
                     attendanceRes.data.forEach((r: any) => {
                         existingMap[r.student_id] = {
                             status: r.status,
-                            clockOutTime: r.clock_out_time
+                            clockOutTime: r.clock_out_time,
+                            smsSent: r.sms_sent
                         }
                     })
                 }
@@ -78,12 +88,17 @@ export function StudentRegister() {
                 const initial: any = {}
                 studentsRes.data.forEach((s: any) => {
                     const existing = existingMap[s.id]
+                    
+                    // CRITICAL: Don't overwrite students currently being saved by the user
+                    if (savingStatus[s.id]) return 
+
                     initial[s.id] = {
                         status: existing?.status || 'present',
-                        clockOutTime: existing?.clockOutTime // Keep track of clock out
+                        clockOutTime: existing?.clockOutTime, // Keep track of clock out
+                        smsSent: existing?.smsSent || false
                     }
                 })
-                setAttendance(initial)
+                setAttendance(prev => ({ ...prev, ...initial }))
             }
         } catch (error) {
             toast.error("Failed to load class data")
@@ -92,18 +107,49 @@ export function StudentRegister() {
         }
     }
 
-    const toggleStatus = (studentId: string) => {
-        setAttendance(prev => {
-            const current = prev[studentId]?.status || 'present'
-            const next = current === 'present' ? 'absent' : current === 'absent' ? 'excused' : 'present'
-            return {
-                ...prev,
-                [studentId]: { ...prev[studentId], status: next }
+    const setStatus = async (studentId: string, next: 'present' | 'absent' | 'excused') => {
+        if (!classInfo) return
+        
+        const current = attendance[studentId]?.status || 'present'
+        if (current === next) return
+        
+        // 1. Optimistic Update & Set Saving
+        setSavingStatus(prev => ({ ...prev, [studentId]: true }))
+        setAttendance(prev => ({
+            ...prev,
+            [studentId]: { ...prev[studentId], status: next }
+        }))
+
+        try {
+            // 2. Immediate Persistence
+            const res = await markStudentAttendance(classInfo.id, getLocalToday(), [
+                { student_id: studentId, status: next, remarks: attendance[studentId]?.remarks }
+            ])
+
+            if (!res.success) {
+                // Rollback on error
+                setAttendance(prev => ({
+                    ...prev,
+                    [studentId]: { ...prev[studentId], status: current }
+                }))
+                toast.error(`Failed to save ${next} status`)
+            } else {
+                // Trigger real-time refresh for other dashboard components
+                router.refresh()
             }
-        })
+        } catch (error) {
+            // Rollback
+            setAttendance(prev => ({
+                ...prev,
+                [studentId]: { ...prev[studentId], status: current }
+            }))
+            toast.error("Network error saving attendance")
+        } finally {
+            setSavingStatus(prev => ({ ...prev, [studentId]: false }))
+        }
     }
 
-    const handleSubmit = async () => {
+    const handleNotifications = async () => {
         if (!classInfo) return
 
         setSubmitting(true)
@@ -114,21 +160,33 @@ export function StudentRegister() {
                 remarks: data.remarks
             }))
 
-            // 1. Save to DB
-            const saveRes = await markStudentAttendance(classInfo.id, getLocalToday(), records)
-            if (!saveRes.success) throw new Error(saveRes.error)
+            // 2. Send SMS only for absentees who haven't been notified
+            const absentIds = Object.entries(attendance)
+                .filter(([_, data]) => data.status === 'absent' && !data.smsSent)
+                .map(([id, _]) => id)
 
-            // 2. Send SMS if needed
-            const absentIds = records.filter(r => r.status === 'absent').map(r => r.student_id)
             if (absentIds.length > 0) {
-                await sendAbsenceSMS(absentIds)
-                toast.success(`Saved & Sent SMS to ${absentIds.length} parents`)
+                const res = await sendAbsenceSMS(absentIds)
+                if (res.success) {
+                    toast.success(`Sent absence ${res.count === 1 ? 'alert' : 'alerts'} to ${res.count} ${res.count === 1 ? 'parent' : 'parents'}`)
+                    // Update local state to reflect SMS sent
+                    setAttendance(prev => {
+                        const next = { ...prev }
+                        absentIds.forEach(id => {
+                            if (next[id]) next[id] = { ...next[id], smsSent: true }
+                        })
+                        return next
+                    })
+                    router.refresh()
+                } else {
+                    toast.error("Failed to send some SMS alerts")
+                }
             } else {
-                toast.success("Attendance saved successfully")
+                toast.info("All absentees have already been notified.")
             }
 
         } catch (error) {
-            toast.error("Failed to submit attendance")
+            toast.error("Failed to process notifications")
         } finally {
             setSubmitting(false)
         }
@@ -161,6 +219,7 @@ export function StudentRegister() {
     }
 
     const absentCount = Object.values(attendance).filter(a => a.status === 'absent').length
+    const notNotifiedCount = Object.values(attendance).filter(a => a.status === 'absent' && !a.smsSent).length
 
     return (
         <Card className="flex flex-col h-[600px] bg-card text-card-foreground border-border/50 overflow-hidden">
@@ -198,15 +257,41 @@ export function StudentRegister() {
                                     </div>
                                 </div>
 
-                                <button
-                                    onClick={() => toggleStatus(student.id)}
-                                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all w-24 border ${status === 'present' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20' :
-                                        status === 'absent' ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20' :
-                                            'bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20'
-                                        }`}
-                                >
-                                    {status.toUpperCase()}
-                                </button>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <button
+                                            disabled={savingStatus[student.id]}
+                                            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all w-28 border flex items-center justify-center gap-2 ${
+                                                status === 'present' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20' :
+                                                status === 'absent' ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20' :
+                                                'bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20'
+                                            }`}
+                                        >
+                                            {savingStatus[student.id] ? (
+                                                <Loader2 className="h-3 w-3 animate-spin" />
+                                            ) : (
+                                                <>
+                                                    {status === 'present' && <Check className="h-3 w-3" />}
+                                                    {status === 'absent' && <X className="h-3 w-3" />}
+                                                    {status === 'excused' && <HelpCircle className="h-3 w-3" />}
+                                                    {status.toUpperCase()}
+                                                    <ChevronDown className="h-3 w-3 opacity-50" />
+                                                </>
+                                            )}
+                                        </button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="bg-slate-900 border-slate-800 text-slate-200">
+                                        <DropdownMenuItem className="focus:bg-emerald-500/10 focus:text-emerald-400 gap-2 cursor-pointer" onClick={() => setStatus(student.id, 'present')}>
+                                            <Check className="h-4 w-4" /> Present
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="focus:bg-red-500/10 focus:text-red-400 gap-2 cursor-pointer" onClick={() => setStatus(student.id, 'absent')}>
+                                            <X className="h-4 w-4" /> Absent
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="focus:bg-amber-500/10 focus:text-amber-400 gap-2 cursor-pointer" onClick={() => setStatus(student.id, 'excused')}>
+                                            <HelpCircle className="h-4 w-4" /> Excused
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
 
                                 {status === 'present' && (
                                     attendance[student.id]?.clockOutTime ? (
@@ -234,6 +319,7 @@ export function StudentRegister() {
                                                             ...prev,
                                                             [student.id]: { ...prev[student.id], clockOutTime: new Date().toISOString() }
                                                         }))
+                                                        router.refresh() // Sync stats/history
                                                         return 'Student clocked out!'
                                                     },
                                                     error: 'Failed to clock out'
@@ -252,13 +338,14 @@ export function StudentRegister() {
 
             <div className="p-4 bg-slate-950/50 border-t border-border/50">
                 <Button
-                    className="w-full bg-[hsl(var(--school-accent))] hover:opacity-90 font-bold gap-2"
-                    onClick={handleSubmit}
-                    disabled={submitting}
+                    className="w-full bg-[var(--school-primary,#06b6d4)] hover:opacity-90 text-white font-bold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleNotifications}
+                    disabled={submitting || absentCount === 0 || notNotifiedCount === 0}
                 >
-                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> :
-                        absentCount > 0 ? <Send className="h-4 w-4" /> : <Save className="h-4 w-4" />}
-                    {absentCount > 0 ? "Submit & Notify Parents" : "Submit Register"}
+                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    {absentCount === 0 ? "No Absentees" : 
+                     notNotifiedCount > 0 ? `Notify ${notNotifiedCount === 1 ? 'Parent' : 'Parents'} (${notNotifiedCount} New)` : 
+                     absentCount === 1 ? "Parent Notified" : "All Parents Notified"}
                 </Button>
             </div>
         </Card>

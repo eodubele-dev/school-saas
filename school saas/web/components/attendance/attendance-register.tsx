@@ -1,8 +1,5 @@
-"use client"
-
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { Save, Check, X, Clock, HelpCircle } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -10,13 +7,24 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ChevronDown, Check, X, Clock, HelpCircle, Save } from "lucide-react"
 
 import {
     getClassAttendance,
     markBulkAttendance,
     getClassStudents,
+    clockOutStudent,
+    sendAbsenceSMS,
     type AttendanceStatus
-} from "@/lib/actions/attendance"
+} from "@/lib/actions/student-attendance"
 
 interface AttendanceRegisterProps {
     classes: { id: string; name: string }[]
@@ -28,6 +36,7 @@ interface Student {
     photo_url?: string
     status: AttendanceStatus
     smsSent?: boolean
+    clockOutTime?: string | null
 }
 
 export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
@@ -40,19 +49,26 @@ export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
     const [loading, setLoading] = useState(false)
     const [saving, setSaving] = useState(false)
     const [stats, setStats] = useState({ present: 0, absent: 0, late: 0, excused: 0 })
+    const [savingStatus, setSavingStatus] = useState<Record<string, boolean>>({}) // Track per-student saving
+
+    // Polling for real-time updates
+    useEffect(() => {
+        const interval = setInterval(() => fetchAttendanceData(true), 10000)
+        return () => clearInterval(interval)
+    }, [fetchAttendanceData])
 
     // Fetch data when class or date changes
-    const fetchAttendanceData = useCallback(async () => {
+    const fetchAttendanceData = useCallback(async (isBackground = false) => {
         if (!selectedClassId) return
 
-        setLoading(true)
+        if (!isBackground) setLoading(true)
         try {
             // 1. Get existing attendance
             const attendanceResult = await getClassAttendance(selectedClassId, selectedDate)
 
             if (!attendanceResult.success) {
                 toast.error("Failed to load attendance")
-                setLoading(false)
+                if (!isBackground) setLoading(false)
                 return
             }
 
@@ -61,7 +77,7 @@ export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
 
             if (!studentsResult.success || !studentsResult.data) {
                 toast.error("Failed to load students")
-                setLoading(false)
+                if (!isBackground) setLoading(false)
                 return
             }
 
@@ -71,21 +87,27 @@ export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
             attendanceResult.data?.forEach(record => {
                 attendanceMap.set(record.student_id, {
                     status: record.status,
-                    smsSent: record.sms_sent
+                    smsSent: record.sms_sent,
+                    clockOutTime: record.clock_out_time
                 })
             })
 
             // Build student list
             const studentList: Student[] = studentsResult.data.map(s => {
                 const existing = attendanceMap.get(s.id)
+                
+                // CRITICAL: Don't overwrite students currently being saved by the user
+                if (savingStatus[s.id]) return null;
+
                 return {
                     id: s.id,
                     name: s.full_name,
                     photo_url: s.photo_url,
                     status: existing ? existing.status : 'present', // Default to present
-                    smsSent: existing ? existing.smsSent : false
+                    smsSent: existing ? existing.smsSent : false,
+                    clockOutTime: existing ? existing.clockOutTime : null
                 }
-            })
+            }).filter(Boolean) as Student[]
 
             setStudents(studentList)
             calculateStats(studentList)
@@ -94,7 +116,7 @@ export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
             console.error(error)
             toast.error("An error occurred")
         } finally {
-            setLoading(false)
+            if (!isBackground) setLoading(false)
         }
     }, [selectedClassId, selectedDate])
 
@@ -106,19 +128,23 @@ export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
     const calculateStats = (list: Student[]) => {
         const newStats = { present: 0, absent: 0, late: 0, excused: 0 }
         list.forEach(s => {
-            newStats[s.status]++
+            if (s.status in newStats) {
+                newStats[s.status as keyof typeof newStats]++
+            }
         })
         setStats(newStats)
     }
 
-    // Handle status toggle
-    const toggleStatus = (studentId: string) => {
+    const setStatus = async (studentId: string, nextStatus: AttendanceStatus) => {
+        const currentStudent = students.find(s => s.id === studentId)
+        if (!currentStudent || currentStudent.status === nextStatus) return
+
+        // 1. Optimistic Update
+        const oldStatus = currentStudent.status
+        setSavingStatus(prev => ({ ...prev, [studentId]: true }))
         setStudents(current => {
             const updated = current.map(s => {
                 if (s.id === studentId) {
-                    const statuses: AttendanceStatus[] = ['present', 'absent', 'late', 'excused']
-                    const currentIndex = statuses.indexOf(s.status)
-                    const nextStatus = statuses[(currentIndex + 1) % statuses.length]
                     return { ...s, status: nextStatus }
                 }
                 return s
@@ -126,6 +152,32 @@ export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
             calculateStats(updated)
             return updated
         })
+
+        try {
+            // 2. Immediate Persistence (optional for bulk register, but helps real-time)
+            await markBulkAttendance([{
+                studentId: studentId,
+                classId: selectedClassId,
+                status: nextStatus
+            }], selectedDate)
+            
+            router.refresh()
+        } catch (error) {
+            // Rollback
+            setStudents(current => {
+                const updated = current.map(s => {
+                    if (s.id === studentId) {
+                        return { ...s, status: oldStatus }
+                    }
+                    return s
+                })
+                calculateStats(updated)
+                return updated
+            })
+            toast.error("Failed to sync change")
+        } finally {
+            setSavingStatus(prev => ({ ...prev, [studentId]: false }))
+        }
     }
 
 
@@ -133,7 +185,7 @@ export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
     // Mark all present
     const markAllPresent = () => {
         setStudents(current => {
-            const updated = current.map(s => ({ ...s, status: 'present' as AttendanceStatus }))
+            const updated = current.map(s => ({ ...s, status: 'present' as AttendanceStatus, smsSent: false }))
             calculateStats(updated)
             return updated
         })
@@ -248,23 +300,75 @@ export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
                                     </Avatar>
                                     <div>
                                         <div className="font-medium text-slate-900">{student.name}</div>
-                                        {student.smsSent && (
-                                            <div className="text-xs text-green-600 flex items-center gap-1">
-                                                <Check className="h-3 w-3" /> SMS Sent
+                                        {student.smsSent ? (
+                                            <div className="text-[10px] text-emerald-600 flex items-center gap-1 font-bold">
+                                                <Check className="h-3 w-3" /> NOTIFIED
                                             </div>
-                                        )}
+                                        ) : student.status === 'absent' ? (
+                                            <div className="text-[10px] text-red-500/70 flex items-center gap-1 font-medium">
+                                                <X className="h-3 w-3" /> NOT NOTIFIED
+                                            </div>
+                                        ) : null}
                                     </div>
                                 </div>
 
-                                {/* Status Toggle */}
+                                {/* Status Selector */}
                                 <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => toggleStatus(student.id)}
-                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${getStatusColor(student.status)}`}
-                                    >
-                                        {getStatusIcon(student.status)}
-                                        <span className="capitalize">{student.status}</span>
-                                    </button>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <button
+                                                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all w-32 border ${getStatusColor(student.status)}`}
+                                            >
+                                                <span className="flex items-center gap-2">
+                                                    {getStatusIcon(student.status)}
+                                                    <span className="capitalize">{student.status}</span>
+                                                </span>
+                                                <ChevronDown className="h-3 w-3 ml-auto opacity-50" />
+                                            </button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="bg-slate-900 border-slate-800 text-slate-200">
+                                            <DropdownMenuItem className="focus:bg-green-500/10 focus:text-green-400 gap-2 cursor-pointer" onClick={() => setStatus(student.id, 'present')}>
+                                                <Check className="h-4 w-4" /> Present
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem className="focus:bg-red-500/10 focus:text-red-400 gap-2 cursor-pointer" onClick={() => setStatus(student.id, 'absent')}>
+                                                <X className="h-4 w-4" /> Absent
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem className="focus:bg-orange-500/10 focus:text-orange-400 gap-2 cursor-pointer" onClick={() => setStatus(student.id, 'late')}>
+                                                <Clock className="h-4 w-4" /> Late
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem className="focus:bg-blue-500/10 focus:text-blue-400 gap-2 cursor-pointer" onClick={() => setStatus(student.id, 'excused')}>
+                                                <HelpCircle className="h-4 w-4" /> Excused
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+
+                                    {student.status === 'present' && (
+                                        student.clockOutTime ? (
+                                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px] py-1 px-2 whitespace-nowrap">
+                                                CLOCKED OUT
+                                            </Badge>
+                                        ) : (
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="h-7 text-[10px] px-2 bg-slate-800 border-border text-slate-300 hover:bg-slate-700 font-bold"
+                                                onClick={async () => {
+                                                    const promise = clockOutStudent(student.id, selectedDate, selectedClassId)
+                                                    toast.promise(promise, {
+                                                        loading: 'Clocking out...',
+                                                        success: () => {
+                                                            setStudents(prev => prev.map(s => s.id === student.id ? { ...s, clockOutTime: new Date().toISOString() } : s))
+                                                            router.refresh()
+                                                            return 'Clocked out!'
+                                                        },
+                                                        error: 'Failed to clock out'
+                                                    })
+                                                }}
+                                            >
+                                                CHECK OUT
+                                            </Button>
+                                        )
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>
@@ -272,17 +376,33 @@ export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
                 )}
             </div>
 
-            {/* Sticky Save Button (Mobile Friendly) */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-200 md:static md:bg-transparent md:border-0 md:p-0 z-10">
+            {/* Sticky Action Footer (Mobile Friendly) */}
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-slate-900 border-t border-slate-700 md:static md:bg-transparent md:border-0 md:p-0 z-10 space-y-3">
                 <Button
-                    className="w-full flex gap-2 items-center justify-center text-lg h-12 shadow-lg"
+                    className="w-full flex gap-2 items-center justify-center text-lg h-12 shadow-lg bg-[var(--school-primary,#06b6d4)] hover:opacity-90 text-white border-0"
                     size="lg"
                     onClick={saveAttendance}
                     disabled={loading || saving || students.length === 0}
                 >
-                    {saving ? "Saving..." : "Save Attendance"}
+                    {saving && !students.some(s => s.status === 'absent' && !s.smsSent) ? "Saving..." : "Save Attendance"}
                     {!saving && <Save className="h-5 w-5" />}
                 </Button>
+
+                {/* Notify Parents Button Consistent with Individual View */}
+                {students.some(s => s.status === 'absent') && (
+                    <Button
+                        className="w-full h-11 bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 hover:text-white font-bold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={handleNotifications}
+                        disabled={loading || saving || !students.some(s => s.status === 'absent' && !s.smsSent)}
+                    >
+                        <Send className="h-4 w-4" />
+                        {students.filter(s => s.status === 'absent' && !s.smsSent).length > 0 ? (
+                            `Notify ${students.filter(s => s.status === 'absent' && !s.smsSent).length === 1 ? 'Parent' : 'Parents'} (${students.filter(s => s.status === 'absent' && !s.smsSent).length} New)`
+                        ) : (
+                            students.filter(s => s.status === 'absent').length === 1 ? "Parent Notified" : "All Parents Notified"
+                        )}
+                    </Button>
+                )}
             </div>
 
             {/* Height spacer for mobile sticky button */}

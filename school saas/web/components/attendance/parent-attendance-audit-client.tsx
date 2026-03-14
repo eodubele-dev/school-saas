@@ -1,16 +1,38 @@
 "use client"
 
 import React from 'react';
-import { Clock, Calendar, ShieldAlert, MapPin, CheckCircle } from 'lucide-react';
+import { Clock, Calendar, ShieldAlert, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from "date-fns";
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Button } from '../ui/button';
+
+interface PaginationData {
+    page: number;
+    pageSize: number;
+    totalCount: number;
+    totalPages: number;
+}
 
 export function ParentAttendanceAudit({
     studentName,
-    auditLogs
+    auditLogs,
+    pagination
 }: {
     studentName: string,
-    auditLogs: any[]
+    auditLogs: any[],
+    pagination?: PaginationData
 }) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const handlePageChange = (newPage: number) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('page', newPage.toString());
+        router.push(`?${params.toString()}`);
+    };
+
+    const { page = 1, totalPages = 1, totalCount = 0 } = pagination || {};
+
     return (
         <div className="bg-card text-card-foreground/50 backdrop-blur-xl border border-border rounded-3xl p-6 md:p-8 shadow-2xl w-full">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-border/50 pb-6 gap-4">
@@ -107,6 +129,45 @@ export function ParentAttendanceAudit({
                     })
                 )}
             </div>
+
+            {/* 📟 Pagination Controls */}
+            {totalPages > 1 && (
+                <footer className="mt-8 pt-6 border-t border-border/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest font-mono">
+                        Showing results <span className="text-foreground">{(page - 1) * 20 + 1} - {Math.min(page * 20, totalCount)}</span> of <span className="text-foreground">{totalCount}</span>
+                    </p>
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(page - 1)}
+                            disabled={page <= 1}
+                            className="bg-secondary/30 border-border/50 hover:bg-secondary/50 rounded-xl px-4"
+                        >
+                            <ChevronLeft size={16} className="mr-1" />
+                            Previous
+                        </Button>
+                        
+                        <div className="flex items-center gap-1.5 px-3">
+                            <span className="text-xs font-mono text-cyan-400">{page}</span>
+                            <span className="text-xs font-mono text-slate-600">/</span>
+                            <span className="text-xs font-mono text-slate-400">{totalPages}</span>
+                        </div>
+
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(page + 1)}
+                            disabled={page >= totalPages}
+                            className="bg-secondary/30 border-border/50 hover:bg-secondary/50 rounded-xl px-4"
+                        >
+                            Next
+                            <ChevronRight size={16} className="ml-1" />
+                        </Button>
+                    </div>
+                </footer>
+            )}
         </div>
     );
 };

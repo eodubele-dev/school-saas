@@ -1,3 +1,4 @@
+import React from "react"
 import Link from "next/link"
 import { headers } from "next/headers"
 import {
@@ -131,18 +132,20 @@ export async function Sidebar({ className, domain }: { className?: string, domai
                 '--school-accent-rgb': accentRgb
             }}
         >
-            <SidebarClient
-                role={userRole}
-                userName={userName}
-                brandColor={primaryColor}
-                tenantName={tenantName}
-                tenantMotto={tenantMotto}
-                tier={tenantTier}
-                tenantLogo={tenantLogo}
-                linkedStudents={linkedStudents}
-                permissions={permissions}
-                basePath={domainPrefix}
-            />
+            <React.Suspense fallback={<div className="flex-1 bg-inherit" />}>
+                <SidebarClient
+                    role={userRole}
+                    userName={userName}
+                    brandColor={primaryColor}
+                    tenantName={tenantName}
+                    tenantMotto={tenantMotto}
+                    tier={tenantTier}
+                    tenantLogo={tenantLogo}
+                    linkedStudents={linkedStudents}
+                    permissions={permissions}
+                    basePath={domainPrefix}
+                />
+            </React.Suspense>
         </div>
     )
 }

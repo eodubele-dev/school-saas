@@ -147,18 +147,18 @@ export async function getParentChildren() {
     return studentsWithFinance
 }
 
-export async function getStudentAttendanceAudit(studentId: string) {
+export async function getStudentAttendanceAudit(studentId: string, page = 1, pageSize = 20) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) return { success: false, error: 'Unauthorized' }
 
-    // 1. Verify access (ensure user is parent of student)
-    // For demo/speed, assuming client passed valid ID linked to parent. 
-    // Ideally we re-verify parent_id match here.
+    // 1. Calculate range
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
 
-    // 2. Fetch Attendance Logs
-    const { data: logs, error } = await supabase
+    // 2. Fetch Attendance Logs with count
+    const { data: logs, error, count } = await supabase
         .from('student_attendance')
         .select(`
             *,
@@ -166,24 +166,34 @@ export async function getStudentAttendanceAudit(studentId: string) {
             clock_in_time,
             clock_out_time,
             clocked_out:clocked_out_by(full_name)
-        `)
+        `, { count: 'exact' })
         .eq('student_id', studentId)
         .order('created_at', { ascending: false })
-        .limit(50)
+        .range(from, to)
 
     if (error) {
         console.error('[ParentPortal] Attendance Audit Error:', error)
-        return { success: false, error: 'Failed to fetch messages' }
+        return { success: false, error: 'Failed to fetch logs' }
     }
 
     // Sort by date (descending) since we couldn't order by joined column easily
+    // Though range might already be somewhat ordered by created_at which is close to date
     const sortedLogs = (logs || []).sort((a: any, b: any) => {
         const dateA = new Date(a.register?.date || 0).getTime()
         const dateB = new Date(b.register?.date || 0).getTime()
         return dateB - dateA
     })
 
-    return { success: true, data: sortedLogs }
+    return { 
+        success: true, 
+        data: sortedLogs,
+        pagination: {
+            page,
+            pageSize,
+            totalCount: count || 0,
+            totalPages: Math.ceil((count || 0) / pageSize)
+        }
+    }
 }
 
 export async function logInvoiceView(studentId: string) {
