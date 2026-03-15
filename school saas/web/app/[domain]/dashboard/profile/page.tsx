@@ -30,7 +30,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { EditRequestButton } from "./edit-request-button"
 import { ProfileEditDialog } from "@/components/profile-edit-dialog"
 
-export default async function ChildProfilePage({ params }: { params: { domain: string } }) {
+import { format } from "date-fns"
+
+export default async function ChildProfilePage({ 
+    params, 
+    searchParams 
+}: { 
+    params: { domain: string }, 
+    searchParams: { studentId?: string } 
+}) {
     noStore()
     const supabase = createClient()
 
@@ -47,22 +55,22 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
 
     if (!tenant) return <div className="p-8 text-red-500">School not found.</div>
 
-    // 3. Fetch Parent Profile
-    const { data: parentProfile } = await supabase
+    // 3. Fetch Parent/User Profile
+    const { data: profile } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single()
 
     // 4. Role-Based Data Fetching
-    const userRole = parentProfile?.role || 'user'
+    const userRole = profile?.role || 'user'
     const isParent = userRole === 'parent'
-    // Also treat 'student' as 'student' if we want, but for now specific check for parent logic.
+    const studentIdParam = searchParams?.studentId
 
     let student = null
 
     if (isParent) {
-        const { data } = await supabase
+        let query = supabase
             .from('students')
             .select(`
                 *,
@@ -73,10 +81,15 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
             `)
             .eq('parent_id', user.id)
             .eq('tenant_id', tenant.id)
-            .single() // Take first child
-        student = data
-    }
 
+        // If a specific student is selected via switcher (URL param), fetch that one
+        if (studentIdParam) {
+            query = query.eq('id', studentIdParam)
+        }
+
+        const { data: students } = await query
+        student = students?.[0] || null
+    }
 
     // 5. Render Logic
 
@@ -104,7 +117,7 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
                         <p className="text-slate-400">Manage your personal information and security settings.</p>
                     </div>
                     {/* EDIT DIALOG */}
-                    <ProfileEditDialog profile={{ ...parentProfile, email: user.email }} />
+                    <ProfileEditDialog profile={{ ...profile, email: user.email }} />
                 </div>
 
                 {/* Digital ID Card Section - STAFF VERSION */}
@@ -117,7 +130,7 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
                             <div className="h-32 w-32 md:h-40 md:w-40 rounded-full border-[3px] border-indigo-500/30 p-1 shadow-[0_0_30px_rgba(99,102,241,0.2)] bg-slate-950/50 backdrop-blur-sm">
                                 <div className="h-full w-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden relative">
                                     <Avatar className="h-full w-full">
-                                        <AvatarImage src={parentProfile?.avatar_url} className="object-cover" />
+                                        <AvatarImage src={profile?.avatar_url} className="object-cover" />
                                         <AvatarFallback className="bg-slate-800 flex items-center justify-center h-full w-full">
                                             <User className="h-16 w-16 text-slate-600" />
                                         </AvatarFallback>
@@ -132,7 +145,7 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
                         {/* Info */}
                         <div className="text-center md:text-left space-y-2">
                             <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
-                                {parentProfile?.full_name || "Staff Member"}
+                                {profile?.full_name || "Staff Member"}
                             </h1>
                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm">
                                 <Badge variant="outline" className="border-indigo-500/30 text-indigo-400 bg-indigo-950/20 px-3 py-1 uppercase tracking-wider">
@@ -158,7 +171,7 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
                                 <h3 className="font-bold text-white tracking-wide">Account Details</h3>
                             </div>
                             <div className="space-y-4">
-                                <InfoRow label="Full Name" value={parentProfile?.full_name} />
+                                <InfoRow label="Full Name" value={profile?.full_name} />
                                 <InfoRow label="Email Address" value={user.email} icon={Mail} />
                                 <InfoRow label="User ID" value={user.id.slice(0, 8).toUpperCase()} icon={Dna} />
                                 <InfoRow label="Role" value={userRole} icon={ShieldCheck} highlight />
@@ -183,7 +196,7 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
                                     </span>
                                 </div>
                                 <InfoRow label="Last Login" value="Just Now" icon={Calendar} />
-                                <InfoRow label="Tenant ID" value={tenant.name} icon={School} />
+                                <InfoRow label="School" value={tenant.name} icon={School} />
                             </div>
                         </div>
                     </Card>
@@ -192,19 +205,9 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
         )
     }
 
-    // CASE C: PARENT with CHILD (Existing Logic)
-    // 5. Mock Data (for missing schema fields)
-    const MOCK_DATA = {
-        studentId: student.id.slice(0, 8).toUpperCase(), // Generate pseudo-ID
-        dob: "12th Oct, 2013",
-        gender: "Male", // Default
-        bloodGroup: "O+",
-        genotype: "AA",
-        admissionDate: "Sept 2022",
-        house: "Aggrey House",
-        club: "Jet Club",
-        secondaryContact: "+234 809 123 4567"
-    }
+    // CASE C: PARENT with CHILD (Production Ready)
+    const displayDob = student.date_of_birth ? format(new Date(student.date_of_birth), "do MMM, yyyy") : "N/A"
+    const displayAdmissionDate = student.admission_date ? format(new Date(student.admission_date), "MMM yyyy") : "N/A"
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500 pb-20">
@@ -212,9 +215,9 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight text-white glow-blue">Child Profile</h2>
-                    <p className="text-slate-400">View and manage student information.</p>
+                    <p className="text-slate-400">View information for {student.full_name}.</p>
                 </div>
-                <EditRequestButton />
+                <EditRequestButton studentId={student.id} />
             </div>
 
             {/* Digital ID Card Section */}
@@ -227,9 +230,12 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
                     <div className="relative group">
                         <div className="h-32 w-32 md:h-40 md:w-40 rounded-full border-[3px] border-cyan-500/30 p-1 shadow-[0_0_30px_rgba(6,182,212,0.2)] bg-slate-950/50 backdrop-blur-sm">
                             <div className="h-full w-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden relative">
-                                <User className="h-16 w-16 text-slate-600" />
-                                {/* Placeholder for real image */}
-                                {/* <Image src={student.photo_url} fill className="object-cover" /> */}
+                                <Avatar className="h-full w-full">
+                                    <AvatarImage src={student.passport_url} className="object-cover" />
+                                    <AvatarFallback className="bg-slate-800 flex items-center justify-center h-full w-full">
+                                        <User className="h-16 w-16 text-slate-600" />
+                                    </AvatarFallback>
+                                </Avatar>
                             </div>
                         </div>
                         <div className="absolute bottom-2 right-2 h-8 w-8 bg-cyan-500 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-950" title="Active Student">
@@ -244,7 +250,7 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
                         </h1>
                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm">
                             <Badge variant="outline" className="border-cyan-500/30 text-cyan-400 bg-cyan-950/20 px-3 py-1">
-                                ID: {MOCK_DATA.studentId}
+                                ADM: {student.admission_number || "N/A"}
                             </Badge>
                             <Badge variant="outline" className="border-white/10 text-slate-300 bg-white/5 px-3 py-1">
                                 {student.classes?.name || "Unassigned"}
@@ -272,11 +278,11 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
                         </div>
                         <div className="space-y-4">
                             <InfoRow label="Full Name" value={student.full_name} />
-                            <InfoRow label="Date of Birth" value={MOCK_DATA.dob} icon={Calendar} />
-                            <InfoRow label="Gender" value={MOCK_DATA.gender} icon={Users} />
+                            <InfoRow label="Date of Birth" value={displayDob} icon={Calendar} />
+                            <InfoRow label="Gender" value={student.gender} icon={Users} />
                             <div className="grid grid-cols-2 gap-4 pt-2">
-                                <BoxInfo label="Blood Group" value={MOCK_DATA.bloodGroup} icon={Droplet} color="text-red-400" bg="bg-red-500/10" />
-                                <BoxInfo label="Genotype" value={MOCK_DATA.genotype} icon={Dna} color="text-purple-400" bg="bg-purple-500/10" />
+                                <BoxInfo label="Blood Group" value={student.blood_group || "N/A"} icon={Droplet} color="text-red-400" bg="bg-red-500/10" />
+                                <BoxInfo label="Genotype" value={student.genotype || "N/A"} icon={Dna} color="text-purple-400" bg="bg-purple-500/10" />
                             </div>
                         </div>
                     </div>
@@ -292,10 +298,10 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
                             <h3 className="font-bold text-white tracking-wide">Academic Info</h3>
                         </div>
                         <div className="space-y-4">
-                            <InfoRow label="Admission Date" value={MOCK_DATA.admissionDate} />
+                            <InfoRow label="Admission Date" value={displayAdmissionDate} />
                             <InfoRow label="Current Class" value={student.classes?.name} />
-                            <InfoRow label="School House" value={MOCK_DATA.house} highlight />
-                            <InfoRow label="Bus Route" value="Route 5 - Lekki Axis" icon={Bus} />
+                            <InfoRow label="School House" value={student.house} highlight icon={ShieldCheck} />
+                            <InfoRow label="Assigned Club" value={student.club} icon={Activity} />
                         </div>
                     </div>
                 </Card>
@@ -307,27 +313,23 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
                             <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20 transition-colors">
                                 <ShieldCheck className="h-5 w-5" />
                             </div>
-                            <h3 className="font-bold text-white tracking-wide">Guardian & Heath</h3>
-                        </div>
-
-                        {/* Health Alert Section */}
-                        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex gap-3 items-start">
-                            <Activity className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
-                            <div>
-                                <p className="text-xs font-bold text-red-400 uppercase tracking-wider">Health Alert</p>
-                                <p className="text-sm text-slate-300">Asthma - Inhaler required.</p>
-                            </div>
+                            <h3 className="font-bold text-white tracking-wide">Guardian & Info</h3>
                         </div>
 
                         <div className="space-y-3 pt-2">
-                            <div className="bg-white/5 rounded-lg p-3 border border-white/5">
-                                <p className="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1">Primary Contact</p>
-                                <p className="text-white font-medium text-sm">{parentProfile?.full_name}</p>
+                            <div className="bg-white/5 rounded-lg p-4 border border-white/5 hover:border-cyan-500/10 transition-colors">
+                                <p className="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1">Parental Context</p>
+                                <p className="text-white font-medium text-sm">{profile?.full_name}</p>
                                 <div className="flex items-center gap-2 text-xs text-slate-400 mt-1">
                                     <Mail className="h-3 w-3" />
                                     {user.email}
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="bg-cyan-500/5 border border-cyan-500/10 rounded-lg p-3 mt-4">
+                            <p className="text-[10px] text-cyan-400 uppercase font-bold tracking-widest mb-1">Data Security</p>
+                            <p className="text-[11px] text-slate-400 leading-tight">This profile is restricted to authorized school personnel and verified guardians.</p>
                         </div>
                     </div>
                 </Card>
@@ -335,9 +337,9 @@ export default async function ChildProfilePage({ params }: { params: { domain: s
 
             {/* Premium Footer Branding */}
             <div className="pt-8 text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-white/5 text-xs font-medium text-slate-500 uppercase tracking-widest shadow-2xl">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-white/5 text-xs font-medium text-slate-500 uppercase tracking-widest shadow-2xl hover:text-cyan-400 transition-colors">
                     <ShieldCheck className="h-3 w-3 text-cyan-500" />
-                    EduFlow Platinum Edition • Secure Academic Record
+                    EduFlow Platinum Edition • Verified Identity
                 </div>
             </div>
         </div>

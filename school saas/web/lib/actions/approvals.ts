@@ -5,13 +5,14 @@ import { revalidatePath } from 'next/cache'
 
 export interface PendingItem {
     id: string
-    type: 'lesson_plan' | 'gradebook' | 'attendance_dispute' | 'term_result'
+    type: 'lesson_plan' | 'gradebook' | 'attendance_dispute' | 'term_result' | 'profile_update'
     title: string
     submitted_by: string
     submitted_at: string
     status: string
     details?: any // Extra data like content or subject/class
     student_id?: string
+    requested_changes?: string
     lesson_type?: 'lesson_plan' | 'lesson_note'
 }
 
@@ -228,6 +229,37 @@ export async function getPendingApprovals() {
         })
     }
 
+    // 5. Fetch Pending Profile Update Requests
+    const { data: profileRequests } = await supabase
+        .from('profile_update_requests')
+        .select(`
+            id, description, created_at, student_id,
+            student:students(full_name),
+            parent:profiles!requested_by(full_name)
+        `)
+        .eq('tenant_id', profile?.tenant_id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+
+    if (profileRequests) {
+        profileRequests.forEach((req: any) => {
+            pendingItems.push({
+                id: req.id,
+                type: 'profile_update',
+                title: `Profile Update: ${req.student?.full_name || 'Student'}`,
+                submitted_by: req.parent?.full_name || 'Parent',
+                submitted_at: req.created_at,
+                status: 'pending',
+                student_id: req.student_id,
+                requested_changes: req.description,
+                details: {
+                    student_name: req.student?.full_name,
+                    description: req.description
+                }
+            })
+        })
+    }
+
     return { success: true, data: pendingItems }
 }
 
@@ -320,6 +352,15 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
             })
             .eq('id', id)
         if (error) return { success: false, error: error.message }
+    } else if (type === 'profile_update' as any) {
+        const { error } = await supabase
+            .from('profile_update_requests')
+            .update({
+                status: 'approved',
+                admin_notes: comment || 'Approved by Admin.'
+            })
+            .eq('id', id)
+        if (error) return { success: false, error: error.message }
     }
 
     // Audit Log
@@ -394,6 +435,15 @@ export async function rejectItem(domain: string, id: string, type: 'lesson_plan'
                 status: 'draft',
                 principal_remark: reason, // Store the rejection reason here
                 updated_at: new Date().toISOString()
+            })
+            .eq('id', id)
+        if (error) return { success: false, error: error.message }
+    } else if (type === 'profile_update' as any) {
+        const { error } = await supabase
+            .from('profile_update_requests')
+            .update({
+                status: 'rejected',
+                admin_notes: reason
             })
             .eq('id', id)
         if (error) return { success: false, error: error.message }

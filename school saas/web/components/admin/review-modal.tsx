@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { PendingItem, approveItem, rejectItem } from "@/lib/actions/approvals"
 import { useState } from "react"
-import { CheckCircle, XCircle, Stamp, UserCheck, AlertCircle, Clock } from "lucide-react"
+import { CheckCircle, XCircle, Stamp, UserCheck, AlertCircle, Clock, ShieldCheck } from "lucide-react"
 import { toast } from "sonner"
 import { cn, formatDate } from "@/lib/utils"
 import { useRouter } from "next/navigation"
@@ -186,48 +186,53 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                                     isProcessing={isProcessing}
                                 />
                             </div>
-                        ) : item.type === 'term_result' ? (
-                            <div className="flex flex-col h-full space-y-6">
-                                <div className="border-b border-slate-100 pb-4">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <div className="bg-emerald-50 text-emerald-700 border-emerald-200 uppercase tracking-widest text-xs font-bold px-3 py-1 rounded border">
-                                            End of Term Evaluation
+                        ) : item.type === 'profile_update' ? (
+                            <div className="flex flex-col h-full space-y-8 py-4">
+                                <div className="border-b border-slate-100 pb-6 flex items-start justify-between">
+                                    <div>
+                                        <div className="bg-cyan-50 text-cyan-700 border-cyan-200 uppercase tracking-widest text-[10px] font-bold px-3 py-1 rounded border mb-3 inline-block">
+                                            Student Profile Update Request
                                         </div>
-                                        <div className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-amber-200 flex items-center gap-1">
-                                            <Clock className="w-3 h-3" /> Pending Principal Review
-                                        </div>
+                                        <h2 className="text-3xl font-black text-slate-800 tracking-tight">
+                                            {item.details?.student_name || 'Individual Student'}
+                                        </h2>
+                                        <p className="text-slate-500 text-sm mt-1 uppercase tracking-widest font-bold">Verification Pending</p>
                                     </div>
-                                    <h2 className="text-2xl font-black text-slate-800">{item.title.replace('End of Term Eval: ', '')}</h2>
-                                    <div className="flex gap-4 text-sm font-mono mt-2 text-slate-500">
-                                        <span>Class: {item.details?.class_name}</span>
-                                        <span>Term: {item.details?.term}</span>
+                                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                                        <Stamp className="h-8 w-8 text-slate-300 mx-auto mb-1" />
+                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Official Queue</p>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-6 flex-1">
-                                    <div className="space-y-4">
-                                        <h3 className="font-bold text-slate-700 border-b pb-2">Behavioral Attributes</h3>
-                                        <div className="bg-slate-50 rounded-lg border p-4 max-h-[300px] overflow-y-auto w-full">
-                                            <table className="w-full text-sm">
-                                                <tbody>
-                                                    {Object.entries(item.details?.affective_domain || {}).map(([key, val]) => (
-                                                        <tr key={key} className="border-b last:border-0 hover:bg-slate-100">
-                                                            <td className="py-2 text-slate-600">{key}</td>
-                                                            <td className="py-2 text-right font-bold text-emerald-600">{val as React.ReactNode} / 5</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+
+                                <div className="space-y-6">
+                                    <div className="bg-cyan-50/30 border border-cyan-100 rounded-2xl p-6 relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 p-4 opacity-5">
+                                            <ShieldCheck className="h-12 w-12 text-cyan-500" />
+                                        </div>
+                                        <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+                                            <AlertCircle className="h-4 w-4 text-cyan-500" />
+                                            Requested Modifications
+                                        </h3>
+                                        <div className="text-slate-700 text-lg leading-relaxed font-medium italic">
+                                            "{item.requested_changes || item.details?.description}"
                                         </div>
                                     </div>
-                                    <div className="space-y-4 flex flex-col">
-                                        <h3 className="font-bold text-slate-700 border-b pb-2">Teacher's Remark</h3>
-                                        <div className="bg-slate-50 rounded-lg flex-1 border p-4 italic text-slate-600 text-sm">
-                                            "{item.details?.teacher_remark || 'No remark provided.'}"
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="bg-slate-50 border border-slate-100 rounded-xl p-4">
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Impacted Record</p>
+                                            <p className="text-slate-700 font-bold">Student Master Profile</p>
                                         </div>
-                                        
-                                        <h3 className="font-bold text-slate-700 border-b pb-2 pt-4">Principal's Private Note / Rejection Reason</h3>
-                                        <p className="text-xs text-slate-500 mb-2">If rejecting, type the reason below. If approving, this will be saved internally but will not print on the result sheet (which is generated automatically).</p>
+                                        <div className="bg-slate-50 border border-slate-100 rounded-xl p-4">
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Submission Source</p>
+                                            <p className="text-slate-700 font-bold">Verified Parent Portal</p>
+                                        </div>
                                     </div>
+                                </div>
+
+                                <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 text-amber-800 text-xs leading-relaxed flex gap-3 items-center">
+                                    <Stamp className="h-5 w-5 opacity-50 shrink-0" />
+                                    <p><b>Note:</b> Approving this request marks the record as "Verified". Administrators should manually apply the changes to the student profile after approval if not automated via API.</p>
                                 </div>
                             </div>
                         ) : (

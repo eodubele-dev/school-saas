@@ -1,7 +1,7 @@
 import { FamilyBillingDetail } from "@/components/billing/family-billing-detail"
 import { getFamilyBillingLedger } from "@/lib/actions/parent-portal"
 
-export default async function FamilyBillingPage() {
+export default async function FamilyBillingPage({ params }: { params: { domain: string } }) {
     const { success, data, error } = await getFamilyBillingLedger()
 
     if (!success) {
@@ -15,7 +15,7 @@ export default async function FamilyBillingPage() {
 
     return (
         <div className="p-4 md:p-8">
-            <FamilyBillingDetail familyLedger={data!} />
+            <FamilyBillingDetail familyLedger={data!} domain={params.domain} />
         </div>
     )
 }

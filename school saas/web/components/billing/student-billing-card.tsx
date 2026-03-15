@@ -1,7 +1,8 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp, GraduationCap, Bus, Cpu, Check, CreditCard } from "lucide-react";
+import { ChevronDown, ChevronUp, GraduationCap, Bus, Cpu, Check, CreditCard, FileText } from "lucide-react";
+import Link from "next/link";
 
 interface StudentBillingCardProps {
     child: any;
@@ -9,6 +10,7 @@ interface StudentBillingCardProps {
     printingId: string | null;
     onPay: (id: string) => void;
     onInvoice: (id: string, name: string, balance: number, fees: any[]) => void;
+    domain: string;
 }
 
 export const StudentBillingCard = ({
@@ -16,7 +18,8 @@ export const StudentBillingCard = ({
     isProcessing,
     printingId,
     onPay,
-    onInvoice
+    onInvoice,
+    domain
 }: StudentBillingCardProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const isUnpaid = child.balance > 0;
@@ -49,17 +52,24 @@ export const StudentBillingCard = ({
                     <h3 className="text-xl font-bold text-foreground tracking-wide italic">{child.name}</h3>
                     <p className="text-muted-foreground text-xs font-mono uppercase mt-1 tracking-wider">{child.grade}</p>
                 </div>
-                <div className={cn(
-                    "w-12 h-12 rounded-2xl border-2 overflow-hidden flex items-center justify-center",
-                    isUnpaid ? "border-cyan-500/30 bg-cyan-950/30" : "border-blue-600/30 bg-blue-950/30"
-                )}>
-                    {child.avatar ? (
-                        <img src={child.avatar} alt={child.name} className="w-full h-full object-cover" />
-                    ) : (
-                        <div className="text-lg font-bold text-muted-foreground">
-                            {child.name.charAt(0)}
-                        </div>
-                    )}
+                <div className="flex flex-col items-end gap-2">
+                    <div className={cn(
+                        "w-12 h-12 rounded-2xl border-2 overflow-hidden flex items-center justify-center",
+                        isUnpaid ? "border-cyan-500/30 bg-cyan-950/30" : "border-blue-600/30 bg-blue-950/30"
+                    )}>
+                        {child.avatar ? (
+                            <img src={child.avatar} alt={child.name} className="w-full h-full object-cover" />
+                        ) : (
+                            <div className="text-lg font-bold text-muted-foreground">
+                                {child.name.charAt(0)}
+                            </div>
+                        )}
+                    </div>
+                    {/* Attendance Badge */}
+                    <div className="flex items-center gap-1 bg-slate-900/50 border border-white/5 py-1 px-2 rounded-full backdrop-blur-sm">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                        <span className="text-[10px] font-bold text-slate-300">{child.attendancePercentage || 0}% Att.</span>
+                    </div>
                 </div>
             </div>
 
@@ -126,12 +136,22 @@ export const StudentBillingCard = ({
                     </span>
                 </div>
 
-                <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
+                    {/* Academic Results Button */}
+                    <Link href={`/parent/results/${child.id}`} className="flex-1 sm:flex-none">
+                        <button
+                            className="w-full px-4 py-3 rounded-xl border border-cyan-500/20 bg-cyan-500/5 text-xs font-bold text-cyan-400 hover:bg-cyan-500/10 transition-all uppercase tracking-wider flex items-center justify-center gap-2 group/btn"
+                        >
+                            <FileText size={14} className="group-hover/btn:scale-110 transition-transform" />
+                            Results
+                        </button>
+                    </Link>
+
                     {/* View Invoice */}
                     <button
                         onClick={() => onInvoice(child.id, child.name, child.balance, child.fees)}
                         disabled={!!printingId}
-                        className="px-5 py-3 rounded-xl border border-border text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-4 py-3 rounded-xl border border-border text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {printingId === child.id ? 'Preparing...' : 'Invoice'}
                     </button>

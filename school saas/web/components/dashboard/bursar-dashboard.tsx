@@ -146,9 +146,9 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                             id: tx.id,
                             timestamp: "Just Now",
                             total: tx.amount,
-                            familyName: tx.students.full_name.split(' ').pop() || 'Parent',
+                            familyName: tx.students?.full_name?.split(' ').pop() || 'Parent',
                             items: [
-                                { student: tx.students.full_name, category: "Tuition & Fees", amount: tx.amount }
+                                { student: tx.students?.full_name || 'Unknown Student', category: "Tuition & Fees", amount: tx.amount }
                             ]
                         }))}
                     />

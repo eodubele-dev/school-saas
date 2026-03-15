@@ -11,42 +11,45 @@ export async function getStudentResultPortalData(studentId: string, term: string
         return { success: false, error: 'Unauthorized' }
     }
 
-    // 1. Verify Parent-Student Relationship
-    // For demo, we might check if user is a parent and if the student belongs to the tenant.
-    // In strict RBAC, we check 'parent_student' link.
-    // Assuming 'students' has 'parent_id' or we use a strict policy.
-    // For this Platinum Demo: We'll retrieve the student and ensure they check out.
+    // 1. Get User Profile for Tenant Context
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('tenant_id')
+        .eq('id', user.id)
+        .single()
+
+    if (!profile) {
+        return { success: false, error: 'User profile not found' }
+    }
+
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(studentId);
 
-    let query = supabase.from('students').select('*, class:classes(name)')
+    let query = supabase.from('students')
+        .select('*, class:classes(name)')
+        .eq('tenant_id', profile.tenant_id) // STRICT TENANT ISOLATION
 
     if (isUUID) {
         query = query.eq('id', studentId)
     } else {
-        // Try exact match first
-        // But also try replacing - with / (common URL sanitization)
-        // If the ID looks like it has dashes but isn't UUID, it might be a sanitized admission number
-        // e.g. ADM-26-432 -> ADM/26/432
         const potentialAdmNo = studentId.replace(/-/g, '/')
         query = query.or(`admission_number.eq.${studentId},admission_number.eq.${potentialAdmNo}`)
     }
 
-    // We use .data instead of .single() to handle potential duplicates or 0 results safely first
     const { data: students, error: studentError } = await query
 
     if (studentError || !students || students.length === 0) {
         console.log("Student lookup failed:", studentId, studentError)
-        return { success: false, error: 'Student not found' }
+        return { success: false, error: 'Student not found in your school' }
     }
 
-    // Take the first match
     const student = students[0]
+    const verifiedStudentId = student.id; // Use the actual UUID for subsequent queries
 
     // 2. Report Card & Lock Status
     const { data: reportCard } = await supabase
         .from('student_report_cards')
         .select('*')
-        .eq('student_id', student.id)
+        .eq('student_id', verifiedStudentId)
         .eq('term', term)
         .eq('session', session)
         .single()
@@ -55,7 +58,7 @@ export async function getStudentResultPortalData(studentId: string, term: string
     const { data: billing } = await supabase
         .from('invoices')
         .select('status, amount, amount_paid')
-        .eq('student_id', studentId)
+        .eq('student_id', verifiedStudentId)
         .eq('term', `${session} ${term}`)
         .order('created_at', { ascending: false })
         .limit(1)
@@ -69,7 +72,7 @@ export async function getStudentResultPortalData(studentId: string, term: string
     const { data: grades } = await supabase
         .from('student_grades')
         .select('*, subject:subjects(name)')
-        .eq('student_id', studentId)
+        .eq('student_id', verifiedStudentId)
         .eq('term', term)
         .eq('session', session)
         .order('created_at', { ascending: true })
@@ -78,7 +81,7 @@ export async function getStudentResultPortalData(studentId: string, term: string
     const { data: attendance } = await supabase
         .from('student_attendance')
         .select('status')
-        .eq('student_id', studentId)
+        .eq('student_id', verifiedStudentId)
 
     // Calculate Tally
     const totalDays = attendance?.length || 0
@@ -117,10 +120,10 @@ export async function getParentChildren() {
 
     if (!user) return []
 
-    // Fetch students linked to this parent
+    // Fetch students linked to this parent with their classes
     const { data: students, error } = await supabase
         .from('students')
-        .select('id, full_name, parent_id, passport_url')
+        .select('id, full_name, parent_id, passport_url, classes(name)')
         .eq('parent_id', user.id)
 
     if (error) {
@@ -235,43 +238,68 @@ export async function getFamilyBillingLedger() {
         .single()
 
     const currentTermString = session ? `${session.session} ${session.term}` : null
+    const sessionName = session ? `${session.session} Academic Year` : 'Academic Year'
 
-    // 2. Fetch and Aggregate Billing
+    // 2. Fetch and Aggregate Billing & Transactions
     let totalFamilyBalance = 0;
+    let totalExpectedAmount = 0;
+    let totalPaidAmount = 0;
+    const allChildIds = students.map(s => s.id);
+
+    // Fetch all invoices for this term for all children
+    const { data: allInvoices } = currentTermString ? await supabase
+        .from('invoices')
+        .select('*')
+        .in('student_id', allChildIds)
+        .eq('term', currentTermString) : { data: [] };
+
+    const invoiceMap = new Map(allInvoices?.map(inv => [inv.student_id, inv]));
+
+    // Fetch all transactions for these children
+    const { data: transactions } = await supabase
+        .from('transactions')
+        .select('*')
+        .in('student_id', allChildIds)
+        .order('date', { ascending: false })
+        .limit(20)
 
     const childrenLedger = await Promise.all(students.map(async (student) => {
         let balance = 0;
         let fees: any[] = [];
         let status = 'paid';
+        let attendancePercentage = 0;
+        const invoice = invoiceMap.get(student.id);
 
-        if (currentTermString) {
-            const { data: invoice } = await supabase
-                .from('invoices')
-                .select('*')
-                .eq('student_id', student.id)
-                .eq('term', currentTermString)
-                .single()
+        if (invoice) {
+            balance = Number(invoice.amount) - (Number(invoice.amount_paid) || 0)
+            status = invoice.status
+            totalExpectedAmount += Number(invoice.amount)
+            totalPaidAmount += Number(invoice.amount_paid)
 
-            if (invoice) {
-                balance = Number(invoice.amount) - (Number(invoice.amount_paid) || 0)
-                status = invoice.status
+            const itemsArr = invoice.items as any[] || []
+            itemsArr.forEach(item => {
+                const desc = item.description?.toLowerCase() || ""
+                let icon = 'GraduationCap'
+                if (desc.includes('bus') || desc.includes('transport')) icon = 'Bus'
+                else if (desc.includes('dev') || desc.includes('levy') || desc.includes('tech')) icon = 'Cpu'
 
-                const items = invoice.items as any[] || []
-
-                items.forEach(item => {
-                    const desc = item.description?.toLowerCase() || ""
-                    let icon = 'GraduationCap'
-                    if (desc.includes('bus') || desc.includes('transport')) icon = 'Bus'
-                    else if (desc.includes('dev') || desc.includes('levy') || desc.includes('tech')) icon = 'Cpu'
-
-                    fees.push({
-                        label: item.description || 'Fee',
-                        amount: item.amount,
-                        icon
-                    })
+                fees.push({
+                    label: item.description || 'Fee',
+                    amount: item.amount,
+                    icon
                 })
-            }
+            })
         }
+
+        // 3. Fetch Attendance Stats
+        const { data: attendance } = await supabase
+            .from('student_attendance')
+            .select('status')
+            .eq('student_id', student.id)
+
+        const totalDays = attendance?.length || 0
+        const presentDays = attendance?.filter(a => a.status === 'present').length || 0
+        attendancePercentage = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0
 
         totalFamilyBalance += balance;
 
@@ -280,17 +308,28 @@ export async function getFamilyBillingLedger() {
             name: student.full_name,
             grade: student.class?.name || 'Unassigned',
             avatar: student.passport_url,
+            attendancePercentage,
             balance,
             fees,
-            status
+            status,
+            invoiceId: invoice?.id || null
         }
     }))
+
+    // Calculate Payment Health (Percentage of total expected amount that is paid)
+    const paymentHealth = totalExpectedAmount > 0 
+        ? Math.round((totalPaidAmount / totalExpectedAmount) * 100) 
+        : 100;
 
     return {
         success: true,
         data: {
             totalBalance: totalFamilyBalance,
-            children: childrenLedger
+            sessionName,
+            paymentHealth,
+            recentTransactions: transactions || [],
+            children: childrenLedger,
+            parentEmail: user.email
         }
     }
 }

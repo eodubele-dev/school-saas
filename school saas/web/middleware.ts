@@ -105,8 +105,12 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 
-  // Rewrite URL
-  const rewriteUrl = new URL(`/${currentHost}${path}`, req.url)
+  // Rewrite URL - Protection against double-slugging
+  const isDoubleSlugging = path.startsWith(`/${currentHost}/`) || path === `/${currentHost}`
+  const rewriteUrl = new URL(
+    isDoubleSlugging ? path : `/${currentHost}${path}`, 
+    req.url
+  )
 
 
   // 6. Role-Based Security Gate (The "Role-Gate")

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getStudentResultPortalData } from "@/lib/actions/parent-portal"
+import { getActiveAcademicSession } from "@/lib/actions/academic"
 import { verifyExistingSnapshot } from "@/lib/actions/snapshots"
 import { ResultGatekeeper } from "@/components/student/results/result-gatekeeper"
 import { ResultSheet } from "@/components/results/result-sheet"
@@ -9,9 +10,20 @@ import { Download, Share2, FileCheck } from "lucide-react"
 import Image from "next/image"
 
 export default async function VerifiedResultPortal({ params }: { params: { domain: string, student_id: string } }) {
-    const term = "1st Term"
-    const session = "2025/2026"
+    // 1. Get Active Session
+    const sessionRes = await getActiveAcademicSession()
+    
+    if (!sessionRes.success || !sessionRes.session) {
+        return (
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">
+                <p>Academic session not configured. Please contact school administration.</p>
+            </div>
+        )
+    }
 
+    const { session, term } = sessionRes.session
+
+    // 2. Fetch Result Data
     const { success, data, error } = await getStudentResultPortalData(params.student_id, term, session)
 
     if (!success || !data) {
@@ -70,14 +82,17 @@ export default async function VerifiedResultPortal({ params }: { params: { domai
                 ca2: g.ca2,
                 exam: g.exam,
                 total: g.total,
-                grade: calculateGrade(g.total), // Helper needed or assumed
-                remarks: "Excellent" // Placeholder or AI
+                grade: g.grade || calculateGrade(g.total),
+                remarks: g.remarks || (g.total >= 70 ? "Excellent" : g.total >= 50 ? "Good" : "Credit")
             })),
-            average: 0 // Calculate later
+            average: grades.length > 0 
+                ? Math.round(grades.reduce((sum: number, g: any) => sum + (g.total || 0), 0) / grades.length) 
+                : 0
         },
         character: {
-            teacher_remark: reportCard?.teacher_remark || "A very diligent and specialized student.",
-            principal_remark: reportCard?.principal_remark || "Outstanding performance this term."
+            teacher_remark: reportCard?.teacher_remark || "No teacher remark recorded yet.",
+            principal_remark: reportCard?.principal_remark || "No principal remark recorded yet.",
+            affective_domain: reportCard?.affective_domain || {}
         }
     }
 
@@ -86,7 +101,7 @@ export default async function VerifiedResultPortal({ params }: { params: { domai
             {/* 1. Identity & Attendance Header */}
             <div className="relative bg-slate-900 border-b border-white/5 pb-12 pt-24 px-4 md:px-8 overflow-hidden">
                 {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10 bg-[url('/grid-pattern.svg')] bg-center [mask-image:linear-gradient(to_bottom,white,transparent)]" />
+                <div className="absolute inset-0 opacity-10 bg-grid-white/[0.2] [mask-image:linear-gradient(to_bottom,white,transparent)]" />
 
                 <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-8 relative z-10">
                     {/* Passport */}

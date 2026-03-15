@@ -4,7 +4,13 @@ import { ShieldAlert, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-export default async function ResultRedirectPage({ params }: { params: { domain: string } }) {
+export default async function ResultRedirectPage({ 
+    params,
+    searchParams 
+}: { 
+    params: { domain: string },
+    searchParams: { studentId?: string }
+}) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -12,28 +18,38 @@ export default async function ResultRedirectPage({ params }: { params: { domain:
         redirect(`/${params.domain}/login`)
     }
 
-    // 1. Try to find a student linked to this user
-    // Scenario A: User is a Student
-    // Scenario B: User is a Parent (linked via parent_id or email)
-    // For this Platinum Demo, we use the simple assumption: 
-    // The user *is* the student or mapped directly to one student in the 'students' table 
-    // (This matches the behavior in lib/actions/student-results.ts)
+    // 1. Determine which student to target
+    // Priority:
+    // a) studentId from searchParams
+    // b) First student linked to this parent
+    
+    let targetStudentId = searchParams.studentId
 
-    const { data: student } = await supabase
-        .from('students')
-        .select('id, admission_number')
-        .limit(1)
-        .single()
+    if (!targetStudentId) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
 
-    if (student) {
-        // Redirect to Admission Number if available (Cleaner URL)
-        // e.g. /parent/results/ADM-2023-001 (Replacing / with - to prevent 404 on single segment route)
-        // If not, fallback to UUID
-        const identifier = student.admission_number
-            ? student.admission_number.replace(/\//g, '-')
-            : student.id
+        const { data: children } = await supabase
+            .from('students')
+            .select('id, admission_number')
+            .eq(profile?.role === 'student' ? 'id' : 'parent_id', user.id)
+            .limit(1)
 
-        redirect(`/parent/results/${identifier}`)
+        if (children && children.length > 0) {
+            const student = children[0]
+            const identifier = student.admission_number
+                ? student.admission_number.replace(/\//g, '-')
+                : student.id
+            
+            redirect(`/parent/results/${identifier}`)
+        }
+    } else {
+        // We have a studentId, redirect to it
+        // We assume it's valid as the ResultPortal will check tenant/parent permissions
+        redirect(`/parent/results/${targetStudentId}`)
     }
 
     // 2. If no student found (e.g. new parent account with no child linked yet)

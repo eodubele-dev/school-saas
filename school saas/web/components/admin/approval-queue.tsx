@@ -7,7 +7,7 @@ import { PendingItem } from "@/lib/actions/approvals"
 import { cn, formatDate } from "@/lib/utils"
 import { useState } from "react"
 import { ReviewModal } from "./review-modal"
-import { FileText, Calculator, Clock, ChevronRight, MapPin, GraduationCap } from "lucide-react"
+import { FileText, Calculator, Clock, ChevronRight, MapPin, GraduationCap, User } from "lucide-react"
 
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -38,9 +38,10 @@ export function ApprovalQueue({ initialItems, domain }: { initialItems: PendingI
     const gradebooks = initialItems.filter(i => i.type === 'gradebook')
     const termResults = initialItems.filter(i => i.type === 'term_result')
     const disputes = initialItems.filter(i => i.type === 'attendance_dispute')
+    const profileRequests = initialItems.filter(i => i.type === 'profile_update')
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 h-full">
             <QueueList
                 title="Lesson Plans"
                 icon={FileText}
@@ -64,7 +65,6 @@ export function ApprovalQueue({ initialItems, domain }: { initialItems: PendingI
                 }
             />
 
-            {/* Debug (Client Side) - Removed */}
             <QueueList
                 title="Gradebooks"
                 icon={Calculator}
@@ -79,7 +79,14 @@ export function ApprovalQueue({ initialItems, domain }: { initialItems: PendingI
                 accent="text-emerald-400"
             />
             <QueueList
-                title="Attendance Disputes"
+                title="Profile Updates"
+                icon={User}
+                items={profileRequests}
+                onSelect={setSelectedItem}
+                accent="text-cyan-400"
+            />
+            <QueueList
+                title="Staff Disputes"
                 icon={MapPin}
                 items={disputes}
                 onSelect={setSelectedItem}

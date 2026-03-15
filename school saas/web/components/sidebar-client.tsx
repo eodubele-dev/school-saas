@@ -385,6 +385,12 @@ export function SidebarClient({
                                             const ItemIcon = item.icon
                                             const fullHref = basePath ? `${basePath}${item.href}` : item.href
 
+                                            // Preserving search params (like studentId) for sub-navigation
+                                            const currentStudentId = searchParams.get('studentId')
+                                            const linkHref = currentStudentId 
+                                                ? `${fullHref}${fullHref.includes('?') ? '&' : '?'}studentId=${currentStudentId}`
+                                                : fullHref
+
                                             // Normalize paths for more robust active/click comparison
                                             const normalizedPath = pathname?.replace(/\/$/, '') || '/'
                                             const normalizedHref = fullHref.replace(/\/$/, '') || '/'
@@ -428,19 +434,19 @@ export function SidebarClient({
                                             return (
                                                 <Link
                                                     key={fullHref}
-                                                    href={fullHref}
+                                                    href={linkHref}
                                                     prefetch={false}
                                                     onClick={(e) => {
                                                         const normalizedPath = pathname?.replace(/\/$/, '') || '/'
-                                                        const normalizedHref = fullHref.replace(/\/$/, '') || '/'
+                                                        const targetPath = linkHref.replace(/\/$/, '') || '/'
 
-                                                        if (normalizedHref !== normalizedPath) {
+                                                        if (targetPath !== normalizedPath) {
                                                             e.preventDefault() // Stop default link behavior
                                                             e.stopPropagation() // Stop event bubbling
-                                                            setPendingHref(fullHref)
+                                                            setPendingHref(linkHref)
                                                             window.dispatchEvent(new CustomEvent('navigation-start'))
                                                             startTransition(() => {
-                                                                router.push(fullHref)
+                                                                router.push(linkHref)
                                                             })
                                                         } else {
                                                             // If we are already on this path, ensure we aren't stuck loading
@@ -502,10 +508,13 @@ export function SidebarClient({
                                     </p>
                                 </div>
                                 {((linkedStudents?.reduce((sum, s) => sum + (s.school_fees_debt || 0), 0) || 0) > 0) ? (
-                                    <Link href="/dashboard/billing/family" prefetch={false} onClick={(e) => {
-                                        const normalizedPath = pathname?.replace(/\/$/, '') || '/'
-                                        const targetPath = '/dashboard/billing/family'
-                                        if (normalizedPath !== targetPath) {
+                                    <Link 
+                                        href={basePath ? `${basePath}/dashboard/billing/family` : "/dashboard/billing/family"} 
+                                        prefetch={false} 
+                                        onClick={(e) => {
+                                            const normalizedPath = pathname?.replace(/\/$/, '') || '/'
+                                            const targetPath = basePath ? `${basePath}/dashboard/billing/family` : '/dashboard/billing/family'
+                                            if (normalizedPath !== targetPath) {
                                             e.preventDefault()
                                             e.stopPropagation()
                                             setPendingHref(targetPath)
