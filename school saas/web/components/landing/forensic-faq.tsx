@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Shield, Wifi, Banknote, ChevronDown, Check } from "lucide-react"
+import { Shield, Wifi, Banknote, ChevronDown, Check, School, Zap, Repeat, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const faqs = [
@@ -25,22 +25,46 @@ const faqs = [
         icon: <Banknote className="w-5 h-5 text-cyan-400" />
     },
     {
-        id: "training",
-        question: "Do we need to hire IT staff to manage this?",
-        answer: "Absolutely not. EduFlow is designed for the 'Non-Technical' teacher. If your staff can use WhatsApp, they can use our system. We provide on-site training for your admin team and a dedicated 'Success Manager' who handles all your technical configurations remotely.",
-        icon: <Check className="w-5 h-5 text-purple-400" />
+        id: "multi-campus",
+        question: "Can I manage multiple campuses from a single login?",
+        answer: "Yes. Our 'Global Command Center' allows proprietors to toggle between different campuses (e.g., Lekki, Gbagada, and Abuja) instantly. You get aggregated financial reports and individual campus performance metrics on a single dashboard, eliminating the need for separate accounts.",
+        icon: <School className="w-5 h-5 text-purple-400" />
+    },
+    {
+        id: "announcements",
+        question: "Is there a limit to how many announcements we can send?",
+        answer: "There's no limit, and we've optimized costs. By using 'Targeted Broadcasts', you can send messages specifically to one class or arm rather than the whole school. This typically reduces institutional SMS costs by 60% compared to traditional bulk SMS providers.",
+        icon: <Zap className="w-5 h-5 text-yellow-400" />
+    },
+    {
+        id: "leakage",
+        question: "How exactly do you prevent revenue leakage?",
+        answer: "Every payment is tied to a forensic reconciliation trail. If a bursar attempts to manually clear a debt without a verified bank reference, the system flags it for proprietor approval. This closed-loop system ensures that 100% of fees paid actually land in the school's bank account.",
+        icon: <Search className="w-5 h-5 text-red-500" />
+    },
+    {
+        id: "curriculum",
+        question: "Does the system support both British and Nigerian curricula?",
+        answer: "Yes. EduFlow allows for section-specific grading scales. You can run EYFS (Early Years) with descriptive remarks in your Nursery section, while simultaneously running a 100-point WAEC-style grading system for your Secondary section—all within the same portal.",
+        icon: <Repeat className="w-5 h-5 text-indigo-400" />
     },
     {
         id: "onboarding",
         question: "How long does it take to set up?",
         answer: "We can digitize an entire school in 48 hours. Our 'Rapid-Deployment' team imports your student lists, configures your classes, and generates your first set of login credentials within 2 business days. You don't need to manually type in thousands of names.",
-        icon: <Shield className="w-5 h-5 text-yellow-400" /> /* recycling Shield or using another icon */
+        icon: <Shield className="w-5 h-5 text-emerald-400" />
     },
     {
         id: "devices",
         question: "Do parents need high-end smartphones?",
         answer: "No. While we have a premium Parent App, the core communication layer works via SMS and basic email. Result links are lightweight and load instantly even on 3G networks, ensuring every parent—regardless of device—is kept in the loop.",
-        icon: <Wifi className="w-5 h-5 text-red-400" /> /* Reusing Wifi contextually for connectivity */
+        icon: <Wifi className="w-5 h-5 text-orange-400" />
+    },
+    {
+        id: "training",
+        question: "Do we need to hire IT staff to manage this?",
+        answer: "Absolutely not. EduFlow is designed for the 'Non-Technical' teacher. If your staff can use WhatsApp, they can use our system. We provide on-site training for your admin team and a dedicated 'Success Manager' who handles all your technical configurations remotely.",
+        icon: <Check className="w-5 h-5 text-teal-400" />
     }
 ]
 

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertCircle, Ban, ArrowUpCircle } from 'lucide-react'
+import { AlertCircle, Ban, ArrowUpCircle, X } from 'lucide-react'
 import { SMSWalletTrigger } from './sms-wallet-trigger'
 
 interface SMSWalletAlertProps {
@@ -18,10 +18,11 @@ const HALT_THRESHOLD = 0 // Threshold where communication stops
 const LOW_THRESHOLD = 2000 // Threshold for warning
 
 export function SMSWalletAlert({ balance }: SMSWalletAlertProps) {
+    const [isVisible, setIsVisible] = React.useState(true)
     const isLow = balance < LOW_THRESHOLD
     const isCritical = balance <= HALT_THRESHOLD
 
-    if (balance >= LOW_THRESHOLD) return null
+    if (balance >= LOW_THRESHOLD || !isVisible) return null
 
     return (
         <AnimatePresence>
@@ -34,7 +35,7 @@ export function SMSWalletAlert({ balance }: SMSWalletAlertProps) {
                     : 'bg-amber-500/20 border-amber-500/40 shadow-[inset_0_0_30px_rgba(245,158,11,0.1)]'
                     }`}
             >
-                <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4 relative group">
                     <div className="flex items-center gap-4">
                         <div className={`h-11 w-11 rounded-2xl flex items-center justify-center border shadow-lg transition-all ${isCritical
                             ? 'bg-red-500/30 text-red-100 border-red-500/50 shadow-red-900/40'
@@ -58,21 +59,31 @@ export function SMSWalletAlert({ balance }: SMSWalletAlertProps) {
                         </div>
                     </div>
 
-                    <SMSWalletTrigger>
-                        {(open) => (
-                            <button
-                                onClick={open}
-                                className={`group relative px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.03] active:scale-95 flex items-center gap-2 overflow-hidden shadow-2xl ${isCritical
-                                    ? 'bg-red-600 text-foreground shadow-red-950/40'
-                                    : 'bg-amber-600 text-foreground shadow-amber-950/40'
-                                    }`}
-                            >
-                                <span className="relative z-10">Top Up Wallet</span>
-                                <ArrowUpCircle className="h-3.5 w-3.5 relative z-10 transition-transform group-hover:-translate-y-0.5" />
-                                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </button>
-                        )}
-                    </SMSWalletTrigger>
+                    <div className="flex items-center gap-3">
+                        <SMSWalletTrigger>
+                            {(open) => (
+                                <button
+                                    onClick={open}
+                                    className={`group/btn relative px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.03] active:scale-95 flex items-center gap-2 overflow-hidden shadow-2xl ${isCritical
+                                        ? 'bg-red-600 text-foreground shadow-red-950/40'
+                                        : 'bg-amber-600 text-foreground shadow-amber-950/40'
+                                        }`}
+                                >
+                                    <span className="relative z-10">Top Up Wallet</span>
+                                    <ArrowUpCircle className="h-3.5 w-3.5 relative z-10 transition-transform group-hover/btn:-translate-y-0.5" />
+                                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                                </button>
+                            )}
+                        </SMSWalletTrigger>
+
+                        <button
+                            onClick={() => setIsVisible(false)}
+                            className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                            title="Dismiss for now"
+                        >
+                            <X size={18} />
+                        </button>
+                    </div>
                 </div>
             </motion.div>
         </AnimatePresence>

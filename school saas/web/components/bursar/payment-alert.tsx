@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Landmark, Check, ChevronRight, Loader2, CheckCircle2 } from 'lucide-react';
+import { Landmark, Check, ChevronRight, Loader2, CheckCircle2, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { reconcileTransaction } from '@/lib/actions/finance';
 import { toast } from 'sonner';
@@ -101,14 +101,37 @@ const PaymentCard = ({ tx, index }: { tx: TransactionAlert, index: number }) => 
 };
 
 export const BursarPaymentAlert = ({ transactions }: BursarPaymentAlertProps) => {
-    if (!transactions || transactions.length === 0) return null;
+    const [isVisible, setIsVisible] = React.useState(true);
+    const [lastTxId, setLastTxId] = React.useState<string | null>(null);
+
+    // Auto-show if a brand new transaction arrives
+    React.useEffect(() => {
+        if (transactions.length > 0) {
+            const latestId = transactions[0].id;
+            if (latestId !== lastTxId) {
+                setIsVisible(true);
+                setLastTxId(latestId);
+            }
+        }
+    }, [transactions, lastTxId]);
+
+    if (!transactions || transactions.length === 0 || !isVisible) return null;
 
     return (
-        <div className="w-full overflow-x-auto pb-4 hide-scrollbar">
-            <div className="flex gap-4 w-max">
-                {transactions.map((tx, i) => (
-                    <PaymentCard key={tx.id || i} tx={tx} index={i} />
-                ))}
+        <div className="relative group/alerts overflow-hidden rounded-3xl">
+            <button
+                onClick={() => setIsVisible(false)}
+                className="absolute top-2 right-2 z-10 p-2 bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-white rounded-full border border-border/50 transition-all opacity-0 group-hover/alerts:opacity-100 backdrop-blur-md"
+                title="Dismiss Alerts"
+            >
+                <X size={16} />
+            </button>
+            <div className="w-full overflow-x-auto pb-4 hide-scrollbar">
+                <div className="flex gap-4 w-max p-1">
+                    {transactions.map((tx, i) => (
+                        <PaymentCard key={tx.id || i} tx={tx} index={i} />
+                    ))}
+                </div>
             </div>
         </div>
     );

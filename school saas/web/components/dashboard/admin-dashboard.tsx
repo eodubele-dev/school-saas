@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { LockedWidget } from "./locked-widget"
 import { LockedSMSWidget } from "./locked-sms-widget"
 import { LockedGenericWidget } from "./locked-generic-widget"
-import { SMSWalletTopupButton } from "./sms-wallet-topup-button"
+import { PilotBanner } from "./pilot-banner"
 import { FinancialText } from "@/components/ui/financial-text"
 import { GlobalCampusSwitcher } from "./global-campus-switcher"
 import { getActiveAcademicSession } from "@/lib/actions/academic"
@@ -78,7 +78,7 @@ export async function AdminDashboard({
                             )}
                         </div>
                     </div>
-                    <div className="w-full md:w-[300px]">
+                <div className="w-full md:w-[300px]">
                         <GlobalCampusSwitcher
                             tenants={tenants}
                             currentTenantSlug={isGlobalView ? 'global' : subdomain}
@@ -86,36 +86,7 @@ export async function AdminDashboard({
                     </div>
                 </div>
 
-                {isPilot && (
-                    <div className="flex items-center justify-between p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl relative overflow-hidden group">
-                        <div className="flex items-center gap-4">
-                            <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center animate-pulse">
-                                <Activity className="h-5 w-5 text-emerald-400" />
-                            </div>
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm font-bold text-foreground">Lagos Pilot Mode Active</span>
-                                    <span className="px-2 py-0.5 rounded bg-emerald-500 text-black text-[10px] font-black uppercase">Term 1 Free</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-0.5">Full ecosystem access enabled. System integrity logs: <span className="text-emerald-400 font-mono italic text-[10px]">VERIFIED</span></p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-6">
-                            <div className="text-right">
-                                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">SMS Wallet</p>
-                                <p className={`text-sm font-black ${smsBalance < 2000 ? 'text-amber-400' : 'text-emerald-400'}`}>
-                                    <FinancialText value={`₦${smsBalance.toLocaleString()}`} />
-                                </p>
-                            </div>
-                            {smsBalance < 2000 && (
-                                <SMSWalletTopupButton />
-                            )}
-                        </div>
-
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -mr-16 -mt-16" />
-                    </div>
-                )}
+                {isPilot && <PilotBanner smsBalance={smsBalance} />}
 
                 {/* Metrics Grid - Enhanced with Glassmorphism */}
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">

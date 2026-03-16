@@ -178,8 +178,6 @@ export function DynamicTopBar({
 
                         <SMSWalletMonitor />
 
-                        <ReconciliationAction pendingCount={pendingReconciliations} />
-
                         <div className="w-px h-6 bg-white/10 mx-2 hidden sm:block" />
                     </>
                 )
