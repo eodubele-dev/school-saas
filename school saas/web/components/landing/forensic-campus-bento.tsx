@@ -23,151 +23,40 @@ export function ForensicCampusBento() {
 
             <div className="container px-4 md:px-6 relative z-10">
 
-                {/* Section Header - Left Aligned for Technical/Forensic Feel */}
-                <div className="mb-14 max-w-4xl">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/30 border border-cyan-500/20 text-cyan-400 text-xs font-mono mb-6">
-                        <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-                        </span>
-                        SYSTEM_ARCH_V2.0
-                    </div>
+                {/* Section Header - Command Center Narrative */}
+                <div className="mb-14 max-w-4xl mx-auto text-center">
 
                     <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-[1.1]">
-                        Forensic-Level <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Campus Control</span>.
+                        The Institutional <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Command Center</span>.
                     </h2>
-                    <p className="text-muted-foreground text-lg md:text-xl max-w-2xl leading-relaxed">
-                        Replace 5 fragmented tools with one cohesive operating system. <br className="hidden md:block" />
-                        Designed for <span className="text-foreground font-medium">speed</span>, <span className="text-foreground font-medium">security</span>, and <span className="text-foreground font-medium">clarity</span>.
+                    <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+                        Total oversight of your campus performance, revenue, and demographics. <br className="hidden md:block" />
+                        One dashboard to <span className="text-foreground font-medium">verify</span>, <span className="text-foreground font-medium">analyze</span>, and <span className="text-foreground font-medium">decide</span>.
                     </p>
                 </div>
 
-                {/* The Asymmetrical Bento Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-6 auto-rows-[minmax(180px,auto)] relative">
+                {/* Single, High-Impact Feature Card - FULL VIEW & CLEAN */}
+                <div className="relative">
                     {/* Atmospheric Glow */}
                     <div className="bg-glow left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
 
-                    {/* 1. The 'Integrity' Anchor (Center-Stage) */}
-                    {/* Spans 4 columns, 2 rows */}
                     <motion.div
-                        id="audit-integrity"
+                        id="command-center-visual"
                         whileHover={{ y: -5 }}
-                        className={`md:col-span-4 md:row-span-2 bento-card overflow-hidden relative group transition-all duration-700 ${highlightedSection === 'audit-integrity' ? 'ring-4 ring-cyan-500 shadow-[0_0_50px_rgba(6,182,212,0.5)] scale-[1.02] z-30' : ''}`}
+                        className={`w-full bento-card overflow-hidden relative group transition-all duration-700 shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] ${highlightedSection === 'audit-integrity' ? 'ring-4 ring-cyan-500 shadow-[0_0_50px_rgba(6,182,212,0.5)] scale-[1.01] z-30' : ''}`}
                     >
-                        {/* Floating Label */}
-                        <div className="absolute top-4 right-4 px-2 py-1 bg-cyan-950/80 border border-cyan-500/30 rounded text-[10px] font-mono text-cyan-400 z-20">
-                            SEC_ENFORCED_V1
-                        </div>
-
-                        {/* Image */}
-                        <div className="absolute inset-0 z-0">
+                        {/* High Fidelity Mockup Image - Full Unconstrained View */}
+                        <div className="relative z-0">
                             <img
-                                src="/visuals/audit-log-preview.png"
-                                alt="System Audit Log"
-                                className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700"
+                                src="/visuals/professional-forensic-mockup.png"
+                                alt="EduFlow Command Center Dashboard"
+                                className="w-full h-auto object-contain block opacity-100 group-hover:scale-[1.02] transition-transform duration-[3000ms] ease-out"
                             />
-                            {/* Overlay Gradient */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#020410] via-transparent to-transparent" />
-                        </div>
-
-                        {/* Content Overlay */}
-                        <div className="absolute bottom-0 left-0 p-6 z-10">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Shield className="w-5 h-5 text-cyan-400" />
-                                <h3 className="text-xl font-bold text-foreground">System Integrity</h3>
-                            </div>
-                            <p className="text-slate-300 text-sm max-w-md">
-                                Tamper-proof logs tracks every grade change and unauthorized access attempt.
-                            </p>
+                            {/* Subtle Blue Glow Overlay */}
+                            <div className="absolute inset-0 bg-blue-600/[0.01] mix-blend-overlay z-10 pointer-events-none" />
                         </div>
                     </motion.div>
-
-
-                    {/* 2. The 'Financial Command' Slot (Top Right) */}
-                    <motion.div
-                        whileHover={{ y: -5 }}
-                        className="md:col-span-2 md:row-span-1 bento-card overflow-hidden relative group"
-                    >
-                        {/* Floating Label */}
-                        <div className="absolute top-4 right-4 px-2 py-1 bg-blue-950/80 border border-blue-500/30 rounded text-[10px] font-mono text-blue-400 z-20">
-                            REV_STREAMS_LIVE
-                        </div>
-
-                        <div className="absolute inset-0 z-0">
-                            {/* Crop top part of bursar command */}
-                            <img
-                                src="/visuals/bursar-command.png"
-                                alt="Bursar Command Center"
-                                className="w-full h-full object-cover object-top opacity-80 group-hover:scale-105 transition-transform duration-700"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#020410] to-transparent" />
-                        </div>
-
-                        <div className="absolute bottom-0 left-0 p-6 z-10">
-                            <div className="flex items-center gap-2 mb-1">
-                                <Sparkles className="w-4 h-4 text-blue-400" />
-                                <h3 className="text-lg font-bold text-foreground">Financial Command</h3>
-                            </div>
-                            <p className="text-muted-foreground text-xs">Instant revenue clarity.</p>
-                        </div>
-                    </motion.div>
-
-                    {/* 3. The 'Zero-Leakage' Slot (Bottom Left) */}
-                    <motion.div
-                        id="campus-logistics"
-                        whileHover={{ y: -5 }}
-                        className={`md:col-span-3 md:row-span-1 bento-card overflow-hidden relative group transition-all duration-700 ${highlightedSection === 'campus-logistics' ? 'ring-4 ring-amber-500 shadow-[0_0_50px_rgba(245,158,11,0.5)] scale-[1.02] z-30' : ''}`}
-                    >
-                        <div className="absolute top-4 right-4 px-2 py-1 bg-amber-950/80 border border-amber-500/30 rounded text-[10px] font-mono text-amber-400 z-20">
-                            LOGISTICS_SYNC
-                        </div>
-
-                        <div className="absolute inset-0 z-0">
-                            <img
-                                src="/visuals/inventory-leakage.png"
-                                alt="Inventory Tracking"
-                                className="w-full h-full object-cover object-top opacity-80 group-hover:scale-105 transition-transform duration-700"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#020410] to-transparent" />
-                        </div>
-
-                        <div className="absolute bottom-0 left-0 p-6 z-10">
-                            <div className="flex items-center gap-2 mb-1">
-                                <AlertTriangle className="w-4 h-4 text-amber-400" />
-                                <h3 className="text-lg font-bold text-foreground">Zero-Leakage</h3>
-                            </div>
-                            <p className="text-muted-foreground text-xs">Stop resource theft with inventory tracking.</p>
-                        </div>
-                    </motion.div>
-
-                    {/* 4. Dorm Master (Bottom Right) */}
-                    <motion.div
-                        whileHover={{ y: -5 }}
-                        className="md:col-span-3 md:row-span-1 bento-card overflow-hidden relative group"
-                    >
-                        <div className="absolute top-4 right-4 px-2 py-1 bg-purple-950/80 border border-purple-500/30 rounded text-[10px] font-mono text-purple-400 z-20">
-                            SAFETY_UPLINK
-                        </div>
-
-                        <div className="absolute inset-0 z-0">
-                            <img
-                                src="/visuals/dorm-alerts.png"
-                                alt="Dorm Alerts"
-                                className="w-full h-full object-cover object-right opacity-80 group-hover:scale-105 transition-transform duration-700"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#020410] to-transparent" />
-                        </div>
-
-                        <div className="absolute bottom-0 left-0 p-6 z-10">
-                            <div className="flex items-center gap-2 mb-1">
-                                <UserCheck className="w-4 h-4 text-purple-400" />
-                                <h3 className="text-lg font-bold text-foreground">Dorm-Master</h3>
-                            </div>
-                            <p className="text-muted-foreground text-xs">Real-time student safety alerts.</p>
-                        </div>
-                    </motion.div>
-
                 </div>
             </div>
         </section>

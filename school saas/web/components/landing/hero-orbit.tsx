@@ -72,7 +72,7 @@ export function HeroOrbit() {
 
                         {/* Secondary CTA: Ghost with Cyan Border */}
                         <Button size="lg" variant="outline" className="border-cyan-500/30 bg-cyan-950/10 hover:bg-cyan-900/20 text-cyan-100 hover:text-foreground rounded-full px-8 h-14 text-base backdrop-blur-md transition-all hover:border-cyan-400/50">
-                            Book Executive Demo
+                            Book Demo
                         </Button>
                     </motion.div>
 

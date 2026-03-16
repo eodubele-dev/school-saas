@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { Sparkles, Twitter, Linkedin, Github } from "lucide-react"
+import { SITE_CONFIG } from "@/lib/constants/site-config"
 import { useExecutiveConversion } from "./executive-context"
 
 export function Footer() {
@@ -15,23 +16,22 @@ export function Footer() {
                         <Link href="/" className="block">
                             <img
                                 src="/visuals/eduflow-logo.png?v=3"
-                                alt="EduFlow"
+                                alt={SITE_CONFIG.shortName}
                                 className="h-[4.5rem] w-auto object-contain mix-blend-screen"
                             />
                         </Link>
                         <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
-                            Empowering top 1% schools in Nigeria with forensic-grade operating systems.
+                            Empowering top 1% schools in Nigeria with {SITE_CONFIG.tagline.toLowerCase()}.
                         </p>
 
                         <div className="pt-4 space-y-3">
                             <div className="flex items-center gap-3 text-sm text-muted-foreground">
                                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                All Systems Operational
+                                {SITE_CONFIG.hq.status}
                             </div>
                             <div className="p-4 rounded-xl bg-secondary/50 border border-border/50 text-xs text-muted-foreground">
                                 <strong className="block text-foreground mb-1">Lagos Headquarters</strong>
-                                12A Ligali Ayorinde St,<br />
-                                Victoria Island, Lagos.
+                                {SITE_CONFIG.hq.address}
                             </div>
                         </div>
                     </div>
@@ -66,7 +66,7 @@ export function Footer() {
                         </p>
                         <button
                             onClick={openPhysicalDemo}
-                            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-foreground text-sm font-medium border border-border transition-all hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+                            className="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] border border-blue-400/30 active:scale-95"
                         >
                             Schedule Physical Demo
                         </button>
@@ -75,15 +75,15 @@ export function Footer() {
 
                 <div className="border-t border-border/50 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-xs text-slate-600">
-                        © 2026 EduCare Inc. Built for Nigerian Excellence.
+                        © {new Date().getFullYear()} {SITE_CONFIG.name}. All Rights Reserved. Built for Nigerian Excellence.
                     </p>
                     <div className="flex items-center gap-6">
                         <Link href="/privacy" className="text-xs text-slate-600 hover:text-foreground transition-colors">Privacy</Link>
                         <Link href="/terms" className="text-xs text-slate-600 hover:text-foreground transition-colors">Terms</Link>
                         <div className="w-px h-4 bg-white/10 mx-2" />
-                        <Link href="#" className="text-slate-600 hover:text-foreground transition-colors"><Twitter className="h-4 w-4" /></Link>
-                        <Link href="#" className="text-slate-600 hover:text-foreground transition-colors"><Linkedin className="h-4 w-4" /></Link>
-                        <Link href="#" className="text-slate-600 hover:text-foreground transition-colors"><Github className="h-4 w-4" /></Link>
+                        <Link href={SITE_CONFIG.links.twitter} className="text-slate-600 hover:text-foreground transition-colors" aria-label="Follow us on Twitter"><Twitter className="h-4 w-4" /></Link>
+                        <Link href={SITE_CONFIG.links.linkedin} className="text-slate-600 hover:text-foreground transition-colors" aria-label="Follow us on LinkedIn"><Linkedin className="h-4 w-4" /></Link>
+                        <Link href={SITE_CONFIG.links.github} className="text-slate-600 hover:text-foreground transition-colors" aria-label="Follow us on GitHub"><Github className="h-4 w-4" /></Link>
                     </div>
                 </div>
             </div>

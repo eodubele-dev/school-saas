@@ -19,10 +19,6 @@ export function GlobalCommandCenter() {
 
                 {/* Section Header */}
                 <div className="text-center mb-16 space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/30 border border-blue-800/50 text-blue-400 text-xs font-mono">
-                        <Globe className="w-3 h-3" />
-                        MULTI_TENANT_ARCHITECTURE
-                    </div>
                     <h2 className="text-3xl md:text-5xl font-bold text-foreground">
                         Scale Your Legacy, <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">Not Your Stress.</span>

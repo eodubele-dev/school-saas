@@ -21,19 +21,6 @@ export function AntiEvasionFeature() {
                         transition={{ duration: 0.8, ease: "easeOut" }}
                         className="space-y-8 z-10"
                     >
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 0.2, duration: 0.5 }}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-semibold tracking-wide uppercase"
-                        >
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                            </span>
-                            New: Inter-School Clearance Network
-                        </motion.div>
 
                         <div className="space-y-6">
                             <motion.h2

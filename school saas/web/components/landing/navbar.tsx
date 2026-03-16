@@ -2,10 +2,11 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Menu, Sparkles, BookOpen } from "lucide-react"
+import { Menu, Sparkles, BookOpen, PlayCircle, Play } from "lucide-react"
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { useExecutiveConversion } from "./executive-context"
+import { SITE_CONFIG } from "@/lib/constants/site-config"
 
 export function Navbar() {
     const [isOpen, setIsOpen] = useState(false)
@@ -38,20 +39,12 @@ export function Navbar() {
                     {['Home', 'Features', 'Pricing', 'Contact'].map((item) => (
                         <button
                             key={item}
-                            onClick={() => {
-                                if (item === 'Features') {
-                                    toggleMegaMenu()
-                                } else {
-                                    scrollToSection(item.toLowerCase())
-                                }
-                            }}
-                            className={`text-base font-medium transition-colors relative group ${item === 'Features' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                            onClick={() => scrollToSection(item.toLowerCase())}
+                            className={`text-base font-medium transition-colors relative group ${item === 'Features' ? 'text-muted-foreground hover:text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                         >
                             {item}
                             {/* Active/Hover State Line */}
-                            {item === 'Features' && (
-                                <span className="absolute -bottom-2 left-0 w-full h-[2px] bg-cyan-500 rounded-full shadow-[0_0_10px_#06b6d4]" />
-                            )}
+                            <span className="absolute -bottom-2 left-0 w-0 h-[2px] bg-cyan-500 rounded-full shadow-[0_0_10px_#06b6d4] transition-all group-hover:w-full" />
                         </button>
                     ))}
                 </div>
@@ -72,12 +65,12 @@ export function Navbar() {
                     </Link>
 
                     {/* Try it free Button */}
-                    <Button
+                    <button
                         onClick={openTenantPreview}
-                        className="bg-[#0066FF] hover:bg-cyan-500 text-foreground font-bold rounded-lg px-6 py-5 text-sm shadow-[0_0_30px_-5px_rgba(0,102,255,0.4)] hover:shadow-[0_0_40px_-5px_#06b6d4] transition-all duration-300 hover:scale-105 border border-blue-400/50"
+                        className="bg-blue-600 text-white font-bold rounded-full px-6 py-2.5 text-sm shadow-[0_10px_20px_rgba(37,99,235,0.2)] transition-all duration-300 hover:scale-[1.05] active:scale-95 border border-blue-500/50"
                     >
-                        Try it free
-                    </Button>
+                        Access Portal
+                    </button>
                 </div>
 
                 {/* Mobile Nav Toggle */}
@@ -101,12 +94,12 @@ export function Navbar() {
                     <div className="h-px bg-white/10 my-2" />
                     <Link href="/docs" className="text-sm font-medium text-muted-foreground p-2">Documentation</Link>
                     <Link href="/login" className="text-sm font-bold text-foreground p-2">Log in</Link>
-                    <Button
+                    <button
                         onClick={() => { setIsOpen(false); openTenantPreview(); }}
-                        className="w-full bg-[#0066FF] hover:bg-cyan-500 text-foreground font-bold shadow-lg shadow-blue-900/20 hover:shadow-cyan-500/20 transition-all duration-300"
+                        className="w-full bg-white text-black font-bold py-4 rounded-full shadow-lg transition-all duration-300 active:scale-95"
                     >
-                        Try it free
-                    </Button>
+                        Access Portal
+                    </button>
                 </motion.div>
             )}
         </nav>

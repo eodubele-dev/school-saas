@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Shield, Wifi, Banknote, ChevronDown, Check, School, Zap, Repeat, Search } from "lucide-react"
+import { Shield, Wifi, Banknote, ChevronDown, Check, School, Zap, Repeat, Search, LockKeyhole } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const faqs = [
@@ -65,6 +65,30 @@ const faqs = [
         question: "Do we need to hire IT staff to manage this?",
         answer: "Absolutely not. EduFlow is designed for the 'Non-Technical' teacher. If your staff can use WhatsApp, they can use our system. We provide on-site training for your admin team and a dedicated 'Success Manager' who handles all your technical configurations remotely.",
         icon: <Check className="w-5 h-5 text-teal-400" />
+    },
+    {
+        id: "accountability",
+        question: "How do I know which staff member deleted a specific record?",
+        answer: "Every action—from deleting a student profile to modifying a grade—is recorded in our 'Executive Forensic Log'. It captures the staff ID, exact timestamp, and IP address. This data is immutable, meaning not even an admin can 'wipe' their own footprints from the audit trail.",
+        icon: <Search className="w-5 h-5 text-red-400" />
+    },
+    {
+        id: "discounts",
+        question: "Can scholarships or discounts be applied without my approval?",
+        answer: "No. The system uses 'Multi-Level Approval Workflows'. If a bursar attempts to apply a scholarship or sibling discount, the transaction remains 'Pending' and restricted until you or an authorized director approves it via your mobile dashboard.",
+        icon: <Shield className="w-5 h-5 text-blue-500" />
+    },
+    {
+        id: "grade-integrity",
+        question: "What prevents a teacher from changing a grade after publication?",
+        answer: "Once the 'Term Lock' is activated, the grade book becomes read-only. Any attempt to modify a published score triggers an 'Integrity Violation' alert sent directly to your phone. Changes after publication require a digital 'Seal' only accessible to the Principal or Proprietor.",
+        icon: <LockKeyhole className="w-5 h-5 text-amber-500" />
+    },
+    {
+        id: "incidents",
+        question: "Are disciplinary and medical records secure and forensic-ready?",
+        answer: "Disciplinary incidents and health records are stored in a 'Vault-Class' module. These records are non-editable once saved and can include photo evidence. This ensures that in any legal or administrative dispute, the school has a verified, tamper-proof history of events.",
+        icon: <Shield className="w-5 h-5 text-cyan-500" />
     }
 ]
 
@@ -87,10 +111,6 @@ export function ForensicFAQ() {
 
             <div className="container px-4 md:px-6 relative z-10 max-w-4xl mx-auto">
                 <div className="text-center mb-16 space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700/50 text-muted-foreground text-xs font-mono">
-                        <Check className="w-3 h-3 text-cyan-500" />
-                        SYSTEM_INTEGRITY_CHECK
-                    </div>
                     <h2 className="text-3xl md:text-5xl font-bold text-foreground">
                         Forensic <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Questions.</span>
                     </h2>
@@ -107,11 +127,11 @@ export function ForensicFAQ() {
                                 key={faq.id}
                                 initial={false}
                                 animate={{
-                                    borderColor: isOpen ? "rgba(6,182,212,0.5)" : "rgba(255,255,255,0.05)"
+                                    borderColor: isOpen ? "rgba(59,130,246,0.5)" : "rgba(255,255,255,0.05)"
                                 }}
                                 className={cn(
                                     "border rounded-2xl bg-black/40 backdrop-blur-sm overflow-hidden transition-all duration-300",
-                                    isOpen ? "shadow-[0_0_20px_rgba(6,182,212,0.1)]" : "hover:border-border"
+                                    isOpen ? "shadow-[0_0_20px_rgba(59,130,246,0.15)]" : "hover:border-border"
                                 )}
                             >
                                 <button
@@ -121,7 +141,7 @@ export function ForensicFAQ() {
                                     <div className="flex items-center gap-4">
                                         <div className={cn(
                                             "w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300",
-                                            isOpen ? "bg-cyan-500/10" : "bg-secondary/50"
+                                            isOpen ? "bg-blue-500/10" : "bg-secondary/50"
                                         )}>
                                             {faq.icon}
                                         </div>
@@ -131,7 +151,7 @@ export function ForensicFAQ() {
                                     </div>
                                     <ChevronDown className={cn(
                                         "w-5 h-5 text-muted-foreground transition-transform duration-300",
-                                        isOpen && "rotate-180 text-cyan-400"
+                                        isOpen && "rotate-180 text-blue-400"
                                     )} />
                                 </button>
 

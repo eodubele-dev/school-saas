@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/landing/navbar"
 import { HeroFlowBuilder } from "@/components/landing/hero-flowbuilder"
 import { ForensicTerminal } from "@/components/landing/forensic-terminal"
+import { FeaturesSection } from "@/components/landing/features-section"
 import { ForensicCampusBento } from "@/components/landing/forensic-campus-bento"
 import { RevenueEngineBento } from "@/components/landing/revenue-engine-bento"
 import { VisualProofSection } from "@/components/landing/visual-proof-section"
@@ -14,6 +15,8 @@ import { SocialProofBento } from "@/components/landing/social-proof-bento" // Re
 import { AntiEvasionFeature } from "@/components/landing/anti-evasion-feature"
 import { Footer } from "@/components/landing/footer"
 import { GlowCursor } from "@/components/landing/ui/glow-cursor"
+import { CookieConsent } from "@/components/landing/cookie-consent"
+import { SalesAssistant } from "@/components/landing/sales-assistant"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -41,6 +44,7 @@ export default function LandingPage() {
       <main className="relative z-10 space-y-0 pb-32">
         <HeroFlowBuilder />
         <ForensicTerminal />
+        <FeaturesSection />
         <ForensicCampusBento />
         <RevenueEngineBento />
         {/* <VisualProofSection /> */}
@@ -54,6 +58,8 @@ export default function LandingPage() {
         <FinalCloserCta />
       </main>
       <Footer />
+      <CookieConsent />
+      <SalesAssistant />
     </div>
   )
 }
