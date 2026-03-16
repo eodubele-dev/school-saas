@@ -5,6 +5,7 @@ import { ArrowRight, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useExecutiveConversion } from "./executive-context"
 import { SITE_CONFIG } from "@/lib/constants/site-config"
+import { isDesktop } from "@/lib/utils/desktop"
 
 export function FinalCloserCta() {
     const { openExecutiveDemo } = useExecutiveConversion()
@@ -53,12 +54,14 @@ export function FinalCloserCta() {
                                 >
                                     Book My Demo
                                 </button>
-                                <button
-                                    onClick={() => window.open(SITE_CONFIG.links.download.windows, '_blank')}
-                                    className="h-14 px-10 text-lg font-semibold bg-[#0F1115] hover:bg-slate-900 text-white border border-white/10 rounded-full transition-all flex items-center justify-center gap-2 w-full sm:w-auto shadow-2xl"
-                                >
-                                    Download Desktop
-                                </button>
+                                {!isDesktop() && (
+                                    <button
+                                        onClick={() => window.open(SITE_CONFIG.links.download.windows, '_blank')}
+                                        className="h-14 px-10 text-lg font-semibold bg-[#0F1115] hover:bg-slate-900 text-white border border-white/10 rounded-full transition-all flex items-center justify-center gap-2 w-full sm:w-auto shadow-2xl"
+                                    >
+                                        Download Desktop
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

@@ -5,6 +5,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { PlayCircle, Play, ChevronRight, Monitor } from "lucide-react"
 import { useExecutiveConversion } from "./executive-context"
 import { SITE_CONFIG } from "@/lib/constants/site-config"
+import { isDesktop } from "@/lib/utils/desktop"
 
 export function HeroFlowBuilder() {
     const { openTenantPreview, triggerVideoDemo } = useExecutiveConversion()
@@ -97,13 +98,16 @@ export function HeroFlowBuilder() {
                                     <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </span>
                             </button>
-                            <button
-                                onClick={() => window.open(SITE_CONFIG.links.download.windows, '_blank')}
-                                className="group px-8 py-4 bg-[#0F1115] hover:bg-slate-900 text-white font-semibold text-lg rounded-full border border-white/10 hover:border-white/20 transition-all hover:scale-[1.02] active:scale-95 w-full sm:w-auto flex items-center justify-center gap-3 shadow-2xl z-10"
-                            >
-                                <Monitor className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />
-                                Download Desktop
-                            </button>
+
+                            {!isDesktop() && (
+                                <button
+                                    onClick={() => window.open(SITE_CONFIG.links.download.windows, '_blank')}
+                                    className="group px-8 py-4 bg-[#0F1115] hover:bg-slate-900 text-white font-semibold text-lg rounded-full border border-white/10 hover:border-white/20 transition-all hover:scale-[1.02] active:scale-95 w-full sm:w-auto flex items-center justify-center gap-3 shadow-2xl z-10"
+                                >
+                                    <Monitor className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />
+                                    Download Desktop
+                                </button>
+                            )}
                         </motion.div>
 
                         <motion.div 
