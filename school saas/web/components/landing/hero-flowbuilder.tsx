@@ -9,7 +9,11 @@ import { isDesktop } from "@/lib/utils/desktop"
 
 export function HeroFlowBuilder() {
     const { openTenantPreview, triggerVideoDemo } = useExecutiveConversion()
-    
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
     // Parallax Logic
     const ref = useRef<HTMLDivElement>(null)
     const x = useMotionValue(0)
@@ -99,7 +103,7 @@ export function HeroFlowBuilder() {
                                 </span>
                             </button>
 
-                            {!isDesktop() && (
+                            {mounted && !isDesktop() && (
                                 <button
                                     onClick={() => window.open(SITE_CONFIG.links.download.windows, '_blank')}
                                     className="group px-8 py-4 bg-[#0F1115] hover:bg-slate-900 text-white font-semibold text-lg rounded-full border border-white/10 hover:border-white/20 transition-all hover:scale-[1.02] active:scale-95 w-full sm:w-auto flex items-center justify-center gap-3 shadow-2xl z-10"

@@ -29,6 +29,7 @@ import { SupportSlideOver } from "@/components/landing/support-slide-over"
 import { ExecutiveFocusGlow } from "@/components/landing/executive-focus-glow"
 
 import { UserPreferencesProvider } from "@/components/providers/user-preferences-provider";
+import { OfflineSyncProvider } from "@/components/providers/offline-sync-provider";
 import { RealtimeNotifications } from "@/components/layout/realtime-notifications";
 import { LoadingBar } from "@/components/layout/loading-bar";
 
@@ -64,15 +65,17 @@ export default function RootLayout({
         <ReactQueryProvider>
           <LoadingBar />
           <UserPreferencesProvider>
-            <RealtimeNotifications />
-            <ExecutiveConversionProvider>
-              {children}
-              <ExecutiveModals />
-              <MegaMenu />
-              <PhysicalDemoModal />
-              <SupportSlideOver />
-              <ExecutiveFocusGlow />
-            </ExecutiveConversionProvider>
+            <OfflineSyncProvider>
+              <RealtimeNotifications />
+              <ExecutiveConversionProvider>
+                {children}
+                <ExecutiveModals />
+                <MegaMenu />
+                <PhysicalDemoModal />
+                <SupportSlideOver />
+                <ExecutiveFocusGlow />
+              </ExecutiveConversionProvider>
+            </OfflineSyncProvider>
           </UserPreferencesProvider>
           <Toaster theme="dark" richColors />
         </ReactQueryProvider>

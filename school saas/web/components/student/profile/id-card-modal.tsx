@@ -15,19 +15,40 @@ import { useRef, useState } from "react"
 import { useReactToPrint } from "react-to-print"
 import { IdCardView } from "./id-card-view"
 import { toast } from "sonner"
+import { isDesktop } from "@/lib/utils/desktop"
+import { printDirectly } from "@/lib/utils/printer"
 
 export function IdCardModal({ student, tenant, trigger }: { student: any, tenant: any, trigger: React.ReactNode }) {
     const componentRef = useRef<HTMLDivElement>(null)
     const [open, setOpen] = useState(false)
 
-    const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
-        documentTitle: `Student_ID_${student?.full_name?.replace(/\s+/g, '_') || 'Card'}`,
-        onAfterPrint: () => {
-            toast.success("ID Card queued for printing!")
-        },
-        onPrintError: () => toast.error("Failed to print"),
+    const handlePrintFallback = useReactToPrint({
+        contentRef: componentRef,
     })
+
+    const handlePrint = async () => {
+        if (isDesktop() && componentRef.current) {
+            const htmlContent = `
+                <html>
+                    <head>
+                        <style>
+                            body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+                            .print-container { transform: scale(3); transform-origin: center; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="print-container">
+                            ${componentRef.current.innerHTML}
+                        </div>
+                    </body>
+                </html>
+            `;
+            await printDirectly(htmlContent, { silent: true, jobName: `Student_ID_${student?.full_name}` });
+            toast.success("ID Card sent to printer! 🤙🏾📠");
+        } else {
+            handlePrintFallback();
+        }
+    }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>

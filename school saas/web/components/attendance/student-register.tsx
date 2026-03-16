@@ -7,8 +7,9 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Send, Save, ChevronDown, Check, X, HelpCircle } from "lucide-react"
+import { Loader2, Send, Save, ChevronDown, Check, X, HelpCircle, WifiOff } from "lucide-react"
 import { toast } from "sonner"
+import { useOfflineSync } from "@/components/providers/offline-sync-provider"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -19,6 +20,7 @@ import { getAssignedClass, getClassStudents, markStudentAttendance, sendAbsenceS
 import { getClockInStatus } from "@/lib/actions/staff-clock-in"
 
 export function StudentRegister() {
+    const { queueAction, isOnline } = useOfflineSync()
     const router = useRouter()
     const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
@@ -37,10 +39,12 @@ export function StudentRegister() {
 
     useEffect(() => {
         loadData()
-        // Poll for updates (Realtime)
-        const interval = setInterval(() => loadData(true), 10000)
+        // Poll for updates (Realtime) - Only if online
+        const interval = setInterval(() => {
+            if (navigator.onLine) loadData(true)
+        }, 10000)
         return () => clearInterval(interval)
-    }, [])
+    }, [isOnline])
 
     const loadData = async (isBackground = false) => {
         if (!isBackground) setLoading(true)
@@ -99,9 +103,18 @@ export function StudentRegister() {
                     }
                 })
                 setAttendance(prev => ({ ...prev, ...initial }))
+                // Cache students and class info for offline view
+                localStorage.setItem(`offline-students-${classRes.data.id}`, JSON.stringify(studentsRes.data))
+                localStorage.setItem('offline-class-info', JSON.stringify(classRes.data))
             }
         } catch (error) {
-            toast.error("Failed to load class data")
+            if (navigator.onLine) {
+                toast.error("Failed to load class data")
+            } else {
+                // Try to load from cache if offline
+                const cachedClass = localStorage.getItem('offline-class-info')
+                if (cachedClass) setClassInfo(JSON.parse(cachedClass))
+            }
         } finally {
             if (!isBackground) setLoading(false)
         }
@@ -121,21 +134,33 @@ export function StudentRegister() {
         }))
 
         try {
-            // 2. Immediate Persistence
-            const res = await markStudentAttendance(classInfo.id, getLocalToday(), [
-                { student_id: studentId, status: next, remarks: attendance[studentId]?.remarks }
-            ])
+            if (isOnline) {
+                // 2. Immediate Persistence
+                const res = await markStudentAttendance(classInfo.id, getLocalToday(), [
+                    { student_id: studentId, status: next, remarks: attendance[studentId]?.remarks }
+                ])
 
-            if (!res.success) {
-                // Rollback on error
-                setAttendance(prev => ({
-                    ...prev,
-                    [studentId]: { ...prev[studentId], status: current }
-                }))
-                toast.error(`Failed to save ${next} status`)
+                if (!res.success) {
+                    // Rollback on error
+                    setAttendance(prev => ({
+                        ...prev,
+                        [studentId]: { ...prev[studentId], status: current }
+                    }))
+                    toast.error(`Failed to save ${next} status`)
+                } else {
+                    router.refresh()
+                }
             } else {
-                // Trigger real-time refresh for other dashboard components
-                router.refresh()
+                // Offline Queuing
+                queueAction({
+                    type: 'STUDENT_ATTENDANCE',
+                    payload: {
+                        classId: classInfo.id,
+                        date: getLocalToday(),
+                        records: [{ student_id: studentId, status: next, remarks: attendance[studentId]?.remarks }]
+                    }
+                })
+                toast.info("Saved locally. Will sync when online. 🤙🏾📦")
             }
         } catch (error) {
             // Rollback
@@ -225,7 +250,14 @@ export function StudentRegister() {
         <Card className="flex flex-col h-[600px] bg-card text-card-foreground border-border/50 overflow-hidden">
             <div className="p-4 border-b border-border/50 flex items-center justify-between bg-slate-950/30">
                 <div>
-                    <h3 className="font-bold text-foreground text-lg">{classInfo.name} Register</h3>
+                    <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-foreground text-lg">{classInfo.name} Register</h3>
+                        {!isOnline && (
+                            <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20 gap-1 px-1.5 py-0">
+                                <WifiOff className="h-3 w-3" /> Offline
+                            </Badge>
+                        )}
+                    </div>
                     <p className="text-xs text-muted-foreground">{formatDate(new Date())}</p>
                 </div>
                 <div className="flex items-center gap-2">

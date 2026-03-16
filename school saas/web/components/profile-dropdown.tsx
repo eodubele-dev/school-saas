@@ -2,9 +2,10 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { LogOut, User, Settings, Shield, CreditCard, BookOpen, GraduationCap, Users } from "lucide-react"
+import { LogOut, User, Settings, Shield, CreditCard, BookOpen, GraduationCap, Users, Home } from "lucide-react"
 import { logout } from "@/app/actions/auth"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { isDesktop } from "@/lib/utils/desktop"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -31,6 +32,21 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
     const router = useRouter()
     const [preferencesOpen, setPreferencesOpen] = useState(false)
     const [isUpgradeOpen, setIsUpgradeOpen] = useState(false)
+    const [landingUrl, setLandingUrl] = useState("/")
+
+    useEffect(() => {
+        const host = window.location.host
+        if (host.includes('localhost')) {
+            const port = host.split(':')[1] || '3000'
+            setLandingUrl(`http://localhost:${port}`)
+        } else {
+            const parts = host.split('.')
+            if (parts.length >= 2) {
+                const rootDomain = parts.slice(-2).join('.')
+                setLandingUrl(`https://${rootDomain}`)
+            }
+        }
+    }, [])
 
     const handleLogout = async () => {
         try {
@@ -38,7 +54,13 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
         } catch (error) {
             console.error("Logout failed", error)
         } finally {
-            router.push('/login')
+            // In Desktop app, we want to go back to the root landing page/auth discovery
+            // In Web, we usually go to the school-specific login page
+            if (isDesktop()) {
+                router.push('/')
+            } else {
+                router.push('/login')
+            }
         }
     }
 
@@ -177,6 +199,13 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
                         >
                             <Settings size={14} className="text-muted-foreground" />
                             <span className="text-xs font-medium text-slate-300">Preferences</span>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem asChild>
+                            <a href={landingUrl} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-secondary/50 transition-all text-left cursor-pointer focus:bg-secondary/50">
+                                <Home size={14} className="text-muted-foreground" />
+                                <span className="text-xs font-medium text-slate-300">EduFlow Landing</span>
+                            </a>
                         </DropdownMenuItem>
                     </div>
 

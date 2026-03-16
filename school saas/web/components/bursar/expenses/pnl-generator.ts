@@ -1,8 +1,9 @@
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import { format } from "date-fns"
+import { saveFileNative } from "@/lib/utils/file-system"
 
-export const generatePnLReport = (summary: any, chartData: any[]) => {
+export const generatePnLReport = async (summary: any, chartData: any[]) => {
     const doc = new jsPDF()
 
     // 1. Header & Branding
@@ -70,5 +71,7 @@ export const generatePnLReport = (summary: any, chartData: any[]) => {
     const footerY = (doc as any).lastAutoTable.finalY + 20
     doc.text("This report is for internal management use only.", 105, footerY, { align: "center" })
 
-    doc.save(`PnL_Report_${format(new Date(), 'yyyy-MM-dd')}.pdf`)
+    const pdfData = doc.output('arraybuffer');
+    const uint8 = new Uint8Array(pdfData);
+    await saveFileNative(uint8, `PnL_Report_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 }

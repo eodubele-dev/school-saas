@@ -5,6 +5,10 @@ import { ShieldAlert, FileText, BarChart3, Fingerprint, ClipboardCheck, Printer,
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { saveFileNative } from '@/lib/utils/file-system';
+import { isDesktop } from '@/lib/utils/desktop';
 
 interface AuditStat {
     label: string;
@@ -58,9 +62,57 @@ export const BursaryAuditTrail: React.FC<BursaryAuditTrailProps> = ({
         window.print();
     };
 
-    const handleExportPDF = () => {
-        toast.info("Select 'Save as PDF' in the destination dropdown to export.");
-        setTimeout(() => window.print(), 500);
+    const handleExportPDF = async () => {
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth();
+
+        // 1. Header
+        doc.setFillColor(37, 99, 235); // Blue-600
+        doc.rect(0, 0, pageWidth, 40, "F");
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(18);
+        doc.setFont("helvetica", "bold");
+        doc.text("Monthly Bursary Audit Transcript", pageWidth / 2, 15, { align: "center" });
+
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${institutionName} | Audit ID: ${auditId}`, pageWidth / 2, 25, { align: "center" });
+        doc.text(`Period: ${period}`, pageWidth / 2, 32, { align: "center" });
+
+        // 2. Stats Table
+        autoTable(doc, {
+            startY: 50,
+            head: [['Metric', 'Value', 'Audit Significance']],
+            body: auditStats.map(s => [s.label, s.value, s.significance]),
+            theme: 'striped',
+            headStyles: { fillColor: [51, 65, 85] }
+        });
+
+        // 3. Ledger Table
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text("2. Detailed Deviation Ledger (Forensic Trail)", 14, (doc as any).lastAutoTable.finalY + 15);
+
+        autoTable(doc, {
+            startY: (doc as any).lastAutoTable.finalY + 20,
+            head: [['Date', 'Staff Member', 'Deviation Type', 'Authorizer', 'Proof ID']],
+            body: ledger.map(e => [e.date, e.staffName, e.deviationType, e.authorizer, e.proofId]),
+            theme: 'grid',
+            headStyles: { fillColor: [8, 145, 178] } // Cyan-600
+        });
+
+        // 4. Verification Footer
+        const finalY = (doc as any).lastAutoTable.finalY + 20;
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text("I certify that this report is a direct extract from the System Audit & Integrity Log.", pageWidth / 2, finalY, { align: "center" });
+
+        const pdfData = doc.output('arraybuffer');
+        const uint8 = new Uint8Array(pdfData);
+        
+        await saveFileNative(uint8, `Audit_Trail_${auditId}.pdf`);
     }
 
     return (

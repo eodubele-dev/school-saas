@@ -1,8 +1,17 @@
 import { Button } from "@/components/ui/button"
-import { ArrowRight, PlayCircle } from "lucide-react"
+import { ArrowRight, PlayCircle, Monitor } from "lucide-react"
 import Link from "next/link"
+import { useEffect, useState } from "react"
+import { isDesktop } from "@/lib/utils/desktop"
 
 export function HeroSection() {
+    const [showDownload, setShowDownload] = useState(false)
+
+    useEffect(() => {
+        // Only show download button if we are on the web
+        setShowDownload(!isDesktop())
+    }, [])
+
     return (
         <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
             {/* Background Glows */}
@@ -36,6 +45,15 @@ export function HeroSection() {
                             Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
                     </Button>
+                    
+                    {showDownload && (
+                        <Button asChild size="lg" variant="outline" className="bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20 text-blue-400 h-12 px-8 w-full sm:w-auto backdrop-blur-md">
+                            <Link href="#">
+                                <Monitor className="mr-2 h-4 w-4" /> Download for Desktop
+                            </Link>
+                        </Button>
+                    )}
+
                     <Button asChild size="lg" variant="outline" className="bg-transparent border-white/20 hover:bg-white/10 text-foreground h-12 px-8 w-full sm:w-auto backdrop-blur-md">
                         <Link href="#">
                             <PlayCircle className="mr-2 h-4 w-4" /> Watch Demo

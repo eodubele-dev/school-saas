@@ -1,8 +1,9 @@
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import { format } from "date-fns"
+import { saveFileNative } from "@/lib/utils/file-system"
 
-export const generatePayslip = (item: any, run: any) => {
+export const generatePayslip = async (item: any, run: any) => {
     const doc = new jsPDF()
 
     // 1. Header & Branding
@@ -80,5 +81,7 @@ export const generatePayslip = (item: any, run: any) => {
     doc.setTextColor(150, 150, 150)
     doc.text("This is a computer-generated document and requires no signature.", 105, 280, { align: "center" })
 
-    doc.save(`Payslip_${item.staff.first_name}_${run.month}_${run.year}.pdf`)
+    const pdfData = doc.output('arraybuffer');
+    const uint8 = new Uint8Array(pdfData);
+    await saveFileNative(uint8, `Payslip_${item.staff.first_name}_${run.month}_${run.year}.pdf`);
 }

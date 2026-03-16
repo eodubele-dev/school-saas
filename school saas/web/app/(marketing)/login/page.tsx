@@ -163,7 +163,7 @@ export default function MarketingLoginPage() {
 
                     <CardFooter className="flex-col gap-6 pb-8">
                         <div className="flex w-full justify-between items-center px-4">
-                            <Link href="/" className="text-sm font-medium text-slate-500 hover:text-white transition-colors opacity-40 hover:opacity-100">
+                            <Link href="/" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
                                 Back to Home
                             </Link>
                             <button onClick={() => toast.info("Email Support: support@eduflow.ng", { description: "Our team typically responds within 15 minutes." })} className="text-sm font-medium text-slate-500 hover:text-white transition-colors opacity-40 hover:opacity-100">

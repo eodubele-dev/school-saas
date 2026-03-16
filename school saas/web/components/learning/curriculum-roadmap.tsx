@@ -5,6 +5,7 @@ import { Map, BookOpen, CheckCircle2, Lock, ArrowRight } from 'lucide-react';
 import { toast } from "sonner";
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { saveFileNative } from '@/lib/utils/file-system';
 
 export const CurriculumRoadmap = ({ milestones = [] }: { milestones?: any[] }) => {
     // Use passed milestones or empty array
@@ -50,8 +51,11 @@ export const CurriculumRoadmap = ({ milestones = [] }: { milestones?: any[] }) =
                 alternateRowStyles: { fillColor: [245, 247, 250] } // Slate-50
             });
 
-            doc.save("student-curriculum-syllabus.pdf");
-            toast.success("PDF Downloaded!", { id: "pdf-gen", description: "Your syllabus has been successfully saved." });
+            const pdfData = doc.output('arraybuffer');
+            const uint8 = new Uint8Array(pdfData);
+            await saveFileNative(uint8, "student-curriculum-syllabus.pdf");
+            
+            toast.success("PDF Saved!", { id: "pdf-gen", description: "Your syllabus has been successfully saved to disk. 🤙🏾📂" });
         } catch (error) {
             console.error("PDF Generation Error:", error);
             toast.error("Generation Failed", { id: "pdf-gen", description: "There was an error generating the document." });

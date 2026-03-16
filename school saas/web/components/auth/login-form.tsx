@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, BookOpen, GraduationCap, School, Wand2, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { cn } from "@/lib/utils"
 import { useRouter } from 'next/navigation'
@@ -24,6 +24,22 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
     const [isLoading, setIsLoading] = useState(false)
     const [isMagicLinkLoading, setIsMagicLinkLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
+    const [landingUrl, setLandingUrl] = useState("/")
+
+    useEffect(() => {
+        const host = window.location.host
+        if (host.includes('localhost')) {
+            const port = host.split(':')[1] || '3000'
+            setLandingUrl(`http://localhost:${port}`)
+        } else {
+            // Naive root domain extraction
+            const parts = host.split('.')
+            if (parts.length >= 2) {
+                const rootDomain = parts.slice(-2).join('.')
+                setLandingUrl(`https://${rootDomain}`)
+            }
+        }
+    }, [])
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
@@ -186,7 +202,7 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
                     </form>
 
                     <p className="text-center text-xs text-slate-600 mt-8">
-                        Authorized Personnel Only • <Link href="/" className="hover:text-muted-foreground transition-colors">Abort Session</Link>
+                        Authorized Personnel Only • <a href={landingUrl} className="hover:text-muted-foreground transition-colors">Abort Session</a>
                     </p>
                 </div>
             </div>

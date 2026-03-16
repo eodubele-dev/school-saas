@@ -9,13 +9,40 @@ import {
     DialogContent,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import { isDesktop } from "@/lib/utils/desktop"
+import { printDirectly } from "@/lib/utils/printer"
+import { toast } from "sonner"
 
 export function StaffIDCard({ user, tenant }: { user: any, tenant: any }) {
     const cardRef = useRef<HTMLDivElement>(null)
-    const handlePrint = useReactToPrint({
+    const handlePrintFallback = useReactToPrint({
         contentRef: cardRef,
         documentTitle: `${user.full_name}_ID_Card`,
     })
+
+    const handlePrint = async () => {
+        if (isDesktop() && cardRef.current) {
+            const htmlContent = `
+                <html>
+                    <head>
+                        <style>
+                            body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: white; }
+                            .print-container { transform: scale(3.2); transform-origin: center; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="print-container">
+                            ${cardRef.current.innerHTML}
+                        </div>
+                    </body>
+                </html>
+            `;
+            await printDirectly(htmlContent, { silent: true, jobName: `${user.full_name}_ID_Card` });
+            toast.success("Staff ID Card sent to printer! 🤙🏾📠");
+        } else {
+            handlePrintFallback();
+        }
+    }
 
     const primaryColor = tenant?.theme_config?.primary || '#2563eb'
 

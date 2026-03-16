@@ -97,17 +97,8 @@ export function ForensicFAQ() {
 
     return (
         <section className="py-24 bg-[#0A0A0B] relative overflow-hidden">
-            {/* Background: Blue Wave Pattern */}
-            <div className="absolute inset-0 z-0 pointer-events-none">
-                <div
-                    className="absolute inset-0 opacity-[0.05]"
-                    style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='30' viewBox='0 0 60 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 Q 15 20, 30 10 T 60 10' fill='none' stroke='%233B82F6' stroke-width='1.5'/%3E%3C/svg%3E")`,
-                        backgroundSize: '60px 30px',
-                        maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)'
-                    }}
-                />
-            </div>
+            {/* Background: Clean Slate */}
+            <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-b from-blue-500/[0.02] to-transparent" />
 
             <div className="container px-4 md:px-6 relative z-10 max-w-4xl mx-auto">
                 <div className="text-center mb-16 space-y-4">

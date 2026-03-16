@@ -7,6 +7,9 @@ import { Download, CheckCircle, ArrowRight } from "lucide-react"
 import { useAdmissionStore } from "@/lib/stores/admission-store"
 import { useReactToPrint } from "react-to-print"
 import { AdmissionLetter } from "@/components/admissions/admission-letter"
+import { isDesktop } from "@/lib/utils/desktop"
+import { printDirectly } from "@/lib/utils/printer"
+import { toast } from "sonner"
 
 export function SuccessCard({
     onClose,
@@ -17,9 +20,30 @@ export function SuccessCard({
 }) {
     const { data } = useAdmissionStore()
     const contentRef = useRef<HTMLDivElement>(null)
-    const handlePrint = useReactToPrint({
+    const handlePrintFallback = useReactToPrint({
         contentRef,
     })
+
+    const handlePrint = async () => {
+        if (isDesktop() && contentRef.current) {
+            const htmlContent = `
+                <html>
+                    <head>
+                        <style>
+                            body { margin: 0; padding: 20px; font-family: serif; }
+                        </style>
+                    </head>
+                    <body>
+                        ${contentRef.current.innerHTML}
+                    </body>
+                </html>
+            `;
+            await printDirectly(htmlContent, { silent: true, jobName: `Admission_Letter_${data.firstName}` });
+            toast.success("Admission Letter sent to printer! 🤙🏾📠");
+        } else {
+            handlePrintFallback();
+        }
+    }
 
     useEffect(() => {
         // Trigger confetti

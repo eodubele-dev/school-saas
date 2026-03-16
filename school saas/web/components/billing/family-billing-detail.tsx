@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { initiatePayment } from "@/lib/actions/paystack";
 import { format } from "date-fns";
+import { isDesktop } from "@/lib/utils/desktop";
+import { printDirectly } from "@/lib/utils/printer";
 
 /**
  * 💳 Family Billing Detail View
@@ -52,8 +54,6 @@ export function FamilyBillingDetail({
     const triggerInvoice = async (studentId: string | null, studentName: string, balance: number, fees: any[]) => {
         if (studentId) setPrintingId(studentId);
 
-        // ADAPTER LOGIC:
-        // If fees have 'studentName' property (from PayAll), we use it. Otherwise we use the passed studentName.
         const items = fees.map((f: any) => ({
             student: f.studentName || studentName,
             category: f.label,
@@ -72,9 +72,31 @@ export function FamilyBillingDetail({
 
         if (studentId) await logInvoiceView(studentId);
 
-        setTimeout(() => {
-            handlePrint();
-        }, 100);
+        // Platinum Bridge logic
+        setTimeout(async () => {
+            if (isDesktop() && componentRef.current) {
+                const htmlContent = `
+                    <html>
+                        <head>
+                            <title>Receipt_${receiptData.refID}</title>
+                            <style>
+                                body { font-family: sans-serif; padding: 20px; }
+                                .receipt-container { max-width: 800px; margin: auto; }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="receipt-container">
+                                ${componentRef.current.innerHTML}
+                            </div>
+                        </body>
+                    </html>
+                `;
+                await printDirectly(htmlContent, { silent: true, jobName: `Receipt_${receiptData.refID}` });
+                setPrintingId(null);
+            } else {
+                handlePrint();
+            }
+        }, 150);
     }
 
     const handlePayment = async (studentId: string) => {

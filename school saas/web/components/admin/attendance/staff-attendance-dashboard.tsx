@@ -13,6 +13,9 @@ import { format } from "date-fns"
 import { toast } from "sonner"
 import { SmartClockIn } from "@/components/attendance/smart-clock-in"
 import { useRouter } from "next/navigation"
+import { isDesktop } from "@/lib/utils/desktop"
+import { printDirectly } from "@/lib/utils/printer"
+import { Printer } from "lucide-react"
 
 export function StaffAttendanceDashboard() {
     const router = useRouter()
@@ -49,6 +52,42 @@ export function StaffAttendanceDashboard() {
             toast.error(res.error || "Failed to load stats")
         }
         setLoading(false)
+    }
+
+    const handlePrintLog = async () => {
+        const logTable = document.getElementById('attendance-log-table');
+        if (!logTable) return;
+
+        const htmlContent = `
+            <html>
+                <head>
+                    <title>Attendance_Log_${selectedDate}</title>
+                    <style>
+                        body { font-family: sans-serif; padding: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+                        th { bg-color: #f4f4f4; }
+                        h1 { text-align: center; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Staff Attendance Log - ${format(new Date(selectedDate), 'PPPP')}</h1>
+                    ${logTable.innerHTML}
+                </body>
+            </html>
+        `;
+
+        if (isDesktop()) {
+            await printDirectly(htmlContent, { silent: true, jobName: `Attendance_Log_${selectedDate}` });
+            toast.success("Attendance Log sent to printer! 🤙🏾📠");
+        } else {
+            const printWindow = window.open('', '_blank');
+            if (printWindow) {
+                printWindow.document.write(htmlContent);
+                printWindow.document.close();
+                printWindow.print();
+            }
+        }
     }
 
     if (loading && !stats) return <div className="h-96 flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-blue-500" /></div>
@@ -143,10 +182,19 @@ export function StaffAttendanceDashboard() {
                                 <Badge variant="outline" className={`animate-pulse whitespace-nowrap ${selectedDate === new Date().toISOString().split('T')[0] ? 'bg-green-500/20 text-green-400 border-green-500/40' : 'bg-slate-500/20 text-muted-foreground border-slate-500/40'}`}>
                                     {selectedDate === new Date().toISOString().split('T')[0] ? '● Live' : '○ History'}
                                 </Badge>
+                                <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="border-border hover:bg-slate-800 text-foreground hidden sm:flex"
+                                    onClick={handlePrintLog}
+                                >
+                                    <Printer className="h-4 w-4 mr-2" />
+                                    Print Log
+                                </Button>
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto">
+                        <div className="overflow-x-auto" id="attendance-log-table">
                             <table className="w-full text-sm text-left">
                                 <thead className="text-xs text-muted-foreground uppercase bg-slate-950/50">
                                     <tr>

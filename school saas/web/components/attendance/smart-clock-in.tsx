@@ -10,6 +10,7 @@ import { GeofenceFailureAlert } from "./geofence-failure-alert"
 import { AttendanceDisputeView } from "./attendance-dispute-view"
 import { isWithinRadius } from "@/lib/utils/geolocation"
 import { createClient } from "@/lib/supabase/client"
+import { useOfflineSync } from "@/components/providers/offline-sync-provider"
 
 // Helper for local date YYYY-MM-DD
 const getLocalToday = () => {
@@ -23,6 +24,7 @@ interface SmartClockInProps {
 }
 
 export function SmartClockIn({ onClockIn }: SmartClockInProps) {
+    const { queueAction, isOnline } = useOfflineSync()
     const [loading, setLoading] = useState(false)
     const [status, setStatus] = useState<{
         clockedIn: boolean
@@ -39,37 +41,49 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     useEffect(() => {
         loadStatus()
         initGeofencing()
-    }, [])
+    }, [isOnline]) // Reload status when coming back online
 
     const initGeofencing = async () => {
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
+        // Try to load from local cache first for offline support
+        const cachedCoords = localStorage.getItem('school-geofence-cache')
+        if (cachedCoords) {
+            setSchoolLocation(JSON.parse(cachedCoords))
+        }
 
-        const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
-        if (profile) {
-            const coords = await getSchoolCoordinates(profile.tenant_id)
-            setSchoolLocation(coords)
+        if (navigator.onLine) {
+            const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
 
-            // Continuous Proximity Monitoring
-            if ("geolocation" in navigator) {
-                const watchId = navigator.geolocation.watchPosition((pos) => {
-                    if (coords) {
-                        const { verified } = isWithinRadius(
-                            pos.coords.latitude,
-                            pos.coords.longitude,
-                            coords.latitude,
-                            coords.longitude,
-                            coords.radius_meters
-                        )
-                        setIsWithinRange(verified)
-                    }
-                }, () => {
-                    setIsWithinRange(null)
-                }, { enableHighAccuracy: true })
-
-                return () => navigator.geolocation.clearWatch(watchId)
+            const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+            if (profile) {
+                const coords = await getSchoolCoordinates(profile.tenant_id)
+                if (coords) {
+                    setSchoolLocation(coords)
+                    localStorage.setItem('school-geofence-cache', JSON.stringify(coords))
+                }
             }
+        }
+
+        // Monitoring proximity
+        if ("geolocation" in navigator) {
+            const watchId = navigator.geolocation.watchPosition((pos) => {
+                const activeLocation = schoolLocation || (cachedCoords ? JSON.parse(cachedCoords) : null)
+                if (activeLocation) {
+                    const { verified } = isWithinRadius(
+                        pos.coords.latitude,
+                        pos.coords.longitude,
+                        activeLocation.latitude,
+                        activeLocation.longitude,
+                        activeLocation.radius_meters
+                    )
+                    setIsWithinRange(verified)
+                }
+            }, () => {
+                setIsWithinRange(null)
+            }, { enableHighAccuracy: true })
+
+            return () => navigator.geolocation.clearWatch(watchId)
         }
     }
 
@@ -102,20 +116,33 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
             }
 
             navigator.geolocation.getCurrentPosition(async (position) => {
-                const res = await clockInStaff(position.coords.latitude, position.coords.longitude, getLocalToday())
+                if (isOnline) {
+                    const res = await clockInStaff(position.coords.latitude, position.coords.longitude, getLocalToday())
 
-                if (res.success) {
-                    toast.success("Clocked in successfully!")
-                    loadStatus()
-                    if (onClockIn) onClockIn()
-                } else {
-                    if (res.verified === false) {
-                        setFailedDistance(Math.round(res.distance || 0))
-                        setFailedAttemptId(res.auditLogId || '') // I'll need to update the server action result type
-                        setShowFailureAlert(true)
+                    if (res.success) {
+                        toast.success("Clocked in successfully!")
+                        loadStatus()
+                        if (onClockIn) onClockIn()
                     } else {
-                        toast.error(res.error || "Failed to clock in")
+                        if (res.verified === false) {
+                            setFailedDistance(Math.round(res.distance || 0))
+                            setFailedAttemptId(res.auditLogId || '') 
+                            setShowFailureAlert(true)
+                        } else {
+                            toast.error(res.error || "Failed to clock in")
+                        }
                     }
+                } else {
+                    // Offline Queuing
+                    queueAction({
+                        type: 'CLOCK_IN',
+                        payload: { latitude: position.coords.latitude, longitude: position.coords.longitude, date: getLocalToday() }
+                    })
+                    setStatus({
+                        clockedIn: true,
+                        clockInTime: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                        isLate: false // Assume on time for now, will be verified on sync
+                    })
                 }
                 setLoading(false)
             }, () => {
@@ -132,12 +159,20 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     const handleClockOut = async () => {
         setLoading(true)
         try {
-            const res = await clockOutStaff(getLocalToday())
-            if (res.success) {
-                toast.success("Clocked out successfully!")
-                setStatus(prev => ({ ...prev, clockedIn: false }))
+            if (isOnline) {
+                const res = await clockOutStaff(getLocalToday())
+                if (res.success) {
+                    toast.success("Clocked out successfully!")
+                    setStatus(prev => ({ ...prev, clockedIn: false }))
+                } else {
+                    toast.error(res.error || "Failed to clock out")
+                }
             } else {
-                toast.error(res.error || "Failed to clock out")
+                queueAction({
+                    type: 'CLOCK_OUT',
+                    payload: { date: getLocalToday() }
+                })
+                setStatus(prev => ({ ...prev, clockedIn: false }))
             }
         } finally {
             setLoading(false)

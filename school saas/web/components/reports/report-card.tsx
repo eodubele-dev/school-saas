@@ -9,6 +9,8 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
 import { generateStudentRemark } from "@/lib/actions/gemini-server"
+import { saveFileNative } from "@/lib/utils/file-system"
+import { isDesktop } from "@/lib/utils/desktop"
 
 interface ReportCardProps {
     studentName: string
@@ -175,7 +177,9 @@ export function ReportCard({ studentName, className, session, term, schoolName, 
             doc.text(splitRemark, 14, remarkY + 7)
         }
 
-        doc.save(`${studentName}_Report_${term}.pdf`)
+        const pdfData = doc.output('arraybuffer');
+        const uint8 = new Uint8Array(pdfData);
+        await saveFileNative(uint8, `${studentName}_Report_${term}.pdf`);
     }
 
     return (
