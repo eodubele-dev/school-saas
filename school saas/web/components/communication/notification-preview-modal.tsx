@@ -25,93 +25,73 @@ export function NotificationPreviewModal({
 }: NotificationPreviewModalProps) {
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[100] p-6">
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4 font-sans">
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    initial={{ opacity: 0, scale: 0.98, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    className="bg-[#0A0A0B] border border-border rounded-[2.5rem] max-w-md w-full overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)]"
+                    exit={{ opacity: 0, scale: 0.98, y: 10 }}
+                    transition={{ duration: 0.2 }}
+                    className="bg-card border border-border/50 rounded-2xl max-w-[400px] w-full overflow-hidden shadow-2xl"
                 >
-                    {/* 📱 Mobile Mockup Header */}
-                    <div className="p-6 border-b border-border/50 bg-white/[0.02] flex justify-between items-center">
+                    {/* Header */}
+                    <div className="px-5 py-4 border-b border-border/50 flex justify-between items-center bg-card">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-secondary/50 rounded-xl">
-                                <Smartphone className="text-muted-foreground" size={18} />
-                            </div>
-                            <h3 className="text-[10px] font-black text-foreground uppercase tracking-[0.3em]">Parent_SMS_Preview</h3>
+                            <Smartphone className="text-muted-foreground h-4 w-4" />
+                            <h3 className="text-[13px] font-medium text-foreground tracking-wide">SMS Delivery Preview</h3>
                         </div>
                         <button
                             onClick={onCancel}
-                            className="p-2 hover:bg-secondary/50 rounded-full text-gray-500 hover:text-foreground transition-all group"
+                            className="text-muted-foreground hover:text-foreground transition-colors"
                         >
-                            <X size={20} className="group-hover:rotate-90 transition-transform duration-300" />
+                            <X size={16} />
                         </button>
                     </div>
 
-                    {/* 💬 The SMS Bubble Perspective */}
-                    <div className="p-10 bg-gradient-to-b from-black/20 to-transparent">
-                        <div className="bg-[#1C1C1E] rounded-3xl p-5 ml-auto max-w-[90%] border border-border/50 relative shadow-2xl space-y-3">
-                            <p className="text-sm text-slate-200 leading-relaxed">
-                                🌟 <span className="font-bold text-foreground">High-Recognition Alert:</span> Hi Parent, we are proud to inform you that <span className="text-cyan-400 font-bold">{studentName}</span> has just been awarded the <span className="text-purple-400 font-bold">{badgeTitle}</span> badge! 🎓
-                            </p>
-                            {teacherNote && (
-                                <div className="border-l-2 border-cyan-500/30 pl-3 py-1 bg-cyan-500/5 rounded-r-lg">
-                                    <p className="text-sm text-cyan-400/90 italic">
-                                        "{teacherNote}"
-                                    </p>
+                    {/* Content Payload */}
+                    <div className="p-6 space-y-6 bg-card">
+                        <div className="space-y-2">
+                            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Payload Content</span>
+                            <div className="bg-slate-950 border border-border/50 rounded-xl p-4 space-y-4">
+                                <p className="text-sm text-foreground/90 leading-relaxed">
+                                    <span className="text-foreground font-medium">EduFlow Alert:</span> Hi Parent, we are proud to inform you that <span className="text-foreground font-medium">{studentName}</span> has been recognized with the <span className="text-foreground font-medium">{badgeTitle}</span> badge!
+                                </p>
+                                {teacherNote && (
+                                    <div className="pl-3 border-l-2 border-border/50 pt-1 pb-1">
+                                        <p className="text-[13px] text-muted-foreground italic">
+                                            "{teacherNote}"
+                                        </p>
+                                    </div>
+                                )}
+                                <div className="pt-2 flex justify-between items-center text-[10px] text-muted-foreground/70">
+                                    <span>via EduFlow Systems</span>
+                                    <span>Immediate Dispatch</span>
                                 </div>
-                            )}
-                            <div className="pt-2 flex justify-between items-center text-[9px] text-muted-foreground font-mono">
-                                <span>eduflow.app/portal</span>
-                                <span>Deliverable: NOW</span>
                             </div>
-                            <div className="absolute -right-2 top-6 w-5 h-5 bg-[#1C1C1E] rotate-45 border-r border-t border-border/50"></div>
                         </div>
 
-                        <div className="mt-8 flex flex-col items-center gap-2">
-                            <p className="text-[9px] text-slate-600 text-center font-mono uppercase tracking-widest flex items-center gap-2">
-                                <ShieldCheck size={10} className="text-cyan-500/50" />
-                                Delivering via EduFlow Platinum SMS Gateway
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* 🏁 Confirmation Actions & Forensic Data */}
-                    <div className="p-10 pt-0 space-y-6">
-                        <div className="flex flex-col gap-4">
-                            <div className="flex justify-between items-center px-2">
-                                <div className="flex items-center gap-2 text-emerald-400/80">
-                                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest font-mono">Credit_Status: {creditStatus}_Ready</span>
-                                </div>
-                                <div className="text-[9px] text-muted-foreground font-mono uppercase">
-                                    Audit_Tag: <span className="text-slate-300">{auditTag}</span>
+                        <div className="flex flex-col gap-3 pt-2">
+                            <div className="flex justify-between items-center px-1 pb-2">
+                                <span className="text-[11px] text-muted-foreground/70">
+                                    Tag: {auditTag}
+                                </span>
+                                <div className="flex items-center gap-1.5">
+                                    <div className={`h-1.5 w-1.5 rounded-full ${creditStatus === 'Sufficient' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                                    <span className="text-[11px] text-muted-foreground">Credits {creditStatus}</span>
                                 </div>
                             </div>
 
                             <button
                                 onClick={onConfirm}
-                                className="group relative w-full overflow-hidden rounded-2xl p-4 bg-white hover:bg-cyan-50 transition-all duration-300 active:scale-95 shadow-[0_20px_40px_rgba(255,255,255,0.05)]"
+                                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium text-[13px] rounded-lg transition-colors flex items-center justify-center"
                             >
-                                <div className="relative z-10 flex items-center justify-center gap-2">
-                                    <span className="text-black font-black text-sm uppercase tracking-tighter">Confirm & Finalize SMS</span>
-                                    <CheckCircle2 size={18} className="text-black stroke-[3px]" />
-                                </div>
-                                <div className="absolute inset-x-0 bottom-0 h-1 bg-cyan-500/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                                Dispatch Notification
                             </button>
-
                             <button
                                 onClick={onCancel}
-                                className="w-full bg-white/[0.03] text-muted-foreground hover:text-foreground py-4 rounded-2xl border border-border hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 font-bold text-xs uppercase tracking-widest shadow-inner"
+                                className="w-full h-11 bg-transparent hover:bg-[#111] text-[#A1A1AA] hover:text-white font-medium text-[13px] rounded-lg border border-[#333] transition-colors flex items-center justify-center"
                             >
-                                Re-Edit Message
+                                Cancel Dispatch
                             </button>
-                        </div>
-
-                        <div className="text-center">
-                            <p className="text-[8px] text-slate-700 font-mono uppercase tracking-[0.5em]">
-                                Institutional_Communication_Policy_v4.2
-                            </p>
                         </div>
                     </div>
                 </motion.div>

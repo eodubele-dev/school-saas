@@ -105,6 +105,7 @@ export async function getStudentResultData(studentId: string, term: string, sess
                 address: tenant?.address || 'School Address',
                 motto: tenant?.motto || 'Excellence',
                 logo_url: tenant?.logo_url || '/logo.png',
+                principal_signature_url: tenant?.theme_config?.settings?.principal_signature || '',
                 theme: {
                     primary_color: tenant?.theme_config?.primary || '#2563eb', // Blue-600 default
                     secondary_color: tenant?.theme_config?.secondary || '#1e293b', // Slate-800 default
@@ -239,7 +240,7 @@ export async function generateOverallSummaryAI(studentName: string, affectiveDom
             2. High average (>4) should be highly commendatory about their character and social skills.
             3. Average scores (~3) should encourage improvement or consistency.
             4. If there are specific 'Areas to Improve', gently mention them as goals for next term.
-            5. Keep it to 2-3 concise sentences. No slang.
+            5. Keep the remark to exactly 1 concise sentence (maximum 15 words). No slang.
             6. Focus on behavior, character, and overall disposition, NOT specific academic subjects.
         `
 

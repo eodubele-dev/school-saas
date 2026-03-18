@@ -5,7 +5,7 @@ import { SIDEBAR_LINKS, type UserRole } from '@/config/sidebar'
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|visuals|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
   ],
 }
 
@@ -64,7 +64,7 @@ export default async function middleware(req: NextRequest) {
       const reservedPaths = [
         'onboard', 'setup', 'auth', 'api', '403', '404', 'super-admin', 
         'docs', 'about', 'login', 'privacy', 'success-stories', 'terms',
-        'dashboard', 'settings', 'profile', 'billing'
+        'dashboard', 'settings', 'profile', 'billing', 'visuals'
       ]
       if (!reservedPaths.includes(firstSegment)) {
         currentHost = firstSegment

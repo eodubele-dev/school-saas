@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "identifier": "com.eduflow.platinum",
   "build": {
-    "frontendDist": "../out",
+    "frontendDist": "https://schoolmanagement-next-saas.vercel.app",
     "devUrl": "http://localhost:3000",
     "beforeDevCommand": "npm run dev:local"
   },

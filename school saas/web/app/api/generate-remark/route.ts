@@ -31,7 +31,7 @@ export async function POST(request: Request) {
             Generate a termly report card remark for ${studentName} who scored ${totalScore} in ${subject}. 
             The class average was ${classAverage}. 
             ${classPosition ? `Class Position: ${classPosition}.` : ''}
-            Keep it to exactly 3 sentences.
+            Keep the remark to exactly 1 concise sentence (maximum 15 words).
         `;
 
         const result = await model.generateContent(prompt);

@@ -35,12 +35,12 @@ export function ResultSheet({ data }: { data: ResultData }) {
     }
 
     useEffect(() => {
-        // Generate QR Code acting as verification link
-        const verificationUrl = `${window.location.origin}/verify/result/${data.student.id}`
+        // Generate Cryptographic QR Code Verification Anchor
+        const verificationUrl = `${window.location.origin}/verify/result/${data.student.id}?term=${encodeURIComponent(data.term_info.term)}&session=${encodeURIComponent(data.term_info.session)}`
         QRCode.toDataURL(verificationUrl, { margin: 1, width: 100 }, (err, url) => {
             if (!err) setQrCodeUrl(url)
         })
-    }, [data.student.id])
+    }, [data.student.id, data.term_info.term, data.term_info.session])
 
     return (
         <div id="result-sheet-node" className="w-[210mm] min-h-[297mm] mx-auto bg-white p-10 text-slate-900 relative overflow-hidden shadow-2xl printable-sheet"
@@ -61,45 +61,59 @@ export function ResultSheet({ data }: { data: ResultData }) {
             <div className="relative z-10 border-4 border-double h-full p-8 flex flex-col" style={{ borderColor: theme.secondary_color }}>
 
                 {/* Header */}
-                <header className="flex justify-between items-start border-b-2 pb-6 mb-8" style={{ borderColor: theme.secondary_color }}>
-                    <div className="flex items-start gap-6">
-                        <div className="relative w-28 h-28 shrink-0 bg-white rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-slate-100 p-2 relative z-20">
-                            {school.logo_url && <Image src={school.logo_url} alt="School Logo" fill className="object-contain p-2" priority />}
-                        </div>
-                        <div className="pt-2 relative z-20">
-                            <h1 className="text-4xl font-black uppercase tracking-wider leading-none mb-1.5 drop-shadow-sm" style={{ color: theme.primary_color }}>{school.name}</h1>
-                            <p className="text-[13px] font-bold text-muted-foreground tracking-[0.2em] uppercase">{school.motto}</p>
-                            <p className="text-xs text-muted-foreground mt-2 max-w-sm">{school.address}</p>
-                        </div>
+                <header className="relative flex flex-col items-center text-center border-b-2 pb-8 mb-8" style={{ borderColor: theme.secondary_color }}>
+                    {/* Absolute Logo Left */}
+                    <div className="absolute left-0 top-0 w-32 h-32 shrink-0 bg-white rounded-xl shadow-xl border border-slate-100 p-3 z-20">
+                        {school.logo_url && <Image src={school.logo_url} alt="School Logo" fill className="object-contain p-2" priority />}
                     </div>
-                    <div className="flex flex-col items-end text-right pt-2 relative z-20">
-                        <h2 className="text-2xl font-bold uppercase tracking-tight" style={{ color: theme.secondary_color }}>Student Report Sheet</h2>
-                        <p className="font-bold text-lg text-slate-600 mt-1">{data.term_info.term} Term, {data.term_info.session}</p>
+
+                    {/* Centered School Context */}
+                    <div className="relative z-20 w-full px-36 flex flex-col items-center">
+                        <h1 className="text-[2.5rem] font-black uppercase tracking-widest leading-none mb-3 drop-shadow-sm text-center" style={{ color: theme.primary_color }}>
+                            {school.name}
+                        </h1>
+                        <p className="text-sm font-bold text-slate-500 tracking-[0.3em] uppercase text-center mb-1.5">
+                            {school.motto}
+                        </p>
+                        <p className="text-sm font-medium text-slate-600 max-w-lg text-center leading-snug">
+                            {school.address}
+                        </p>
+                    </div>
+
+                    {/* Report Sheet Title Badge */}
+                    <div className="mt-8 relative z-20 flex flex-col items-center">
+                        <h2 className="text-xl font-black uppercase tracking-[0.2em] px-8 py-2.5 rounded-sm border-y-2" style={{ color: theme.secondary_color, borderColor: theme.secondary_color }}>
+                            Student Report Sheet
+                        </h2>
+                        <p className="font-bold text-sm uppercase tracking-widest text-slate-500 mt-2">
+                            {data.term_info.term} Term, {data.term_info.session}
+                        </p>
                     </div>
                 </header>
 
                 {/* Student Info & Passport */}
                 <section className="grid grid-cols-[1fr_auto] gap-8 mb-8">
                     <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
-                        <div className="flex border-b border-slate-200 pb-1">
-                            <span className="font-bold w-32 uppercase text-xs text-muted-foreground">Student Name:</span>
-                            <span className="font-bold text-lg">{data.student.full_name}</span>
+                        {/* Full Width Student Name */}
+                        <div className="flex border-b border-slate-200 pb-1.5 col-span-2 items-end">
+                            <span className="font-bold w-36 uppercase text-xs text-muted-foreground tracking-widest">Student Name:</span>
+                            <span className="font-black text-xl uppercase tracking-wider text-slate-800 leading-none">{data.student.full_name}</span>
                         </div>
-                        <div className="flex border-b border-slate-200 pb-1">
-                            <span className="font-bold w-32 uppercase text-xs text-muted-foreground">Admission No:</span>
-                            <span className="font-mono">{data.student.admission_number}</span>
+                        <div className="flex border-b border-slate-200 pb-1 items-end">
+                            <span className="font-bold w-36 uppercase text-[10px] text-muted-foreground tracking-widest">Admission No:</span>
+                            <span className="font-mono font-semibold">{data.student.admission_number}</span>
                         </div>
-                        <div className="flex border-b border-slate-200 pb-1">
-                            <span className="font-bold w-32 uppercase text-xs text-muted-foreground">Class:</span>
-                            <span>{data.student.class_name}</span>
+                        <div className="flex border-b border-slate-200 pb-1 items-end">
+                            <span className="font-bold w-36 uppercase text-[10px] text-muted-foreground tracking-widest">Class:</span>
+                            <span className="font-bold">{data.student.class_name}</span>
                         </div>
-                        <div className="flex border-b border-slate-200 pb-1">
-                            <span className="font-bold w-32 uppercase text-xs text-muted-foreground">House:</span>
-                            <span>{data.student.house || 'N/A'}</span>
+                        <div className="flex border-b border-slate-200 pb-1 items-end">
+                            <span className="font-bold w-36 uppercase text-[10px] text-muted-foreground tracking-widest">House:</span>
+                            <span className="font-bold">{data.student.house || 'N/A'}</span>
                         </div>
-                        <div className="flex border-b border-slate-200 pb-1">
-                            <span className="font-bold w-32 uppercase text-xs text-muted-foreground">Next Term:</span>
-                            <span>{data.term_info.next_term_begins}</span>
+                        <div className="flex border-b border-slate-200 pb-1 items-end">
+                            <span className="font-bold w-36 uppercase text-[10px] text-muted-foreground tracking-widest">Next Term:</span>
+                            <span className="font-bold">{data.term_info.next_term_begins}</span>
                         </div>
                     </div>
 
@@ -267,15 +281,16 @@ export function ResultSheet({ data }: { data: ResultData }) {
                             </h3>
                             <p className="font-handwriting text-lg leading-snug italic" style={{ color: theme.secondary_color }}>"{data.character.teacher_remark}"</p>
                         </div>
-                        <div className="text-slate-200 p-5 rounded-lg border relative shadow-md" style={{ backgroundColor: theme.secondary_color, borderColor: `${theme.secondary_color}CC` }}>
-                            <div className="absolute top-4 right-4 text-slate-700 opacity-20">
+                        <div className="bg-white p-5 rounded-lg border shadow-sm relative overflow-hidden" style={{ borderColor: `${theme.secondary_color}30` }}>
+                            <div className="absolute top-0 right-0 w-2 h-full" style={{ backgroundColor: theme.secondary_color }} />
+                            <div className="absolute top-4 right-4 text-slate-200 opacity-40">
                                 <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 13.1216 16 12.017 16H9.01703C7.91246 16 7.01703 16.8954 7.01703 18L7.01703 21H5.01703V18C5.01703 15.7909 6.79089 14 9.01703 14H12.017C14.2432 14 16.017 15.7909 16.017 18V21H14.017ZM21.017 6.00005C22.1216 6.00005 23.017 6.89548 23.017 8.00005V11C23.017 12.1046 22.1216 13 21.017 13H19.017V10H21.017V8.00005H19.017V13H17.017V11C17.017 9.89548 16.1216 9.00005 15.017 9.00005H12.017C10.9125 9.00005 10.017 9.89548 10.017 11V13H7.01703C5.91246 13 5.01703 12.1046 5.01703 11V8.00005C5.01703 6.89548 5.91246 6.00005 7.01703 6.00005H10.017C10.5693 6.00005 11.017 5.55233 11.017 5.00005C11.017 4.44776 10.5693 4.00005 10.017 4.00005H7.01703C4.80789 4.00005 3.01703 5.79091 3.01703 8.00005V11C3.01703 13.2092 4.80789 15 7.01703 15H17.017V17H19.017V15H21.017C23.2262 15 25.017 13.2092 25.017 11V8.00005C25.017 5.79091 23.2262 4.00005 21.017 4.00005H18.017C17.4647 4.00005 17.017 4.44776 17.017 5.00005C17.017 5.55233 17.4647 6.00005 18.017 6.00005H21.017Z" /></svg>
                             </div>
-                            <h3 className="text-xs font-bold uppercase text-muted-foreground mb-2 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: theme.accent_color }}></span>
+                            <h3 className="text-xs font-bold uppercase text-slate-500 tracking-widest mb-2 flex items-center gap-2 relative z-10">
+                                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: theme.secondary_color }}></span>
                                 Principal's Summary
                             </h3>
-                            <p className="font-sans text-sm text-slate-300 leading-relaxed">"{data.character.principal_remark}"</p>
+                            <p className="font-sans text-[13px] font-semibold text-slate-800 leading-relaxed italic relative z-10">"{data.character.principal_remark}"</p>
                         </div>
 
                         <div className="flex gap-8 pt-4">
@@ -286,7 +301,7 @@ export function ResultSheet({ data }: { data: ResultData }) {
                                             src={data.school_details.principal_signature_url} 
                                             alt="Principal Signature" 
                                             fill 
-                                            className="object-contain filter contrast-125 brightness-90 relative top-1" 
+                                            className="object-contain filter contrast-125 brightness-90 relative top-1 mix-blend-multiply" 
                                         />
                                     ) : (
                                         <span className="font-handwriting text-2xl text-slate-800 -rotate-3">Principal</span>

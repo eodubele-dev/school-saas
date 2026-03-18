@@ -99,42 +99,52 @@ export function PricingTable() {
         {
             category: "Core Academics & Records",
             features: [
-                { name: "Student Capacity", pilot: "100", starter: "300", pro: "Unlimited", platinum: "Unlimited" },
-                { name: "Digital Gradebook", pilot: true, starter: true, pro: true, platinum: true },
-                { name: "Attendance Tracking", pilot: true, starter: true, pro: true, platinum: true },
-                { name: "Automated Report Cards", pilot: false, starter: true, pro: true, platinum: true },
-                { name: "CBT & Online Exams", pilot: false, starter: false, pro: true, platinum: true },
-                { name: "Lesson Plan Generation", pilot: false, starter: false, pro: false, platinum: "AI-Assisted" },
-                { name: "Behavioral Remarks", pilot: false, starter: false, pro: "Manual", platinum: "AI-Generated" },
+                { name: "Student Capacity", hint: "The maximum number of active student profiles your institution can manage simultaneously within the specific tier.", pilot: "100", starter: "300", pro: "Unlimited", platinum: "Unlimited" },
+                { name: "Digital Gradebook", hint: "A centralized, error-free portal for teachers to input, calculate, and manage continuous assessments and exam scores.", pilot: true, starter: true, pro: true, platinum: true },
+                { name: "Attendance Tracking", hint: "Advanced systems to monitor daily student punctuality, synchronized instantly with parent portals.", pilot: true, starter: true, pro: true, platinum: true },
+                { name: "Automated Report Cards", hint: "Generate and instantly dispatch professionally designed end-of-term academic reports directly to parents' phones.", pilot: false, starter: true, pro: true, platinum: true },
+                { name: "CBT & Online Exams", hint: "A powerful computer-based testing engine customized for your school's mid-terms and mock examinations.", pilot: false, starter: false, pro: true, platinum: true },
+                { name: "Lesson Plan Generation", hint: "Leverage Google Gemini AI to automatically generate curriculum-aligned, engaging lesson plans for any subject in seconds.", pilot: false, starter: false, pro: false, platinum: "AI-Assisted" },
+                { name: "Behavioral Remarks", hint: "Deploy intelligent algorithms to analyze a student's performance and generate personalized, constructive end-of-term teacher remarks.", pilot: false, starter: false, pro: "Manual", platinum: "AI-Generated" },
             ]
         },
         {
             category: "Finance & Admin",
             features: [
-                { name: "Basic Fee Tracking", pilot: false, starter: true, pro: true, platinum: true },
-                { name: "Invoicing & Receipts", pilot: false, starter: false, pro: true, platinum: true },
-                { name: "Staff Payroll", pilot: false, starter: false, pro: true, platinum: true },
-                { name: "Inventory Management", pilot: false, starter: false, pro: true, platinum: true },
+                { name: "Basic Fee Tracking", hint: "Monitor termly school fees, log part-payments, and view outstanding balances across all classes.", pilot: false, starter: true, pro: true, platinum: true },
+                { name: "Invoicing & Receipts", hint: "Automatically generate professional, branded digital receipts and invoices for parents via email or SMS.", pilot: false, starter: false, pro: true, platinum: true },
+                { name: "Staff Payroll", hint: "Manage staff salaries, deductions, tax compliance, and multi-tier payment structures seamlessly.", pilot: false, starter: false, pro: true, platinum: true },
+                { name: "Inventory Management", hint: "Track textbooks, uniforms, and school assets to prevent leakages and optimize institutional stock.", pilot: false, starter: false, pro: true, platinum: true },
             ]
         },
         {
             category: "Communication & Portals",
             features: [
-                { name: "SMS Broadcasts", pilot: "Wallet Required", starter: "Wallet Required", pro: "Advanced", platinum: "Premium" },
-                { name: "Email Broadcasts", pilot: true, starter: true, pro: true, platinum: true },
-                { name: "Parent Portal", pilot: false, starter: true, pro: true, platinum: true },
-                { name: "Teacher Dashboard", pilot: true, starter: true, pro: true, platinum: true },
-                { name: "Proprietor Mobile App", pilot: false, starter: false, pro: false, platinum: true },
+                { name: "SMS Broadcasts", hint: "Send high-priority institutional alerts, specific class notifications, and emergency broadcasts instantly to parents' cell numbers.", pilot: "Wallet Required", starter: "Wallet Required", pro: "Advanced", platinum: "Premium" },
+                { name: "Email Broadcasts", hint: "Dispatch detailed newsletters, circulars, and official school communications with modern digital branding.", pilot: true, starter: true, pro: true, platinum: true },
+                { name: "Parent Portal", hint: "A dedicated, secure dashboard where parents can view their wards' attendance, fees, and real-time academic progress.", pilot: false, starter: true, pro: true, platinum: true },
+                { name: "Teacher Dashboard", hint: "A focused interface for educators to manage their assigned classes, upload scores, and communicate with students.", pilot: true, starter: true, pro: true, platinum: true },
+                { name: "Proprietor Mobile App", hint: "A specialized app giving school owners a God's-eye view of aggregate cash flow, attendance, and overall school metrics on the go.", pilot: false, starter: false, pro: false, platinum: true },
             ]
         },
         {
-            category: "Network & Security",
+            category: "Institutional Security & Desktop Native",
             features: [
-                { name: "Global Debt Alert System", pilot: true, starter: true, pro: true, platinum: true },
-                { name: "Role-Based Access", pilot: true, starter: true, pro: true, platinum: true },
-                { name: "Basic Audit Logs", pilot: true, starter: true, pro: true, platinum: true },
-                { name: "Forensic Fraud Detection", pilot: false, starter: false, pro: false, platinum: true },
-                { name: "Customer Support", pilot: "Community", starter: "Email", pro: "Priority", platinum: "24/7 Dedicated" },
+                { name: "Executive Offline Vault (SQLite)", hint: "Continue logging attendance and finance data even when the school's internet drops. Auto-syncs to the cloud securely when back online.", pilot: false, starter: false, pro: false, platinum: "Auto-Sync" },
+                { name: "Biometric Bank-Grade Security", hint: "Hardware-level Windows Hello facial and fingerprint locks for highly sensitive financial and administrative dashboards.", pilot: false, starter: false, pro: false, platinum: true },
+                { name: "Secure Kiosk Mode (Hardware Lockdown)", hint: "Locks the workstation to prevent students from opening other tabs during CBT exams, or receptionists from browsing unauthorized sites.", pilot: false, starter: false, pro: false, platinum: true },
+                { name: "Native OS Pulse Notifications", hint: "Real-time, persistent Windows OS alerts for critical debt payments or security breaches, even when the app is minimized.", pilot: false, starter: false, pro: false, platinum: true },
+                { name: "Empire Management (Multi-School Sync)", hint: "Synchronize all your schools into native workstation tabs with instant switching for proprietors managing multiple institutions.", pilot: false, starter: false, pro: false, platinum: true },
+            ]
+        },
+        {
+            category: "Network & Alerts",
+            features: [
+                { name: "Global Debt Alert System", hint: "Our proprietary network flags evasive parents attempting to register at your school if they owe fees at another EduFlow-partnered institution.", pilot: true, starter: true, pro: true, platinum: true },
+                { name: "Role-Based Access", hint: "Enforce strict security by assigning tailored access permissions to teachers, bursars, drivers, and admins.", pilot: true, starter: true, pro: true, platinum: true },
+                { name: "Basic Audit Logs", hint: "A chronological ledger tracking who did what and when, ensuring baseline accountability for staff actions.", pilot: true, starter: true, pro: true, platinum: true },
+                { name: "Forensic Fraud Detection", hint: "Advanced anomaly-detection engine to catch unauthorized grade tampering, fee manipulation, or financial ghost-entries.", pilot: false, starter: false, pro: false, platinum: true },
+                { name: "Customer Support", hint: "Access tailored technical assistance to resolve onboarding, operational, or feature-related inquiries.", pilot: "Community", starter: "Email", pro: "Priority", platinum: "24/7 Dedicated" },
             ]
         }
     ]
@@ -240,8 +250,18 @@ export function PricingTable() {
                                     <div className="divide-y divide-white/[0.02]">
                                         {category.features.map((feature, fIdx) => (
                                             <div key={fIdx} className="grid grid-cols-5 p-6 hover:bg-white/[0.02] transition-colors">
-                                                <div className="col-span-1 text-sm text-slate-300 flex items-center pr-4">
-                                                    {feature.name}
+                                                <div className="col-span-1 text-sm text-slate-300 flex items-center pr-4 relative group/hint">
+                                                    <span>{feature.name}</span>
+                                                    {(feature as any).hint && (
+                                                        <>
+                                                            <Info className="h-4 w-4 ml-2 text-slate-500 group-hover/hint:text-blue-400 cursor-help transition-colors shrink-0" />
+                                                            <div className="absolute left-0 bottom-full mb-2 hidden group-hover/hint:block w-[280px] p-3 bg-slate-900 text-slate-200 text-xs leading-relaxed rounded-lg shadow-2xl border border-slate-700 z-50 pointer-events-none">
+                                                                {(feature as any).hint}
+                                                                <div className="absolute left-4 top-full border-[6px] border-transparent border-t-slate-700"></div>
+                                                                <div className="absolute left-[17px] top-full border-[5px] border-transparent border-t-slate-900"></div>
+                                                            </div>
+                                                        </>
+                                                    )}
                                                 </div>
                                                 <div className="text-center flex items-center justify-center">
                                                     {renderValue(feature.pilot)}

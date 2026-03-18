@@ -1,6 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AwardConsole } from "@/components/teacher/behavior/award-console"
-import { AffectiveDomainGrid } from "@/components/teacher/behavior/affective-domain-grid"
 import { IncidentForm } from "@/components/teacher/behavior/incident-form"
 import { createClient } from "@/lib/supabase/server"
 
@@ -26,9 +25,6 @@ export default async function BehaviorManagerPage() {
                     <TabsTrigger value="awards" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white text-slate-400">
                         Instant Recognition
                     </TabsTrigger>
-                    <TabsTrigger value="ratings" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-slate-400">
-                        Termly Ratings
-                    </TabsTrigger>
                     <TabsTrigger value="incidents" className="data-[state=active]:bg-amber-600 data-[state=active]:text-white text-slate-400">
                         Incident Log
                     </TabsTrigger>
@@ -36,10 +32,6 @@ export default async function BehaviorManagerPage() {
 
                 <TabsContent value="awards" className="animate-in fade-in slide-in-from-left-4 duration-300">
                     <AwardConsole students={students} />
-                </TabsContent>
-
-                <TabsContent value="ratings" className="animate-in fade-in slide-in-from-left-4 duration-300">
-                    <AffectiveDomainGrid students={students} />
                 </TabsContent>
 
                 <TabsContent value="incidents" className="animate-in fade-in slide-in-from-left-4 duration-300">

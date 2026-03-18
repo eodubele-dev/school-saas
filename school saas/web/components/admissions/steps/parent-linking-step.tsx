@@ -2,6 +2,7 @@ import { useAdmissionStore } from "@/lib/stores/admission-store"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, CheckCircle, Search, UserPlus, AlertTriangle } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
@@ -222,38 +223,55 @@ export function ParentLinkingStep() {
                     </div>
                 )}
 
-                {/* Debt Network Warning Alert */}
-                {debtWarning.isWarning && (
-                    <div className="mt-6 p-5 bg-red-950/40 border-2 border-red-500/50 rounded-xl space-y-4 animate-in fade-in zoom-in duration-300">
-                        <div className="flex items-start gap-4">
-                            <div className="p-2 bg-red-500/10 rounded-full shrink-0">
-                                <AlertTriangle className="h-6 w-6 text-red-500" />
-                            </div>
-                            <div className="space-y-1">
-                                <h3 className="text-lg font-bold text-red-400">
-                                    HIGH ALERT: Outstanding Debt Flag Found
-                                </h3>
-                                <p className="text-sm text-red-200/80 leading-relaxed font-medium">
-                                    The Global Debt Alert System has found a {debtWarning.type === 'high' ? 'High Confidence (Direct Contact Match)' : 'Medium Confidence (Fuzzy Parent/Student Name Match)'} record linking this family to an outstanding fee at another institution.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="pt-2">
-                            <label className="flex items-start gap-3 p-3 bg-red-900/20 border border-red-500/30 rounded-lg cursor-pointer hover:bg-red-900/30 transition-colors">
+                {/* Debt Network Warning Dialog Modal */}
+                <Dialog open={debtWarning.isWarning} onOpenChange={(open) => {
+                    if (!open) setDebtWarning({ ...debtWarning, isWarning: false })
+                }}>
+                    <DialogContent className="sm:max-w-md bg-slate-950 border-red-900 border-2 shadow-2xl">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-3 text-red-500 text-xl font-black uppercase tracking-wider">
+                                <AlertTriangle className="h-7 w-7 animate-pulse" />
+                                HIGH ALERT: Debt Flag Found
+                            </DialogTitle>
+                            <DialogDescription className="text-red-200/80 pt-3 text-base leading-relaxed font-medium">
+                                The Global Debt Alert System has found a <strong className="text-red-400">{debtWarning.type === 'high' ? 'High Confidence (Direct Contact Match)' : 'Medium Confidence (Fuzzy match)'}</strong> record linking this family to an outstanding fee at another institution.
+                            </DialogDescription>
+                        </DialogHeader>
+                        
+                        <div className="pt-4 pb-2">
+                            <label className="flex items-start gap-4 p-4 bg-red-950/40 border border-red-500/30 rounded-xl cursor-pointer hover:bg-red-900/40 transition-colors">
                                 <input
                                     type="checkbox"
-                                    className="mt-1 h-4 w-4 rounded border-red-500/50 bg-card text-card-foreground accent-red-500"
+                                    className="mt-1 h-5 w-5 rounded border-red-500/50 bg-slate-900 accent-red-600 shrink-0"
                                     checked={bypassDebtFlag}
                                     onChange={(e) => setBypassDebtFlag(e.target.checked)}
                                 />
-                                <span className="text-sm text-red-100 font-medium">
-                                    I acknowledge this debt warning and assume responsibility for admitting this student.
+                                <span className="text-sm text-red-100 font-semibold leading-snug">
+                                    I acknowledge this global debt warning and assume full financial responsibility for admitting this student.
                                 </span>
                             </label>
                         </div>
-                    </div>
-                )}
+                        
+                        <DialogFooter className="sm:justify-between pt-2">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => setDebtWarning({ ...debtWarning, isWarning: false })}
+                                className="text-slate-400 hover:text-white hover:bg-slate-800"
+                            >
+                                Cancel Admission
+                            </Button>
+                            <Button 
+                                type="button" 
+                                onClick={handleSubmit} 
+                                disabled={!bypassDebtFlag || loading}
+                                className="bg-red-600 hover:bg-red-500 text-white font-bold shadow-lg shadow-red-900/20"
+                            >
+                                {loading ? "Processing..." : "Proceed Anyway"}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
 
             <div className="flex justify-between pt-4">
