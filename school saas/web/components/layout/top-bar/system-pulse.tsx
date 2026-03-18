@@ -10,6 +10,7 @@ export function SystemPulse() {
 
     useEffect(() => {
         const checkHealth = async () => {
+            if (typeof window !== "undefined" && (window as any).__EDUFLOW_KIOSK_LOCKING__) return
             const start = performance.now()
             try {
                 const supabase = createClient()

@@ -3,7 +3,8 @@
 import { AuditLog } from "@/lib/actions/audit"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import { ShieldAlert, FileText, GraduationCap, Server, DollarSign, AlertTriangle, ArrowRight } from "lucide-react"
+import { ShieldAlert, FileText, GraduationCap, Server, AlertTriangle, ArrowRight } from "lucide-react"
+import { NairaIcon } from "@/components/ui/naira-icon"
 import { format } from "date-fns"
 
 interface AuditItemProps {
@@ -19,7 +20,7 @@ export function AuditItem({ log }: AuditItemProps) {
 
     const getIcon = () => {
         switch (log.category) {
-            case 'Financial': return <DollarSign className={`h-4 w-4 ${isRedFlag ? 'text-red-500' : 'text-emerald-400'}`} />
+            case 'Financial': return <NairaIcon className={`h-4 w-4 ${isRedFlag ? 'text-red-500' : 'text-emerald-400'}`} />
             case 'Academic': return <GraduationCap className="h-4 w-4 text-blue-400" />
             case 'Security': return <ShieldAlert className="h-4 w-4 text-amber-500" />
             default: return <Server className="h-4 w-4 text-muted-foreground" />

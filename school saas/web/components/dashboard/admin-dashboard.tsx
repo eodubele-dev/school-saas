@@ -9,6 +9,9 @@ import { DemographicsChart } from "./demographics-chart"
 import { NudgeButton } from "./nudge-button"
 import { getGlobalStats, getTenants } from "@/lib/actions/global"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useOfflineVault } from "@/components/providers/offline-vault-provider"
+import { Database, WifiOff } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 import { LockedWidget } from "./locked-widget"
 import { LockedSMSWidget } from "./locked-sms-widget"
@@ -25,7 +28,7 @@ export async function AdminDashboard({
     smsBalance = 0,
     schoolName = '',
     subdomain = '',
-    isGlobalView = false // New prop
+    isGlobalView = false
 }: {
     tier?: string,
     isPilot?: boolean,
@@ -34,6 +37,9 @@ export async function AdminDashboard({
     subdomain?: string,
     isGlobalView?: boolean
 }) {
+    // 0. Use Offline Vault (Client hook - but this is a server component)
+    // Wait, AdminDashboard is currently exported without 'use client'.
+    // If I want to show the banner, I'll wrap the inner part in a Client Component.
     // 1. Fetch Data based on View Mode
     const tenants = await getTenants()
 

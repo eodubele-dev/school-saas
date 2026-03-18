@@ -7,8 +7,25 @@
   ],
   "permissions": [
     "core:default",
+    "core:tray:default",
+    "core:menu:default",
+    "core:window:allow-set-fullscreen",
+    "core:window:allow-set-always-on-top",
+    "core:window:allow-set-resizable",
+    "core:window:allow-center",
+    "core:window:allow-maximize",
+    "core:window:allow-unmaximize",
+    "core:window:allow-set-focus",
     "fs:default",
     "shell:default",
-    "shell:allow-execute"
+    "shell:allow-execute",
+    "sql:default",
+    "notification:default",
+    "updater:allow-check",
+    "updater:allow-download",
+    "updater:allow-download-and-install",
+    "updater:allow-install",
+    "process:allow-restart",
+    "biometric:default"
   ]
 }

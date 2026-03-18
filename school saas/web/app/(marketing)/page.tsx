@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#000000] selection:bg-blue-500 selection:text-white overflow-hidden relative">
+    <div data-landing-page className="min-h-screen bg-[#000000] selection:bg-blue-500 selection:text-white overflow-hidden relative">
       <GlowCursor />
       <Navbar />
       <main className="relative z-10 space-y-0 pb-32">

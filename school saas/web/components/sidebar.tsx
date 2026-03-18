@@ -23,7 +23,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
     const headersList = headers()
     // Extract subdomain/slug with high priority on provided domain prop or middleware header
     const hostname = headersList.get('host') || ''
-    const tenantSlug = headersList.get('x-tenant-slug') || ''
+    const tenantSlug = headersList.get('x-school-slug') || ''
 
     let slug = domain || tenantSlug
 

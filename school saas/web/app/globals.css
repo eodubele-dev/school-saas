@@ -224,3 +224,10 @@
     /* Slate 600 */
   }
 }
+
+/* 🛡️ Desktop Flash Protection: Instantly suppress landing page elements in Tauri environment */
+.tauri-desktop [data-landing-page] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

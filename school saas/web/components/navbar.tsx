@@ -4,6 +4,9 @@ import { MobileNav } from "./mobile-nav"
 import { Sidebar } from "./sidebar"
 import { DynamicTopBar } from "@/components/layout/dynamic-top-bar"
 import { getNextClass } from "@/lib/actions/schedule"
+import { headers } from "next/headers"
+import { findSchoolsByEmail } from "@/lib/actions/auth-discovery"
+import { EmpireSync } from "@/components/layout/empire-sync"
 
 export async function Navbar({ domain }: { domain?: string }) {
     noStore()
@@ -11,6 +14,24 @@ export async function Navbar({ domain }: { domain?: string }) {
 
     // Fetch authenticated user
     const { data: { user } } = await supabase.auth.getUser()
+    const headersList = headers()
+    const tenantSlug = headersList.get('x-school-slug') || ''
+    const hostname = headersList.get('host') || ''
+
+    let slug = domain || tenantSlug
+
+    if (!slug) {
+        // Fallback for direct access scenarios on localhost
+        slug = hostname.replace('.localhost:3000', '').replace('.localhost:3002', '').replace('.localhost:3003', '')
+        slug = slug.replace('.eduflow.ng', '').replace('localhost:3000', '').replace('localhost:3001', '')
+    }
+
+    // Clean slug
+    slug = slug?.split(':')[0]?.split('.')[0]
+
+    // Determine domain prefix for routing
+    const isSubdomain = slug && (hostname.startsWith(`${slug}.`) || hostname.includes(`.${slug}.`))
+    const domainPrefix = (slug && !isSubdomain && slug !== 'localhost' && slug !== 'eduflow') ? `/${slug}` : ''
 
     let userName = "Guest"
     let userRole = "Visitor"
@@ -215,8 +236,22 @@ export async function Navbar({ domain }: { domain?: string }) {
         if (tenant) tenantTier = tenant.tier || 'Free'
     }
 
+    // 6. Multi-School Discovery for Proprietors/Owners
+    let empireSchools: any[] = []
+    const highLevelRoles = ['PROPRIETOR', 'OWNER', 'ADMIN'];
+    if (user && highLevelRoles.includes(userRole.toUpperCase()) && user.email) {
+        const discoveryRes = await findSchoolsByEmail(user.email)
+        if (discoveryRes.success) {
+            empireSchools = discoveryRes.schools || []
+        }
+    }
+
     return (
-        <DynamicTopBar
+        <>
+            {/* Context Synchronization for Multi-School Empire Tabs */}
+            <EmpireSync schools={empireSchools} />
+            
+            <DynamicTopBar
             user={user}
             role={userRole}
             schoolName={schoolName}
@@ -228,6 +263,8 @@ export async function Navbar({ domain }: { domain?: string }) {
             pendingReconciliations={pendingReconciliations}
             activeSession={activeSessionDisplay}
             tier={tenantTier}
+            basePath={domainPrefix}
         />
+        </>
     )
 }

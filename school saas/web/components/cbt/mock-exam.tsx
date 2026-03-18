@@ -8,6 +8,9 @@ import { Progress } from "@/components/ui/progress"
 import { Clock, CheckCircle, XCircle, AlertCircle, ChevronRight, ChevronLeft } from "lucide-react"
 import { toast } from "sonner"
 import { PastQuestion } from "@/lib/actions/cbt-practice"
+import { isDesktop } from "@/lib/utils/desktop"
+import { enableExamLockdown, disableExamLockdown, checkSystemIntegrity } from "@/lib/utils/lockdown"
+import { getCurrentWindow } from "@tauri-apps/api/window"
 
 interface MockExamProps {
     questions: PastQuestion[]
@@ -20,13 +23,64 @@ export function MockExam({ questions, durationMinutes }: MockExamProps) {
     const [answers, setAnswers] = useState<Record<string, number>>({}) // qId -> selectedOptionIndex
     const [timeLeft, setTimeLeft] = useState(durationMinutes * 60)
     const [isSubmitted, setIsSubmitted] = useState(false)
+    const [violations, setViolations] = useState(0)
+    const [isLocking, setIsLocking] = useState(false)
+    const [systemError, setSystemError] = useState<string | null>(null)
 
     // Timer Ref
-    const timerRef = useRef<NodeJS.Timeout | null>(null)
+    const timerRef = useRef<any>(null)
 
     useEffect(() => {
-        if (isSubmitted) return
+        if (isSubmitted) {
+            if (isDesktop()) disableExamLockdown()
+            return
+        }
 
+        // 1. Initial Lockdown Attempt & Integrity Check
+        const startLockdown = async () => {
+            if (!isDesktop()) return
+            
+            setIsLocking(true)
+            const integrity = await checkSystemIntegrity()
+            if (!integrity.success) {
+                setSystemError(`Multiple Monitors Detected (${integrity.monitors}). Please disconnect secondary screens to start.`)
+                setIsLocking(false)
+                return
+            }
+            
+            await enableExamLockdown()
+            setIsLocking(false)
+        }
+
+        startLockdown()
+
+        // 2. Violation Listener (Focus Loss)
+        let unlistenThunk: (() => void) | null = null
+        if (isDesktop()) {
+            const listen = async () => {
+                const appWindow = getCurrentWindow()
+                const unlisten = await appWindow.onFocusChanged(({ payload: focused }) => {
+                    if (!focused && !isSubmitted) {
+                        setViolations(prev => {
+                            const next = prev + 1
+                            toast.warning(`Security Violation ${next}/3! Focus Lost.`, {
+                                description: "Window must remain active during the exam.",
+                                duration: 5000
+                            })
+                            if (next >= 3) {
+                                toast.error("Maximum violations reached. Auto-submitting.")
+                                handleSubmit()
+                            }
+                            return next
+                        })
+                    }
+                })
+                unlistenThunk = unlisten
+            }
+            listen()
+        }
+
+        // 3. Timer
         timerRef.current = setInterval(() => {
             setTimeLeft((prev) => {
                 if (prev <= 1) {
@@ -39,6 +93,8 @@ export function MockExam({ questions, durationMinutes }: MockExamProps) {
 
         return () => {
             if (timerRef.current) clearInterval(timerRef.current)
+            if (unlistenThunk) unlistenThunk()
+            if (isDesktop()) disableExamLockdown()
         }
     }, [isSubmitted])
 
@@ -120,6 +176,25 @@ export function MockExam({ questions, durationMinutes }: MockExamProps) {
         )
     }
 
+    // SYSTEM ERROR (Lockdown Failed)
+    if (systemError) {
+        return (
+            <Card className="max-w-md mx-auto border-red-200 bg-red-50">
+                <CardHeader>
+                    <CardTitle className="text-red-700 flex items-center gap-2 text-lg">
+                        <AlertCircle className="h-5 w-5" /> Integrity Violation
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-red-600 font-medium">
+                    {systemError}
+                </CardContent>
+                <CardFooter>
+                    <Button onClick={() => window.location.reload()} className="w-full bg-red-600 hover:bg-red-700">Check Again</Button>
+                </CardFooter>
+            </Card>
+        )
+    }
+
     // EXAM MODE
     const currentQ = questions[currentIndex]
     const progress = ((currentIndex + 1) / questions.length) * 100
@@ -128,9 +203,17 @@ export function MockExam({ questions, durationMinutes }: MockExamProps) {
         <div className="max-w-2xl mx-auto space-y-6">
             {/* Header: Timer & Progress */}
             <div className="flex items-center justify-between sticky top-4 bg-background z-10 p-4 rounded-xl border shadow-sm">
-                <div className="flex items-center gap-2 text-xl font-mono font-bold text-primary">
-                    <Clock className="h-5 w-5" />
-                    {formatTime(timeLeft)}
+                <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2 text-xl font-mono font-bold text-primary">
+                        <Clock className="h-5 w-5" />
+                        {formatTime(timeLeft)}
+                    </div>
+                    {isDesktop() && (
+                        <div className="flex items-center gap-1.5 text-[10px] font-mono text-cyan-600 uppercase tracking-widest bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200">
+                           <span className={`w-1.5 h-1.5 rounded-full ${violations > 0 ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`} />
+                           Native Lockdown Active // Violations: {violations}
+                        </div>
+                    )}
                 </div>
                 <div className="text-sm font-medium text-muted-foreground">
                     Question {currentIndex + 1} of {questions.length}

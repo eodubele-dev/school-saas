@@ -31,6 +31,11 @@ import { ExecutiveFocusGlow } from "@/components/landing/executive-focus-glow"
 import { UserPreferencesProvider } from "@/components/providers/user-preferences-provider";
 import { OfflineSyncProvider } from "@/components/providers/offline-sync-provider";
 import { RealtimeNotifications } from "@/components/layout/realtime-notifications";
+import { TrayTicker } from "@/components/dashboard/tray-ticker";
+import { VoiceAssistant } from "@/components/dashboard/voice-assistant";
+import { BiometricGuard } from "@/components/auth/biometric-guard";
+import { OfflineVaultProvider } from "@/components/providers/offline-vault-provider";
+import { KioskProvider } from "@/components/providers/kiosk-provider";
 import { LoadingBar } from "@/components/layout/loading-bar";
 
 export default function RootLayout({
@@ -45,6 +50,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
                 try {
+                  // 1. Theme Detection
                   let isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                   const store = localStorage.getItem('preferences-storage');
                   if (store) {
@@ -54,6 +60,18 @@ export default function RootLayout({
                     if (theme === 'light') isDark = false;
                   }
                   if (isDark) document.documentElement.classList.add('dark');
+
+                  // 2. Tauri Environment Detection (Flash Protection + Smart Bypass)
+                  if (window.__TAURI_INTERNALS__ || window.__TAURI__) {
+                    document.documentElement.classList.add('tauri-desktop');
+                    
+                    // Smart Bypass: If at root, redirect to the last visited school dashboard
+                    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                      document.write('<style>body { visibility: hidden !important; background: black !important; }</style>');
+                      const lastSlug = localStorage.getItem('eduflow-last-slug') || 'school1';
+                      window.location.replace('/' + lastSlug + '/dashboard');
+                    }
+                  }
                 } catch (e) {}
               `,
           }}
@@ -67,14 +85,15 @@ export default function RootLayout({
           <UserPreferencesProvider>
             <OfflineSyncProvider>
               <RealtimeNotifications />
-              <ExecutiveConversionProvider>
-                {children}
-                <ExecutiveModals />
-                <MegaMenu />
-                <PhysicalDemoModal />
-                <SupportSlideOver />
-                <ExecutiveFocusGlow />
-              </ExecutiveConversionProvider>
+              <TrayTicker />
+              <VoiceAssistant />
+              <BiometricGuard>
+                <OfflineVaultProvider>
+                  <KioskProvider>
+                    {children}
+                  </KioskProvider>
+                </OfflineVaultProvider>
+              </BiometricGuard>
             </OfflineSyncProvider>
           </UserPreferencesProvider>
           <Toaster theme="dark" richColors />

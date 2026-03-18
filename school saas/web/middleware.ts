@@ -54,10 +54,32 @@ export default async function middleware(req: NextRequest) {
   currentHost = currentHost?.replace('.localhost', '')
   currentHost = currentHost?.replace('.eduflow.ng', '')
 
-  console.log(`[Middleware] Host: ${hostname}, CurrentHost: ${currentHost}, Path: ${url.pathname}`)
+  // 1b. Path Analysis (Support for Monolithic Desktop / Path-based Tenants)
+  let isPathBasedTenant = false
+  if (!currentHost || currentHost === 'www' || currentHost === 'localhost') {
+    const segments = url.pathname.split('/').filter(Boolean)
+    if (segments.length > 0) {
+      const firstSegment = segments[0]
+      // Exclude known system paths and auth basics
+      const reservedPaths = [
+        'onboard', 'setup', 'auth', 'api', '403', '404', 'super-admin', 
+        'docs', 'about', 'login', 'privacy', 'success-stories', 'terms',
+        'dashboard', 'settings', 'profile', 'billing'
+      ]
+      if (!reservedPaths.includes(firstSegment)) {
+        currentHost = firstSegment
+        isPathBasedTenant = true
+        // Adjust the internal pathname for subsequent logic
+        const newPathname = '/' + segments.slice(1).join('/')
+        url.pathname = newPathname
+      }
+    }
+  }
 
-  // Handle Main Domain matches
-  if (!currentHost || currentHost === 'www' || currentHost === 'localhost' || currentHost.includes(':')) {
+  console.log(`[Middleware] Host: ${hostname}, CurrentHost: ${currentHost}, Path: ${req.nextUrl.pathname}, InternalPath: ${url.pathname}`)
+
+  // Handle Main Domain matches (No tenant found in subdomain or path)
+  if (!currentHost || currentHost === 'www' || currentHost === 'localhost') {
     console.log('[Middleware] Main domain detected')
     return response
   }
@@ -82,6 +104,7 @@ export default async function middleware(req: NextRequest) {
 
   requestHeaders.set('x-school-id', tenant.id)
   requestHeaders.set('x-school-name', tenant.name)
+  requestHeaders.set('x-school-slug', tenant.slug)
   if (tenant.logo_url) requestHeaders.set('x-school-logo', tenant.logo_url)
   if (tenant.theme_config) {
     requestHeaders.set('x-school-theme', JSON.stringify(tenant.theme_config))
@@ -95,22 +118,44 @@ export default async function middleware(req: NextRequest) {
   }
 
 
-  // 5. Rewrite Logic (Path Routing)
-  // Rewrite /dashboard -> /greenwood/dashboard
+  // 5. Root Redirect Logic
+  // Redirect /school1/ -> /school1/dashboard
+  const path = url.pathname
   const searchParams = req.nextUrl.searchParams.toString()
-  let path = `${url.pathname}${searchParams.length > 0 ? `?${searchParams}` : ''}`
 
-  // Root redirect for tenants
-  if (path === '/') {
-    return NextResponse.redirect(new URL('/dashboard', req.url))
+  if (path === '/' && currentHost && currentHost !== 'localhost' && currentHost !== 'www') {
+    const redirectUrl = isPathBasedTenant ? `/${currentHost}/dashboard` : '/dashboard'
+    return NextResponse.redirect(new URL(redirectUrl, req.url))
   }
 
-  // Rewrite URL - Protection against double-slugging
-  const isDoubleSlugging = path.startsWith(`/${currentHost}/`) || path === `/${currentHost}`
-  const rewriteUrl = new URL(
-    isDoubleSlugging ? path : `/${currentHost}${path}`, 
-    req.url
-  )
+  // 6. Rewrite Logic (Path Routing)
+  // For subdomains (school1.eduflow.ng), we must internalize the slug: /dashboard -> /school1/dashboard
+  // For path-based tenants (localhost:3000/school1/dashboard), we DON'T rewrite as it already manifests the slug.
+  
+  let finalResponse: NextResponse
+
+  if (isPathBasedTenant) {
+    // Already has /school1/... structure
+    finalResponse = NextResponse.next({
+      request: {
+        headers: requestHeaders
+      }
+    })
+  } else {
+    // Subdomain mode: Add /school1 prefix to path
+    const rewriteUrl = new URL(
+      path.startsWith(`/${currentHost}/`) || path === `/${currentHost}` 
+        ? `${path}${searchParams.length > 0 ? `?${searchParams}` : ''}` 
+        : `/${currentHost}${path}${searchParams.length > 0 ? `?${searchParams}` : ''}`, 
+      req.url
+    )
+    
+    finalResponse = NextResponse.rewrite(rewriteUrl, {
+      request: {
+        headers: requestHeaders
+      }
+    })
+  }
 
 
   // 6. Role-Based Security Gate (The "Role-Gate")
@@ -212,14 +257,6 @@ export default async function middleware(req: NextRequest) {
       return NextResponse.rewrite(new URL('/403', req.url))
     }
   }
-
-  // 7. Final Rewrite
-  // Pass branding headers in the final response
-  const finalResponse = NextResponse.rewrite(rewriteUrl, {
-    request: {
-      headers: requestHeaders
-    }
-  })
 
   // Copy cookies from our temp response (which captured token refreshes) to final response
   // This ensures the browser gets the Set-Cookie headers

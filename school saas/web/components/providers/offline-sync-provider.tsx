@@ -83,7 +83,8 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
     }
 
     const syncNow = useCallback(async () => {
-        if (isSyncing || queue.length === 0 || !navigator.onLine) return
+        // Prevent sync during Kiosk Mode transitions
+        if (isSyncing || queue.length === 0 || !navigator.onLine || (typeof window !== "undefined" && (window as any).__EDUFLOW_KIOSK_LOCKING__)) return
 
         setIsSyncing(true)
         const currentQueue = [...queue]

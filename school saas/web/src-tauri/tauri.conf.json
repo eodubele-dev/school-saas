@@ -1,18 +1,19 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "EduFlow-Platinum",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "identifier": "com.eduflow.platinum",
   "build": {
     "frontendDist": "../out",
     "devUrl": "http://localhost:3000",
-    "beforeDevCommand": "npm run dev:local",
-    "beforeBuildCommand": "npm run build"
+    "beforeDevCommand": "npm run dev:local"
   },
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "EduFlow Platinum",
+        "url": "https://schoolmanagement-next-saas.vercel.app",
         "width": 1280,
         "height": 800,
         "resizable": true,
@@ -21,11 +22,15 @@
     ],
     "security": {
       "csp": null
+    },
+    "trayIcon": {
+      "iconPath": "icons/32x32.png",
+      "iconAsTemplate": true
     }
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["msi", "nsis"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -33,5 +38,13 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW51c2VkX3B1YmtleV9mb3JfZGV2ZWxvcG1lbnRfcHVycG9zZXM=",
+      "endpoints": [
+        "https://eduflow-updates.vercel.app/api/update/{{target}}/{{current_version}}"
+      ]
+    }
   }
 }

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "identifier": "allow-set-kiosk-mode",
+  "description": "Allows invoking the set_kiosk_mode command",
+  "commands": {
+    "allow": [
+      "set_kiosk_mode"
+    ]
+  }
+}

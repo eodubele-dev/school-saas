@@ -2,12 +2,12 @@ import { NotificationSettings } from '@/components/settings/notification-setting
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
-export default async function NotificationSettingsPage() {
+export default async function NotificationSettingsPage({ params }: { params: { domain: string } }) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-        redirect('/auth/login')
+        redirect(`/${params.domain}/login`)
     }
 
     // Check if user is admin or proprietor
@@ -18,7 +18,7 @@ export default async function NotificationSettingsPage() {
         .single()
 
     if (!profile || !['admin', 'proprietor'].includes(profile.role)) {
-        redirect('/dashboard')
+        redirect(`/${params.domain}/dashboard`)
     }
 
     return (

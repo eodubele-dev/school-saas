@@ -12,6 +12,7 @@ export function SMSWalletMonitor() {
 
     useEffect(() => {
         const fetchBalance = async () => {
+            if (typeof window !== "undefined" && (window as any).__EDUFLOW_KIOSK_LOCKING__) return
             const { success, balance } = await getSMSWalletBalance()
             if (success) setBalance(balance ?? 0)
             setLoading(false)

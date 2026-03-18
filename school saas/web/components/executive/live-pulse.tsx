@@ -1,7 +1,8 @@
 'use client'
 
 import { Card } from "@/components/ui/card"
-import { DollarSign, ShieldAlert, GraduationCap, Clock } from "lucide-react"
+import { ShieldAlert, GraduationCap, Clock } from "lucide-react"
+import { NairaIcon } from "@/components/ui/naira-icon"
 import { formatDistanceToNow } from "date-fns"
 
 export function LivePulse({ logs }: { logs: any[] }) {
@@ -33,7 +34,7 @@ export function LivePulse({ logs }: { logs: any[] }) {
                                 {log.details}
                             </p>
                             <div className="flex items-center gap-1 mt-1">
-                                {log.category === 'Financial' && <DollarSign className="h-3 w-3 text-emerald-500" />}
+                                {log.category === 'Financial' && <NairaIcon className="h-3 w-3 text-emerald-500" />}
                                 {log.category === 'Security' && <ShieldAlert className="h-3 w-3 text-red-500" />}
                                 {log.category === 'Academic' && <GraduationCap className="h-3 w-3 text-blue-500" />}
                                 <span className="text-[10px] text-slate-600 uppercase">{log.actor_name}</span>

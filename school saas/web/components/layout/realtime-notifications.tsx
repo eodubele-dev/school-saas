@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { Bell, CreditCard, AlertTriangle, ShieldCheck } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { usePreferencesStore } from '@/lib/stores/preferences-store'
+import { PulseNotifier } from '@/lib/utils/pulse-notifier'
 
 export function RealtimeNotifications() {
     const supabase = createClient()
@@ -53,6 +54,15 @@ export function RealtimeNotifications() {
                         } : undefined,
                         className: "border border-border bg-slate-950 text-foreground shadow-2xl"
                     })
+
+                    // 3. Native Pulse Alert for Critical Types
+                    if (notif.type === 'emergency' || notif.type === 'security') {
+                        PulseNotifier.notify({
+                            title: notif.title,
+                            body: notif.message,
+                            category: notif.type as any
+                        })
+                    }
                 }
             )
             .subscribe()

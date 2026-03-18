@@ -107,7 +107,7 @@ export function AntiEvasionFeature() {
                             {/* Image Payload */}
                             <div className="p-4 bg-slate-950/50">
                                 <img
-                                    src="/debt-alert-mockup.png"
+                                    src="/visuals/debt-alert-mockup-v4.png"
                                     alt="Global Debt Alert Notification"
                                     className="w-full h-auto rounded-lg border border-red-500/20 shadow-[0_0_20px_rgba(239,68,68,0.15)] object-contain"
                                 />

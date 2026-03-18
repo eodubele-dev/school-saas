@@ -2,8 +2,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Palette, ArrowRight, ShieldCheck, Bell } from "lucide-react"
 import Link from "next/link"
 import { GeofenceConfig } from "@/components/admin/settings/geofence-config"
+import { SecuritySettings } from "@/components/admin/settings/security-settings"
+import { SystemUpdate } from "@/components/admin/settings/system-update"
+import { createClient } from "@/lib/supabase/server"
 
-export default function SettingsPage({ params }: { params: { domain: string } }) {
+export default async function SettingsPage({ params }: { params: { domain: string } }) {
+    const supabase = createClient()
+    const { data: tenant } = await supabase
+        .from('tenants')
+        .select('id')
+        .eq('slug', params.domain)
+        .single()
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
             <div>
@@ -13,7 +22,7 @@ export default function SettingsPage({ params }: { params: { domain: string } })
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* School Branding Link */}
-                <Link href="/dashboard/settings/branding" className="group flex">
+                <Link href={`/${params.domain}/dashboard/settings/branding`} className="group flex">
                     <Card className="bg-slate-900/40 border-white/5 backdrop-blur-sm group-hover:border-cyan-500/30 transition-all flex-1">
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <div className="h-12 w-12 bg-cyan-500/10 rounded-xl flex items-center justify-center border border-cyan-500/20">
@@ -30,8 +39,14 @@ export default function SettingsPage({ params }: { params: { domain: string } })
                     </Card>
                 </Link>
 
+                {/* Kiosk Security Reset */}
+                {tenant?.id && <SecuritySettings tenantId={tenant.id} />}
+
                 {/* Geofence Configuration */}
                 <GeofenceConfig />
+
+                {/* Strategic Update Orchestrator */}
+                <SystemUpdate />
 
                 {/* Notifications Placeholder */}
                 <div className="opacity-50 pointer-events-none md:col-span-2">

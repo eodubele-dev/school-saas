@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,12 +10,18 @@ import Link from "next/link"
 import { findSchoolsByEmail, SchoolDiscoveryResult } from "@/lib/actions/auth-discovery"
 import { Loader2, ArrowRight, UserCircle } from "lucide-react"
 import { toast } from "sonner"
+import { isDesktop } from "@/lib/utils/desktop"
 
 export default function MarketingLoginPage() {
     const [step, setStep] = useState<'email' | 'selection'>('email')
     const [email, setEmail] = useState("")
     const [loading, setLoading] = useState(false)
     const [schools, setSchools] = useState<SchoolDiscoveryResult[]>([])
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     const handleDiscovery = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -54,13 +60,16 @@ export default function MarketingLoginPage() {
         const host = window.location.host
         const rootDomain = host.replace('www.', '') // naive, but works for simple cases
 
-        // If we are on localhost:3000, new url is [slug].localhost:3000
-        // If on eduflow.ng, new url is [slug].eduflow.ng
-        // Note: host includes port on localhost
+        // On Desktop, we stay on the same origin but use path-based routing
+        if (isDesktop()) {
+            window.location.href = `${protocol}//${host}/${school.slug}/login?email=${encodeURIComponent(email)}`
+            return
+        }
 
+        // Web Subdomain Logic
         let newHost = ''
         if (host.includes('localhost')) {
-            newHost = `${school.slug}.localhost:3000` // Hardcoding port 3000 for local dev assumption
+            newHost = `${school.slug}.localhost:3000` 
             if (host.includes(':')) {
                 const port = host.split(':')[1]
                 newHost = `${school.slug}.localhost:${port}`
@@ -163,9 +172,20 @@ export default function MarketingLoginPage() {
 
                     <CardFooter className="flex-col gap-6 pb-8">
                         <div className="flex w-full justify-between items-center px-4">
-                            <Link href="/" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
-                                Back to Home
-                            </Link>
+                            {mounted && !isDesktop() ? (
+                                <Link href="/" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                                    Back to Home
+                                </Link>
+                            ) : mounted && isDesktop() ? (
+                                <button
+                                    onClick={() => window.location.href = '/login'}
+                                    className="text-sm font-medium text-slate-400 hover:text-white transition-colors"
+                                >
+                                    Reset Discovery
+                                </button>
+                            ) : (
+                                <div className="text-sm font-medium text-slate-400 opacity-0 px-4">Loading...</div>
+                            )}
                             <button onClick={() => toast.info("Email Support: support@eduflow.ng", { description: "Our team typically responds within 15 minutes." })} className="text-sm font-medium text-slate-500 hover:text-white transition-colors opacity-40 hover:opacity-100">
                                 Technical Support
                             </button>

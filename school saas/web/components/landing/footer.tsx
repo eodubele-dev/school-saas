@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Sparkles, Twitter, Linkedin, Github } from "lucide-react"
+import { Sparkles, Twitter, Linkedin, Github, ArrowRight } from "lucide-react"
 import { SITE_CONFIG } from "@/lib/constants/site-config"
 import { useExecutiveConversion } from "./executive-context"
 
@@ -44,6 +44,15 @@ export function Footer() {
                             <li><button onClick={() => scrollToSection('revenue-engine', true)} className="hover:text-blue-400 transition-colors text-left">Revenue Engine</button></li>
                             <li><button onClick={() => scrollToSection('campus-logistics', true)} className="hover:text-blue-400 transition-colors text-left">Campus Logistics</button></li>
                             <li><button onClick={() => scrollToSection('pricing')} className="hover:text-blue-400 transition-colors text-left">Pricing</button></li>
+                            <li>
+                                <Link 
+                                    href="https://jggcixrapxccbxckuofw.supabase.co/storage/v1/object/public/workstation-releases/EduFlow-Platinum_1.0.0_x64_en-US.msi"
+                                    className="text-blue-400 font-bold hover:text-blue-300 transition-colors flex items-center gap-2 group"
+                                >
+                                    Download Workstation
+                                    <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 

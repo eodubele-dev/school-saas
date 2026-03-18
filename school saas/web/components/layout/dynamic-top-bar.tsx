@@ -54,6 +54,7 @@ interface DynamicTopBarProps {
     activeSession?: string
     tier?: string
     className?: string
+    basePath?: string
 }
 
 export function DynamicTopBar({
@@ -68,7 +69,8 @@ export function DynamicTopBar({
     pendingReconciliations = 0,
     activeSession,
     tier = 'Free',
-    className
+    className,
+    basePath = ''
 }: DynamicTopBarProps) {
     const normalizedRole = role.toUpperCase()
     const router = useRouter()
@@ -81,6 +83,7 @@ export function DynamicTopBar({
 
     useEffect(() => {
         const fetchNotifs = async () => {
+            if (typeof window !== "undefined" && (window as any).__EDUFLOW_KIOSK_LOCKING__) return
             const res = await getUserNotifications()
             if (res.success && res.data) {
                 // Filter based on preferences matrix (in_app)
@@ -250,7 +253,7 @@ export function DynamicTopBar({
     }
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-[#0A0A0B]/80 backdrop-blur-md">
+        <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-slate-950/80 backdrop-blur-md">
             <div className="flex h-16 items-center px-4 md:px-8 gap-4 justify-between">
 
                 {/* ZONE 1: BRANDING & MOBILE TRIGGER */}
@@ -333,6 +336,7 @@ export function DynamicTopBar({
                             tier={tier}
                             tenantName={schoolName}
                             className="ml-2"
+                            basePath={basePath}
                         />
                     )}
                 </div>

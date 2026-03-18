@@ -36,6 +36,8 @@ import { StudentSwitcher } from "./dashboard/student-switcher"
 import { useTranslation } from "@/lib/hooks/use-translation"
 import { getUnreadMessageCount } from "@/lib/actions/communication"
 import { createClient } from "@/lib/supabase/client"
+import { useOfflineVault } from "@/components/providers/offline-vault-provider"
+import { Database } from "lucide-react"
 
 
 export function SidebarClient({
@@ -64,6 +66,7 @@ export function SidebarClient({
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const router = useRouter()
+    const { isOnline, isSynced, lastSync } = useOfflineVault()
     const [unreadCount, setUnreadCount] = useState(0)
     const [pendingHref, setPendingHref] = useState<string | null>(null)
     const [isPending, startTransition] = useTransition()
@@ -155,6 +158,7 @@ export function SidebarClient({
 
         // Fetch unread count
         const fetchUnread = async () => {
+            if (typeof window !== "undefined" && (window as any).__EDUFLOW_KIOSK_LOCKING__) return
             const res = await getUnreadMessageCount()
             if (res && res.success) setUnreadCount(res.count)
         }
@@ -249,7 +253,8 @@ export function SidebarClient({
     }, [])
 
     const handleSearchSelect = (href: string) => {
-        router.push(href)
+        const fullHref = basePath ? `${basePath}${href}` : href
+        router.push(fullHref)
         setOpenSearch(false)
     }
 
@@ -551,26 +556,44 @@ export function SidebarClient({
                         )}
                     </div>
 
+                    {/* 🗄️ Vault Status (Platinum Only) */}
+                    {isPremium && (
+                        <div className="flex items-center justify-between px-2 pt-1 border-t border-border/20 mt-1">
+                            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                <Database size={10} className={cn(isSynced ? "text-emerald-500" : "text-amber-500")} />
+                                Vault: <span className={cn(isSynced ? "text-emerald-500/80" : "text-amber-500/80")}>
+                                    {isSynced ? (isOnline ? "SYNCED" : "OFFLINE READY") : "SYNCING..."}
+                                </span>
+                            </span>
+                            {lastSync && (
+                                <span className="text-[9px] text-slate-700 italic">
+                                    {lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            )}
+                        </div>
+                    )}
+
                     {/* System Links */}
                     {categories.find(c => c.category === "System")?.items?.map(item => {
                         const ItemIcon = item.icon
-                        const isActive = pathname?.startsWith(item.href)
+                        const fullHref = basePath ? `${basePath}${item.href}` : item.href
+                        const isActive = pathname?.startsWith(fullHref)
                         return (
                             <Link
-                                key={item.href}
-                                href={item.href}
+                                key={fullHref}
+                                href={fullHref}
                                 prefetch={false}
                                 onClick={(e) => {
                                     const normalizedPath = pathname?.replace(/\/$/, '') || '/'
-                                    const normalizedHref = item.href.replace(/\/$/, '') || '/'
+                                    const normalizedHref = fullHref.replace(/\/$/, '') || '/'
 
                                     if (normalizedHref !== normalizedPath) {
                                         e.preventDefault()
                                         e.stopPropagation()
-                                        setPendingHref(item.href)
+                                        setPendingHref(fullHref)
                                         window.dispatchEvent(new CustomEvent('navigation-start'))
                                         startTransition(() => {
-                                            router.push(item.href)
+                                            router.push(fullHref)
                                         })
                                     } else {
                                         setPendingHref(null)

@@ -31,6 +31,7 @@ export function AttendancePip({ classId: propClassId }: { classId?: string }) {
         if (!classId) return
 
         const fetchStats = async () => {
+            if (typeof window !== "undefined" && (window as any).__EDUFLOW_KIOSK_LOCKING__) return
             const date = new Date().toISOString().split('T')[0]
             const result = await getRefreshedAttendanceStats(classId, date)
             if (result.success) {

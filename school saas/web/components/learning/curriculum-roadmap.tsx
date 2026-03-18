@@ -11,7 +11,7 @@ export const CurriculumRoadmap = ({ milestones = [] }: { milestones?: any[] }) =
     // Use passed milestones or empty array
     const items = milestones && milestones.length > 0 ? milestones : [];
 
-    const downloadSyllabus = () => {
+    const downloadSyllabus = async () => {
         if (items.length === 0) {
             toast.error("No Data", { description: "There is no curriculum data to download." });
             return;

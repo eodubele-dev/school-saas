@@ -12,6 +12,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useKiosk } from "@/components/providers/kiosk-provider"
+import { Monitor } from "lucide-react"
 import { PreferencesModal } from "@/components/preferences-modal"
 import { UpgradeModal } from "@/components/modals/upgrade-modal"
 import { toast } from "sonner"
@@ -26,15 +28,22 @@ interface ProfileDropdownProps {
     tier?: string
     tenantName?: string
     className?: string
+    basePath?: string
 }
 
-export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, userId, tier = 'Free', tenantName = 'EduFlow', className }: ProfileDropdownProps) {
+export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, userId, tier = 'Free', tenantName = 'EduFlow', className, basePath = '' }: ProfileDropdownProps) {
     const router = useRouter()
+    const { enableKiosk } = useKiosk()
     const [preferencesOpen, setPreferencesOpen] = useState(false)
     const [isUpgradeOpen, setIsUpgradeOpen] = useState(false)
     const [landingUrl, setLandingUrl] = useState("/")
 
     useEffect(() => {
+        // Save basePath to localStorage for smart desktop bypassing
+        if (basePath && typeof window !== 'undefined') {
+            localStorage.setItem('eduflow-last-slug', basePath.replace('/', ''))
+        }
+
         const host = window.location.host
         if (host.includes('localhost')) {
             const port = host.split(':')[1] || '3000'
@@ -54,10 +63,10 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
         } catch (error) {
             console.error("Logout failed", error)
         } finally {
-            // In Desktop app, we want to go back to the root landing page/auth discovery
+            // In Desktop app, we want to go back to the global discovery gate
             // In Web, we usually go to the school-specific login page
             if (isDesktop()) {
-                router.push('/')
+                router.push('/login')
             } else {
                 router.push('/login')
             }
@@ -159,22 +168,22 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
 
                     {/* 🔗 Dynamic Links */}
                     <div className="p-2 space-y-1">
-                        <DropdownLink href="/dashboard/profile" icon={<User size={14} />} label="My Profile" />
+                        <DropdownLink href={`${basePath}/dashboard/profile`} icon={<User size={14} />} label="My Profile" />
 
-                        {(userRole === 'PROPRIETOR' || userRole === 'ADMIN' || userRole === 'OWNER') && (
-                            <DropdownLink href="/dashboard/admin/audit" icon={<Shield size={14} />} label="Security & Audit" color="text-amber-500" />
+                        {(userRole?.toUpperCase() === 'PROPRIETOR' || userRole?.toUpperCase() === 'ADMIN' || userRole?.toUpperCase() === 'OWNER') && (
+                            <DropdownLink href={`${basePath}/dashboard/admin/security/audit`} icon={<Shield size={14} />} label="Security & Audit" color="text-amber-500" />
                         )}
 
                         {userRole === 'BURSAR' && (
-                            <DropdownLink href="/dashboard/finance" icon={<CreditCard size={14} />} label="Wallet & Ledger" color="text-cyan-400" />
+                            <DropdownLink href={`${basePath}/dashboard/finance`} icon={<CreditCard size={14} />} label="Wallet & Ledger" color="text-cyan-400" />
                         )}
 
                         {(userRole === 'TEACHER' || userRole === 'STUDENT') && (
-                            <DropdownLink href="/dashboard/academics" icon={<BookOpen size={14} />} label="Curriculum Sync" />
+                            <DropdownLink href={`${basePath}/dashboard/academics`} icon={<BookOpen size={14} />} label="Curriculum Sync" />
                         )}
 
                         {userRole === 'PARENT' && (
-                            <DropdownLink href="/dashboard/family" icon={<Users size={14} />} label="Switch Child Account" color="text-emerald-400" />
+                            <DropdownLink href={`${basePath}/dashboard/family`} icon={<Users size={14} />} label="Switch Child Account" color="text-emerald-400" />
                         )}
 
                         {/* Upgrade Button */}
@@ -201,12 +210,21 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
                             <span className="text-xs font-medium text-slate-300">Preferences</span>
                         </DropdownMenuItem>
 
-                        <DropdownMenuItem asChild>
-                            <a href={landingUrl} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-secondary/50 transition-all text-left cursor-pointer focus:bg-secondary/50">
-                                <Home size={14} className="text-muted-foreground" />
-                                <span className="text-xs font-medium text-slate-300">EduFlow Landing</span>
-                            </a>
-                        </DropdownMenuItem>
+                        {(userRole?.toUpperCase() === 'PROPRIETOR' || userRole?.toUpperCase() === 'ADMIN' || userRole?.toUpperCase() === 'OWNER') && (
+                            <DropdownMenuItem
+                                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-amber-500/10 transition-all cursor-pointer focus:bg-amber-500/10 group"
+                                onSelect={() => {
+                                    toast.warning("Kiosk Lockdown Initiated", {
+                                        description: "System will now enter restricted workstation mode.",
+                                    })
+                                    enableKiosk()
+                                }}
+                            >
+                                <Monitor size={14} className="text-amber-500 group-hover:scale-110 transition-transform" />
+                                <span className="text-xs font-bold text-amber-500 tracking-tight">SECURE KIOSK MODE</span>
+                            </DropdownMenuItem>
+                        )}
+
                     </div>
 
                     {/* 🚪 Logout */}

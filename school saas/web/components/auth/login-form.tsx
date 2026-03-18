@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { cn } from "@/lib/utils"
 import { useRouter } from 'next/navigation'
+import { isDesktop } from '@/lib/utils/desktop'
 
 interface LoginFormProps {
     domain: string
@@ -28,16 +29,15 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
 
     useEffect(() => {
         const host = window.location.host
-        if (host.includes('localhost')) {
-            const port = host.split(':')[1] || '3000'
-            setLandingUrl(`http://localhost:${port}`)
+        const root = host.includes('localhost') 
+            ? `http://localhost:${host.split(':')[1] || '3000'}`
+            : `https://${host.split('.').slice(-2).join('.')}`
+        
+        // On Desktop, "Home" is the Discovery Gate
+        if (isDesktop()) {
+            setLandingUrl(`${root}/login`)
         } else {
-            // Naive root domain extraction
-            const parts = host.split('.')
-            if (parts.length >= 2) {
-                const rootDomain = parts.slice(-2).join('.')
-                setLandingUrl(`https://${rootDomain}`)
-            }
+            setLandingUrl(root)
         }
     }, [])
 
@@ -58,7 +58,11 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
 
             // Success
             toast.success("Login successful!")
-            router.push('/dashboard')
+            if (isDesktop()) {
+                router.push(`/${domain}/dashboard`)
+            } else {
+                router.push('/dashboard')
+            }
             router.refresh()
 
         } catch (error: any) {
