@@ -1,12 +1,21 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AwardConsole } from "@/components/teacher/behavior/award-console"
-import { IncidentForm } from "@/components/teacher/behavior/incident-form"
+import { BehaviorTabs } from "@/components/teacher/behavior/behavior-tabs"
 import { createClient } from "@/lib/supabase/server"
+import { getTeacherClasses } from "@/lib/actions/attendance"
 
-// Mock fetch for students - normally would filter by assigned class context
 async function getStudents() {
     const supabase = createClient()
-    const { data } = await supabase.from('students').select('*').limit(20)
+    const { success, data: classes } = await getTeacherClasses()
+    
+    if (!success || !classes || classes.length === 0) return []
+    
+    const classIds = classes.map(c => c.id)
+
+    const { data } = await supabase
+        .from('students')
+        .select('*')
+        .in('class_id', classIds)
+        .order('full_name')
+        
     return data || []
 }
 
@@ -17,27 +26,10 @@ export default async function BehaviorManagerPage() {
         <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto min-h-screen bg-slate-950">
             <div>
                 <h1 className="text-3xl font-bold text-white mb-2">Behavior & Awards Manager</h1>
-                <p className="text-slate-400">Recognize excellence and track student character development.</p>
+                <p className="text-slate-400">Recognize excellence, track incidents, and process end-of-term evaluations.</p>
             </div>
 
-            <Tabs defaultValue="awards" className="space-y-6">
-                <TabsList className="bg-slate-900 border border-white/10 p-1">
-                    <TabsTrigger value="awards" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white text-slate-400">
-                        Instant Recognition
-                    </TabsTrigger>
-                    <TabsTrigger value="incidents" className="data-[state=active]:bg-amber-600 data-[state=active]:text-white text-slate-400">
-                        Incident Log
-                    </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="awards" className="animate-in fade-in slide-in-from-left-4 duration-300">
-                    <AwardConsole students={students} />
-                </TabsContent>
-
-                <TabsContent value="incidents" className="animate-in fade-in slide-in-from-left-4 duration-300">
-                    <IncidentForm students={students} />
-                </TabsContent>
-            </Tabs>
+            <BehaviorTabs students={students} />
         </div>
     )
 }

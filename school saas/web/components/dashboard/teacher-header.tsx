@@ -102,25 +102,26 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
             </div>
 
             {/* 🏛️ Active Class Command Card */}
-            <div className="bg-[#0f172a]/80 border border-blue-500/30 rounded-[2rem] overflow-hidden shadow-[0_0_50px_rgba(37,99,235,0.1)] relative group backdrop-blur-3xl">
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] -mr-32 -mt-32 pointer-events-none transition-opacity group-hover:opacity-100 opacity-60" />
+            <div className="bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 border border-blue-400/30 rounded-[2rem] overflow-hidden shadow-[0_20px_60px_-15px_rgba(37,99,235,0.5)] relative group text-white">
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/10 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none transition-transform group-hover:scale-110 duration-700" />
+                <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-950/80 to-transparent pointer-events-none" />
 
                 <div className="p-10 flex flex-col md:flex-row justify-between items-start relative z-10">
                     <div>
                         <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-mono text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full uppercase tracking-widest border border-blue-400/20">
+                            <span className="text-[10px] font-mono text-blue-100 bg-white/10 px-3 py-1 rounded-full uppercase tracking-widest border border-white/20 backdrop-blur-md">
                                 Current Session
                             </span>
                             {(startTime && endTime) && (
-                                <span className="text-muted-foreground text-[10px] font-mono flex items-center gap-1.5 uppercase tracking-widest">
+                                <span className="text-blue-200 text-[10px] font-mono flex items-center gap-1.5 uppercase tracking-widest">
                                     <Clock className="w-3 h-3" /> {startTime} - {endTime}
                                 </span>
                             )}
                         </div>
-                        <h2 className="text-6xl font-black mt-6 tracking-tighter text-foreground">
+                        <h2 className="text-6xl font-black mt-6 tracking-tighter text-white drop-shadow-md">
                             {classData.name}
                         </h2>
-                        <p className="text-muted-foreground text-xl mt-3 font-medium">
+                        <p className="text-blue-100 text-xl mt-3 font-medium">
                             {classData.grade_level} • {classData.subject || "Not Assigned"}
                             {classData.academic_session && ` • ${classData.academic_session}`}
                             {classData.term && ` • ${classData.term}${classData.term.toLowerCase().includes('term') ? '' : ' Term'}`}
@@ -128,13 +129,13 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
                     </div>
 
                     <div className="flex gap-4 mt-8 md:mt-0">
-                        <div className="bg-[#1e293b]/50 p-6 rounded-2xl text-center border border-border w-32 shadow-2xl backdrop-blur-md">
-                            <p className="text-4xl font-black text-foreground tracking-tighter">{vitals.present}</p>
-                            <p className="text-[10px] text-muted-foreground uppercase font-black mt-2 tracking-widest">Present</p>
+                        <div className="bg-emerald-500/20 p-6 rounded-2xl text-center border border-emerald-500/30 w-32 shadow-2xl backdrop-blur-md">
+                            <p className="text-4xl font-black text-emerald-400 tracking-tighter">{vitals.present}</p>
+                            <p className="text-[10px] text-emerald-200/70 uppercase font-black mt-2 tracking-widest">Present</p>
                         </div>
-                        <div className="bg-[#1e293b]/50 p-6 rounded-2xl text-center border border-border w-32 shadow-2xl backdrop-blur-md">
-                            <p className="text-4xl font-black text-muted-foreground tracking-tighter">{vitals.absent}</p>
-                            <p className="text-[10px] text-muted-foreground uppercase font-black mt-2 tracking-widest">Absent</p>
+                        <div className="bg-orange-500/20 p-6 rounded-2xl text-center border border-orange-500/30 w-32 shadow-2xl backdrop-blur-md">
+                            <p className="text-4xl font-black text-orange-400 tracking-tighter">{vitals.absent}</p>
+                            <p className="text-[10px] text-orange-200/70 uppercase font-black mt-2 tracking-widest">Absent</p>
                         </div>
                     </div>
                 </div>

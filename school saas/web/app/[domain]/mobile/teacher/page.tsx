@@ -5,13 +5,26 @@ import { OfflineAttendance } from "@/components/mobile/offline-attendance"
 import { QuickMessage } from "@/components/mobile/quick-message"
 import { Button } from "@/components/ui/button"
 import { MapPin, CheckCircle2, CloudLightning } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
-import { staffClockIn } from "@/lib/actions/mobile-actions"
+import { staffClockIn, getMobileStudents } from "@/lib/actions/mobile-actions"
 
 export default function TeacherMobilePage({ params }: { params: { domain: string } }) {
     const [clockedIn, setClockedIn] = useState(false)
     const [loadingClock, setLoadingClock] = useState(false)
+    const [students, setStudents] = useState<any[]>([])
+    const [classId, setClassId] = useState<string | null | undefined>()
+
+    useEffect(() => {
+        const fetchRoster = async () => {
+            const res = await getMobileStudents()
+            if (res.success) {
+                setStudents(res.students)
+                setClassId(res.classId)
+            }
+        }
+        fetchRoster()
+    }, [])
 
     const handleClockIn = async () => {
         setLoadingClock(true)
@@ -85,13 +98,13 @@ export default function TeacherMobilePage({ params }: { params: { domain: string
                 {/* 2. Quick Actions */}
                 <section className="space-y-3">
                     <h3 className="text-slate-400 text-xs uppercase font-bold tracking-wider">Classroom Actions</h3>
-                    <QuickMessage />
+                    <QuickMessage classId={classId} />
                 </section>
 
                 {/* 3. Offline Attendance */}
                 <section className="space-y-3">
                     <h3 className="text-slate-400 text-xs uppercase font-bold tracking-wider">Attendance Queue</h3>
-                    <OfflineAttendance />
+                    <OfflineAttendance students={students} classId={classId} />
                 </section>
 
             </div>

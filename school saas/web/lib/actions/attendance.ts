@@ -418,17 +418,24 @@ export async function getTeacherClasses(): Promise<{ success: boolean; data?: { 
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return { success: false, error: 'Not authenticated' }
 
-        // In a real scenario, we might check a 'teacher_classes' table.
-        // For simple setup, we return all classes in tenant or filter if we had that link.
-        // Assuming RLS handles tenant filtering:
-        const { data: classes, error } = await supabase
-            .from('classes')
-            .select('id, name')
-            .order('name')
+        // Query Form Classes and Allocated Classes
+        const [{ data: formClasses }, { data: allocClasses }] = await Promise.all([
+            supabase.from('classes').select('id, name').eq('form_teacher_id', user.id),
+            supabase.from('teacher_allocations').select('classes(id, name)').eq('teacher_id', user.id)
+        ])
 
-        if (error) {
-            return { success: false, error: error.message }
+        const classMap = new Map<string, { id: string; name: string }>()
+        if (formClasses) {
+            formClasses.forEach(c => classMap.set(c.id, { id: c.id, name: c.name }))
         }
+        if (allocClasses) {
+            allocClasses.forEach((a: any) => {
+                const cls = Array.isArray(a.classes) ? a.classes[0] : a.classes
+                if (cls && !classMap.has(cls.id)) classMap.set(cls.id, { id: cls.id, name: cls.name })
+            })
+        }
+
+        const classes = Array.from(classMap.values())
 
         return { success: true, data: classes }
     } catch (error) {

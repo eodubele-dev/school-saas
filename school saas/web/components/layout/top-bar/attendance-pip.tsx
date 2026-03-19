@@ -74,10 +74,19 @@ export function AttendancePip({ classId: propClassId }: { classId?: string }) {
 
     if (!classId) return null
 
+    if (stats.total === 0) return (
+        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-card text-card-foreground/50 rounded-lg border border-border">
+            <div className="w-2 h-2 rounded-full bg-amber-500/50" />
+            <span className="text-[10px] font-mono text-muted-foreground whitespace-nowrap">
+                NO ENROLLMENT
+            </span>
+        </div>
+    )
+
     return (
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-card text-card-foreground/50 rounded-lg border border-border">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-mono text-muted-foreground">
+            <span className="text-[10px] font-mono text-muted-foreground whitespace-nowrap">
                 {stats.present}/{stats.total} PRESENT
             </span>
         </div>

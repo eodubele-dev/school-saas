@@ -76,27 +76,27 @@ export function StudentRoster({ students, className, classId }: StudentRosterPro
             {/* Header / Actions */}
             <div className="p-4 border-b border-border flex flex-col md:flex-row gap-4 justify-between items-center bg-card text-card-foreground/50">
                 <div className="relative w-full md:w-72">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
                     <Input
                         placeholder="Search by name or ID..."
-                        className="pl-9 bg-card text-card-foreground border-border/50 h-9 text-sm text-foreground placeholder:text-muted-foreground focus:bg-slate-800 transition-all border-border"
+                        className="pl-9 bg-white/[0.03] text-white border-white/5 h-10 text-sm placeholder:text-slate-600 focus:ring-1 focus:ring-blue-500/50 transition-all rounded-full"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className={`h-9 border border-border text-muted-foreground hover:bg-white/10 hover:text-foreground transition-all ${statusFilter ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : ''}`}
+                                className={`h-10 px-4 rounded-full border border-white/5 text-slate-400 hover:bg-white/5 hover:text-white transition-all ${statusFilter ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : ''}`}
                             >
                                 <Filter className="h-4 w-4 mr-2" />
                                 {statusFilter ? `Status: ${statusFilter}` : 'Filter'}
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-card text-card-foreground border-border text-slate-300">
+                        <DropdownMenuContent className="bg-[#0B0F1A] text-slate-300 border-white/5">
                             <DropdownMenuItem onClick={() => setStatusFilter(null)}>All Students</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setStatusFilter('active')}>Active Only</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setStatusFilter('inactive')}>Inactive Only</DropdownMenuItem>
@@ -107,7 +107,7 @@ export function StudentRoster({ students, className, classId }: StudentRosterPro
                     <Button
                         size="sm"
                         onClick={handleExport}
-                        className="h-9 bg-blue-600 hover:bg-blue-500 text-foreground font-bold px-4 active:scale-95 transition-all"
+                        className="h-10 px-6 rounded-full bg-blue-600 text-white hover:bg-blue-500 font-bold transition-all active:scale-95 shadow-lg border-none"
                     >
                         Export List
                     </Button>
@@ -117,30 +117,30 @@ export function StudentRoster({ students, className, classId }: StudentRosterPro
             {/* Table */}
             <div className="flex-1 overflow-auto">
                 <table className="w-full text-left text-sm">
-                    <thead className="bg-slate-950/50 text-muted-foreground font-medium border-b border-border/50 sticky top-0 z-10">
+                    <thead className="bg-white/[0.02] text-slate-500 font-bold border-b border-white/5 sticky top-0 z-10 uppercase tracking-widest text-[10px]">
                         <tr>
-                            <th className="p-4 px-6 w-16">Profile</th>
-                            <th className="p-4">Student Name</th>
-                            <th className="p-4">Admission No.</th>
-                            <th className="p-4">Status</th>
-                            <th className="p-4">Alerts</th>
-                            <th className="p-4 text-right">Actions</th>
+                            <th className="p-5 px-8 w-20">Profile</th>
+                            <th className="p-5">Student Name</th>
+                            <th className="p-5">Admission No.</th>
+                            <th className="p-5">Status</th>
+                            <th className="p-5">Alerts</th>
+                            <th className="p-5 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody className="divide-y divide-white/[0.03]">
                         {filteredStudents.map(student => (
-                            <tr key={student.id} className="hover:bg-secondary/50 group transition-colors">
-                                <td className="p-4 px-6">
-                                    <div className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-border">
+                            <tr key={student.id} className="hover:bg-white/[0.01] group transition-colors">
+                                <td className="p-4 px-8">
+                                    <div className="h-12 w-12 rounded-full bg-slate-900 flex items-center justify-center overflow-hidden border border-white/5">
                                         {student.avatar_url ? (
                                             <img src={student.avatar_url} alt={student.full_name} className="h-full w-full object-cover" />
                                         ) : (
-                                            <User className="h-5 w-5 text-muted-foreground" />
+                                            <User className="h-6 w-6 text-slate-600" />
                                         )}
                                     </div>
                                 </td>
                                 <td className="p-4">
-                                    <div className="font-medium text-slate-200">{student.full_name}</div>
+                                    <div className="font-bold text-slate-200 text-base">{student.full_name}</div>
                                 </td>
                                 <td className="p-4 text-muted-foreground font-mono text-xs">
                                     {student.admission_number}

@@ -1,7 +1,7 @@
 "use client"
 
 import { SmartClockIn } from "./smart-clock-in"
-import { StudentRegister } from "./student-register"
+import { PremiumStudentRegister } from "./premium-student-register"
 import { AttendanceHistory } from "./attendance-history"
 
 export function AttendancePortal() {
@@ -23,7 +23,7 @@ export function AttendancePortal() {
                             <span className="bg-[hsl(var(--school-accent))] w-1 h-6 rounded-full block"></span>
                             Student Register
                         </h2>
-                        <StudentRegister />
+                        <PremiumStudentRegister />
                     </section>
                 </div>
 

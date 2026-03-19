@@ -18,7 +18,7 @@ function RatingInput({ value, onChange }: { value: number, onChange: (v: number)
                     className={`
                         h-6 w-6 rounded text-[10px] font-bold transition-colors
                         ${value === num
-                            ? 'bg-cyan-500 text-foreground shadow-[0_0_10px_rgba(6,182,212,0.5)]'
+                            ? 'bg-amber-500 text-white shadow-[0_0_10px_rgba(245,158,11,0.5)]'
                             : 'bg-slate-800 text-muted-foreground hover:bg-slate-700'}
                     `}
                 >
@@ -108,19 +108,19 @@ export function AffectiveDomainGrid({ students }: { students: any[] }) {
                     <p className="text-muted-foreground text-sm">End-of-term behavioral assessment (1-5 Scale).</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <Button variant="outline" size="sm" onClick={() => applyToAll('neatness', 5)} className="border-cyan-500/20 text-cyan-400 hover:bg-cyan-950 hover:text-cyan-400">
+                    <Button variant="outline" size="sm" onClick={() => applyToAll('neatness', 5)} className="border-amber-500/20 text-amber-400 hover:bg-amber-950 hover:text-amber-400">
                         All Neat: 5
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => applyToAll('politeness', 5)} className="border-cyan-500/20 text-cyan-400 hover:bg-cyan-950 hover:text-cyan-400">
+                    <Button variant="outline" size="sm" onClick={() => applyToAll('politeness', 5)} className="border-amber-500/20 text-amber-400 hover:bg-amber-950 hover:text-amber-400">
                         All Polite: 5
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => applyToAll('leadership', 5)} className="border-cyan-500/20 text-cyan-400 hover:bg-cyan-950 hover:text-cyan-400">
+                    <Button variant="outline" size="sm" onClick={() => applyToAll('leadership', 5)} className="border-amber-500/20 text-amber-400 hover:bg-amber-950 hover:text-amber-400">
                         All Leaders: 5
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => applyToAll('attentiveness', 5)} className="border-cyan-500/20 text-cyan-400 hover:bg-cyan-950 hover:text-cyan-400">
+                    <Button variant="outline" size="sm" onClick={() => applyToAll('attentiveness', 5)} className="border-amber-500/20 text-amber-400 hover:bg-amber-950 hover:text-amber-400">
                         All Focused: 5
                     </Button>
-                    <Button onClick={handleSaveAll} disabled={saving} className="bg-cyan-600 hover:bg-cyan-700 text-foreground shadow-[0_0_15px_rgba(6,182,212,0.3)] min-w-[160px]">
+                    <Button onClick={handleSaveAll} disabled={saving} className="bg-amber-600 hover:bg-amber-700 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)] min-w-[160px]">
                         {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                         Save All Ratings
                     </Button>
@@ -210,7 +210,7 @@ export function AffectiveDomainGrid({ students }: { students: any[] }) {
                                         <Button
                                             size="icon"
                                             variant="ghost"
-                                            className="h-7 w-7 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-400/10"
+                                            className="h-7 w-7 text-amber-400 hover:text-amber-300 hover:bg-amber-400/10"
                                             onClick={() => handleAutoGenerate(student.id, student.full_name)}
                                             disabled={generating === student.id}
                                         >

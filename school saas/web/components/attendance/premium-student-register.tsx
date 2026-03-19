@@ -20,7 +20,7 @@ import {
 import { getAssignedClass, getClassStudents, markStudentAttendance, sendAbsenceSMS, clockOutStudent, getClassAttendance, StudentAttendanceDTO } from "@/lib/actions/student-attendance"
 import { getClockInStatus } from "@/lib/actions/staff-clock-in"
 
-export function StudentRegister() {
+export function PremiumStudentRegister() {
     const { queueAction, isOnline } = useOfflineSync()
     const router = useRouter()
     const [loading, setLoading] = useState(true)
@@ -248,53 +248,53 @@ export function StudentRegister() {
     const notNotifiedCount = Object.values(attendance).filter(a => a.status === 'absent' && !a.smsSent).length
 
     return (
-        <Card className="flex flex-col h-[600px] bg-[#0B0F1A] text-card-foreground border-slate-800/50 overflow-hidden rounded-3xl shadow-2xl">
-            <div className="p-5 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+        <Card className="flex flex-col h-[650px] bg-card text-card-foreground border-border overflow-hidden rounded-3xl shadow-xl">
+            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
                 <div>
                     <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-foreground text-lg">{classInfo.name} Register</h3>
+                        <h3 className="font-bold text-white text-xl tracking-tight">{classInfo.name} Register</h3>
                         {!isOnline && (
                             <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20 gap-1 px-1.5 py-0">
                                 <WifiOff className="h-3 w-3" /> Offline
                             </Badge>
                         )}
                     </div>
-                    <p className="text-xs text-muted-foreground">{formatDate(new Date())}</p>
+                    <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest mt-0.5">{formatDate(new Date())}</p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="bg-red-500/10 text-red-400 border-red-500/20">
-                        {absentCount} Absent
-                    </Badge>
-                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                        {students.length - absentCount} Present
-                    </Badge>
+                <div className="flex items-center gap-3">
+                    <div className="px-3 py-1 rounded-full bg-rose-500/5 border border-rose-500/10">
+                        <span className="text-[10px] font-bold text-rose-400">{absentCount} ABSENT</span>
+                    </div>
+                    <div className="px-3 py-1 rounded-full bg-emerald-500/5 border border-emerald-500/10">
+                        <span className="text-[10px] font-bold text-emerald-400">{students.length - absentCount} PRESENT</span>
+                    </div>
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto">
-                <div className="divide-y divide-white/5">
+            <div className="flex-1 overflow-y-auto px-2">
+                <div className="divide-y divide-white/[0.03]">
                     {students.map((student) => {
                         const status = attendance[student.id]?.status || 'present'
                         return (
-                            <div key={student.id} className="p-4 flex items-center justify-between hover:bg-white/[0.03] transition-all duration-300 group border-b border-white/5">
-                                <div className="flex items-center gap-4">
-                                    <Avatar className="h-11 w-11 border-2 border-slate-800 group-hover:border-blue-500/30 transition-colors">
+                            <div key={student.id} className="p-4 flex items-center justify-between hover:bg-white/[0.02] transition-all duration-300 group rounded-2xl mx-2 my-1">
+                                <div className="flex items-center gap-5">
+                                    <Avatar className="h-14 w-14 bg-slate-900/50 border border-white/5 shadow-inner">
                                         <AvatarImage src={student.photo_url} className="object-cover" />
-                                        <AvatarFallback className="bg-slate-900 text-slate-400 font-bold">
+                                        <AvatarFallback className="bg-slate-900 text-slate-400 text-lg font-medium">
                                             {student.first_name[0]}{student.last_name[0]}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <p className="font-bold text-base text-white tracking-tight">{student.first_name} {student.last_name}</p>
-                                        <div className="flex items-center gap-2">
-                                            <p className="text-[10px] text-slate-500 font-mono tracking-wider">{student.admission_number}</p>
+                                        <p className="font-bold text-lg text-white tracking-tight leading-none mb-1.5">{student.first_name} {student.last_name}</p>
+                                        <div className="flex items-center gap-3">
+                                            <p className="text-[11px] text-slate-600 font-medium tracking-wider uppercase">{student.admission_number}</p>
                                             {attendance[student.id]?.smsSent ? (
-                                                <div className="text-[9px] text-emerald-400/80 flex items-center gap-1 font-black uppercase tracking-widest bg-emerald-500/5 px-1.5 py-0.5 rounded-sm">
+                                                <div className="text-[9px] text-emerald-400/80 flex items-center gap-1 font-bold uppercase tracking-widest bg-emerald-500/5 px-2 py-0.5 rounded-full border border-emerald-500/10">
                                                     <div className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" />
                                                     Notified
                                                 </div>
                                             ) : status === 'absent' ? (
-                                                <div className="text-[9px] text-rose-400/60 flex items-center gap-1 font-bold uppercase tracking-widest bg-rose-500/5 px-1.5 py-0.5 rounded-sm">
+                                                <div className="text-[9px] text-rose-400/60 flex items-center gap-1 font-bold uppercase tracking-widest bg-rose-500/5 px-2 py-0.5 rounded-full border border-rose-500/10">
                                                     <div className="h-1 w-1 rounded-full bg-rose-400" />
                                                     Pending
                                                 </div>
@@ -303,21 +303,21 @@ export function StudentRegister() {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-3">
-                                    <div className="flex gap-2 p-1 bg-slate-950/50 rounded-full border border-white/5">
+                                <div className="flex items-center gap-4">
+                                    <div className="flex gap-3 items-center">
                                         <TooltipProvider>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <button
                                                         disabled={savingStatus[student.id]}
                                                         onClick={() => setStatus(student.id, 'present')}
-                                                        className={`h-9 w-9 flex items-center justify-center rounded-full transition-all duration-300 ${
+                                                        className={`h-12 w-12 flex items-center justify-center rounded-full transition-all duration-500 border ${
                                                             status === 'present' 
-                                                            ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)] scale-110' 
-                                                            : 'text-slate-500 hover:bg-slate-900 hover:text-slate-300'
+                                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.1)]' 
+                                                            : 'bg-white/[0.03] border-white/[0.05] text-white/20 hover:text-white/40 hover:bg-white/[0.05]'
                                                         }`}
                                                     >
-                                                        {savingStatus[student.id] && status === 'present' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                                                        {savingStatus[student.id] && status === 'present' ? <Loader2 className="h-5 w-5 animate-spin" /> : <Check className="h-5 w-5" strokeWidth={1.5} />}
                                                     </button>
                                                 </TooltipTrigger>
                                                 <TooltipContent className="bg-slate-900 border-slate-800 text-[10px] font-bold">PRESENT</TooltipContent>
@@ -328,13 +328,13 @@ export function StudentRegister() {
                                                     <button
                                                         disabled={savingStatus[student.id]}
                                                         onClick={() => setStatus(student.id, 'absent')}
-                                                        className={`h-9 w-9 flex items-center justify-center rounded-full transition-all duration-300 ${
+                                                        className={`h-12 w-12 flex items-center justify-center rounded-full transition-all duration-500 border ${
                                                             status === 'absent' 
-                                                            ? 'bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.3)] scale-110' 
-                                                            : 'text-slate-500 hover:bg-slate-900 hover:text-slate-300'
+                                                            ? 'bg-rose-500/10 border-rose-500/30 text-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.1)]' 
+                                                            : 'bg-white/[0.03] border-white/[0.05] text-white/20 hover:text-white/40 hover:bg-white/[0.05]'
                                                         }`}
                                                     >
-                                                        {savingStatus[student.id] && status === 'absent' ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+                                                        {savingStatus[student.id] && status === 'absent' ? <Loader2 className="h-5 w-5 animate-spin" /> : <X className="h-5 w-5" strokeWidth={1.5} />}
                                                     </button>
                                                 </TooltipTrigger>
                                                 <TooltipContent className="bg-slate-900 border-slate-800 text-[10px] font-bold">ABSENT</TooltipContent>
@@ -345,13 +345,13 @@ export function StudentRegister() {
                                                     <button
                                                         disabled={savingStatus[student.id]}
                                                         onClick={() => setStatus(student.id, 'excused')}
-                                                        className={`h-9 w-9 flex items-center justify-center rounded-full transition-all duration-300 ${
+                                                        className={`h-12 w-12 flex items-center justify-center rounded-full transition-all duration-500 border ${
                                                             status === 'excused' 
-                                                            ? 'bg-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)] scale-110' 
-                                                            : 'text-slate-500 hover:bg-slate-900 hover:text-slate-300'
+                                                            ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.1)]' 
+                                                            : 'bg-white/[0.03] border-white/[0.05] text-white/20 hover:text-white/40 hover:bg-white/[0.05]'
                                                         }`}
                                                     >
-                                                        {savingStatus[student.id] && status === 'excused' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock className="h-4 w-4" />}
+                                                        {savingStatus[student.id] && status === 'excused' ? <Loader2 className="h-5 w-5 animate-spin" /> : <Clock className="h-5 w-5" strokeWidth={1.5} />}
                                                     </button>
                                                 </TooltipTrigger>
                                                 <TooltipContent className="bg-slate-900 border-slate-800 text-[10px] font-bold">LATE / EXCUSED</TooltipContent>
@@ -359,37 +359,39 @@ export function StudentRegister() {
                                         </TooltipProvider>
                                     </div>
 
-                                    {status === 'present' && (
-                                        attendance[student.id]?.clockOutTime ? (
-                                            <div className="h-9 px-3 flex items-center justify-center bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-black tracking-widest uppercase rounded-xl">
-                                                Out
-                                            </div>
-                                        ) : (
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                className="h-9 bg-slate-950 border-white/5 text-[9px] font-black tracking-tighter hover:bg-slate-900 text-slate-400"
-                                                onClick={async (e) => {
-                                                    e.stopPropagation()
-                                                    const promise = clockOutStudent(student.id, getLocalToday(), classInfo!.id)
-                                                    toast.promise(promise, {
-                                                        loading: '...',
-                                                        success: () => {
-                                                            setAttendance(prev => ({
-                                                                ...prev,
-                                                                [student.id]: { ...prev[student.id], clockOutTime: new Date().toISOString() }
-                                                            }))
-                                                            router.refresh()
-                                                            return 'OK'
-                                                        },
-                                                        error: 'Err'
-                                                    })
-                                                }}
-                                            >
-                                                OUT
-                                            </Button>
-                                        )
-                                    )}
+                                    <div className="w-16 flex justify-end">
+                                        {status === 'present' && (
+                                            attendance[student.id]?.clockOutTime ? (
+                                                <div className="h-9 px-3 flex items-center justify-center bg-emerald-500/5 text-emerald-400 border border-emerald-500/10 text-[9px] font-black tracking-widest uppercase rounded-full">
+                                                    OUT
+                                                </div>
+                                            ) : (
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="h-9 rounded-full bg-white/[0.02] border-white/5 text-[9px] font-black tracking-widest hover:bg-white/[0.05] text-slate-500 hover:text-slate-300 transition-all uppercase"
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation()
+                                                        const promise = clockOutStudent(student.id, getLocalToday(), classInfo!.id)
+                                                        toast.promise(promise, {
+                                                            loading: '...',
+                                                            success: () => {
+                                                                setAttendance(prev => ({
+                                                                    ...prev,
+                                                                    [student.id]: { ...prev[student.id], clockOutTime: new Date().toISOString() }
+                                                                }))
+                                                                router.refresh()
+                                                                return 'Clocked Out'
+                                                            },
+                                                            error: 'Error'
+                                                        })
+                                                    }}
+                                                >
+                                                    OUT
+                                                </Button>
+                                            )
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         )
@@ -397,16 +399,16 @@ export function StudentRegister() {
                 </div>
             </div>
 
-            <div className="p-4 bg-slate-950/50 border-t border-border/50">
+            <div className="p-6 bg-white/[0.01] border-t border-white/5">
                 <Button
-                    className="w-full bg-[var(--school-primary,#06b6d4)] hover:opacity-90 text-white font-bold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full h-12 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all shadow-[0_0_30px_rgba(37,99,235,0.2)] active:scale-95 border-none"
                     onClick={handleNotifications}
                     disabled={submitting || absentCount === 0 || notNotifiedCount === 0}
                 >
-                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5 mr-2" />}
                     {absentCount === 0 ? "No Absentees" : 
                      notNotifiedCount > 0 ? `Notify ${notNotifiedCount === 1 ? 'Parent' : 'Parents'} (${notNotifiedCount} New)` : 
-                     absentCount === 1 ? "Parent Notified" : "All Parents Notified"}
+                     "All Parents Notified"}
                 </Button>
             </div>
         </Card>

@@ -17,6 +17,7 @@ import { Footer } from "@/components/landing/footer"
 import { GlowCursor } from "@/components/landing/ui/glow-cursor"
 import { CookieConsent } from "@/components/landing/cookie-consent"
 import { SalesAssistant } from "@/components/landing/sales-assistant"
+import { ScrollReveal } from "@/components/landing/ui/scroll-reveal"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -38,24 +39,24 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <div data-landing-page className="min-h-screen bg-[#000000] selection:bg-blue-500 selection:text-white overflow-hidden relative">
+    <div data-landing-page className="min-h-screen bg-[#000000] selection:bg-blue-500 selection:text-white relative">
       <GlowCursor />
       <Navbar />
       <main className="relative z-10 space-y-0 pb-32">
         <HeroFlowBuilder />
-        <ForensicTerminal />
-        <FeaturesSection />
-        <ForensicCampusBento />
-        <RevenueEngineBento />
-        {/* <VisualProofSection /> */}
-        <FeeCalculator />
-        <ResultVideo />
-        <SocialProofBento />
-        <AntiEvasionFeature />
+        <ScrollReveal><ForensicTerminal /></ScrollReveal>
+        <ScrollReveal><FeaturesSection /></ScrollReveal>
+        <ScrollReveal><ForensicCampusBento /></ScrollReveal>
+        <ScrollReveal><RevenueEngineBento /></ScrollReveal>
+        {/* <ScrollReveal><VisualProofSection /></ScrollReveal> */}
+        <ScrollReveal><FeeCalculator /></ScrollReveal>
+        <ScrollReveal><ResultVideo /></ScrollReveal>
+        <ScrollReveal><SocialProofBento /></ScrollReveal>
+        <ScrollReveal><AntiEvasionFeature /></ScrollReveal>
         <PricingTable />
-        <GlobalCommandCenter />
-        <ForensicFAQ />
-        <FinalCloserCta />
+        <ScrollReveal><GlobalCommandCenter /></ScrollReveal>
+        <ScrollReveal><ForensicFAQ /></ScrollReveal>
+        <ScrollReveal><FinalCloserCta /></ScrollReveal>
       </main>
       <Footer />
       <CookieConsent />

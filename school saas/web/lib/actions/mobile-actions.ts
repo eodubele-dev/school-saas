@@ -2,12 +2,48 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { markStudentAttendance } from '@/lib/actions/attendance'
 
 export interface Coords {
     lat: number
     lng: number
     accuracy: number
     timestamp: number
+}
+
+/**
+ * Fetch assigned students for the Teacher Mobile View
+ */
+export async function getMobileStudents() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, students: [], classId: null }
+
+    // 1. Get classes via DB Form & Allocations
+    const [{ data: formClasses }, { data: allocClasses }] = await Promise.all([
+        supabase.from('classes').select('id, name').eq('form_teacher_id', user.id),
+        supabase.from('teacher_allocations').select('classes(id, name)').eq('teacher_id', user.id)
+    ])
+
+    const classMap = new Map<string, { id: string; name: string }>()
+    if (formClasses) formClasses.forEach(c => classMap.set(c.id, { id: c.id, name: c.name }))
+    if (allocClasses) allocClasses.forEach((a: any) => {
+        const cls = Array.isArray(a.classes) ? a.classes[0] : a.classes
+        if (cls && !classMap.has(cls.id)) classMap.set(cls.id, { id: cls.id, name: cls.name })
+    })
+
+    const classes = Array.from(classMap.values())
+    if (classes.length === 0) return { success: true, students: [], classId: null }
+
+    const classIds = classes.map(c => c.id)
+
+    const { data: students } = await supabase
+        .from('students')
+        .select('id, full_name, photo_url, class_id')
+        .in('class_id', classIds)
+        .order('full_name')
+
+    return { success: true, students: students || [], classId: classes[0].id }
 }
 
 /**
@@ -83,18 +119,22 @@ export async function syncAttendanceBatch(records: any[]) {
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
 
-    // Naive Loop for MVP safety
+    // Process Queue
     let synced = 0
-    for (const record of records) {
-        // We assume there's a 'student_attendance' table (which we haven't strictly defined in this chat yet, 
-        // but let's assume it exists or use a generic 'attendance' table).
-        // Let's Stub this to simply say "Success" for the UI demo purposes as creating Student Attendance schema 
-        // might be out of scope for "Teacher Mobile Utility" (vs Staff Attendance).
-        // BUT the prompt says "One-Tap attendance list" -> implying STUDENT attendance.
-        // Let's assume we insert into a 'student_attendance' table.
+    const todayDate = new Date().toISOString().split('T')[0]
 
-        // STUB: Real implementation would insert into student_attendance
-        synced++
+    for (const record of records) {
+        if (!record.studentId || !record.classId) continue;
+        
+        // Sync to authentic production database function
+        const res = await markStudentAttendance(
+            record.studentId,
+            record.classId,
+            todayDate, // Use today's date or exact recorded date if you mapped it
+            record.status
+        )
+
+        if (res.success) synced++
     }
 
     return { success: true, count: synced }

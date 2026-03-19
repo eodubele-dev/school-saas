@@ -105,7 +105,7 @@ export function AwardConsole({ students }: { students: any[] }) {
                             <div className="flex flex-col items-center text-center gap-3">
                                 <div className="relative">
                                     <Avatar className="h-14 w-14 ring-1 ring-border bg-slate-950">
-                                        <AvatarImage src={student.avatar_url} className="object-cover" />
+                                        <AvatarImage src={student.photo_url} className="object-cover" />
                                         <AvatarFallback className="bg-slate-900 text-sm font-medium text-muted-foreground">
                                             {student.full_name.substring(0, 2).toUpperCase()}
                                         </AvatarFallback>
@@ -127,7 +127,7 @@ export function AwardConsole({ students }: { students: any[] }) {
                         {/* Minimalist Profile Header */}
                         <div className="flex items-center gap-4 pb-6 border-b border-border/50">
                             <Avatar className="h-12 w-12 ring-1 ring-border bg-slate-950">
-                                <AvatarImage src={selectedStudent?.avatar_url} />
+                                <AvatarImage src={selectedStudent?.photo_url} className="object-cover" />
                                 <AvatarFallback className="text-sm font-medium text-muted-foreground">
                                     {selectedStudent?.full_name?.substring(0, 2).toUpperCase()}
                                 </AvatarFallback>

@@ -15,7 +15,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown, Check, X, Clock, HelpCircle, Save } from "lucide-react"
+import { ChevronDown, Check, X, Clock, HelpCircle, Save, Send } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 import {
     getClassAttendance,
@@ -291,83 +292,92 @@ export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
                     <div className="p-8 text-center text-muted-foreground">Loading students...</div>
                 ) : (
                     students.map(student => (
-                        <Card key={student.id} className="overflow-hidden">
-                            <CardContent className="p-3 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <Avatar>
-                                        <AvatarImage src={student.photo_url} />
-                                        <AvatarFallback>{student.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                        <Card 
+                            key={student.id} 
+                            className="bg-[#0B0F1A] border-slate-800/50 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group"
+                        >
+                            <CardContent className="p-4 flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <Avatar className="h-12 w-12 border-2 border-slate-800 group-hover:border-blue-500/30 transition-colors">
+                                        <AvatarImage src={student.photo_url} className="object-cover" />
+                                        <AvatarFallback className="bg-slate-900 text-slate-400 font-bold">
+                                            {student.name.substring(0, 2).toUpperCase()}
+                                        </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <div className="font-medium text-slate-900">{student.name}</div>
+                                        <div className="font-bold text-lg text-white tracking-tight">{student.name}</div>
                                         {student.smsSent ? (
-                                            <div className="text-[10px] text-emerald-600 flex items-center gap-1 font-bold">
-                                                <Check className="h-3 w-3" /> NOTIFIED
+                                            <div className="text-[10px] text-emerald-400/80 flex items-center gap-1 font-black uppercase tracking-widest mt-0.5">
+                                                <div className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" />
+                                                Notified
                                             </div>
                                         ) : student.status === 'absent' ? (
-                                            <div className="text-[10px] text-red-500/70 flex items-center gap-1 font-medium">
-                                                <X className="h-3 w-3" /> NOT NOTIFIED
+                                            <div className="text-[10px] text-rose-400/60 flex items-center gap-1 font-bold uppercase tracking-widest mt-0.5">
+                                                <div className="h-1 w-1 rounded-full bg-rose-400" />
+                                                Pending Alert
                                             </div>
                                         ) : null}
                                     </div>
                                 </div>
 
-                                {/* Status Selector */}
-                                <div className="flex items-center gap-2">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <button
-                                                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all w-32 border ${getStatusColor(student.status)}`}
-                                            >
-                                                <span className="flex items-center gap-2">
-                                                    {getStatusIcon(student.status)}
-                                                    <span className="capitalize">{student.status}</span>
-                                                </span>
-                                                <ChevronDown className="h-3 w-3 ml-auto opacity-50" />
-                                            </button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="bg-slate-900 border-slate-800 text-slate-200">
-                                            <DropdownMenuItem className="focus:bg-green-500/10 focus:text-green-400 gap-2 cursor-pointer" onClick={() => setStatus(student.id, 'present')}>
-                                                <Check className="h-4 w-4" /> Present
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem className="focus:bg-red-500/10 focus:text-red-400 gap-2 cursor-pointer" onClick={() => setStatus(student.id, 'absent')}>
-                                                <X className="h-4 w-4" /> Absent
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem className="focus:bg-orange-500/10 focus:text-orange-400 gap-2 cursor-pointer" onClick={() => setStatus(student.id, 'late')}>
-                                                <Clock className="h-4 w-4" /> Late
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem className="focus:bg-blue-500/10 focus:text-blue-400 gap-2 cursor-pointer" onClick={() => setStatus(student.id, 'excused')}>
-                                                <HelpCircle className="h-4 w-4" /> Excused
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                <div className="flex items-center gap-3">
+                                    {/* Direct Status Actions (Mockup Style) */}
+                                    <div className="flex gap-2 p-1.5 bg-slate-950/50 rounded-full border border-slate-800/50">
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <button
+                                                        onClick={() => setStatus(student.id, 'present')}
+                                                        className={`h-10 w-10 flex items-center justify-center rounded-full transition-all duration-300 ${
+                                                            student.status === 'present' 
+                                                            ? 'bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/50 scale-110' 
+                                                            : 'text-slate-500 hover:bg-slate-900 hover:text-slate-300'
+                                                        }`}
+                                                    >
+                                                        <Check className="h-5 w-5" />
+                                                    </button>
+                                                </TooltipTrigger>
+                                                <TooltipContent className="bg-slate-900 border-slate-800">Present</TooltipContent>
+                                            </Tooltip>
 
-                                    {student.status === 'present' && (
-                                        student.clockOutTime ? (
-                                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px] py-1 px-2 whitespace-nowrap">
-                                                CLOCKED OUT
-                                            </Badge>
-                                        ) : (
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                className="h-7 text-[10px] px-2 bg-slate-800 border-border text-slate-300 hover:bg-slate-700 font-bold"
-                                                onClick={async () => {
-                                                    const promise = clockOutStudent(student.id, selectedDate, selectedClassId)
-                                                    toast.promise(promise, {
-                                                        loading: 'Clocking out...',
-                                                        success: () => {
-                                                            setStudents(prev => prev.map(s => s.id === student.id ? { ...s, clockOutTime: new Date().toISOString() } : s))
-                                                            router.refresh()
-                                                            return 'Clocked out!'
-                                                        },
-                                                        error: 'Failed to clock out'
-                                                    })
-                                                }}
-                                            >
-                                                CHECK OUT
-                                            </Button>
-                                        )
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <button
+                                                        onClick={() => setStatus(student.id, 'absent')}
+                                                        className={`h-10 w-10 flex items-center justify-center rounded-full transition-all duration-300 ${
+                                                            student.status === 'absent' 
+                                                            ? 'bg-rose-500/20 text-rose-400 ring-1 ring-rose-500/50 scale-110' 
+                                                            : 'text-slate-500 hover:bg-slate-900 hover:text-slate-300'
+                                                        }`}
+                                                    >
+                                                        <X className="h-5 w-5" />
+                                                    </button>
+                                                </TooltipTrigger>
+                                                <TooltipContent className="bg-slate-900 border-slate-800">Absent</TooltipContent>
+                                            </Tooltip>
+
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <button
+                                                        onClick={() => setStatus(student.id, 'late')}
+                                                        className={`h-10 w-10 flex items-center justify-center rounded-full transition-all duration-300 ${
+                                                            student.status === 'late' 
+                                                            ? 'bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/50 scale-110' 
+                                                            : 'text-slate-500 hover:bg-slate-900 hover:text-slate-300'
+                                                        }`}
+                                                    >
+                                                        <Clock className="h-5 w-5" />
+                                                    </button>
+                                                </TooltipTrigger>
+                                                <TooltipContent className="bg-slate-900 border-slate-800">Late</TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    </div>
+
+                                    {student.status === 'present' && student.clockOutTime && (
+                                        <Badge variant="outline" className="h-10 px-4 bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px] font-black tracking-widest uppercase rounded-xl">
+                                            Checked Out
+                                        </Badge>
                                     )}
                                 </div>
                             </CardContent>

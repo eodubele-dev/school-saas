@@ -230,9 +230,12 @@ export function PricingTable() {
                         <p className="text-muted-foreground">Everything you need to run a world-class institution.</p>
                     </div>
 
-                    <div className="bg-[#050B20]/50 border border-border/50 rounded-3xl overflow-hidden backdrop-blur-sm">
+                    <div className="bg-[#050B20]/50 border border-border/50 rounded-3xl backdrop-blur-sm relative overflow-visible">
                         {/* Table Header */}
-                        <div className="grid grid-cols-5 border-b border-border bg-secondary/50 p-6 sticky top-0 z-20">
+                        <div 
+                            className="grid grid-cols-5 border-b border-white/10 bg-slate-900/95 p-6 z-40 rounded-t-3xl backdrop-blur-md shadow-xl"
+                            style={{ position: 'sticky', top: '80px', zIndex: 40 }}
+                        >
                             <div className="col-span-1 font-semibold text-foreground">Features</div>
                             <div className="text-center font-semibold text-foreground">Pilot</div>
                             <div className="text-center font-semibold text-foreground">Starter</div>

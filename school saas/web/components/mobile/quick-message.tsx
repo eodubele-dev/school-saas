@@ -6,15 +6,16 @@ import { Button } from "@/components/ui/button"
 import { Mic, Send, AlertTriangle } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
+import { sendBroadcast } from "@/lib/actions/communication"
 
-export function QuickMessage() {
+export function QuickMessage({ classId }: { classId?: string | null }) {
     const [msg, setMsg] = useState("")
+    const [isSending, setIsSending] = useState(false)
     const [isRecording, setIsRecording] = useState(false)
 
     const startRecording = () => {
         setIsRecording(true)
         // Stub for Browser Speech API
-        // In real app: window.SpeechRecognition...
         setTimeout(() => {
             setIsRecording(false)
             setMsg((prev) => prev + " Please disregard the previous notice, class is resuming normally.")
@@ -22,11 +23,27 @@ export function QuickMessage() {
         }, 2000)
     }
 
-    const sendBroadcast = () => {
-        if (!msg) return
+    const handleSendBroadcast = async () => {
+        if (!msg || !classId) {
+            toast.error("Message or Class allocation missing.")
+            return
+        }
+        setIsSending(true)
         toast.info("Sending broadcast via Termii...")
-        setTimeout(() => toast.success("Message Sent to 24 Parents"), 1500)
-        setMsg("")
+        
+        try {
+            const res = await sendBroadcast('sms', 'class', classId, msg, 'academic')
+            if (res.success) {
+                toast.success((res as any).message || "Message Sent Successfully")
+                setMsg("")
+            } else {
+                toast.error(res.error || "Failed to broadcast message")
+            }
+        } catch (e) {
+            toast.error("Network Error: Could not send broadcast")
+        } finally {
+            setIsSending(false)
+        }
     }
 
     return (
@@ -67,8 +84,8 @@ export function QuickMessage() {
                 ))}
             </div>
 
-            <Button className="w-full bg-[var(--school-accent)] text-foreground" onClick={sendBroadcast} disabled={!msg}>
-                <Send className="h-4 w-4 mr-2" /> Send to All Parents
+            <Button className="w-full bg-[var(--school-accent)] text-foreground" onClick={handleSendBroadcast} disabled={!msg || isSending}>
+                <Send className="h-4 w-4 mr-2" /> {isSending ? 'Sending...' : 'Send to All Parents'}
             </Button>
         </Card>
     )
