@@ -28,7 +28,7 @@ export function GlobalCommandCenter() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center bento-card p-2 md:p-8 bg-[#0F1115]/50 border-border/50">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center bento-card p-2 md:p-8 bg-[#0F1115]/50 border-border/50 hover:border-blue-500/50">
 
                     {/* LEFT: The Empire Map */}
                     <div className="relative aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden border border-border group">

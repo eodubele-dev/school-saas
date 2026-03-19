@@ -27,7 +27,7 @@ export function FinalCloserCta() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.8 }}
-                    className="relative bento-card border-cyan-500/30 overflow-hidden"
+                    className="relative bento-card border-cyan-500/30 hover:border-blue-500/50 overflow-hidden"
                 >
                     <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
                         {/* LEFT: Image Side */}

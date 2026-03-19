@@ -43,8 +43,8 @@ export function ForensicCampusBento() {
 
                     <motion.div
                         id="command-center-visual"
-                        whileHover={{ y: -5 }}
-                        className={`w-full bento-card overflow-hidden relative group transition-all duration-700 shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] ${highlightedSection === 'audit-integrity' ? 'ring-4 ring-cyan-500 shadow-[0_0_50px_rgba(6,182,212,0.5)] scale-[1.01] z-30' : ''}`}
+                        whileHover={{ y: -8, scale: 1.01 }}
+                        className={`w-full bento-card overflow-hidden relative group transition-all duration-700 shadow-[0_80px_150px_-30px_rgba(0,0,0,1)] hover:border-blue-500/50 ${highlightedSection === 'audit-integrity' ? 'ring-4 ring-cyan-500 shadow-[0_0_50px_rgba(6,182,212,0.5)] scale-[1.01] z-30' : ''}`}
                     >
                         {/* High Fidelity Mockup Image - Full Unconstrained View */}
                         <div className="relative z-0">

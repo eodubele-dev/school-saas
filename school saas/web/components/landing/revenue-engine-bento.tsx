@@ -35,10 +35,10 @@ export function RevenueEngineBento() {
                         <div className="bg-glow left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60" />
 
                         {/* High Fidelity Mockup Image */}
-                        <div className="relative z-10 max-w-[400px] w-full">
+                        <div className="relative z-10 max-w-[500px] w-full">
                             <img
-                                src="/visuals/parent-mobile-payment-mockup.png"
-                                alt="Parent holding phone with EduFlow payment notification"
+                                src="/visuals/revenue-recovery-phone-mockup.png"
+                                alt="Realistic smartphone mockup showing the EduFlow result lock screen"
                                 className="w-full h-auto drop-shadow-[0_50px_100px_rgba(0,0,0,0.8)] group-hover:scale-[1.02] transition-transform duration-700 ease-out"
                             />
                             

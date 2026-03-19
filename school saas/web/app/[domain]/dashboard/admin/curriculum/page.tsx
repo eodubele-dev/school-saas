@@ -16,14 +16,21 @@ export default async function AdminCurriculumPage() {
     const { students, milestones } = await getAdminCurriculumData()
 
     return (
-        <div className="p-8 space-y-8 max-w-[1400px] mx-auto relative flex-1">
-            <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-blue-500/5 to-red-500/5 pointer-events-none -z-10 rounded-3xl" />
-            <div className="flex flex-col gap-2 relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500/20 via-blue-500/20 to-red-500/20 blur-xl z-0" />
-                <h1 className="text-4xl font-black tracking-tight relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-blue-400 to-red-400">
-                    Curriculum Architect
-                </h1>
-                <p className="text-slate-400 text-lg relative z-10 font-medium">Manage learning roadmaps, track syllabus progression, and assign milestones to students.</p>
+        <div className="p-8 space-y-8 max-w-[1400px] mx-auto relative flex-1 animate-in fade-in duration-500">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground glow-text">
+                        Curriculum Architect
+                    </h1>
+                    <div className="flex items-center gap-2 mt-1">
+                        <p className="text-muted-foreground font-medium">
+                            Manage learning roadmaps, track syllabus progression, and assign milestones.
+                        </p>
+                        <span className="inline-flex items-center rounded-md bg-cyan-500/10 px-2 py-1 text-xs font-medium text-cyan-400 ring-1 ring-inset ring-cyan-500/20">
+                            Forensic Planning
+                        </span>
+                    </div>
+                </div>
             </div>
 
             <div className="relative z-10">

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Check } from "lucide-react"
+import { Progress } from "@/components/ui/progress"
 
 export default function OnboardingWizard() {
     const router = useRouter()
@@ -124,26 +125,43 @@ export default function OnboardingWizard() {
                 </div>
             </div>
 
-            {/* Progress Stepper */}
-            <div className="flex items-center justify-center space-x-4 mb-4">
-                <div className={`flex items-center gap-2 ${step >= 1 ? 'text-[#00F5FF]' : 'text-slate-600'}`}>
-                    <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${step >= 1 ? 'border-[#00F5FF] bg-[#00F5FF]/10' : 'border-slate-600'}`}>1</div>
-                    <span className="text-sm font-medium hidden sm:inline">Account</span>
+            {/* Progress Bar & Stepper */}
+            <div className="space-y-6">
+                <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 uppercase tracking-widest px-1">
+                    <span>Initiating Setup</span>
+                    <span>Step {step} of 4</span>
                 </div>
-                <div className="h-px w-8 bg-slate-800" />
-                <div className={`flex items-center gap-2 ${step >= 2 ? 'text-[#00F5FF]' : 'text-slate-600'}`}>
-                    <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${step >= 2 ? 'border-[#00F5FF] bg-[#00F5FF]/10' : 'border-slate-600'}`}>2</div>
-                    <span className="text-sm font-medium hidden sm:inline">Branding</span>
-                </div>
-                <div className="h-px w-8 bg-slate-800" />
-                <div className={`flex items-center gap-2 ${step >= 3 ? 'text-[#00F5FF]' : 'text-slate-600'}`}>
-                    <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${step >= 3 ? 'border-[#00F5FF] bg-[#00F5FF]/10' : 'border-slate-600'}`}>3</div>
-                    <span className="text-sm font-medium hidden sm:inline">Data</span>
-                </div>
-                <div className="h-px w-8 bg-slate-800" />
-                <div className={`flex items-center gap-2 ${step >= 4 ? 'text-[#00F5FF]' : 'text-slate-600'}`}>
-                    <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${step >= 4 ? 'border-[#00F5FF] bg-[#00F5FF]/10' : 'border-slate-600'}`}>4</div>
-                    <span className="text-sm font-medium hidden sm:inline">Launch</span>
+                <Progress 
+                    value={(step / 4) * 100} 
+                    className="h-1.5 bg-white/5 border border-white/5"
+                    indicatorClassName="bg-gradient-to-r from-cyan-500 to-blue-600 shadow-[0_0_15px_rgba(6,182,212,0.5)]"
+                />
+                
+                <div className="flex items-center justify-between pt-2">
+                    {[
+                        { id: 1, label: 'Account' },
+                        { id: 2, label: 'Branding' },
+                        { id: 3, label: 'Data' },
+                        { id: 4, label: 'Launch' }
+                    ].map((s) => (
+                        <div key={s.id} className="flex flex-col items-center gap-2 group relative">
+                            <div className={`
+                                h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500
+                                ${step >= s.id 
+                                    ? 'bg-cyan-500 text-black shadow-[0_0_20px_rgba(6,182,212,0.4)] scale-110' 
+                                    : 'bg-slate-900 text-slate-600 border border-slate-800'
+                                }
+                            `}>
+                                {step > s.id ? <Check className="w-4 h-4" /> : s.id}
+                            </div>
+                            <span className={`
+                                text-[10px] font-bold uppercase tracking-tighter transition-colors duration-500
+                                ${step >= s.id ? 'text-cyan-400' : 'text-slate-600'}
+                            `}>
+                                {s.label}
+                            </span>
+                        </div>
+                    ))}
                 </div>
             </div>
 

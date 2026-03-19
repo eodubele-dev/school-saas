@@ -29,25 +29,25 @@ export function SyncStatus() {
 
     return (
         <div className={cn(
-            "fixed bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all shadow-sm border",
-            !isOnline ? "bg-red-50 text-red-600 border-red-200" :
-                isSyncing ? "bg-blue-50 text-blue-600 border-blue-200" :
-                    "bg-slate-50 text-muted-foreground border-slate-200 opacity-50 hover:opacity-100"
+            "fixed bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest transition-all shadow-2xl backdrop-blur-xl border",
+            !isOnline ? "bg-red-500/10 text-red-400 border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.2)]" :
+                isSyncing ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.2)]" :
+                    "bg-[#0A0A0B]/80 text-slate-500 border-white/5 opacity-50 hover:opacity-100"
         )}>
             {!isOnline ? (
                 <>
-                    <CloudOff className="h-3 w-3" />
-                    <span>Offline</span>
+                    <CloudOff className="h-3 w-3 animate-pulse" />
+                    <span>System Offline</span>
                 </>
             ) : isSyncing ? (
                 <>
                     <RefreshCw className="h-3 w-3 animate-spin" />
-                    <span>Syncing...</span>
+                    <span>Synchronizing...</span>
                 </>
             ) : (
                 <>
-                    <Cloud className="h-3 w-3" />
-                    <span>Saved</span>
+                    <Cloud className="h-3 w-3 text-emerald-500" />
+                    <span>Vault Secured</span>
                 </>
             )}
         </div>
