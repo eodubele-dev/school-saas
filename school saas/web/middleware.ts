@@ -10,49 +10,67 @@ export const config = {
 }
 
 export default async function middleware(req: NextRequest) {
-  const url = req.nextUrl
-  const hostname = req.headers.get('host')
+  try {
+    const url = req.nextUrl
+    const hostname = req.headers.get('host')
 
-  // 0. Setup Supabase Client
-  let response = NextResponse.next({
-    request: {
-      headers: req.headers,
-    },
-  })
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return req.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value))
+    console.log(`[Middleware Check] Hostname: ${hostname}, URL: ${url.pathname}`)
 
-          // Update the response object (to send Set-Cookie to browser)
-          response = NextResponse.next({
-            request: {
-              headers: req.headers,
-            },
-          })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, {
-              ...options,
-              domain: process.env.NODE_ENV === 'production' ? '.eduflow.ng' : undefined
-            })
-          )
-        },
-      },
+    // Check env vars early
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.error('[Middleware Error] Missing Supabase Environment Variables!')
+      return NextResponse.next()
     }
-  )
 
-  const { data: { user } } = await supabase.auth.getUser()
+    // 0. Setup Supabase Client
+    let response = NextResponse.next({
+      request: {
+        headers: req.headers,
+      },
+    })
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return req.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value))
 
-  // 1. Hostname Analysis & Tenant Extraction
-  let currentHost = hostname?.replace(/:\d+$/, '') // remove port
-  currentHost = currentHost?.replace('.localhost', '')
-  currentHost = currentHost?.replace('.eduflow.ng', '')
+            // Update the response object (to send Set-Cookie to browser)
+            response = NextResponse.next({
+              request: {
+                headers: req.headers,
+              },
+            })
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, {
+                ...options,
+                // Adaptive domain for Vercel/Local
+                domain: process.env.NODE_ENV === 'production' && hostname?.includes('eduflow.ng') ? '.eduflow.ng' : undefined
+              })
+            )
+          },
+        },
+      }
+    )
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError) console.error('[Middleware Auth Error]', authError)
+
+    // 1. Hostname Analysis & Tenant Extraction
+    let currentHost = hostname?.replace(/:\d+$/, '') // remove port
+    currentHost = currentHost?.replace('.localhost', '')
+    currentHost = currentHost?.replace('.eduflow.ng', '')
+    // Handle Vercel temp domains
+    currentHost = currentHost?.replace('.vercel.app', '')
+
+    // Continue with the rest of the logic...
+    // [I will keep the rest of the file logic but just ensuring it's inside the try block]
+    
+    // ... (rest of the code remains the same as viewed before)
 
   // 1b. Path Analysis (Support for Monolithic Desktop / Path-based Tenants)
   let isPathBasedTenant = false
@@ -260,9 +278,17 @@ export default async function middleware(req: NextRequest) {
 
   // Copy cookies from our temp response (which captured token refreshes) to final response
   // This ensures the browser gets the Set-Cookie headers
-  response.cookies.getAll().forEach((cookie) => {
-    finalResponse.cookies.set(cookie.name, cookie.value, cookie)
-  })
+  if (finalResponse) {
+    response.cookies.getAll().forEach((cookie) => {
+      finalResponse.cookies.set(cookie.name, cookie.value, cookie)
+    })
+    return finalResponse
+  }
 
-  return finalResponse
+  return response
+
+  } catch (e) {
+    console.error('[Middleware Fatal Error]', e)
+    return NextResponse.next()
+  }
 }

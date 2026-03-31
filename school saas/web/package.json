@@ -77,6 +77,7 @@
     "react-joyride": "^2.9.3",
     "react-to-print": "^3.2.0",
     "recharts": "^3.7.0",
+    "sharp": "^0.34.5",
     "sonner": "^2.0.7",
     "sst": "^3.17.38",
     "tailwind-merge": "^3.4.0",
