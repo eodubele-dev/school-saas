@@ -75,7 +75,7 @@ export default async function middleware(req: NextRequest) {
 
   // 1b. Path Analysis (Support for Monolithic Desktop / Path-based Tenants)
   let isPathBasedTenant = false
-  if (!currentHost || currentHost === 'www' || currentHost === 'localhost') {
+  if (!currentHost || currentHost === 'www' || currentHost === 'localhost' || hostname?.includes('.amplifyapp.com')) {
     const segments = url.pathname.split('/').filter(Boolean)
     if (segments.length > 0) {
       const firstSegment = segments[0]
@@ -98,7 +98,7 @@ export default async function middleware(req: NextRequest) {
   console.log(`[Middleware] Host: ${hostname}, CurrentHost: ${currentHost}, Path: ${req.nextUrl.pathname}, InternalPath: ${url.pathname}`)
 
   // Handle Main Domain matches (No tenant found in subdomain or path)
-  if (!currentHost || currentHost === 'www' || currentHost === 'localhost') {
+  if (!currentHost || currentHost === 'www' || currentHost === 'localhost' || hostname?.includes('.amplifyapp.com')) {
     console.log('[Middleware] Main domain detected')
     return response
   }
