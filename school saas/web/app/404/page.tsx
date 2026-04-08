@@ -16,7 +16,7 @@ export default function NotFoundPage() {
             </p>
 
             <Button asChild>
-                <Link href="https://eduflow.ng">Go to EduFlow Home</Link>
+                <Link href="/">Go to EduFlow Home</Link>
             </Button>
         </div>
     )

@@ -64,8 +64,9 @@ export default async function middleware(req: NextRequest) {
     let currentHost = hostname?.replace(/:\d+$/, '') // remove port
     currentHost = currentHost?.replace('.localhost', '')
     currentHost = currentHost?.replace('.eduflow.ng', '')
-    // Handle Vercel temp domains
+    // Handle Vercel and Amplify temp domains
     currentHost = currentHost?.replace('.vercel.app', '')
+    currentHost = currentHost?.replace('.amplifyapp.com', '')
 
     // Continue with the rest of the logic...
     // [I will keep the rest of the file logic but just ensuring it's inside the try block]
