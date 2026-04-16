@@ -28,6 +28,7 @@ export async function AdminDashboard({
     smsBalance = 0,
     schoolName = '',
     subdomain = '',
+    logoUrl = '',
     isGlobalView = false
 }: {
     tier?: string,
@@ -35,6 +36,7 @@ export async function AdminDashboard({
     smsBalance?: number,
     schoolName?: string,
     subdomain?: string,
+    logoUrl?: string,
     isGlobalView?: boolean
 }) {
     // 0. Use Offline Vault (Client hook - but this is a server component)
@@ -67,21 +69,32 @@ export async function AdminDashboard({
             <div className="space-y-6 animate-in fade-in duration-500">
                 {/* Header / Switcher Area */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <h2 className="text-3xl font-bold tracking-tight text-foreground glow-text">
-                            {isGlobalView ? "Global Command Center" : `${schoolName} Overview`}
-                        </h2>
-                        <div className="flex items-center gap-2 mt-1">
-                            <p className="text-muted-foreground">
-                                {isGlobalView
-                                    ? "Aggregated metrics across all campuses."
-                                    : "Real-time campus performance metrics."}
-                            </p>
-                            {session && (
-                                <span className="hidden md:inline-flex items-center rounded-md bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-500/20">
-                                    {session.session} • {session.term}
-                                </span>
-                            )}
+                    <div className="flex items-center gap-4">
+                        {!isGlobalView && logoUrl && (
+                            <div className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 p-2 flex items-center justify-center overflow-hidden shrink-0 shadow-2xl">
+                                <img 
+                                    src={logoUrl} 
+                                    alt={`${schoolName} Logo`} 
+                                    className="max-w-full max-h-full object-contain"
+                                />
+                            </div>
+                        )}
+                        <div>
+                            <h2 className="text-3xl font-bold tracking-tight text-foreground glow-text">
+                                {isGlobalView ? "Global Command Center" : `${schoolName} Overview`}
+                            </h2>
+                            <div className="flex items-center gap-2 mt-1">
+                                <p className="text-muted-foreground">
+                                    {isGlobalView
+                                        ? "Aggregated metrics across all campuses."
+                                        : "Real-time campus performance metrics."}
+                                </p>
+                                {session && (
+                                    <span className="hidden md:inline-flex items-center rounded-md bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-500/20">
+                                        {session.session} • {session.term}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </div>
                 <div className="w-full md:w-[300px]">

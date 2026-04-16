@@ -21,23 +21,25 @@ export default async function DashboardPage({
     // Platinum Optimization: Prioritize DB for Critical Data (Freshness), Fallback to JWT
     const { data: profile } = await supabase
         .from('profiles')
-        .select('role, tenant_id, tenants(name)')
+        .select('role, tenant_id, tenants(name, logo_url, theme_config)')
         .eq('id', user.id)
         .single()
 
     const appMeta = user.app_metadata || {}
 
+    // @ts-ignore - Supabase type joins
+    const tenantData = profile?.tenants
+    
     // Role: URL Param (Debug) > DB > JWT
     let role = searchParams.role || profile?.role || appMeta.role
 
-    // School Name: DB > JWT > Header
-    // @ts-ignore - Supabase types for joins can be tricky
-    let schoolName = profile?.tenants?.name || appMeta.schoolName || headers().get('x-school-name')
-
-    let primaryColor = appMeta.primaryColor
-    let tier = appMeta.subscriptionTier || 'starter'
-    let isPilot = appMeta.isPilot || false
-    let smsBalance = appMeta.smsBalance || 0
+    // School Branding: DB > JWT > Header
+    let schoolName = tenantData?.name || appMeta.schoolName || headers().get('x-school-name')
+    let logoUrl = tenantData?.logo_url || appMeta.logoUrl
+    let primaryColor = tenantData?.theme_config?.primary || appMeta.primaryColor
+    let tier = tenantData?.theme_config?.subscription_tier || appMeta.subscriptionTier || 'starter'
+    let isPilot = tenantData?.theme_config?.is_active && (tenantData?.theme_config?.subscription_tier === 'pilot')
+    let smsBalance = tenantData?.theme_config?.sms_balance || appMeta.smsBalance || 0
 
     // Redundant fallback block removed since we fetched DB above
 
@@ -57,6 +59,7 @@ export default async function DashboardPage({
             smsBalance={smsBalance}
             subdomain={domain}
             studentId={searchParams.studentId}
+            logoUrl={logoUrl}
         />
     )
 }

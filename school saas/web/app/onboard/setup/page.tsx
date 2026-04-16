@@ -43,10 +43,23 @@ export default function OnboardingWizard() {
         email: ''
     })
 
-    // Check for existing session on mount
+    // Check for existing session and localStorage on mount
     useEffect(() => {
         async function checkSession() {
             const { data: { user } } = await supabase.auth.getUser()
+            
+            // Try to recover state from localStorage
+            const savedData = localStorage.getItem('eduflow_onboarding_state')
+            if (savedData) {
+                try {
+                    const parsed = JSON.parse(savedData)
+                    setData(prev => ({ ...prev, ...parsed }))
+                    if (parsed.step) setStep(parsed.step)
+                } catch (e) {
+                    console.error("Failed to parse saved onboarding state", e)
+                }
+            }
+
             if (user && step === 1) {
                 setStep(2) // Skip account creation if logged in
                 setData(prev => ({
@@ -58,6 +71,14 @@ export default function OnboardingWizard() {
         }
         checkSession()
     }, [])
+
+    // Save to localStorage whenever data or step changes
+    useEffect(() => {
+        localStorage.setItem('eduflow_onboarding_state', JSON.stringify({
+            ...data,
+            step
+        }))
+    }, [data, step])
 
     // Pre-fill from query params
     useEffect(() => {
@@ -97,6 +118,7 @@ export default function OnboardingWizard() {
 
             const res = await createTenant(payload)
             if (res.success && res.redirectUrl) {
+                localStorage.removeItem('eduflow_onboarding_state') // Clear on success
                 setShowSuccess(true)
                 setTimeout(() => {
                     window.location.href = res.redirectUrl
@@ -112,94 +134,166 @@ export default function OnboardingWizard() {
             setIsSubmitting(false)
         }
     }
+    const stepConfig = [
+        { id: 1, label: 'Account', title: 'Proprietor Identity', description: 'Establish your secure administrative credentials to access the command center.' },
+        { id: 2, label: 'Branding', title: 'Visual Identity', description: 'Upload your crest and define your custom colors for a personalized portal.' },
+        { id: 3, label: 'Data', title: 'Campus Data', description: 'Setup your standard subjects and configure optional modules.' },
+        { id: 4, label: 'Launch', title: 'Finalization', description: 'Initialize your database and activate the live environment.' }
+    ]
+
     return (
-        <div className="w-full max-w-4xl space-y-6">
-            {/* Header */}
-            <div className="text-center mb-4">
-                <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-500">
-                    EduFlow Platinum Setup
-                </h1>
-                <div className="flex items-center justify-center gap-2 mt-2">
-                    <div className="h-1 w-1 rounded-full bg-emerald-500 animate-pulse" />
-                    <p className="text-xs font-mono text-emerald-500 uppercase">System Secure</p>
+        <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start animate-in fade-in duration-700">
+            {/* Left Column: Progress & Guidance (Sticky Sidebar) */}
+            <div className="lg:col-span-4 lg:sticky lg:top-32 space-y-10">
+                {/* Branding/Title */}
+                <div>
+                    <h1 className="text-3xl lg:text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white to-slate-400 mb-3">
+                        EduFlow Setup
+                    </h1>
+                    <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-1.5 rounded-full bg-cyan-500 animate-[pulse_2s_ease-in-out_infinite]" />
+                        <p className="text-xs font-mono text-cyan-400 uppercase tracking-widest bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full inline-block">
+                            Secure Initialization
+                        </p>
+                    </div>
+                    <p className="text-slate-400 mt-4 text-sm leading-relaxed">
+                        Follow the checklist below to provision an isolated, high-performance database instance for your institution.
+                    </p>
                 </div>
-            </div>
 
-            {/* Progress Bar & Stepper */}
-            <div className="space-y-6">
-                <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 uppercase tracking-widest px-1">
-                    <span>Initiating Setup</span>
-                    <span>Step {step} of 4</span>
-                </div>
-                <Progress 
-                    value={(step / 4) * 100} 
-                    className="h-1.5 bg-white/5 border border-white/5"
-                    indicatorClassName="bg-gradient-to-r from-cyan-500 to-blue-600 shadow-[0_0_15px_rgba(6,182,212,0.5)]"
-                />
-                
-                <div className="flex items-center justify-between pt-2">
-                    {[
-                        { id: 1, label: 'Account' },
-                        { id: 2, label: 'Branding' },
-                        { id: 3, label: 'Data' },
-                        { id: 4, label: 'Launch' }
-                    ].map((s) => (
-                        <div key={s.id} className="flex flex-col items-center gap-2 group relative">
-                            <div className={`
-                                h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500
-                                ${step >= s.id 
-                                    ? 'bg-cyan-500 text-black shadow-[0_0_20px_rgba(6,182,212,0.4)] scale-110' 
-                                    : 'bg-slate-900 text-slate-600 border border-slate-800'
-                                }
-                            `}>
-                                {step > s.id ? <Check className="w-4 h-4" /> : s.id}
+                {/* Vertical Stepper */}
+                <div className="space-y-6 relative before:absolute before:inset-0 before:ml-[1.125rem] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-white/5">
+                    {stepConfig.map((s, index) => {
+                        const isCompleted = step > s.id;
+                        const isCurrent = step === s.id;
+                        const isUpcoming = step < s.id;
+
+                        return (
+                            <div key={s.id} className="relative flex items-start gap-4 z-10 group">
+                                {/* Indicator */}
+                                <div className={`
+                                    flex items-center justify-center w-9 h-9 rounded-full border-2 shrink-0 transition-all duration-500 backdrop-blur-sm
+                                    ${isCompleted ? 'bg-[#0066FF] border-[#0066FF] text-white shadow-[0_0_15px_rgba(0,102,255,0.4)]' : ''}
+                                    ${isCurrent ? 'bg-transparent border-cyan-400 text-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.2)]' : ''}
+                                    ${isUpcoming ? 'bg-transparent border-white/10 text-slate-600' : ''}
+                                `}>
+                                    {isCompleted ? <Check className="w-4 h-4" /> : <span className="text-xs font-bold font-mono">{s.id}</span>}
+                                </div>
+                                
+                                {/* Content */}
+                                <div className={`
+                                    pt-1 flex flex-col transition-all duration-300
+                                    ${isCurrent ? 'opacity-100 translate-x-1' : 'opacity-50 hover:opacity-75'}
+                                `}>
+                                    <span className={`text-xs font-mono font-bold tracking-wider uppercase mb-1 ${isCurrent ? 'text-cyan-400' : 'text-slate-500'}`}>
+                                        {s.label}
+                                    </span>
+                                    <h3 className={`text-base font-semibold mb-1 ${isCurrent ? 'text-white' : 'text-slate-300'}`}>
+                                        {s.title}
+                                    </h3>
+                                    <p className="text-sm text-slate-500 leading-snug">
+                                        {s.description}
+                                    </p>
+                                </div>
                             </div>
-                            <span className={`
-                                text-[10px] font-bold uppercase tracking-tighter transition-colors duration-500
-                                ${step >= s.id ? 'text-cyan-400' : 'text-slate-600'}
-                            `}>
-                                {s.label}
-                            </span>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             </div>
 
-            <div className="relative">
-                {step === 1 && (
-                    <StepAccount
-                        data={data}
-                        updateData={updateData}
-                        onNext={handleNext}
-                        acceptedTerms={acceptedTerms}
-                        setAcceptedTerms={setAcceptedTerms}
-                    />
-                )}
-                {step === 2 && (
-                    <StepBranding
-                        data={data}
-                        updateData={updateData}
-                        onNext={handleNext}
-                        onBack={handleBack}
-                    />
-                )}
-                {step === 3 && (
-                    <StepImport
-                        data={data}
-                        updateData={updateData}
-                        onNext={handleNext}
-                        onBack={handleBack}
-                    />
-                )}
-                {step === 4 && (
-                    <StepPlan
-                        data={data}
-                        updateData={updateData}
-                        onSubmit={handleSubmit}
-                        onBack={handleBack}
-                        isSubmitting={isSubmitting}
-                    />
-                )}
+            {/* Right Column: Interactive Forms */}
+            <div className="lg:col-span-8 space-y-6">
+                <div className="min-h-[500px]">
+                    {step === 1 && (
+                        <StepAccount
+                            data={data}
+                            updateData={updateData}
+                            onNext={handleNext}
+                            acceptedTerms={acceptedTerms}
+                            setAcceptedTerms={setAcceptedTerms}
+                        />
+                    )}
+                    {step === 2 && (
+                        <StepBranding
+                            data={data}
+                            updateData={updateData}
+                            onNext={handleNext}
+                            onBack={handleBack}
+                        />
+                    )}
+                    {step === 3 && (
+                        <StepImport
+                            data={data}
+                            updateData={updateData}
+                            onNext={handleNext}
+                            onBack={handleBack}
+                        />
+                    )}
+                    {step === 4 && (
+                        <StepPlan
+                            data={data}
+                            updateData={updateData}
+                            onSubmit={handleSubmit}
+                            onBack={handleBack}
+                            isSubmitting={isSubmitting}
+                        />
+                    )}
+                </div>
+
+                {/* Shared Legal Footer under the forms */}
+                <div className="pt-8 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-slate-500 font-medium border-t border-white/5 mt-8">
+                    <Dialog open={isPrivacyOpen} onOpenChange={setIsPrivacyOpen}>
+                        <DialogTrigger asChild>
+                            <button type="button" className="hover:text-cyan-400 transition-colors">Privacy Policy</button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl bg-slate-950 border-white/10 text-slate-300 p-0 overflow-hidden">
+                            <DialogHeader className="p-6 border-b border-white/5 bg-slate-900">
+                                <DialogTitle className="text-xl text-white">Privacy Policy</DialogTitle>
+                            </DialogHeader>
+                            <div className="p-6 overflow-y-auto space-y-6 text-sm leading-relaxed max-h-[60vh] custom-scrollbar">
+                                <p className="text-slate-400"><strong>Effective Date:</strong> {new Date().toLocaleDateString()}</p>
+                                <div className="space-y-2">
+                                    <h4 className="text-white font-semibold text-base">1. Information We Collect</h4>
+                                    <p>We collect information you provide directly to us when setting up your school (tenant data), as well as student, parent, and staff data entered by your users during normal operations. This includes personal identifiers, academic performance metrics, and financial transaction records.</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <h4 className="text-white font-semibold text-base">2. How We Use Your Data</h4>
+                                    <p>The information is used exclusively to provide, maintain, and improve the EduFlow services for your specific institution. We do not sell your data to third parties. Data is used to generate report cards, send SMS broadcasts on your behalf, and calculate financial statements.</p>
+                                </div>
+                            </div>
+                            <DialogFooter className="p-4 border-t border-white/5 bg-slate-900 border-t-black">
+                                <Button variant="ghost" onClick={() => setIsPrivacyOpen(false)} className="text-slate-400 hover:text-white">Close</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
+                    <div className="w-1 h-1 rounded-full bg-slate-700"></div>
+
+                    <Dialog open={isTermsOpen} onOpenChange={setIsTermsOpen}>
+                        <DialogTrigger asChild>
+                            <button type="button" className="hover:text-cyan-400 transition-colors">Terms of Service</button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl bg-slate-950 border-white/10 text-slate-300 p-0 overflow-hidden">
+                            <DialogHeader className="p-6 border-b border-white/5 bg-slate-900">
+                                <DialogTitle className="text-xl text-white">Terms of Service</DialogTitle>
+                            </DialogHeader>
+                            <div className="p-6 overflow-y-auto space-y-6 text-sm leading-relaxed max-h-[60vh] custom-scrollbar">
+                                <p className="text-slate-400"><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</p>
+                                <div className="space-y-2">
+                                    <h4 className="text-white font-semibold text-base">1. Account Security & Administration</h4>
+                                    <p>You are responsible for safeguarding the credentials used to access the service. The institution's "Proprietor" or designated Administrator is fully responsible for all activities occurring under their tenant account.</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <h4 className="text-white font-semibold text-base">2. Data Ownership</h4>
+                                    <p>Your school retains full rights to the data you upload and generate on the platform. EduFlow holds no ownership claim over your student records, financial data, or lesson plans. You may export your data at any time.</p>
+                                </div>
+                            </div>
+                            <DialogFooter className="p-4 border-t border-white/5 bg-slate-900 border-t-black">
+                                <Button variant="ghost" onClick={() => setIsTermsOpen(false)} className="text-slate-400 hover:text-white">Close</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
             </div>
 
             <ProvisioningSuccess
@@ -207,127 +301,6 @@ export default function OnboardingWizard() {
                 subdomain={data.subdomain}
                 isVisible={showSuccess}
             />
-
-            {/* Legal Links */}
-            <div className="pt-6 pb-8 flex items-center justify-center gap-6 text-xs text-slate-500 font-medium">
-                <Dialog open={isPrivacyOpen} onOpenChange={setIsPrivacyOpen}>
-                    <DialogTrigger asChild>
-                        <button type="button" className="hover:text-cyan-400 transition-colors">Privacy Policy</button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl bg-white/[0.02] backdrop-blur-3xl border-white/10 text-slate-300 p-0 overflow-hidden flex flex-col max-h-[80vh]">
-                        <DialogHeader className="p-6 border-b border-white/5 bg-black/20">
-                            <DialogTitle className="text-xl text-white">Privacy Policy</DialogTitle>
-                        </DialogHeader>
-
-                        <div className="p-6 overflow-y-auto space-y-6 text-sm leading-relaxed custom-scrollbar">
-                            <p className="text-slate-400"><strong>Effective Date:</strong> {new Date().toLocaleDateString()}</p>
-
-                            <p>At EduFlow, we take the privacy and security of educational records with the utmost seriousness. This policy describes how we collect, use, and handle your school's information.</p>
-
-                            <div className="space-y-2">
-                                <h4 className="text-white font-semibold text-base">1. Information We Collect</h4>
-                                <p>We collect information you provide directly to us when setting up your school (tenant data), as well as student, parent, and staff data entered by your users during normal operations. This includes personal identifiers, academic performance metrics, and financial transaction records.</p>
-                            </div>
-
-                            <div className="space-y-2">
-                                <h4 className="text-white font-semibold text-base">2. How We Use Your Data</h4>
-                                <p>The information is used exclusively to provide, maintain, and improve the EduFlow services for your specific institution. We do not sell your data to third parties. Data is used to generate report cards, send SMS broadcasts on your behalf, and calculate financial statements.</p>
-                            </div>
-
-                            <div className="space-y-2">
-                                <h4 className="text-white font-semibold text-base">3. Data Protection & Security</h4>
-                                <p>We implement industry-standard security measures, including AES-256 encryption at rest and TLS 1.3 in transit, to protect your school's data. Our infrastructure runs on secure, isolated cloud instances.</p>
-                            </div>
-
-                            <div className="space-y-2">
-                                <h4 className="text-white font-semibold text-base">4. Compliance</h4>
-                                <p>Our data handling processes align with the Nigeria Data Protection Regulation (NDPR) and international equivalents like GDPR to ensure your student's records meet federal privacy standards.</p>
-                            </div>
-                        </div>
-
-                        <DialogFooter className="p-4 border-t border-white/5 bg-black/40 flex-row justify-end space-x-3 items-center">
-                            <Button
-                                variant="ghost"
-                                onClick={() => setIsPrivacyOpen(false)}
-                                className="text-slate-400 hover:text-white hover:bg-white/5"
-                            >
-                                Decline
-                            </Button>
-                            <Button
-                                onClick={() => {
-                                    setAcceptedTerms(true)
-                                    setIsPrivacyOpen(false)
-                                }}
-                                className="bg-[#0066FF] hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20"
-                            >
-                                {acceptedTerms ? (
-                                    <span className="flex items-center gap-2"><Check className="w-4 h-4" /> Accepted</span>
-                                ) : "I Agree"}
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-
-                <div className="w-1 h-1 rounded-full bg-slate-700"></div>
-
-                <Dialog open={isTermsOpen} onOpenChange={setIsTermsOpen}>
-                    <DialogTrigger asChild>
-                        <button type="button" className="hover:text-cyan-400 transition-colors">Terms of Service</button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl bg-white/[0.02] backdrop-blur-3xl border-white/10 text-slate-300 p-0 overflow-hidden flex flex-col max-h-[80vh]">
-                        <DialogHeader className="p-6 border-b border-white/5 bg-black/20">
-                            <DialogTitle className="text-xl text-white">Terms of Service</DialogTitle>
-                        </DialogHeader>
-
-                        <div className="p-6 overflow-y-auto space-y-6 text-sm leading-relaxed custom-scrollbar">
-                            <p className="text-slate-400"><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</p>
-
-                            <p>Welcome to EduFlow Platinum. By accessing or using our platform, you agree to be bound by these Terms of Service. Please read them carefully.</p>
-
-                            <div className="space-y-2">
-                                <h4 className="text-white font-semibold text-base">1. Account Security & Administration</h4>
-                                <p>You are responsible for safeguarding the credentials used to access the service. The institution's "Proprietor" or designated Administrator is fully responsible for all activities occurring under their tenant account, including the actions of staff and students granted access.</p>
-                            </div>
-
-                            <div className="space-y-2">
-                                <h4 className="text-white font-semibold text-base">2. Acceptable Use</h4>
-                                <p>You agree not to misuse the EduFlow platform. This includes, but is not limited to: probing security vulnerabilities, sending unsolicited commercial SMS messages through our API, or storing illicit materials. This platform is intended strictly for authorized educational and administrative purposes.</p>
-                            </div>
-
-                            <div className="space-y-2">
-                                <h4 className="text-white font-semibold text-base">3. Data Ownership</h4>
-                                <p>Your school retains full rights to the data you upload and generate on the platform. EduFlow holds no ownership claim over your student records, financial data, or lesson plans. You may export your data at any time.</p>
-                            </div>
-
-                            <div className="space-y-2">
-                                <h4 className="text-white font-semibold text-base">4. Service Availability</h4>
-                                <p>While we strive for 99.9% uptime, we do not guarantee uninterrupted service. We perform regular maintenance windows, typically scheduled during off-peak hours (weekends/nights), and will notify administrators in advance of significant planned downtime.</p>
-                            </div>
-                        </div>
-
-                        <DialogFooter className="p-4 border-t border-white/5 bg-black/40 flex-row justify-end space-x-3 items-center">
-                            <Button
-                                variant="ghost"
-                                onClick={() => setIsTermsOpen(false)}
-                                className="text-slate-400 hover:text-white hover:bg-white/5"
-                            >
-                                Decline
-                            </Button>
-                            <Button
-                                onClick={() => {
-                                    setAcceptedTerms(true)
-                                    setIsTermsOpen(false)
-                                }}
-                                className="bg-[#0066FF] hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20"
-                            >
-                                {acceptedTerms ? (
-                                    <span className="flex items-center gap-2"><Check className="w-4 h-4" /> Accepted</span>
-                                ) : "I Agree"}
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            </div>
         </div>
     )
 }

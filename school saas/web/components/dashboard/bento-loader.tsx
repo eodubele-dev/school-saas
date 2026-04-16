@@ -21,6 +21,7 @@ interface BentoDashboardLoaderProps {
     smsBalance?: number
     subdomain: string
     studentId?: string
+    logoUrl?: string
 }
 
 export async function BentoDashboardLoader({
@@ -32,7 +33,8 @@ export async function BentoDashboardLoader({
     isPilot = false,
     smsBalance = 0,
     subdomain,
-    studentId
+    studentId,
+    logoUrl
 }: BentoDashboardLoaderProps) {
     const normalizedRole = role.toLowerCase()
     const normalizedTier = tier?.toLowerCase() || 'starter'
@@ -57,6 +59,7 @@ export async function BentoDashboardLoader({
                     smsBalance={smsBalance}
                     schoolName={schoolName}
                     subdomain={subdomain}
+                    logoUrl={logoUrl}
                 />
             )
             break

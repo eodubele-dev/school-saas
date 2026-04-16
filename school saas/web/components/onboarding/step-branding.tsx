@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { CheckCircle2, XCircle, Loader2, Upload } from "lucide-react"
 import { checkSubdomainAvailability } from "@/lib/actions/onboarding"
+import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 
 interface StepBrandingProps {
@@ -18,6 +19,8 @@ interface StepBrandingProps {
 export function StepBranding({ data, updateData, onNext, onBack }: StepBrandingProps) {
     const [checking, setChecking] = useState(false)
     const [available, setAvailable] = useState<boolean | null>(null)
+    const [uploading, setUploading] = useState(false)
+    const supabase = createClient()
 
     useEffect(() => {
         const timer = setTimeout(async () => {
@@ -49,20 +52,54 @@ export function StepBranding({ data, updateData, onNext, onBack }: StepBrandingP
                             type="file"
                             accept="image/*"
                             className="absolute inset-0 opacity-0 cursor-pointer z-20"
-                            onChange={(e) => {
+                            onChange={async (e) => {
                                 const file = e.target.files?.[0]
                                 if (file) {
-                                    updateData('logo', file.name)
-                                    toast.success("Identity Secured", {
-                                        description: `${file.name} uploaded successfully.`
-                                    })
+                                    setUploading(true)
+                                    try {
+                                        const fileExt = file.name.split('.').pop()
+                                        const fileName = `${data.subdomain || 'school'}-${Math.random()}.${fileExt}`
+                                        const filePath = `logos/${fileName}`
+
+                                        const { error: uploadError } = await supabase.storage
+                                            .from('school-assets')
+                                            .upload(filePath, file)
+
+                                        if (uploadError) throw uploadError
+
+                                        const { data: { publicUrl } } = supabase.storage
+                                            .from('school-assets')
+                                            .getPublicUrl(filePath)
+
+                                        updateData('logoUrl', publicUrl)
+                                        toast.success("Identity Secured", {
+                                            description: "School crest uploaded successfully."
+                                        })
+                                    } catch (error: any) {
+                                        toast.error("Upload Failed", {
+                                            description: error.message
+                                        })
+                                    } finally {
+                                        setUploading(false)
+                                    }
                                 }
                             }}
                         />
-                        {data.logo ? (
-                            <div className="text-center p-4">
-                                <span className="text-3xl mb-2 block">✅</span>
-                                <p className="text-xs text-emerald-400 font-mono break-all">{data.logo}</p>
+                        {uploading ? (
+                            <div className="flex flex-col items-center gap-2">
+                                <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+                                <p className="text-[10px] text-cyan-400 font-mono">UPLOADING...</p>
+                            </div>
+                        ) : data.logoUrl ? (
+                            <div className="relative w-full h-full flex items-center justify-center p-4">
+                                <img 
+                                    src={data.logoUrl} 
+                                    alt="School Logo" 
+                                    className="max-w-full max-h-full object-contain rounded-xl"
+                                />
+                                <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity rounded-xl">
+                                    <p className="text-[10px] text-white font-bold">CHANGE LOGO</p>
+                                </div>
                             </div>
                         ) : (
                             <>

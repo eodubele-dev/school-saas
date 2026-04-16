@@ -239,6 +239,7 @@ interface OnboardingData {
     nerdcPresets: boolean
     plan: string
     initialDeposit?: number
+    logoUrl?: string
 }
 
 export async function createTenant(data: OnboardingData) {
@@ -254,9 +255,10 @@ export async function createTenant(data: OnboardingData) {
             .insert({
                 name: data.schoolName,
                 slug: data.subdomain,
+                logo_url: data.logoUrl,
                 theme_config: {
-                    primary: data.brandColor,
-                    accent: '#0ea5e9',
+                    primary: data.brandColor || '#00F5FF',
+                    accent: data.brandColor || '#0ea5e9',
                     type: 'school',
                     subscription_tier: data.plan,
                     is_active: true,
@@ -325,7 +327,7 @@ export async function createTenant(data: OnboardingData) {
 
         return {
             success: true,
-            redirectUrl: `/${data.subdomain}/dashboard/admin?welcome=true`
+            redirectUrl: `/${data.subdomain}/dashboard?welcome=true`
         }
 
     } catch (error: any) {
