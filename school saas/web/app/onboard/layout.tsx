@@ -11,16 +11,6 @@ export default function OnboardingLayout({
             {/* 1. Background: 'Blue Obsidian' Canvas */}
             <div className="absolute inset-0 z-0 pointer-events-none">
 
-                {/* Geometric Texture: Faint Grid (10% opacity for visibility) */}
-                <div
-                    className="absolute inset-0 opacity-[0.1]"
-                    style={{
-                        backgroundImage: `linear-gradient(#3B82F6 1px, transparent 1px), linear-gradient(90deg, #3B82F6 1px, transparent 1px)`,
-                        backgroundSize: '40px 40px',
-                        maskImage: 'radial-gradient(circle at center, black 40%, transparent 100%)' // Fade edges only
-                    }}
-                />
-
                 {/* Atmospheric Lighting 1: Behind Central Text */}
                 <div
                     className="absolute top-[20%] left-[10%] w-[50vw] h-[50vw] rounded-full blur-[120px] opacity-40 pointer-events-none"
