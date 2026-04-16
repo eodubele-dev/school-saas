@@ -243,15 +243,28 @@ interface OnboardingData {
 }
 
 export async function createTenant(data: OnboardingData) {
-    const supabase = createClient()
-    const adminClient = createAdminClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) return { success: false, error: "Authentication required" }
-
-    console.log('[createTenant] Initiating provisioning for:', data.subdomain)
+    console.log('[createTenant] UNIFIED_PROVISIONING_SEQUENCE_START for:', data.subdomain)
+    
     try {
-        console.log('[createTenant] Step 1: Creating Tenant...')
+        // --- 0. PRE-FLIGHT CHECKS ---
+        console.log('[createTenant] Step 0: Pre-flight Checks...')
+        
+        const supabase = createClient()
+        const adminClient = createAdminClient()
+        
+        // Ensure Env Vars are present (Critical for Service Role tasks)
+        if (!process.env.NEXT_PUBLIC_SUPABASE_URL) throw new Error("CRITICAL_CONFIG_ERROR: NEXT_PUBLIC_SUPABASE_URL is missing.")
+        if (!process.env.SUPABASE_SERVICE_ROLE_KEY) throw new Error("CRITICAL_CONFIG_ERROR: SUPABASE_SERVICE_ROLE_KEY is missing.")
+
+        const { data: authUser, error: authError } = await supabase.auth.getUser()
+        if (authError || !authUser.user) {
+            console.error('[createTenant] Auth check failed:', authError)
+            throw new Error("AUTHENTICATION_REQUIRED: Please log in to complete setup.")
+        }
+        const user = authUser.user
+
+        // --- 1. CORE PROVISIONING ---
+        console.log('[createTenant] Step 1: Creating Tenant Record...')
         const { data: tenant, error: tenantError } = await adminClient
             .from('tenants')
             .insert({
@@ -278,8 +291,12 @@ export async function createTenant(data: OnboardingData) {
             .select()
             .single()
 
-        if (tenantError) throw new Error("Tenant Creation Failed: " + tenantError.message)
-        console.log('[createTenant] Step 2: Linking Profile...', user.id, 'to', tenant.id)
+        if (tenantError) {
+            console.error('[createTenant] Step 1 Failure:', tenantError)
+            throw new Error("TENANT_CREATION_FAILED: " + tenantError.message)
+        }
+
+        console.log('[createTenant] Step 2: Linking Admin Profile...', user.id, '->', tenant.id)
         const { error: profileError } = await adminClient
             .from('profiles')
             .upsert({
@@ -290,7 +307,10 @@ export async function createTenant(data: OnboardingData) {
                 email: user.email
             })
 
-        if (profileError) throw new Error("Failed to link profile: " + profileError.message)
+        if (profileError) {
+            console.error('[createTenant] Step 2 Failure:', profileError)
+            throw new Error("PROFILE_LINKING_FAILED: " + profileError.message)
+        }
         
         console.log('[createTenant] Step 3: Injecting Subjects...', data.nerdcPresets)
         if (data.nerdcPresets) {
