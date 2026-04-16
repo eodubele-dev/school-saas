@@ -162,9 +162,10 @@ export default function OnboardingWizard() {
     ]
 
     return (
-        <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start animate-in fade-in duration-700">
-            {/* Left Column: Progress & Guidance (Sticky Sidebar) */}
-            <div className="lg:col-span-4 lg:sticky lg:top-32 space-y-10">
+        <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 animate-in fade-in duration-700">
+            {/* Left Column: Progress & Guidance (Sticky Sidebar Wrapper) */}
+            <div className="lg:col-span-4">
+                <div className="lg:sticky lg:top-32 space-y-10">
                 {/* Branding/Title */}
                 <div>
                     <h1 className="text-3xl lg:text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white to-slate-400 mb-3">
@@ -235,6 +236,7 @@ export default function OnboardingWizard() {
                         Reset All Progress
                     </button>
                 )}
+                </div>
             </div>
 
             {/* Right Column: Interactive Forms */}
