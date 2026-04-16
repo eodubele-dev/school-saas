@@ -7,7 +7,7 @@ export default function OnboardingLayout({
     children: React.ReactNode
 }) {
     return (
-        <div className="min-h-screen bg-[#000000] flex flex-col overflow-y-auto relative">
+        <div className="min-h-screen bg-[#000000] flex flex-col overflow-y-auto overflow-x-hidden relative">
             {/* 1. Background: 'Blue Obsidian' Canvas */}
             <div className="absolute inset-0 z-0 pointer-events-none">
 

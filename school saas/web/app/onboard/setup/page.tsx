@@ -182,7 +182,7 @@ export default function OnboardingWizard() {
                 </div>
 
                 {/* Vertical Stepper */}
-                <div className="space-y-6 relative before:absolute before:inset-0 before:ml-[1.125rem] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-white/5">
+                <div className="space-y-6 relative">
                     {stepConfig.map((s, index) => {
                         const isCompleted = step > s.id;
                         const isCurrent = step === s.id;
