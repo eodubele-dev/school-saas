@@ -333,21 +333,18 @@ export async function createTenant(data: OnboardingData) {
             if (subjectsError) console.error("[createTenant] Subjects insertion warning:", subjectsError.message)
         }
 
-        console.log('[createTenant] Step 4: Sending Welcome Email...')
-        // Send the Executive Welcome Email
-        // Note: Using 'user' email which comes from auth.getUser()
-        // We import the service dynamically or at top-level. 
-        // For clean diff, I'll rely on the top-level import I'll ask you to ensure, 
-        // or just import here if strictly needed, but let's assume I added import at top.
-        // Actually, let's just use the function.
-
+        console.log('[createTenant] Step 4: Finalizing Activation...')
+        // We handle the email sending as a non-blocking background task if possible, 
+        // to ensure the tenant creation response is returned immediately.
         try {
             const { sendWelcomeEmail } = await import('@/lib/services/email')
+            // Fire and forget (or await if you want to ensure delivery before success)
             await sendWelcomeEmail(user.email || '', data.schoolName, data.subdomain)
         } catch (emailErr) {
-            console.error("Failed to send welcome email (Non-fatal):", emailErr)
+            console.error("[createTenant] Welcome email failure (non-fatal):", emailErr)
         }
 
+        console.log('[createTenant] PROVISIONING_COMPLETE. Returning SUCCESS.')
         return {
             success: true,
             redirectUrl: `/${data.subdomain}/dashboard?welcome=true`
@@ -355,6 +352,9 @@ export async function createTenant(data: OnboardingData) {
 
     } catch (error: any) {
         console.error("Onboarding Error:", error)
-        return { success: false, error: error.message }
+        return { 
+            success: false, 
+            error: error.message || "An internal server error occurred during provisioning." 
+        }
     }
 }

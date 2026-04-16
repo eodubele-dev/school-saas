@@ -129,6 +129,11 @@ export default function OnboardingWizard() {
             }
 
             const res = await createTenant(payload)
+            
+            if (!res) {
+                throw new Error("No response from server. This may be due to a timeout or configuration error.")
+            }
+
             if (res.success && res.redirectUrl) {
                 localStorage.removeItem('eduflow_onboarding_state') // Clear on success
                 setShowSuccess(true)
@@ -143,8 +148,8 @@ export default function OnboardingWizard() {
             }
         } catch (error: any) {
             console.error("Setup Submission Error:", error)
-            toast.error("An unexpected error occurred", {
-                description: error.message || "Please check your network connection and try again."
+            toast.error("Process Interrupted", {
+                description: error.message || "The server encountered a critical error. Please check your network or try again."
             })
             setIsSubmitting(false)
         }
