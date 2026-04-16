@@ -129,8 +129,11 @@ export default function OnboardingWizard() {
                 })
                 setIsSubmitting(false)
             }
-        } catch (error) {
-            toast.error("An unexpected error occurred.")
+        } catch (error: any) {
+            console.error("Setup Submission Error:", error)
+            toast.error("An unexpected error occurred", {
+                description: error.message || "Please check your network connection and try again."
+            })
             setIsSubmitting(false)
         }
     }

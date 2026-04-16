@@ -249,7 +249,9 @@ export async function createTenant(data: OnboardingData) {
 
     if (!user) return { success: false, error: "Authentication required" }
 
+    console.log('[createTenant] Initiating provisioning for:', data.subdomain)
     try {
+        console.log('[createTenant] Step 1: Creating Tenant...')
         const { data: tenant, error: tenantError } = await adminClient
             .from('tenants')
             .insert({
@@ -276,8 +278,8 @@ export async function createTenant(data: OnboardingData) {
             .select()
             .single()
 
-        if (tenantError) throw new Error(tenantError.message)
-
+        if (tenantError) throw new Error("Tenant Creation Failed: " + tenantError.message)
+        console.log('[createTenant] Step 2: Linking Profile...', user.id, 'to', tenant.id)
         const { error: profileError } = await adminClient
             .from('profiles')
             .upsert({
@@ -289,7 +291,8 @@ export async function createTenant(data: OnboardingData) {
             })
 
         if (profileError) throw new Error("Failed to link profile: " + profileError.message)
-
+        
+        console.log('[createTenant] Step 3: Injecting Subjects...', data.nerdcPresets)
         if (data.nerdcPresets) {
             const subjects = [
                 { name: 'Mathematics', code: 'MATH' },
@@ -306,10 +309,11 @@ export async function createTenant(data: OnboardingData) {
                 is_active: true
             }))
 
-            await adminClient.from('subjects').insert(subjectInserts)
+            const { error: subjectsError } = await adminClient.from('subjects').insert(subjectInserts)
+            if (subjectsError) console.error("[createTenant] Subjects insertion warning:", subjectsError.message)
         }
 
-        // --- PLATINUM HANDOFF ---
+        console.log('[createTenant] Step 4: Sending Welcome Email...')
         // Send the Executive Welcome Email
         // Note: Using 'user' email which comes from auth.getUser()
         // We import the service dynamically or at top-level. 
@@ -318,7 +322,6 @@ export async function createTenant(data: OnboardingData) {
         // Actually, let's just use the function.
 
         try {
-            // We do a fire-and-forget or await? Await is safer for "completion" feel.
             const { sendWelcomeEmail } = await import('@/lib/services/email')
             await sendWelcomeEmail(user.email || '', data.schoolName, data.subdomain)
         } catch (emailErr) {
