@@ -19,12 +19,11 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
     const [locationState, setLocationState] = useState('Lagos')
 
     useEffect(() => {
-        // Fetch user location dynamically (No API key required, generous rate limits)
+        // Fetch user location
         fetch('https://get.geojs.io/v1/ip/geo.json')
             .then(res => res.json())
             .then(data => {
                 if (data.region) {
-                    // Clean up common suffixes for cleaner display
                     const stateName = data.region
                         .replace(' State', '')
                         .replace(' Federal Capital Territory', 'Abuja')
@@ -36,6 +35,13 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
                 console.warn('Could not detect location, defaulting to Lagos', err)
             })
     }, [])
+
+    // Fix: Reset the local isPaying state if the parent submission fails
+    useEffect(() => {
+        if (!isSubmitting) {
+            setIsPaying(false)
+        }
+    }, [isSubmitting])
 
     const plans = [
         {

@@ -19,7 +19,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Check } from "lucide-react"
+import { Check, XCircle } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 
 export default function OnboardingWizard() {
@@ -29,6 +29,7 @@ export default function OnboardingWizard() {
 
     const [step, setStep] = useState(1) // 1: Account, 2: Branding, 3: Import, 4: Launch
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isRecovering, setIsRecovering] = useState(true)
     const [showSuccess, setShowSuccess] = useState(false)
     const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
     const [isTermsOpen, setIsTermsOpen] = useState(false)
@@ -36,23 +37,23 @@ export default function OnboardingWizard() {
     const [data, setData] = useState({
         schoolName: '',
         subdomain: '',
-        brandColor: '#00F5FF',
-        logo: null,
-        plan: '',
+        brandColor: '#0066FF',
+        logoUrl: null,
+        plan: 'pilot',
         fullName: '',
         email: ''
     })
 
     // Check for existing session and localStorage on mount
     useEffect(() => {
-        async function checkSession() {
-            const { data: { user } } = await supabase.auth.getUser()
-            
-            // Try to recover state from localStorage
-            const savedData = localStorage.getItem('eduflow_onboarding_state')
-            if (savedData) {
+        async function initializeOnboarding() {
+            // 1. Recover from localStorage first
+            const savedState = localStorage.getItem('eduflow_onboarding_state')
+            let recoveredData = {}
+            if (savedState) {
                 try {
-                    const parsed = JSON.parse(savedData)
+                    const parsed = JSON.parse(savedState)
+                    recoveredData = parsed
                     setData(prev => ({ ...prev, ...parsed }))
                     if (parsed.step) setStep(parsed.step)
                 } catch (e) {
@@ -60,25 +61,36 @@ export default function OnboardingWizard() {
                 }
             }
 
-            if (user && step === 1) {
-                setStep(2) // Skip account creation if logged in
+            // 2. Refresh session
+            const { data: { user } } = await supabase.auth.getUser()
+            
+            if (user) {
                 setData(prev => ({
                     ...prev,
-                    fullName: user.user_metadata?.full_name || '',
-                    email: user.email || ''
+                    fullName: prev.fullName || user.user_metadata?.full_name || '',
+                    email: prev.email || user.email || ''
                 }))
+                
+                // Only skip to Step 2 if we are still on Step 1
+                if (step === 1 && !recoveredData.step) {
+                    setStep(2)
+                }
             }
+            
+            setIsRecovering(false)
         }
-        checkSession()
+        initializeOnboarding()
     }, [])
 
-    // Save to localStorage whenever data or step changes
+    // Save to localStorage whenever data or step changes (only after recovery)
     useEffect(() => {
-        localStorage.setItem('eduflow_onboarding_state', JSON.stringify({
-            ...data,
-            step
-        }))
-    }, [data, step])
+        if (!isRecovering) {
+            localStorage.setItem('eduflow_onboarding_state', JSON.stringify({
+                ...data,
+                step
+            }))
+        }
+    }, [data, step, isRecovering])
 
     // Pre-fill from query params
     useEffect(() => {
@@ -202,6 +214,22 @@ export default function OnboardingWizard() {
                         )
                     })}
                 </div>
+
+                {/* Reset Progress Safety Valve */}
+                {!isRecovering && (
+                    <button
+                        onClick={() => {
+                            if (window.confirm("Are you sure? This will clear all entered data and restart the setup.")) {
+                                localStorage.removeItem('eduflow_onboarding_state')
+                                window.location.reload()
+                            }
+                        }}
+                        className="text-[10px] items-center gap-2 flex text-slate-600 hover:text-rose-400 transition-colors uppercase font-mono tracking-tighter mt-12 bg-white/[0.02] px-3 py-1.5 rounded-lg border border-white/5"
+                    >
+                        <XCircle className="w-3 h-3" />
+                        Reset All Progress
+                    </button>
+                )}
             </div>
 
             {/* Right Column: Interactive Forms */}
