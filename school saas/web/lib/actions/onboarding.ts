@@ -243,12 +243,13 @@ interface OnboardingData {
 
 export async function createTenant(data: OnboardingData) {
     const supabase = createClient()
+    const adminClient = createAdminClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) return { success: false, error: "Authentication required" }
 
     try {
-        const { data: tenant, error: tenantError } = await supabase
+        const { data: tenant, error: tenantError } = await adminClient
             .from('tenants')
             .insert({
                 name: data.schoolName,
@@ -275,7 +276,7 @@ export async function createTenant(data: OnboardingData) {
 
         if (tenantError) throw new Error(tenantError.message)
 
-        const { error: profileError } = await supabase
+        const { error: profileError } = await adminClient
             .from('profiles')
             .upsert({
                 id: user.id,
@@ -303,7 +304,7 @@ export async function createTenant(data: OnboardingData) {
                 is_active: true
             }))
 
-            await supabase.from('subjects').insert(subjectInserts)
+            await adminClient.from('subjects').insert(subjectInserts)
         }
 
         // --- PLATINUM HANDOFF ---
