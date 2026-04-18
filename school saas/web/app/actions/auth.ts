@@ -68,6 +68,9 @@ export async function login(formData: FormData) {
     console.log(`[Auth Action] Auth result: User=${authData.user?.id}, Error=${authError?.message}`)
 
     if (authError || !authData.user) {
+        if (authError?.message.includes("Email not confirmed")) {
+            return { error: "Please verify your email address by clicking the link sent to your inbox before logging in." }
+        }
         return { error: authError?.message || "Authentication failed" }
     }
 
