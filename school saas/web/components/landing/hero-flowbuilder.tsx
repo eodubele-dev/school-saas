@@ -103,36 +103,13 @@ export function HeroFlowBuilder() {
                                 </span>
                             </button>
 
-                            {mounted && !isDesktop() && (
-                                <button
-                                    onClick={() => window.open(SITE_CONFIG.links.download.windows, '_blank')}
-                                    className="group px-8 py-4 bg-[#0F1115] hover:bg-slate-900 text-white font-semibold text-lg rounded-full border border-white/10 hover:border-white/20 transition-all hover:scale-[1.02] active:scale-95 w-full sm:w-auto flex items-center justify-center gap-3 shadow-2xl z-10"
-                                >
-                                    <Monitor className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />
-                                    Download Desktop
-                                </button>
-                            )}
-                        </motion.div>
-
-                        <motion.div 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.4 }}
-                            className="flex items-center gap-6 justify-center lg:justify-start pt-4"
-                        >
                             <button
                                 onClick={triggerVideoDemo}
-                                className="text-sm font-semibold text-slate-500 hover:text-white flex items-center gap-2 transition-colors group"
+                                className="group px-8 py-4 bg-[#0F1115] hover:bg-slate-900 text-white font-semibold text-lg rounded-full border border-white/10 hover:border-white/20 transition-all hover:scale-[1.02] active:scale-95 w-full sm:w-auto flex items-center justify-center gap-3 shadow-2xl z-10"
                             >
-                                <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-blue-600/20 group-hover:border-blue-500/50 transition-all">
-                                    <Play className="w-3 h-3 fill-current text-slate-400 group-hover:text-blue-400" />
-                                </div>
+                                <PlayCircle className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />
                                 See it in action
                             </button>
-                            <div className="h-4 w-px bg-white/10" />
-                            <p className="text-xs text-slate-500 uppercase tracking-widest font-mono font-semibold">
-                                Windows · MacOS · Linux
-                            </p>
                         </motion.div>
                     </div>
 

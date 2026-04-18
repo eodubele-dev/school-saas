@@ -138,6 +138,15 @@ export default function MarketingLoginPage() {
                                 >
                                     {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Enter Command Center"}
                                 </Button>
+
+                                <div className="text-center mt-2">
+                                    <p className="text-sm text-slate-400">
+                                        Don't have an account?{' '}
+                                        <Link href="/onboarding" className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
+                                            Register your school
+                                        </Link>
+                                    </p>
+                                </div>
                             </form>
                         ) : (
                             <div className="grid gap-3 max-h-[350px] overflow-y-auto custom-scrollbar pr-1">
