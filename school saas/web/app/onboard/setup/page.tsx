@@ -224,8 +224,8 @@ export default function OnboardingWizard() {
             </div>
 
             {/* Right Column: Interactive Forms */}
-            <div className="lg:col-span-8 space-y-6">
-                <div className="min-h-[500px]">
+            <div className="lg:col-span-8 lg:h-[calc(100vh-160px)] lg:overflow-y-auto lg:pr-4 custom-scrollbar">
+                <div className="space-y-6 min-h-[500px]">
                     {step === 1 && (
                         <StepAccount
                             data={data}
