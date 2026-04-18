@@ -26,22 +26,43 @@ export type TenantOption = {
 
 export async function getTenants(): Promise<TenantOption[]> {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    const { data: realTenants, error } = await supabase
-        .from('tenants')
-        .select('id, name, slug, logo_url')
+    if (!user) return []
 
-    if (error) {
-        console.error("Error fetching tenants:", error)
-        return []
+    // Fetch the user's profile to get their specific tenant
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, tenant_id, tenants(id, name, slug, logo_url)')
+        .eq('id', user.id)
+        .single()
+
+    // If super_admin, they can see all campuses
+    if (profile?.role === 'super_admin') {
+        const { data: allTenants } = await supabase
+            .from('tenants')
+            .select('id, name, slug, logo_url')
+
+        return (allTenants || []).map(t => ({
+            id: t.id,
+            name: t.name,
+            slug: t.slug,
+            logoUrl: t.logo_url || undefined
+        }))
     }
 
-    return (realTenants || []).map(t => ({
-        id: t.id,
-        name: t.name,
-        slug: t.slug,
-        logoUrl: t.logo_url || undefined
-    }))
+    // Normal admins/proprietors only see their own campus
+    if (profile?.tenants) {
+        const t = profile.tenants as any
+        return [{
+            id: t.id,
+            name: t.name,
+            slug: t.slug,
+            logoUrl: t.logo_url || undefined
+        }]
+    }
+
+    return []
 }
 
 export async function getGlobalStats(): Promise<GlobalStats> {
