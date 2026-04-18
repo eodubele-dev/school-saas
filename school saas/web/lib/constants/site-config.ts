@@ -11,8 +11,8 @@ export const SITE_CONFIG = {
         linkedin: "https://linkedin.com/company/eduflow",
         github: "https://github.com/eduflow",
         download: {
-            windows: "https://download.eduflow.com/win/EduFlow-Setup.exe",
-            mac: "https://download.eduflow.com/mac/EduFlow-Installer.dmg"
+            windows: "/downloads/win/EduFlow-Setup.exe",
+            mac: "/downloads/mac/EduFlow-Installer.dmg"
         }
     },
     cookieConsent: {
