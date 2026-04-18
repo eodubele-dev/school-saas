@@ -251,6 +251,7 @@ export default function OnboardingWizard() {
                         )
                     })}
                 </div>
+                </div>
             </div>
 
             {/* Right Column: Interactive Forms */}
