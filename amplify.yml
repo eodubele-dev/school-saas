@@ -8,7 +8,11 @@ applications:
             - npm ci
         build:
           commands:
+            - echo "SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY" > .env.production
+            - echo "NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL" >> .env.production
+            - echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> .env.production
             - npm run build
+            - cp .env.production .next/standalone/ || true
       artifacts:
         baseDirectory: .next
         files:
