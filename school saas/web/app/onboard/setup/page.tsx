@@ -33,7 +33,6 @@ export default function OnboardingWizard() {
     const [showSuccess, setShowSuccess] = useState(false)
     const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
     const [isTermsOpen, setIsTermsOpen] = useState(false)
-    const [isResetOpen, setIsResetOpen] = useState(false)
     const [acceptedTerms, setAcceptedTerms] = useState(false)
     const [data, setData] = useState({
         schoolName: '',
@@ -181,36 +180,6 @@ export default function OnboardingWizard() {
                     <p className="text-slate-400 mt-4 text-sm leading-relaxed">
                         Follow the checklist below to provision an isolated, high-performance database instance for your institution.
                     </p>
-
-                    {/* Reset Progress Safety Valve */}
-                    {!isRecovering && (
-                        <Dialog open={isResetOpen} onOpenChange={setIsResetOpen}>
-                            <DialogTrigger asChild>
-                                <button className="mt-6 flex items-center gap-2 text-xs font-semibold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 px-4 py-2 rounded-lg transition-colors w-max shadow-sm">
-                                    <XCircle className="w-4 h-4" /> RESTART SETUP
-                                </button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-md bg-slate-950 border-white/10 text-slate-300 p-0 overflow-hidden">
-                                <DialogHeader className="p-6 border-b border-white/5 bg-slate-900">
-                                    <DialogTitle className="text-xl text-white">Restart Setup Process?</DialogTitle>
-                                </DialogHeader>
-                                <div className="p-6 space-y-4">
-                                    <p className="text-slate-400 text-sm leading-relaxed">
-                                        Are you sure? This action cannot be undone. It will clear all the school data you have entered so far and restart the wizard from the beginning.
-                                    </p>
-                                </div>
-                                <DialogFooter className="p-4 border-t border-white/5 bg-slate-900 border-t-black flex justify-end gap-2">
-                                    <Button variant="ghost" onClick={() => setIsResetOpen(false)} className="text-slate-400 hover:text-white">Cancel</Button>
-                                    <Button variant="destructive" className="bg-rose-600 hover:bg-rose-500 text-white" onClick={() => {
-                                        localStorage.removeItem('eduflow_onboarding_state')
-                                        window.location.reload()
-                                    }}>
-                                        Yes, Restart Setup
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-                    )}
                 </div>
 
                 {/* Vertical Stepper */}
@@ -294,7 +263,7 @@ export default function OnboardingWizard() {
                 </div>
 
                 {/* Shared Legal Footer under the forms */}
-                <div className="pt-8 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-slate-500 font-medium border-t border-white/5 mt-8">
+                <div className="pt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500 font-medium border-t border-white/5 mt-8">
                     <Dialog open={isPrivacyOpen} onOpenChange={setIsPrivacyOpen}>
                         <DialogTrigger asChild>
                             <button type="button" className="hover:text-cyan-400 transition-colors">Privacy Policy</button>
