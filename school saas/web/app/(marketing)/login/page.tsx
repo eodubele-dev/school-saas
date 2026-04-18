@@ -187,10 +187,10 @@ export default function MarketingLoginPage() {
                                 </Link>
                             ) : mounted && isDesktop() ? (
                                 <button
-                                    onClick={() => { setStep('email'); setEmail(''); setSchools([]); }}
+                                    onClick={() => window.location.href = '/'}
                                     className="text-sm font-medium text-slate-400 hover:text-white transition-colors"
                                 >
-                                    Reset Discovery
+                                    Back to Home
                                 </button>
                             ) : (
                                 <div className="text-sm font-medium text-slate-400 opacity-0 px-4">Loading...</div>
