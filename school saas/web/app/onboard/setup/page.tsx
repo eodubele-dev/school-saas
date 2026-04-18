@@ -162,8 +162,8 @@ export default function OnboardingWizard() {
     ]
 
     return (
-        <div className="w-full h-full max-w-6xl mx-auto flex flex-col pt-6 lg:pt-12">
-            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 animate-in fade-in duration-700">
+        <div className="w-full max-w-6xl mx-auto flex flex-col pt-6 lg:pt-12 min-h-max pb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 animate-in fade-in duration-700">
                 {/* Left Column: Progress & Guidance (Sticky Sidebar Wrapper) */}
                 <div className="lg:col-span-4">
                 <div className="lg:sticky lg:top-32 space-y-10">
@@ -265,8 +265,8 @@ export default function OnboardingWizard() {
             </div>
             </div>
 
-            {/* Global Legal Footer safely OUTSIDE the scroll grid! */}
-            <div className="shrink-0 py-6 w-full flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500 font-medium border-t border-white/5 mt-auto bg-black/50 z-20 relative">
+            {/* Global Legal Footer safely OUTSIDE the grid! */}
+            <div className="pt-12 pb-6 w-full flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500 font-medium border-t border-white/5 mt-8 z-20 relative">
                     <Dialog open={isPrivacyOpen} onOpenChange={setIsPrivacyOpen}>
                         <DialogTrigger asChild>
                             <button type="button" className="hover:text-cyan-400 transition-colors">Privacy Policy</button>

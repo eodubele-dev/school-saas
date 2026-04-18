@@ -7,7 +7,7 @@ export default function OnboardingLayout({
     children: React.ReactNode
 }) {
     return (
-        <div className="h-screen bg-[#000000] flex flex-col relative overflow-hidden">
+        <div className="min-h-screen bg-[#000000] flex flex-col relative">
             {/* 1. Background: 'Blue Obsidian' Canvas */}
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
 
@@ -24,7 +24,7 @@ export default function OnboardingLayout({
                 />
             </div>
 
-            <header className="h-20 border-b border-white/5 bg-black/40 backdrop-blur-md flex items-center justify-between px-10 shrink-0 relative z-50">
+            <header className="h-20 border-b border-white/5 bg-black/40 backdrop-blur-md flex items-center justify-between px-10 fixed top-0 w-full z-50">
                 <div className="flex items-center gap-4">
                     <Link href="/" className="flex items-center gap-0 group relative z-10 transition-transform duration-300 hover:scale-[1.02]">
                         <img
@@ -49,10 +49,10 @@ export default function OnboardingLayout({
                     </Link>
                 </div>
             </header>
-            <main className="flex-1 flex flex-col items-center justify-start p-6 overflow-hidden relative">
+            <main className="flex-1 flex flex-col items-center justify-start p-6 pt-[104px] pb-24 relative min-h-max">
                 {/* Background Glow */}
                 {/* Removed original radial gradient since new background is applied */}
-                <div className="relative z-10 w-full h-full flex flex-col items-center">
+                <div className="relative z-10 w-full flex justify-center">
                     {children}
                 </div>
             </main>
