@@ -39,8 +39,8 @@ export async function getAdminStats() {
         const totalPotentialRevenue = totalRevenue + revenueLeakage
         const recoveryRate = totalPotentialRevenue > 0 ? Math.round((totalRevenue / totalPotentialRevenue) * 100) : 0
 
-        // Hostel Stats
-        const { data: rooms } = await supabase.from('hostel_rooms').select('capacity, occupancy, maintenance_status').eq('tenant_id', tenantId)
+        // Hostel Stats (Requires join if filtering manually, but RLS handles it now OR we join explicitly)
+        const { data: rooms } = await supabase.from('hostel_rooms').select('capacity, occupancy, maintenance_status, hostels!inner(tenant_id)').eq('hostels.tenant_id', tenantId)
         const totalCapacity = (rooms || []).reduce((sum, r) => sum + (r.capacity || 0), 0)
         const totalOccupancy = (rooms || []).reduce((sum, r) => sum + (r.occupancy || 0), 0)
         const occupancyRate = totalCapacity > 0 ? Math.round((totalOccupancy / totalCapacity) * 100) : 0

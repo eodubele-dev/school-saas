@@ -59,11 +59,23 @@ AS PERMISSIVE FOR ALL
 USING (tenant_id = (NULLIF(auth.jwt()->'app_metadata'->>'tenantId', ''))::uuid)
 WITH CHECK (tenant_id = (NULLIF(auth.jwt()->'app_metadata'->>'tenantId', ''))::uuid);
 
--- Hostel Rooms
+-- Hostel Rooms (Requires join through hostels)
 CREATE POLICY "Tenant Isolation Policy" ON public.hostel_rooms
 AS PERMISSIVE FOR ALL
-USING (tenant_id = (NULLIF(auth.jwt()->'app_metadata'->>'tenantId', ''))::uuid)
-WITH CHECK (tenant_id = (NULLIF(auth.jwt()->'app_metadata'->>'tenantId', ''))::uuid);
+USING (
+    EXISTS (
+        SELECT 1 FROM public.hostels h 
+        WHERE h.id = hostel_id 
+        AND h.tenant_id = (NULLIF(auth.jwt()->'app_metadata'->>'tenantId', ''))::uuid
+    )
+)
+WITH CHECK (
+    EXISTS (
+        SELECT 1 FROM public.hostels h 
+        WHERE h.id = hostel_id 
+        AND h.tenant_id = (NULLIF(auth.jwt()->'app_metadata'->>'tenantId', ''))::uuid
+    )
+);
 
 -- Achievements
 CREATE POLICY "Tenant Isolation Policy" ON public.achievements
