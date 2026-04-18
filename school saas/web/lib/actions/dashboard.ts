@@ -10,18 +10,17 @@ export async function getAdminStats() {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return null
 
-        // We need the tenant_id. Using get_auth_tenant_id function or fetching profile.
-        // Since RLS is on, simple queries to 'students' etc should automatically filter by tenant
-        // IF the user has a profile with the correct tenant_id.
+        // Fetch tenant ID for application-level isolation (Defense in Depth)
+        const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+        const tenantId = profile?.tenant_id
 
-        // Let's rely on RLS. If RLS is working, 'select count' on students 
-        // will only return students for this tenant.
+        if (!tenantId) return null
 
         const [studentsResult, teachersResult, classesResult, transactionsResult] = await Promise.all([
-            supabase.from('students').select('*', { count: 'exact', head: true }),
-            supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'teacher'),
-            supabase.from('classes').select('*', { count: 'exact', head: true }),
-            supabase.from('transactions').select('amount').eq('status', 'success')
+            supabase.from('students').select('*', { count: 'exact', head: true }).eq('tenant_id', tenantId),
+            supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'teacher').eq('tenant_id', tenantId),
+            supabase.from('classes').select('*', { count: 'exact', head: true }).eq('tenant_id', tenantId),
+            supabase.from('transactions').select('amount').eq('status', 'success').eq('tenant_id', tenantId)
         ])
 
         const totalRevenue = (transactionsResult.data || []).reduce((sum, trx) => sum + (Number(trx.amount) || 0), 0)
@@ -33,6 +32,7 @@ export async function getAdminStats() {
             .select('amount')
             .eq('status', 'unpaid')
             .lt('due_date', todayStr)
+            .eq('tenant_id', tenantId)
 
         const revenueLeakage = (unpaidFees || []).reduce((sum, fee) => sum + (Number(fee.amount) || 0), 0)
         const orphanedFeesCount = unpaidFees?.length || 0
@@ -40,7 +40,7 @@ export async function getAdminStats() {
         const recoveryRate = totalPotentialRevenue > 0 ? Math.round((totalRevenue / totalPotentialRevenue) * 100) : 0
 
         // Hostel Stats
-        const { data: rooms } = await supabase.from('hostel_rooms').select('capacity, occupancy, maintenance_status')
+        const { data: rooms } = await supabase.from('hostel_rooms').select('capacity, occupancy, maintenance_status').eq('tenant_id', tenantId)
         const totalCapacity = (rooms || []).reduce((sum, r) => sum + (r.capacity || 0), 0)
         const totalOccupancy = (rooms || []).reduce((sum, r) => sum + (r.occupancy || 0), 0)
         const occupancyRate = totalCapacity > 0 ? Math.round((totalOccupancy / totalCapacity) * 100) : 0
@@ -57,6 +57,7 @@ export async function getAdminStats() {
             .select('amount, date')
             .eq('status', 'success')
             .gte('date', twelveMonthsAgo.toISOString())
+            .eq('tenant_id', tenantId)
 
         const revenueChartData = Array.from({ length: 12 }, (_, i) => {
             const d = new Date()
@@ -78,6 +79,7 @@ export async function getAdminStats() {
         const { data: genderData } = await supabase
             .from('students')
             .select('gender')
+            .eq('tenant_id', tenantId)
 
         const demographicsData = [
             { name: "Male", value: (genderData || []).filter(s => s.gender?.toLowerCase() === 'male').length },
@@ -96,18 +98,21 @@ export async function getAdminStats() {
         const { data: recentStudents } = await supabase
             .from('students')
             .select('full_name, created_at')
+            .eq('tenant_id', tenantId)
             .order('created_at', { ascending: false })
             .limit(10)
 
         const { data: recentClasses } = await supabase
             .from('classes')
             .select('name, created_at')
+            .eq('tenant_id', tenantId)
             .order('created_at', { ascending: false })
             .limit(10)
 
         const { data: recentAchievements } = await supabase
             .from('achievements')
             .select('title, created_at, student:students(full_name)')
+            .eq('tenant_id', tenantId)
             .order('created_at', { ascending: false })
             .limit(10)
 
