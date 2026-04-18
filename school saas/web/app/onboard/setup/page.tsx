@@ -10,14 +10,7 @@ import { createTenant } from "@/lib/actions/onboarding"
 import { toast } from "sonner"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-    DialogFooter,
-} from "@/components/ui/dialog"
+
 import { Button } from "@/components/ui/button"
 import { Check, XCircle } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
@@ -31,8 +24,7 @@ export default function OnboardingWizard() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isRecovering, setIsRecovering] = useState(true)
     const [showSuccess, setShowSuccess] = useState(false)
-    const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
-    const [isTermsOpen, setIsTermsOpen] = useState(false)
+
     const [acceptedTerms, setAcceptedTerms] = useState(false)
     const [data, setData] = useState({
         schoolName: '',
@@ -265,60 +257,7 @@ export default function OnboardingWizard() {
             </div>
             </div>
 
-            {/* Global Legal Footer safely OUTSIDE the grid! */}
-            <div className="pt-12 pb-6 w-full flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500 font-medium border-t border-white/5 mt-8 z-20 relative">
-                    <Dialog open={isPrivacyOpen} onOpenChange={setIsPrivacyOpen}>
-                        <DialogTrigger asChild>
-                            <button type="button" className="hover:text-cyan-400 transition-colors">Privacy Policy</button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl bg-slate-950 border-white/10 text-slate-300 p-0 overflow-hidden">
-                            <DialogHeader className="p-6 border-b border-white/5 bg-slate-900">
-                                <DialogTitle className="text-xl text-white">Privacy Policy</DialogTitle>
-                            </DialogHeader>
-                            <div className="p-6 overflow-y-auto space-y-6 text-sm leading-relaxed max-h-[60vh] custom-scrollbar">
-                                <p className="text-slate-400"><strong>Effective Date:</strong> {new Date().toLocaleDateString()}</p>
-                                <div className="space-y-2">
-                                    <h4 className="text-white font-semibold text-base">1. Information We Collect</h4>
-                                    <p>We collect information you provide directly to us when setting up your school (tenant data), as well as student, parent, and staff data entered by your users during normal operations. This includes personal identifiers, academic performance metrics, and financial transaction records.</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <h4 className="text-white font-semibold text-base">2. How We Use Your Data</h4>
-                                    <p>The information is used exclusively to provide, maintain, and improve the EduFlow services for your specific institution. We do not sell your data to third parties. Data is used to generate report cards, send SMS broadcasts on your behalf, and calculate financial statements.</p>
-                                </div>
-                            </div>
-                            <DialogFooter className="p-4 border-t border-white/5 bg-slate-900 border-t-black">
-                                <Button variant="ghost" onClick={() => setIsPrivacyOpen(false)} className="text-slate-400 hover:text-white">Close</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
 
-                    <div className="w-1 h-1 rounded-full bg-slate-700"></div>
-
-                    <Dialog open={isTermsOpen} onOpenChange={setIsTermsOpen}>
-                        <DialogTrigger asChild>
-                            <button type="button" className="hover:text-cyan-400 transition-colors">Terms of Service</button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl bg-slate-950 border-white/10 text-slate-300 p-0 overflow-hidden">
-                            <DialogHeader className="p-6 border-b border-white/5 bg-slate-900">
-                                <DialogTitle className="text-xl text-white">Terms of Service</DialogTitle>
-                            </DialogHeader>
-                            <div className="p-6 overflow-y-auto space-y-6 text-sm leading-relaxed max-h-[60vh] custom-scrollbar">
-                                <p className="text-slate-400"><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</p>
-                                <div className="space-y-2">
-                                    <h4 className="text-white font-semibold text-base">1. Account Security & Administration</h4>
-                                    <p>You are responsible for safeguarding the credentials used to access the service. The institution's "Proprietor" or designated Administrator is fully responsible for all activities occurring under their tenant account.</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <h4 className="text-white font-semibold text-base">2. Data Ownership</h4>
-                                    <p>Your school retains full rights to the data you upload and generate on the platform. EduFlow holds no ownership claim over your student records, financial data, or lesson plans. You may export your data at any time.</p>
-                                </div>
-                            </div>
-                            <DialogFooter className="p-4 border-t border-white/5 bg-slate-900 border-t-black">
-                                <Button variant="ghost" onClick={() => setIsTermsOpen(false)} className="text-slate-400 hover:text-white">Close</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </div>
 
             <ProvisioningSuccess
                 schoolName={data.schoolName}

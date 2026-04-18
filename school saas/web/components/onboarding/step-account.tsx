@@ -9,6 +9,13 @@ import { User, Mail, Lock, Loader2, ArrowRight, ShieldCheck, Eye, EyeOff } from 
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog"
 
 interface StepAccountProps {
     data: any
@@ -23,6 +30,8 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
     const [mode, setMode] = useState<'signup' | 'login'>('signup')
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
+    const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
+    const [isTermsOpen, setIsTermsOpen] = useState(false)
     const supabase = createClient()
     const router = useRouter()
 
@@ -184,9 +193,12 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
                             >
                                 Accept terms and conditions
                             </label>
-                            <p className="text-xs text-muted-foreground">
-                                You agree to our Terms of Service and Privacy Policy.
-                            </p>
+                            <div className="text-xs text-muted-foreground mt-1">
+                                You agree to our{" "}
+                                <button type="button" onClick={() => setIsTermsOpen(true)} className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2 font-medium transition-colors">Terms of Service</button>
+                                {" "}and{" "}
+                                <button type="button" onClick={() => setIsPrivacyOpen(true)} className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2 font-medium transition-colors">Privacy Policy</button>.
+                            </div>
                         </div>
                     </div>
                 )}
@@ -218,6 +230,51 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
                     )}
                 </p>
             </div>
+
+            {/* Legal Dialogs */}
+            <Dialog open={isPrivacyOpen} onOpenChange={setIsPrivacyOpen}>
+                <DialogContent className="max-w-2xl bg-slate-950 border-white/10 text-slate-300 p-0 overflow-hidden z-[100]">
+                    <DialogHeader className="p-6 border-b border-white/5 bg-slate-900">
+                        <DialogTitle className="text-xl text-white">Privacy Policy</DialogTitle>
+                    </DialogHeader>
+                    <div className="p-6 overflow-y-auto space-y-6 text-sm leading-relaxed max-h-[60vh] custom-scrollbar">
+                        <p className="text-slate-400"><strong>Effective Date:</strong> {new Date().toLocaleDateString()}</p>
+                        <div className="space-y-2">
+                            <h4 className="text-white font-semibold text-base">1. Information We Collect</h4>
+                            <p>We collect information you provide directly to us when setting up your school (tenant data), as well as student, parent, and staff data entered by your users during normal operations. This includes personal identifiers, academic performance metrics, and financial transaction records.</p>
+                        </div>
+                        <div className="space-y-2">
+                            <h4 className="text-white font-semibold text-base">2. How We Use Your Data</h4>
+                            <p>The information is used exclusively to provide, maintain, and improve the EduFlow services for your specific institution. We do not sell your data to third parties. Data is used to generate report cards, send SMS broadcasts on your behalf, and calculate financial statements.</p>
+                        </div>
+                    </div>
+                    <DialogFooter className="p-4 border-t border-white/5 bg-slate-900 border-t-black">
+                        <Button variant="ghost" onClick={() => setIsPrivacyOpen(false)} className="text-slate-400 hover:text-white">Close</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isTermsOpen} onOpenChange={setIsTermsOpen}>
+                <DialogContent className="max-w-2xl bg-slate-950 border-white/10 text-slate-300 p-0 overflow-hidden z-[100]">
+                    <DialogHeader className="p-6 border-b border-white/5 bg-slate-900">
+                        <DialogTitle className="text-xl text-white">Terms of Service</DialogTitle>
+                    </DialogHeader>
+                    <div className="p-6 overflow-y-auto space-y-6 text-sm leading-relaxed max-h-[60vh] custom-scrollbar">
+                        <p className="text-slate-400"><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</p>
+                        <div className="space-y-2">
+                            <h4 className="text-white font-semibold text-base">1. Account Security & Administration</h4>
+                            <p>You are responsible for safeguarding the credentials used to access the service. The institution's "Proprietor" or designated Administrator is fully responsible for all activities occurring under their tenant account.</p>
+                        </div>
+                        <div className="space-y-2">
+                            <h4 className="text-white font-semibold text-base">2. Data Ownership</h4>
+                            <p>Your school retains full rights to the data you upload and generate on the platform. EduFlow holds no ownership claim over your student records, financial data, or lesson plans. You may export your data at any time.</p>
+                        </div>
+                    </div>
+                    <DialogFooter className="p-4 border-t border-white/5 bg-slate-900 border-t-black">
+                        <Button variant="ghost" onClick={() => setIsTermsOpen(false)} className="text-slate-400 hover:text-white">Close</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
