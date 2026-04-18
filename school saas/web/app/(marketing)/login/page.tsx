@@ -142,7 +142,7 @@ export default function MarketingLoginPage() {
                                 <div className="text-center mt-2">
                                     <p className="text-sm text-slate-400">
                                         Don't have an account?{' '}
-                                        <Link href="/onboard" className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
+                                        <Link href="/onboard/setup" className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
                                             Register your school
                                         </Link>
                                     </p>
