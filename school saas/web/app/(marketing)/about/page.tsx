@@ -56,7 +56,7 @@ export default function AboutUs() {
                         
                         {/* Huge Image Card */}
                         <ScrollReveal className="md:col-span-8">
-                            <div className="bento-card h-full min-h-[400px] bg-[#1A1D27] hover:bg-[#202432] border border-border/50 hover:border-blue-500/50 rounded-[32px] overflow-hidden group relative p-8 md:p-12 flex flex-col justify-end transition-all">
+                            <div className="bento-card h-full min-h-[400px] bg-[#2A2F3E] hover:bg-[#343B4E] border border-white/10 hover:border-blue-500/50 rounded-[32px] overflow-hidden group relative p-8 md:p-12 flex flex-col justify-end transition-all">
                                 <div className="absolute inset-0 z-0">
                                     <div className="absolute inset-0 bg-blue-600/[0.02] mix-blend-overlay pointer-events-none" />
                                     {/* Abstract Data Grid Pattern SVG */}
@@ -87,7 +87,7 @@ export default function AboutUs() {
 
                         {/* Stat Card */}
                         <ScrollReveal className="md:col-span-4" delay={0.2}>
-                            <div className="bento-card h-full bg-[#1A1D27] hover:bg-[#202432] border border-border/50 hover:border-blue-500/50 rounded-[32px] p-8 relative overflow-hidden group flex flex-col justify-center items-center text-center transition-all">
+                            <div className="bento-card h-full bg-[#2A2F3E] hover:bg-[#343B4E] border border-white/10 hover:border-blue-500/50 rounded-[32px] p-8 relative overflow-hidden group flex flex-col justify-center items-center text-center transition-all">
                                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.1)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                                 
                                 <Globe className="w-12 h-12 text-slate-700 mb-6 group-hover:text-cyan-500 transition-colors duration-500" />
@@ -117,7 +117,7 @@ export default function AboutUs() {
                                 { title: "Global Standards", desc: "Bringing Silicon Valley technology to the heart of African education with intense local expertise.", icon: Building },
                             ].map((pillar, i) => (
                                 <ScrollReveal key={i} delay={i * 0.1}>
-                                    <div className="h-full bg-[#1A1D27] border border-border/50 p-8 rounded-[24px] group hover:border-blue-500/50 transition-all shadow-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] relative overflow-hidden">
+                                    <div className="h-full bg-[#2A2F3E] border border-white/10 p-8 rounded-[24px] group hover:border-blue-500/50 transition-all shadow-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] relative overflow-hidden">
                                         <div className="absolute right-0 top-0 w-32 h-32 bg-gradient-to-bl from-white/[0.02] to-transparent pointer-events-none rounded-bl-full" />
                                         
                                         <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-cyan-500/10 transition-all duration-300">
