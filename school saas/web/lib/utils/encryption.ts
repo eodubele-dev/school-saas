@@ -37,10 +37,20 @@ export async function encryptData(text: string): Promise<{ data: string; iv: str
         key,
         encoded
     )
+    const encryptedArray = new Uint8Array(encrypted)
+    let binaryData = ''
+    for (let i = 0; i < encryptedArray.byteLength; i++) {
+        binaryData += String.fromCharCode(encryptedArray[i])
+    }
+
+    let binaryIv = ''
+    for (let i = 0; i < iv.byteLength; i++) {
+        binaryIv += String.fromCharCode(iv[i])
+    }
 
     return {
-        data: btoa(String.fromCharCode(...new Uint8Array(encrypted))),
-        iv: btoa(String.fromCharCode(...iv))
+        data: btoa(binaryData),
+        iv: btoa(binaryIv)
     }
 }
 

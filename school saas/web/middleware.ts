@@ -68,7 +68,7 @@ export default async function middleware(req: NextRequest) {
     let currentHost: string | null = null
 
     // Main domain detection logic (PLATINUM ROBUST)
-    const isMainDomain = host === rootDomain || 
+    let isMainDomain = host === rootDomain || 
                          host === `www.${rootDomain}` || 
                          host === 'localhost' || 
                          host === '127.0.0.1' ||
@@ -129,7 +129,11 @@ export default async function middleware(req: NextRequest) {
   }
 
   // 2. Tenant Verification (The "Filter")
-  console.log(`[Middleware] Fetching tenant for: ${currentHost}`)
+  if (!currentHost) {
+    console.log('[Middleware] Skip tenant check: No host resolved')
+    return response
+  }
+
   const { data: tenant, error: tenantErr } = await supabase
     .from('tenants')
     .select('id, name, slug, logo_url, theme_config')

@@ -9,7 +9,6 @@ export interface CreateLessonParams {
     subject: string
     grade_level: string
     week: number
-    week: number
     subtopics?: string
     lessonPlanId?: string
 }

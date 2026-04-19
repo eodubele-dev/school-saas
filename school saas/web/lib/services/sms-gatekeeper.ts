@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { logSMSTransaction } from './sms'
+import { logSMSTransaction } from '@/lib/actions/sms'
 
 /**
  * SMS Event Types
