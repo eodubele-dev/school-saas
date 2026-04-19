@@ -56,7 +56,7 @@ export default function AboutUs() {
                         
                         {/* Huge Image Card */}
                         <ScrollReveal className="md:col-span-8">
-                            <div className="bento-card h-full min-h-[400px] bg-[#0F1115] hover:bg-[#14171E] border border-border/50 rounded-[32px] overflow-hidden group relative p-8 md:p-12 flex flex-col justify-end">
+                            <div className="bento-card h-full min-h-[400px] bg-[#1A1D27] hover:bg-[#202432] border border-border/50 hover:border-blue-500/50 rounded-[32px] overflow-hidden group relative p-8 md:p-12 flex flex-col justify-end transition-all">
                                 <div className="absolute inset-0 z-0">
                                     <div className="absolute inset-0 bg-blue-600/[0.02] mix-blend-overlay pointer-events-none" />
                                     {/* Abstract Data Grid Pattern SVG */}
@@ -87,8 +87,8 @@ export default function AboutUs() {
 
                         {/* Stat Card */}
                         <ScrollReveal className="md:col-span-4" delay={0.2}>
-                            <div className="bento-card h-full bg-gradient-to-br from-[#111113] to-black border border-white/5 rounded-[32px] p-8 relative overflow-hidden group flex flex-col justify-center items-center text-center">
-                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(6,182,212,0.15)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                            <div className="bento-card h-full bg-[#1A1D27] hover:bg-[#202432] border border-border/50 hover:border-blue-500/50 rounded-[32px] p-8 relative overflow-hidden group flex flex-col justify-center items-center text-center transition-all">
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.1)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                                 
                                 <Globe className="w-12 h-12 text-slate-700 mb-6 group-hover:text-cyan-500 transition-colors duration-500" />
                                 
