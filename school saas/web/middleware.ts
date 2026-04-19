@@ -100,6 +100,7 @@ export default async function middleware(req: NextRequest) {
   // Handle Main Domain matches (No tenant found in subdomain or path)
   if (!currentHost || currentHost === 'www' || currentHost === 'localhost' || hostname?.includes('.amplifyapp.com')) {
     console.log('[Middleware] Main domain detected')
+    // Reset internal pathname if it was accidentally modified by path-based branch
     return response
   }
 
@@ -162,18 +163,30 @@ export default async function middleware(req: NextRequest) {
     })
   } else {
     // Subdomain mode: Add /school1 prefix to path
-    const rewriteUrl = new URL(
-      path.startsWith(`/${currentHost}/`) || path === `/${currentHost}` 
-        ? `${path}${searchParams.length > 0 ? `?${searchParams}` : ''}` 
-        : `/${currentHost}${path}${searchParams.length > 0 ? `?${searchParams}` : ''}`, 
-      req.url
-    )
+    // CRITICAL: Prevent recursive rewrite if already rewritten
+    const isAlreadyRewritten = path.startsWith(`/${currentHost}/`) || path === `/${currentHost}`
     
-    finalResponse = NextResponse.rewrite(rewriteUrl, {
-      request: {
-        headers: requestHeaders
-      }
-    })
+    if (isAlreadyRewritten) {
+      console.log(`[Middleware] Path already matches internal slug structure: ${path}. Skipping rewrite.`)
+      finalResponse = NextResponse.next({
+        request: {
+          headers: requestHeaders
+        }
+      })
+    } else {
+      const rewriteUrl = new URL(
+        `/${currentHost}${path}${searchParams.length > 0 ? `?${searchParams}` : ''}`, 
+        req.url
+      )
+      
+      console.log(`[Middleware] Rewriting to: ${rewriteUrl.pathname}`)
+      
+      finalResponse = NextResponse.rewrite(rewriteUrl, {
+        request: {
+          headers: requestHeaders
+        }
+      })
+    }
   }
 
 

@@ -15,11 +15,15 @@ export default async function DomainLayout({
     const supabase = createClient()
 
     // Fetch Tenant Theme Config
-    const { data: tenant } = await supabase
+    const { data: tenant, error: tenantError } = await supabase
         .from('tenants')
         .select('name, logo_url, theme_config, current_session, current_term')
         .eq('slug', params.domain)
         .single()
+
+    if (tenantError) {
+        console.error(`[DomainLayout] Error fetching tenant ${params.domain}:`, tenantError)
+    }
 
     const primaryColor = tenant?.theme_config?.primary || "#06b6d4"
     const secondaryColor = tenant?.theme_config?.secondary || "#0f172a"

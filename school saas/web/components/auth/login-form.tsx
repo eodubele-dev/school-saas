@@ -29,6 +29,8 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
 
     useEffect(() => {
         const host = window.location.host
+        console.log(`[LoginForm] Initialize: host=${host}, domain=${domain}, initialEmail=${initialEmail}`)
+        
         const root = host.includes('localhost') 
             ? `http://localhost:${host.split(':')[1] || '3000'}`
             : `https://${host.split('.').slice(-2).join('.')}`
@@ -39,7 +41,7 @@ export function LoginForm({ domain, schoolName, logoUrl, primaryColor = '#2563eb
         } else {
             setLandingUrl(root)
         }
-    }, [])
+    }, [domain, initialEmail])
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()

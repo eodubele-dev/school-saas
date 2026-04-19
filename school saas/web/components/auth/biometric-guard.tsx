@@ -79,6 +79,9 @@ export function BiometricGuard({ children }: { children: React.ReactNode }) {
     }
 
     if (!mounted) {
+        // Optimization: If NOT on desktop (web browser), bypass early to prevent blank page
+        if (!isDesktop()) return <>{children}</>
+
         // High-fidelity hydration guard: If we suspect desktop, hide dashboard until mounted
         if (typeof window !== 'undefined' && (window as any).__TAURI__) {
             return <div className="fixed inset-0 bg-slate-950 z-[9998]" />
