@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Sparkles, Twitter, Linkedin, Github, ArrowRight } from "lucide-react"
 import { SITE_CONFIG } from "@/lib/constants/site-config"
 import { useExecutiveConversion } from "./executive-context"
+import { toast } from "sonner"
 
 export function Footer() {
     const { scrollToSection, openSupport, openPhysicalDemo } = useExecutiveConversion()
@@ -45,13 +46,16 @@ export function Footer() {
                             <li><button onClick={() => scrollToSection('campus-logistics', true)} className="hover:text-blue-400 transition-colors text-left">Campus Logistics</button></li>
                             <li><button onClick={() => scrollToSection('pricing')} className="hover:text-blue-400 transition-colors text-left">Pricing</button></li>
                             <li>
-                                <Link 
+                                <a 
                                     href="https://jggcixrapxccbxckuofw.supabase.co/storage/v1/object/public/workstation-releases/EduFlow-Platinum_1.0.0_x64_en-US.msi"
+                                    download
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="text-blue-400 font-bold hover:text-blue-300 transition-colors flex items-center gap-2 group"
                                 >
                                     Download Workstation
                                     <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                                </Link>
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -62,8 +66,8 @@ export function Footer() {
                         <ul className="space-y-3 text-sm text-muted-foreground">
                             <li><Link href="/about" className="hover:text-foreground transition-colors">About Us</Link></li>
                             <li><Link href="/success-stories" className="hover:text-foreground transition-colors">Success Stories</Link></li>
-                            <li><Link href="#" className="hover:text-foreground transition-colors">Careers</Link></li>
-                            <li><button onClick={openSupport} className="hover:text-foreground transition-colors text-left">Contact Support</button></li>
+                            <li><button onClick={() => toast.info("No open positions. Check back next quarter.")} className="hover:text-foreground transition-colors text-left w-full">Careers (Coming Soon)</button></li>
+                            <li><button onClick={openSupport} className="hover:text-foreground transition-colors text-left w-full">Contact Support</button></li>
                         </ul>
                     </div>
 

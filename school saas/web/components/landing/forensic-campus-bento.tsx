@@ -42,7 +42,7 @@ export function ForensicCampusBento() {
                     <div className="bg-glow left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
 
                     <motion.div
-                        id="command-center-visual"
+                        id="audit-integrity"
                         whileHover={{ y: -8, scale: 1.01 }}
                         className={`w-full bento-card overflow-hidden relative group transition-all duration-700 shadow-[0_80px_150px_-30px_rgba(0,0,0,1)] hover:border-blue-500/50 ${highlightedSection === 'audit-integrity' ? 'ring-4 ring-cyan-500 shadow-[0_0_50px_rgba(6,182,212,0.5)] scale-[1.01] z-30' : ''}`}
                     >

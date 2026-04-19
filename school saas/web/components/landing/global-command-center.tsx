@@ -14,7 +14,7 @@ export function GlobalCommandCenter() {
     const [selectedCampus, setSelectedCampus] = useState(campuses[0])
 
     return (
-        <section className="py-24 bg-[#0A0A0B] relative overflow-hidden">
+        <section id="campus-logistics" className="py-24 bg-[#0A0A0B] relative overflow-hidden">
             <div className="container px-4 md:px-6 relative z-10">
 
                 {/* Section Header */}

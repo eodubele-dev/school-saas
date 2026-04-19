@@ -10,7 +10,7 @@ import { SITE_CONFIG } from "@/lib/constants/site-config"
 
 export function Navbar() {
     const [isOpen, setIsOpen] = useState(false)
-    const { openTenantPreview, toggleMegaMenu, openPhysicalDemo, scrollToSection } = useExecutiveConversion()
+    const { openTenantPreview, toggleMegaMenu, openPhysicalDemo, scrollToSection, openSupport } = useExecutiveConversion()
 
     return (
         // 1. the 'Infinite Obsidian' Navigation
@@ -39,7 +39,7 @@ export function Navbar() {
                     {['Home', 'Features', 'Pricing', 'Contact'].map((item) => (
                         <button
                             key={item}
-                            onClick={() => scrollToSection(item.toLowerCase())}
+                            onClick={() => item === 'Contact' ? openSupport() : scrollToSection(item.toLowerCase())}
                             className={`text-base font-medium transition-colors relative group ${item === 'Features' ? 'text-muted-foreground hover:text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                         >
                             {item}
@@ -86,11 +86,17 @@ export function Navbar() {
                     animate={{ opacity: 1, y: 0 }}
                     className="md:hidden bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-border p-4 absolute w-full top-20 left-0 flex flex-col gap-4 shadow-2xl"
                 >
-                    {['Home', 'Features', 'Pricing', 'Contact'].map((item) => (
+                    {['Home', 'Features', 'Pricing'].map((item) => (
                         <Link key={item} href={`#${item.toLowerCase()}`} onClick={() => setIsOpen(false)} className="text-sm font-medium text-slate-300 hover:text-foreground p-2 hover:bg-secondary/50 rounded">
                             {item}
                         </Link>
                     ))}
+                    <button 
+                        onClick={() => { setIsOpen(false); openSupport(); }} 
+                        className="text-left text-sm font-medium text-slate-300 hover:text-foreground p-2 hover:bg-secondary/50 rounded"
+                    >
+                        Contact
+                    </button>
                     <div className="h-px bg-white/10 my-2" />
                     <Link href="/docs" className="text-sm font-medium text-muted-foreground p-2">Documentation</Link>
                     <Link href="/login" className="text-sm font-bold text-foreground p-2">Log in</Link>
