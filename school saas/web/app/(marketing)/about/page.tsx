@@ -117,7 +117,7 @@ export default function AboutUs() {
                                 { title: "Global Standards", desc: "Bringing Silicon Valley technology to the heart of African education with intense local expertise.", icon: Building },
                             ].map((pillar, i) => (
                                 <ScrollReveal key={i} delay={i * 0.1}>
-                                    <div className="h-full bg-[#0F1115] border border-border/50 p-8 rounded-[24px] group hover:border-blue-500/50 transition-all shadow-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] relative overflow-hidden">
+                                    <div className="h-full bg-[#1A1D27] border border-border/50 p-8 rounded-[24px] group hover:border-blue-500/50 transition-all shadow-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] relative overflow-hidden">
                                         <div className="absolute right-0 top-0 w-32 h-32 bg-gradient-to-bl from-white/[0.02] to-transparent pointer-events-none rounded-bl-full" />
                                         
                                         <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-cyan-500/10 transition-all duration-300">
