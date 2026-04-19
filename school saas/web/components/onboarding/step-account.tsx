@@ -252,7 +252,10 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
                     <DialogFooter className="p-6 border-t border-white/5 bg-[#0D0D0E] relative z-10">
                         <Button 
                             className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 rounded-xl"
-                            onClick={() => setIsPrivacyOpen(false)}
+                            onClick={() => {
+                                setAcceptedTerms(true);
+                                setIsPrivacyOpen(false);
+                            }}
                         >
                             I Understand
                         </Button>
@@ -279,7 +282,10 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
                     <DialogFooter className="p-6 border-t border-white/5 bg-[#0D0D0E] relative z-10">
                         <Button 
                             className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 rounded-xl"
-                            onClick={() => setIsTermsOpen(false)}
+                            onClick={() => {
+                                setAcceptedTerms(true);
+                                setIsTermsOpen(false);
+                            }}
                         >
                             I Agree
                         </Button>
