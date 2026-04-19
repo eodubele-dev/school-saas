@@ -33,7 +33,7 @@ export default function AboutUs() {
                             transition={{ delay: 0.1 }}
                             className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 leading-[1.1]"
                         >
-                            Elevating <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400">African Education</span>
+                            Elevating <br /> <span className="text-blue-500">African Education</span>
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
@@ -56,7 +56,7 @@ export default function AboutUs() {
                         
                         {/* Huge Image Card */}
                         <ScrollReveal className="md:col-span-8">
-                            <div className="bento-card h-full min-h-[400px] bg-[#0A0A0B]/80 hover:bg-[#0F1115] border border-border/50 rounded-[32px] overflow-hidden group relative p-8 md:p-12 flex flex-col justify-end">
+                            <div className="bento-card h-full min-h-[400px] bg-[#0F1115] hover:bg-[#14171E] border border-border/50 rounded-[32px] overflow-hidden group relative p-8 md:p-12 flex flex-col justify-end">
                                 <div className="absolute inset-0 z-0">
                                     <div className="absolute inset-0 bg-blue-600/[0.02] mix-blend-overlay pointer-events-none" />
                                     {/* Abstract Data Grid Pattern SVG */}
@@ -117,7 +117,7 @@ export default function AboutUs() {
                                 { title: "Global Standards", desc: "Bringing Silicon Valley technology to the heart of African education with intense local expertise.", icon: Building },
                             ].map((pillar, i) => (
                                 <ScrollReveal key={i} delay={i * 0.1}>
-                                    <div className="h-full bg-[#0A0A0B] border border-border/50 p-8 rounded-[24px] group hover:border-cyan-500/30 transition-all shadow-lg hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] relative overflow-hidden">
+                                    <div className="h-full bg-[#0F1115] border border-border/50 p-8 rounded-[24px] group hover:border-blue-500/50 transition-all shadow-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] relative overflow-hidden">
                                         <div className="absolute right-0 top-0 w-32 h-32 bg-gradient-to-bl from-white/[0.02] to-transparent pointer-events-none rounded-bl-full" />
                                         
                                         <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-cyan-500/10 transition-all duration-300">
