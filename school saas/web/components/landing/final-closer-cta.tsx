@@ -2,19 +2,30 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { ArrowRight, Sparkles } from "lucide-react"
+import { ArrowRight, Sparkles, PlayCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useExecutiveConversion } from "./executive-context"
 import { SITE_CONFIG } from "@/lib/constants/site-config"
 import { isDesktop } from "@/lib/utils/desktop"
 
 export function FinalCloserCta() {
-    const { openExecutiveDemo } = useExecutiveConversion()
+    const { openExecutiveDemo, triggerVideoDemo } = useExecutiveConversion()
     const [mounted, setMounted] = useState(false)
+    const [hasDownloaded, setHasDownloaded] = useState(false)
 
     useEffect(() => {
         setMounted(true)
+        const downloaded = localStorage.getItem('eduflow_downloaded') === 'true'
+        setHasDownloaded(downloaded)
     }, [])
+
+    const handleDownload = () => {
+        window.open(SITE_CONFIG.links.download.windows, '_blank')
+        localStorage.setItem('eduflow_downloaded', 'true')
+        setHasDownloaded(true)
+    }
+
+    const isAppPresent = isDesktop() || hasDownloaded
 
     return (
         <section className="py-32 bg-[#000000] relative overflow-hidden">
@@ -61,13 +72,23 @@ export function FinalCloserCta() {
                                 >
                                     Book My Demo
                                 </button>
-                                {mounted && !isDesktop() && (
-                                    <button
-                                        onClick={() => window.open(SITE_CONFIG.links.download.windows, '_blank')}
-                                        className="h-14 px-10 text-lg font-semibold bg-[#0F1115] hover:bg-slate-900 text-white border border-white/10 rounded-full transition-all flex items-center justify-center gap-2 w-full sm:w-auto shadow-2xl"
-                                    >
-                                        Download Desktop
-                                    </button>
+                                {mounted && (
+                                    isAppPresent ? (
+                                        <button
+                                            onClick={triggerVideoDemo}
+                                            className="h-14 px-10 text-lg font-semibold bg-[#0F1115] hover:bg-slate-900 text-white border border-white/10 rounded-full transition-all flex items-center justify-center gap-2 w-full sm:w-auto shadow-2xl group"
+                                        >
+                                            <PlayCircle className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
+                                            See it in Action
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={handleDownload}
+                                            className="h-14 px-10 text-lg font-semibold bg-[#0F1115] hover:bg-slate-900 text-white border border-white/10 rounded-full transition-all flex items-center justify-center gap-2 w-full sm:w-auto shadow-2xl"
+                                        >
+                                            Download Desktop
+                                        </button>
+                                    )
                                 )}
                             </div>
                         </div>

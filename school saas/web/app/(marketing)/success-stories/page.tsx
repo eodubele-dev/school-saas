@@ -88,7 +88,7 @@ export default function SuccessStories() {
 
                     {/* Featured Mega Case Study */}
                     <ScrollReveal className="max-w-6xl mx-auto mb-24">
-                        <div className="bento-card bg-gradient-to-br from-[#0F1115] to-[#0A0A0B] border border-border/50 rounded-[32px] overflow-hidden group">
+                        <div className="bento-card bg-[#252936]/90 backdrop-blur-xl border border-white/10 rounded-[32px] overflow-hidden group shadow-2xl">
                             <div className="grid grid-cols-1 lg:grid-cols-2">
                                 <div className="p-8 md:p-12 flex flex-col justify-between">
                                     <div>
@@ -163,8 +163,8 @@ export default function SuccessStories() {
                             { label: "Elite Lagos Campuses", val: "24", icon: Building2, color: "text-cyan-400" },
                         ].map((stat, i) => (
                             <ScrollReveal key={i} delay={0.2 + (i * 0.1)}>
-                                <div className="bg-[#0F1115] border border-border/50 p-8 rounded-[24px] relative group overflow-hidden hover:border-blue-500/50 transition-colors">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="bg-[#252936]/80 backdrop-blur-md border border-white/10 p-8 rounded-[24px] relative group overflow-hidden hover:border-blue-500/80 transition-all duration-500 shadow-xl">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                     <stat.icon className={`w-10 h-10 ${stat.color} mb-4`} />
                                     <div className="text-4xl font-bold mb-2 text-white">{stat.val}</div>
                                     <div className="text-slate-500 text-sm font-mono uppercase tracking-widest">{stat.label}</div>
@@ -177,7 +177,7 @@ export default function SuccessStories() {
                     <div className="max-w-6xl mx-auto columns-1 md:columns-2 lg:columns-3 gap-6">
                         {testimonials.map((t, i) => (
                             <ScrollReveal key={i} delay={0.3 + (i % 3) * 0.1} className="break-inside-avoid mb-6 block w-full">
-                                <div className="bg-[#0F1115] border border-border/50 p-8 rounded-[24px] flex flex-col justify-between hover:border-blue-500/50 transition-all shadow-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] group h-full">
+                                <div className="bg-[#252936]/80 backdrop-blur-md border border-white/10 p-8 rounded-[24px] flex flex-col justify-between hover:border-blue-500/80 transition-all duration-500 shadow-xl hover:shadow-[0_0_40px_rgba(59,130,246,0.15)] group h-full">
                                     <div>
                                         <div className="flex items-center gap-2 mb-6 text-emerald-400 font-mono text-xs font-bold uppercase">
                                             <TrendingUp className="w-3 h-3" /> {t.recovery}
