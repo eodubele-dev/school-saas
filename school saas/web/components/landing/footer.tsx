@@ -46,16 +46,13 @@ export function Footer() {
                             <li><button onClick={() => scrollToSection('campus-logistics', true)} className="hover:text-blue-400 transition-colors text-left">Campus Logistics</button></li>
                             <li><button onClick={() => scrollToSection('pricing')} className="hover:text-blue-400 transition-colors text-left">Pricing</button></li>
                             <li>
-                                <a 
-                                    href="https://jggcixrapxccbxckuofw.supabase.co/storage/v1/object/public/workstation-releases/EduFlow-Platinum_1.0.0_x64_en-US.msi"
-                                    download
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                <Link 
+                                    href="/docs"
                                     className="text-blue-400 font-bold hover:text-blue-300 transition-colors flex items-center gap-2 group"
                                 >
-                                    Download Workstation
+                                    Documentation
                                     <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>
