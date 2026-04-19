@@ -15,6 +15,12 @@ export const SITE_CONFIG = {
             mac: "/downloads/mac/EduFlow-Installer.dmg"
         }
     },
+    support: {
+        phone: "08130029819",
+        phoneFull: "+2348130029819",
+        email: "support@eduflow.ng",
+        whatsappMessage: "Hello EduFlow, I'd like to learn more about your school management system and book a demo."
+    },
     cookieConsent: {
         expiryDays: 180,
         storageKey: "eduflow_cookie_consent"

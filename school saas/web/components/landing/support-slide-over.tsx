@@ -3,9 +3,12 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { X, MessageSquare, Phone, MapPin, ExternalLink, Clock, Hash } from "lucide-react"
 import { useExecutiveConversion } from "./executive-context"
+import { SITE_CONFIG } from "@/lib/constants/site-config"
 
 export function SupportSlideOver() {
     const { isSupportOpen, closeSupport } = useExecutiveConversion()
+
+    const whatsappUrl = `https://wa.me/${SITE_CONFIG.support.phoneFull.replace('+', '')}?text=${encodeURIComponent(SITE_CONFIG.support.whatsappMessage)}`
 
     return (
         <AnimatePresence>
@@ -65,7 +68,7 @@ export function SupportSlideOver() {
                                 <h3 className="text-xs font-mono text-muted-foreground uppercase tracking-widest">Connect Instantly</h3>
 
                                 <a
-                                    href="https://wa.me/2348123456789" // Placeholder
+                                    href={whatsappUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-4 p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all group"
@@ -80,7 +83,8 @@ export function SupportSlideOver() {
                                     <ExternalLink className="ml-auto w-4 h-4 text-muted-foreground" />
                                 </a>
 
-                                <div
+                                <a
+                                    href={`tel:${SITE_CONFIG.support.phoneFull}`}
                                     className="flex items-center gap-4 p-5 rounded-2xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-all cursor-pointer group"
                                 >
                                     <div className="p-3 rounded-xl bg-blue-500/20 text-blue-400 group-hover:scale-110 transition-transform">
@@ -91,7 +95,7 @@ export function SupportSlideOver() {
                                         <div className="text-xs text-muted-foreground">Request a phone consultation</div>
                                     </div>
                                     <ExternalLink className="ml-auto w-4 h-4 text-muted-foreground" />
-                                </div>
+                                </a>
                             </div>
 
                             {/* Office Info */}
@@ -100,10 +104,9 @@ export function SupportSlideOver() {
                                 <div className="p-5 rounded-2xl bg-secondary/50 border border-border/50 space-y-4">
                                     <div className="flex gap-4">
                                         <MapPin className="w-5 h-5 text-muted-foreground shrink-0" />
-                                        <div className="text-sm text-slate-300">
-                                            5 Emmanuel Odubele Ave.,<br />
-                                            Ikorodu, Lagos.
-                                        </div>
+                                        <address className="text-sm text-slate-300 not-italic">
+                                            {SITE_CONFIG.hq.address}
+                                        </address>
                                     </div>
                                     <div className="flex gap-4">
                                         <Clock className="w-5 h-5 text-muted-foreground shrink-0" />

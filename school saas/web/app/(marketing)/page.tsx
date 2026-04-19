@@ -16,7 +16,7 @@ import { AntiEvasionFeature } from "@/components/landing/anti-evasion-feature"
 import { Footer } from "@/components/landing/footer"
 import { GlowCursor } from "@/components/landing/ui/glow-cursor"
 import { CookieConsent } from "@/components/landing/cookie-consent"
-import { SalesAssistant } from "@/components/landing/sales-assistant"
+import { ScrollToTop } from "@/components/landing/ui/scroll-to-top"
 import { ScrollReveal } from "@/components/landing/ui/scroll-reveal"
 import type { Metadata } from "next"
 
@@ -60,7 +60,7 @@ export default function LandingPage() {
       </main>
       <Footer />
       <CookieConsent />
-      <SalesAssistant />
+      <ScrollToTop />
     </div>
   )
 }
