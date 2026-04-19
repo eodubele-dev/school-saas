@@ -133,8 +133,12 @@
   animation: gradient-x 3s ease infinite;
 }
 
-/* EduFlow Platinum Styling Guide */
-.bg-charcoal-base {
+  /* EduFlow Platinum Styling Guide */
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+
+  .bg-charcoal-base {
   background-color: #0A0A0B;
 }
 

@@ -45,18 +45,17 @@ export function ExecutiveConversionProvider({ children }: { children: ReactNode 
     useEffect(() => {
         const hash = window.location.hash.substring(1)
         const highlight = searchParams.get('highlight')
+        const goto = searchParams.get('goto')
 
-        if (hash || highlight) {
-            const targetId = highlight || hash
+        if (hash || highlight || goto) {
+            const targetId = goto || highlight || hash
             // Wait for components to mount
             setTimeout(() => {
-                const element = document.getElementById(targetId)
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                    if (highlight) {
-                        setHighlightedSection(highlight)
-                        setTimeout(() => setHighlightedSection(null), 3000)
-                    }
+                scrollToSection(targetId as string, !!highlight)
+                
+                // Clean the URL for SEO / user friendliness
+                if (goto) {
+                    window.history.replaceState(null, '', '/')
                 }
             }, 800)
         }
@@ -95,15 +94,26 @@ export function ExecutiveConversionProvider({ children }: { children: ReactNode 
     const resetVideoDemo = () => setShouldPlayVideoDemo(false)
 
     const scrollToSection = (sectionId: string, highlight = false) => {
+        // Special case for Home to ensure clean SEO permalinks
+        if (sectionId === 'home') {
+            if (pathname === '/') {
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+            } else {
+                window.location.href = '/'
+            }
+            return
+        }
+
         const element = document.getElementById(sectionId)
         if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' })
             if (highlight) {
                 setHighlightedSection(sectionId)
                 setTimeout(() => setHighlightedSection(null), 3000)
             }
         } else {
-            window.location.href = `/#${sectionId}${highlight ? '?highlight=' + sectionId : ''}`
+            // Use query params instead of hashes for 'clean' cross-page navigation
+            window.location.href = `/?goto=${sectionId}${highlight ? '&highlight=' + sectionId : ''}`
         }
     }
 

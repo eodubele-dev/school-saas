@@ -10,7 +10,7 @@ import { SITE_CONFIG } from "@/lib/constants/site-config"
 
 export function Navbar() {
     const [isOpen, setIsOpen] = useState(false)
-    const { openTenantPreview, toggleMegaMenu, openPhysicalDemo, scrollToSection, openSupport } = useExecutiveConversion()
+    const { openTenantPreview, toggleMegaMenu, openPhysicalDemo, scrollToSection, openSupport, pathname } = useExecutiveConversion()
 
     return (
         // 1. the 'Infinite Obsidian' Navigation
@@ -36,17 +36,39 @@ export function Navbar() {
 
                 {/* Center: Desktop Nav Links */}
                 <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-                    {['Home', 'Features', 'Pricing', 'Contact'].map((item) => (
-                        <button
-                            key={item}
-                            onClick={() => item === 'Contact' ? openSupport() : scrollToSection(item.toLowerCase())}
-                            className={`text-base font-medium transition-colors relative group ${item === 'Features' ? 'text-muted-foreground hover:text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                        >
-                            {item}
-                            {/* Active/Hover State Line */}
-                            <span className="absolute -bottom-2 left-0 w-0 h-[2px] bg-cyan-500 rounded-full shadow-[0_0_10px_#06b6d4] transition-all group-hover:w-full" />
-                        </button>
-                    ))}
+                    {['Home', 'Features', 'Pricing', 'Contact'].map((item) => {
+                        const sectionId = item.toLowerCase();
+                        const href = item === 'Home' ? '/' : `/?goto=${sectionId}`;
+
+                        if (item === 'Contact') {
+                            return (
+                                <button
+                                    key={item}
+                                    onClick={openSupport}
+                                    className="text-base font-medium transition-colors relative group text-muted-foreground hover:text-foreground"
+                                >
+                                    {item}
+                                    <span className="absolute -bottom-2 left-0 w-0 h-[2px] bg-cyan-500 rounded-full shadow-[0_0_10px_#06b6d4] transition-all group-hover:w-full" />
+                                </button>
+                            );
+                        }
+
+                        return (
+                            <Link
+                                key={item}
+                                href={href}
+                                onClick={(e) => {
+                                    if (pathname === '/') {
+                                        e.preventDefault();
+                                        scrollToSection(sectionId);
+                                    }
+                                }}
+                                className="text-base font-medium transition-colors relative group text-muted-foreground hover:text-foreground"
+                            >
+                                {item}
+                                <span className="absolute -bottom-2 left-0 w-0 h-[2px] bg-cyan-500 rounded-full shadow-[0_0_10px_#06b6d4] transition-all group-hover:w-full" />
+                            </Link>
+                    })}
                 </div>
                 {/* Right Side: Actions */}
                 <div className="hidden md:flex items-center gap-4">
@@ -87,9 +109,16 @@ export function Navbar() {
                     className="md:hidden bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-border p-4 absolute w-full top-20 left-0 flex flex-col gap-4 shadow-2xl"
                 >
                     {['Home', 'Features', 'Pricing'].map((item) => (
-                        <Link key={item} href={`#${item.toLowerCase()}`} onClick={() => setIsOpen(false)} className="text-sm font-medium text-slate-300 hover:text-foreground p-2 hover:bg-secondary/50 rounded">
+                        <button 
+                            key={item} 
+                            onClick={() => {
+                                setIsOpen(false);
+                                scrollToSection(item.toLowerCase());
+                            }} 
+                            className="text-left text-sm font-medium text-slate-300 hover:text-foreground p-2 hover:bg-secondary/50 rounded"
+                        >
                             {item}
-                        </Link>
+                        </button>
                     ))}
                     <button 
                         onClick={() => { setIsOpen(false); openSupport(); }} 
