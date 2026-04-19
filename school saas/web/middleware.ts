@@ -56,6 +56,16 @@ export default async function middleware(req: NextRequest) {
         },
       }
     )
+    // 🚨 Platinum Guard: Aggressive Static Asset Bypass
+    // This prevents any internal Next.js assets from being touched by the multi-tenant logic
+    const isStaticAsset = url.pathname.includes('/_next/') || 
+                          url.pathname.includes('/visuals/') ||
+                          url.pathname.includes('/api/') ||
+                          /\.(svg|png|jpg|jpeg|gif|webp|ico|css|js)$/.test(url.pathname)
+
+    if (isStaticAsset) {
+        return response
+    }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError) console.error('[Middleware Auth Error]', authError)
