@@ -16,6 +16,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog"
+import { LegalBody } from "../legal/legal-body"
 
 interface StepAccountProps {
     data: any
@@ -233,45 +234,55 @@ export function StepAccount({ data, updateData, onNext, acceptedTerms, setAccept
 
             {/* Legal Dialogs */}
             <Dialog open={isPrivacyOpen} onOpenChange={setIsPrivacyOpen}>
-                <DialogContent className="max-w-2xl bg-slate-950 border-white/10 text-slate-300 p-0 overflow-hidden z-[100]">
-                    <DialogHeader className="p-6 border-b border-white/5 bg-slate-900">
-                        <DialogTitle className="text-xl text-white">Privacy Policy</DialogTitle>
+                <DialogContent className="max-w-4xl bg-[#0A0A0B] border-white/10 text-slate-300 p-0 overflow-hidden z-[100] shadow-[0_0_50px_rgba(0,102,255,0.15)]">
+                    {/* Atmospheric Glow in Modal */}
+                    <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-600/20 rounded-full blur-[80px] pointer-events-none" />
+                    
+                    <DialogHeader className="p-8 border-b border-white/5 bg-[#0D0D0E] relative z-10 flex flex-row items-center gap-4">
+                        <div className="p-2 rounded-lg bg-blue-600/20 border border-blue-500/30">
+                            <ShieldCheck className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <DialogTitle className="text-2xl font-bold text-white">Privacy Policy</DialogTitle>
                     </DialogHeader>
-                    <div className="p-6 overflow-y-auto space-y-6 text-sm leading-relaxed max-h-[60vh] custom-scrollbar">
-                        <p className="text-slate-400"><strong>Effective Date:</strong> {new Date().toLocaleDateString()}</p>
-                        <div className="space-y-2">
-                            <h4 className="text-white font-semibold text-base">1. Information We Collect</h4>
-                            <p>We collect information you provide directly to us when setting up your school (tenant data), as well as student, parent, and staff data entered by your users during normal operations. This includes personal identifiers, academic performance metrics, and financial transaction records.</p>
-                        </div>
-                        <div className="space-y-2">
-                            <h4 className="text-white font-semibold text-base">2. How We Use Your Data</h4>
-                            <p>The information is used exclusively to provide, maintain, and improve the EduFlow services for your specific institution. We do not sell your data to third parties. Data is used to generate report cards, send SMS broadcasts on your behalf, and calculate financial statements.</p>
-                        </div>
+
+                    <div className="p-8 overflow-y-auto max-h-[70vh] custom-scrollbar relative z-10 bg-black/40">
+                        <LegalBody type="privacy" />
                     </div>
-                    <DialogFooter className="p-4 border-t border-white/5 bg-slate-900 border-t-black">
-                        <Button variant="ghost" onClick={() => setIsPrivacyOpen(false)} className="text-slate-400 hover:text-white">Close</Button>
+
+                    <DialogFooter className="p-6 border-t border-white/5 bg-[#0D0D0E] relative z-10">
+                        <Button 
+                            className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 rounded-xl"
+                            onClick={() => setIsPrivacyOpen(false)}
+                        >
+                            I Understand
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
 
             <Dialog open={isTermsOpen} onOpenChange={setIsTermsOpen}>
-                <DialogContent className="max-w-2xl bg-slate-950 border-white/10 text-slate-300 p-0 overflow-hidden z-[100]">
-                    <DialogHeader className="p-6 border-b border-white/5 bg-slate-900">
-                        <DialogTitle className="text-xl text-white">Terms of Service</DialogTitle>
+                <DialogContent className="max-w-4xl bg-[#0A0A0B] border-white/10 text-slate-300 p-0 overflow-hidden z-[100] shadow-[0_0_50px_rgba(0,102,255,0.15)]">
+                    {/* Atmospheric Glow in Modal */}
+                    <div className="absolute -top-24 -left-24 w-64 h-64 bg-cyan-600/10 rounded-full blur-[80px] pointer-events-none" />
+
+                    <DialogHeader className="p-8 border-b border-white/5 bg-[#0D0D0E] relative z-10 flex flex-row items-center gap-4">
+                        <div className="p-2 rounded-lg bg-cyan-600/20 border border-cyan-500/30">
+                            <Scale className="w-5 h-5 text-cyan-400" />
+                        </div>
+                        <DialogTitle className="text-2xl font-bold text-white">Terms of Service</DialogTitle>
                     </DialogHeader>
-                    <div className="p-6 overflow-y-auto space-y-6 text-sm leading-relaxed max-h-[60vh] custom-scrollbar">
-                        <p className="text-slate-400"><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</p>
-                        <div className="space-y-2">
-                            <h4 className="text-white font-semibold text-base">1. Account Security & Administration</h4>
-                            <p>You are responsible for safeguarding the credentials used to access the service. The institution's "Proprietor" or designated Administrator is fully responsible for all activities occurring under their tenant account.</p>
-                        </div>
-                        <div className="space-y-2">
-                            <h4 className="text-white font-semibold text-base">2. Data Ownership</h4>
-                            <p>Your school retains full rights to the data you upload and generate on the platform. EduFlow holds no ownership claim over your student records, financial data, or lesson plans. You may export your data at any time.</p>
-                        </div>
+
+                    <div className="p-8 overflow-y-auto max-h-[70vh] custom-scrollbar relative z-10 bg-black/40">
+                        <LegalBody type="terms" />
                     </div>
-                    <DialogFooter className="p-4 border-t border-white/5 bg-slate-900 border-t-black">
-                        <Button variant="ghost" onClick={() => setIsTermsOpen(false)} className="text-slate-400 hover:text-white">Close</Button>
+
+                    <DialogFooter className="p-6 border-t border-white/5 bg-[#0D0D0E] relative z-10">
+                        <Button 
+                            className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 rounded-xl"
+                            onClick={() => setIsTermsOpen(false)}
+                        >
+                            I Agree
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
