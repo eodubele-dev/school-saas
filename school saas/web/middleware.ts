@@ -61,12 +61,33 @@ export default async function middleware(req: NextRequest) {
     if (authError) console.error('[Middleware Auth Error]', authError)
 
     // 1. Hostname Analysis & Tenant Extraction
-    let currentHost = hostname?.replace(/:\d+$/, '') // remove port
-    currentHost = currentHost?.replace('.localhost', '')
-    currentHost = currentHost?.replace('.eduflow.ng', '')
-    // Handle Vercel and Amplify temp domains
-    currentHost = currentHost?.replace('.vercel.app', '')
-    currentHost = currentHost?.replace('.amplifyapp.com', '')
+    const rootDomain = 'eduflow.ng'
+    let host = hostname?.replace(/:\d+$/, '') || '' // remove port
+    
+    // Normalize host for analysis
+    let currentHost: string | null = null
+
+    // Main domain detection logic (PLATINUM ROBUST)
+    const isMainDomain = host === rootDomain || 
+                         host === `www.${rootDomain}` || 
+                         host === 'localhost' || 
+                         host === '127.0.0.1' ||
+                         host.endsWith('.vercel.app') || 
+                         host.endsWith('.amplifyapp.com')
+
+    if (!isMainDomain) {
+      // Subdomain Extraction
+      // If it ends with .eduflow.ng, extract the part before it
+      if (host.endsWith(`.${rootDomain}`)) {
+        currentHost = host.replace(`.${rootDomain}`, '')
+      } else if (host.endsWith('.localhost')) {
+        currentHost = host.replace('.localhost', '')
+      } else {
+        // Fallback for custom domains in the future
+        // For now, assume it's a direct subdomain if not main domain
+        currentHost = host.split('.')[0]
+      }
+    }
 
     // Continue with the rest of the logic...
     // [I will keep the rest of the file logic but just ensuring it's inside the try block]
@@ -75,7 +96,7 @@ export default async function middleware(req: NextRequest) {
 
   // 1b. Path Analysis (Support for Monolithic Desktop / Path-based Tenants)
   let isPathBasedTenant = false
-  if (!currentHost || currentHost === 'www' || currentHost === 'localhost' || hostname?.includes('.amplifyapp.com')) {
+  if (isMainDomain) {
     const segments = url.pathname.split('/').filter(Boolean)
     if (segments.length > 0) {
       const firstSegment = segments[0]
@@ -88,6 +109,9 @@ export default async function middleware(req: NextRequest) {
       if (!reservedPaths.includes(firstSegment)) {
         currentHost = firstSegment
         isPathBasedTenant = true
+        // Set isMainDomain to false since we found a path-based tenant
+        // @ts-ignore
+        isMainDomain = false 
         // Adjust the internal pathname for subsequent logic
         const newPathname = '/' + segments.slice(1).join('/')
         url.pathname = newPathname
@@ -98,7 +122,7 @@ export default async function middleware(req: NextRequest) {
   console.log(`[Middleware] Host: ${hostname}, CurrentHost: ${currentHost}, Path: ${req.nextUrl.pathname}, InternalPath: ${url.pathname}`)
 
   // Handle Main Domain matches (No tenant found in subdomain or path)
-  if (!currentHost || currentHost === 'www' || currentHost === 'localhost' || hostname?.includes('.amplifyapp.com')) {
+  if (isMainDomain) {
     console.log('[Middleware] Main domain detected')
     // Reset internal pathname if it was accidentally modified by path-based branch
     return response

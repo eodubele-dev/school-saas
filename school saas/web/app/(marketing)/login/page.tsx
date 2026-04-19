@@ -57,8 +57,8 @@ export default function MarketingLoginPage() {
     const redirectToSchool = (school: SchoolDiscoveryResult) => {
         // Construct URL based on environment (handling localhost vs production)
         const protocol = window.location.protocol
-        const host = window.location.host
-        const rootDomain = host.replace('www.', '') // naive, but works for simple cases
+        const host = window.location.host // e.g. onohshcools.eduflow.ng or eduflow.ng
+        const hostname = window.location.hostname // e.g. onohshcools.eduflow.ng or eduflow.ng
 
         // On Desktop, we stay on the same origin but use path-based routing
         if (isDesktop()) {
@@ -66,19 +66,28 @@ export default function MarketingLoginPage() {
             return
         }
 
+        // 💎 Base Domain Discovery (Robust Logic)
+        let rootDomain = hostname
+        if (hostname.endsWith('.eduflow.ng')) {
+            rootDomain = 'eduflow.ng'
+        } else if (hostname.endsWith('.localhost')) {
+            rootDomain = 'localhost'
+        } else if (hostname.includes('vercel.app')) {
+            // Extra safety for preview deployments
+            rootDomain = hostname.split('.').slice(-3).join('.') // e.g. my-app.vercel.app
+        }
+
         // Web Subdomain Logic
         let newHost = ''
-        if (host.includes('localhost')) {
-            newHost = `${school.slug}.localhost:3000` 
-            if (host.includes(':')) {
-                const port = host.split(':')[1]
-                newHost = `${school.slug}.localhost:${port}`
-            }
+        if (rootDomain === 'localhost') {
+            const port = host.split(':')[1] || '3000'
+            newHost = `${school.slug}.localhost:${port}`
         } else {
             newHost = `${school.slug}.${rootDomain}`
         }
 
         const targetUrl = `${protocol}//${newHost}/login?email=${encodeURIComponent(email)}`
+        console.log(`[MarketingLogin] Redirecting to: ${targetUrl}`)
         window.location.href = targetUrl
     }
 
