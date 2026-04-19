@@ -101,8 +101,8 @@ export function SupportSlideOver() {
                                     <div className="flex gap-4">
                                         <MapPin className="w-5 h-5 text-muted-foreground shrink-0" />
                                         <div className="text-sm text-slate-300">
-                                            12A Ligali Ayorinde St,<br />
-                                            Victoria Island, Lagos.
+                                            5 Emmanuel Odubele Ave.,<br />
+                                            Ikorodu, Lagos.
                                         </div>
                                     </div>
                                     <div className="flex gap-4">

@@ -3,7 +3,7 @@ export const SITE_CONFIG = {
     shortName: "EduFlow",
     tagline: "The Operating System for Elite Schools",
     hq: {
-        address: "12A Ligali Ayorinde St, Victoria Island, Lagos.",
+        address: "5 Emmanuel Odubele Ave., Ikorodu, Lagos.",
         status: "All Systems Operational"
     },
     links: {
