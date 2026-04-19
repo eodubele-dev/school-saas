@@ -68,6 +68,7 @@ export function Navbar() {
                                 {item}
                                 <span className="absolute -bottom-2 left-0 w-0 h-[2px] bg-cyan-500 rounded-full shadow-[0_0_10px_#06b6d4] transition-all group-hover:w-full" />
                             </Link>
+                        );
                     })}
                 </div>
                 {/* Right Side: Actions */}
