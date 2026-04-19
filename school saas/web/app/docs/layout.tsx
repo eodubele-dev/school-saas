@@ -10,6 +10,8 @@ import {
 import { Toaster, toast } from "sonner"
 import { cn } from "@/lib/utils"
 
+import { DocSearch } from "@/components/docs/doc-search"
+
 export default function DocsLayout({
     children,
 }: {
@@ -42,13 +44,13 @@ export default function DocsLayout({
                     <div className="flex items-center gap-8">
                         <Link href="/" className="flex items-center gap-2 group">
                             <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(37,99,235,0.4)] group-hover:scale-105 transition-transform">E</div>
-                            <span className="font-bold text-lg text-white tracking-tight group-hover:text-cyan-400 transition-colors">EduFlow <span className="text-slate-500 font-light">Docs</span></span>
+                            <span className="font-bold text-lg text-white tracking-tight group-hover:text-blue-400 transition-colors">EduFlow <span className="text-slate-500 font-light">Docs</span></span>
                         </Link>
 
-                        {/* Breadcrumbs (Visual Only for now) */}
+                        {/* Breadcrumbs */}
                         <nav className="hidden md:flex items-center gap-2 text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-0.5">
-                            <span>Platform</span>
-                            <ChevronRight className="w-3 h-3" />
+                            <Link href="/docs" className="hover:text-blue-400 transition-colors">Platform</Link>
+                            <ChevronRight className="w-3 h-3 text-slate-700" />
                             <span className="text-slate-300">Documentation</span>
                         </nav>
                     </div>
@@ -60,7 +62,7 @@ export default function DocsLayout({
                             <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Mainnet Live</span>
                         </div>
 
-                        <Link href="/" className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg border border-white/5 shadow-xl">
+                        <Link href="/" className="hidden sm:flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all bg-blue-600 hover:bg-blue-500 px-5 py-2.5 rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.3)]">
                             <ChevronRight className="w-3 h-3 rotate-180" />
                             Exit to Site
                         </Link>
@@ -84,17 +86,7 @@ export default function DocsLayout({
                 )}>
                     {/* Search Field */}
                     <div className="px-6 mb-8">
-                        <div 
-                            onClick={() => toast.info("Neural Search Indexing", { description: "Global documentation search is being indexed for your region." })}
-                            className="flex items-center gap-3 px-4 h-10 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 cursor-pointer group transition-all"
-                        >
-                            <Search className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
-                            <span className="text-sm text-slate-500 flex-1">Search docs...</span>
-                            <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 border border-white/10">
-                                <Command className="w-2.5 h-2.5 text-slate-600" />
-                                <span className="text-[10px] font-mono text-slate-600">K</span>
-                            </div>
-                        </div>
+                        <DocSearch />
                     </div>
 
                     <nav className="flex-1 px-4 space-y-8 overflow-y-auto custom-scrollbar">
@@ -164,11 +156,11 @@ export default function DocsLayout({
 
                     {/* Footer Contact (Floating Card Style) */}
                     <div className="mt-auto p-4 mb-4">
-                        <div className="bg-[#111112] border border-white/5 rounded-2xl p-4 shadow-2xl relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 w-16 h-16 bg-blue-600/10 blur-2xl group-hover:bg-blue-600/20 transition-all" />
+                        <div className="bg-gradient-to-br from-blue-600 to-blue-800 border border-blue-400/30 rounded-2xl p-5 shadow-[0_0_30px_rgba(37,99,235,0.2)] relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-2xl group-hover:scale-150 transition-transform" />
                             <h6 className="text-[11px] font-black text-white mb-1 uppercase tracking-wider">Enterprise Support</h6>
-                            <p className="text-[10px] text-slate-500 mb-3 leading-relaxed">Dedicated engineering support for institutional deployments.</p>
-                            <a href="mailto:support@eduflow.ng" className="block text-center text-[10px] font-bold text-white bg-white/5 hover:bg-blue-600 border border-white/10 px-3 py-2 rounded-xl transition-all w-full">
+                            <p className="text-[10px] text-blue-100 mb-3 leading-relaxed">Dedicated engineering support for institutional deployments.</p>
+                            <a href="mailto:support@eduflow.ng" className="block text-center text-[10px] font-bold text-blue-900 bg-white hover:bg-blue-50 px-3 py-2.5 rounded-xl transition-all w-full shadow-lg">
                                 Contact Engineering
                             </a>
                         </div>

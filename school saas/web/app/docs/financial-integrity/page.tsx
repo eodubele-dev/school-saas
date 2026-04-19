@@ -10,7 +10,7 @@ export default function FinancialIntegrityDoc() {
             <div className="mb-12 border-b border-white/5 pb-12">
                 <div className="flex items-center gap-2 text-[10px] font-mono text-amber-400 tracking-[0.2em] uppercase mb-4">
                     <Hash className="w-3 h-3" />
-                    Module: Revenue_Engine_Alpha
+                    Module: Revenue_Engine_v4.2
                 </div>
                 <h1 className="text-4xl lg:text-5xl font-black text-white mb-6 tracking-tight">
                     Financial Integrity
@@ -109,10 +109,36 @@ export default function FinancialIntegrityDoc() {
                         <h4 className="text-white font-bold text-xl mb-2">Ready for deployment?</h4>
                         <p className="text-sm text-slate-500">Learn how to configure your payment gateway and start recovering revenue.</p>
                     </div>
-                    <button className="px-6 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-500 transition-all flex items-center gap-2 shadow-2xl shadow-blue-900/40">
+                    <a href="#integration-hub" className="px-6 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-500 transition-all flex items-center gap-2 shadow-2xl shadow-blue-900/40">
                         View Gateway Setup <ArrowUpRight className="w-4 h-4" />
-                    </button>
+                    </a>
                 </div>
+
+                <h2 id="integration-hub" className="text-2xl font-bold text-white mt-24 mb-6">Integration Hub</h2>
+                <p>
+                    EduFlow supports native integration with Africa&apos;s leading payment processors. Configuration takes less than 5 minutes through the Institution Control Panel.
+                </p>
+
+                <div className="grid sm:grid-cols-2 gap-4 my-8 not-prose">
+                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold">P</div>
+                            <span className="text-sm font-bold text-white">Paystack</span>
+                        </div>
+                        <span className="text-[10px] text-emerald-500 font-mono">READY</span>
+                    </div>
+                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">M</div>
+                            <span className="text-sm font-bold text-white">Monnify</span>
+                        </div>
+                        <span className="text-[10px] text-blue-500 font-mono">READY</span>
+                    </div>
+                </div>
+
+                <Callout type="tip">
+                    We recommend **Paystack** for institutions seeking immediate transaction notifications via WhatsApp.
+                </Callout>
 
                 {/* Pagination Footer */}
                 <div className="mt-24 pt-8 border-t border-white/5 flex items-center justify-between not-prose">

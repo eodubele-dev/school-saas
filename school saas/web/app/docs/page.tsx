@@ -15,7 +15,7 @@ export default function DocsPage() {
                 </div>
                 <h1 className="text-4xl lg:text-6xl font-black text-white mb-8 tracking-tighter leading-none">
                     Mission Control for <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400">Elite Institutions</span>
+                    <span className="text-blue-600">Elite Institutions</span>
                 </h1>
                 <p className="text-lg text-slate-400 leading-relaxed max-w-3xl font-medium">
                     EduFlow is West Africa&apos;s most advanced school operating system. This documentation covers everything from forensic fee recovery logic to high-security academic audit protocols.
@@ -82,16 +82,16 @@ export default function DocsPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-2 text-[10px] font-mono text-blue-400 tracking-widest uppercase">Encryption Status</div>
-                                    <div className="text-lg font-bold text-white">AES-256 (Military)</div>
+                                    <div className="text-lg font-bold text-white">AES-256 Military</div>
                                 </div>
                                 <div className="space-y-2">
-                                    <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400 tracking-widest uppercase">Uptime Avg</div>
+                                    <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400 tracking-widest uppercase">Uptime Average</div>
                                     <div className="text-lg font-bold text-white">99.999% SLA</div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Visual Rep (Mock) */}
+                        {/* Visual Rep */}
                         <div className="relative">
                             <div className="aspect-video rounded-2xl bg-blue-600/5 border border-white/5 flex items-center justify-center overflow-hidden">
                                 <div className="absolute inset-0 flex items-center justify-center">
@@ -101,12 +101,12 @@ export default function DocsPage() {
                                 </div>
                                 <div className="flex gap-4 relative z-10">
                                     <div className="p-4 rounded-xl bg-black/80 border border-white/10 shadow-2xl backdrop-blur-xl">
-                                        <div className="text-[10px] font-mono text-slate-500 mb-2">AUTH_TOKEN</div>
-                                        <div className="text-xs text-blue-400 font-mono">********-44x</div>
+                                        <div className="text-[10px] font-mono text-slate-500 mb-2">SYSTEM_AUTH</div>
+                                        <div className="text-xs text-blue-400 font-mono">ENCRYPTED_LINK</div>
                                     </div>
                                     <div className="p-4 rounded-xl bg-black/80 border border-white/10 shadow-2xl translate-y-4 backdrop-blur-xl">
-                                        <div className="text-[10px] font-mono text-slate-500 mb-2">REGION</div>
-                                        <div className="text-xs text-emerald-400 font-mono">NG-LOS-1</div>
+                                        <div className="text-[10px] font-mono text-slate-500 mb-2">NETWORK_REGION</div>
+                                        <div className="text-xs text-emerald-400 font-mono">NG_LOS_1</div>
                                     </div>
                                 </div>
                             </div>

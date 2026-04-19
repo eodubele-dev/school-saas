@@ -35,13 +35,13 @@ export default function CampusSecurityDoc() {
                     Every "Write" operation to the Gradebook is cryptographically signed and appended to a "WORM" (Write-Once-Read-Many) log table. Note how the system captures the "Delta"—the exact change from the old value to the new.
                 </p>
 
-                {/* Audit Log Table Mockup */}
+                {/* Audit Log Table */}
                 <div className="my-10 rounded-2xl overflow-hidden border border-white/5 bg-[#000000] shadow-2xl relative group">
                     <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                     <div className="flex items-center justify-between px-6 py-4 bg-white/[0.02] border-b border-white/5">
                         <div className="flex items-center gap-2">
                             <Shield className="w-5 h-5 text-blue-500" />
-                            <span className="text-[10px] font-black text-white uppercase tracking-widest">System_Gravity_Logs // Live_Feed</span>
+                            <span className="text-[10px] font-black text-white uppercase tracking-widest">System_Gravity_Logs // Protocol_v4</span>
                         </div>
                         <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-500 font-bold">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -62,37 +62,37 @@ export default function CampusSecurityDoc() {
                             <tbody className="text-xs font-mono">
                                 <tr className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group/row">
                                     <td className="p-5 text-slate-500">2026-04-19 10:42:05</td>
-                                    <td className="p-5 text-white">
+                                    <td className="p-5 text-white underline underline-offset-4 decoration-blue-500/20">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded bg-blue-600/20 text-blue-400 flex items-center justify-center text-[10px] font-bold">JD</div>
-                                            J. Doe (Admin)
+                                            <div className="w-6 h-6 rounded bg-blue-600/20 text-blue-400 flex items-center justify-center text-[10px] font-bold">AD</div>
+                                            Administrator
                                         </div>
                                     </td>
                                     <td className="p-5">
                                         <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20">GRADE_OVERRIDE</span>
                                     </td>
                                     <td className="p-5">
-                                        <span className="text-slate-600 line-through mr-2">65</span>
-                                        <span className="text-emerald-400 font-bold">82</span>
+                                        <span className="text-slate-600 line-through mr-2">65%</span>
+                                        <span className="text-emerald-400 font-bold">82%</span>
                                     </td>
                                     <td className="p-5 text-slate-700 text-right group-hover/row:text-slate-500 transition-colors">0x4f...a29</td>
                                 </tr>
                                 <tr className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group/row">
                                     <td className="p-5 text-slate-500">2026-04-19 10:45:12</td>
-                                    <td className="p-5 text-white">
+                                    <td className="p-5 text-white underline underline-offset-4 decoration-red-500/20">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded bg-red-600/20 text-red-400 flex items-center justify-center text-[10px] font-bold">SY</div>
-                                            Sentinel_AI
+                                            <div className="w-6 h-6 rounded bg-red-600/20 text-red-400 flex items-center justify-center text-[10px] font-bold">AI</div>
+                                            EduFlow_Sentinel
                                         </div>
                                     </td>
                                     <td className="p-5">
                                         <span className="px-2 py-0.5 rounded bg-red-500/10 text-red-500 border border-red-500/20 flex items-center gap-1 w-fit">
                                             <ShieldAlert className="w-3 h-3" />
-                                            ANOMALY_FLAG
+                                            PROTOCOL_VIOLATION
                                         </span>
                                     </td>
                                     <td className="p-5 text-slate-500">
-                                        Manual override &gt; 15% threshold
+                                        Unauthorized override detected
                                     </td>
                                     <td className="p-5 text-slate-700 text-right group-hover/row:text-slate-500 transition-colors">0x9c...b12</td>
                                 </tr>
