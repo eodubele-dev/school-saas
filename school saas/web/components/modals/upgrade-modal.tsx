@@ -113,6 +113,14 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
 
             const publicKey = (process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "").trim();
             
+            if (!publicKey) {
+                toast.error("Cloud Configuration Error", { 
+                    description: "PAYSTACK_PUBLIC_KEY is missing in your production environment variables. Please check your hosting dashboard." 
+                })
+                setIsSubmitting(false)
+                return
+            }
+
             // Non-sensitive debug log for propagation check
             console.debug("[Paystack SDK] Initializing checkout with public key:", publicKey.substring(0, 10) + "...");
 
