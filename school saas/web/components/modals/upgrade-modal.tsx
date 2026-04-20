@@ -1,4 +1,5 @@
 "use client"
+// Sync ID: 2026-04-20-SYNC-FORCE
 
 import { useState, useEffect } from "react"
 import {
@@ -110,8 +111,13 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
                 return
             }
 
+            const publicKey = (process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "").trim();
+            
+            // Non-sensitive debug log for propagation check
+            console.debug("[Paystack SDK] Initializing checkout with public key:", publicKey.substring(0, 10) + "...");
+
             const handler = window.PaystackPop.setup({
-                key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+                key: publicKey,
                 email: userEmail || 'admin@school.com',
                 amount: planObj.amountKobo,
                 currency: 'NGN',
