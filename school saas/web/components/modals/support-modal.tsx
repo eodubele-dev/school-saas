@@ -45,33 +45,29 @@ export function SupportModal({
                     </DialogHeader>
                 </div>
 
-                <div className="p-6 space-y-4 relative z-10">
+                <div className="max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800 p-6 space-y-4 relative z-10">
                     {/* Support Lead */}
                     <a 
                         href={`https://wa.me/${supportWhatsApp}?text=${encodeURIComponent(`Hello, I'm reaching out from ${tenantName} for technical assistance regarding my dashboard.`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full h-full block"
+                        className="w-full flex items-center gap-4 p-4 rounded-xl bg-zinc-900 border border-white/10 shadow-sm hover:border-white/30 hover:bg-zinc-800/80 transition-all text-left outline-none"
                     >
-                        <button 
-                            className="w-full flex items-center gap-4 p-4 rounded-xl bg-zinc-900 border border-white/10 shadow-sm hover:border-white/30 hover:bg-zinc-800/80 transition-all text-left outline-none focus-visible:ring-1 focus-visible:ring-zinc-500"
-                        >
-                            <div className="relative shrink-0">
-                                <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold text-sm shadow-[0_0_15px_rgba(255,255,255,0.15)]">{supportInitials}</div>
-                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-zinc-400 border-2 border-[#09090b]" />
+                        <div className="relative shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold text-sm shadow-[0_0_15px_rgba(255,255,255,0.15)]">{supportInitials}</div>
+                            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#09090b]" />
+                        </div>
+                        <div className="flex-1">
+                            <div className="font-semibold text-zinc-100 text-sm">{supportName}</div>
+                            <div className="text-[11px] text-muted-foreground mt-0.5">{supportRole}</div>
+                        </div>
+                        <div className="flex flex-col items-end shrink-0">
+                            <div className="text-[9px] text-zinc-400 font-mono text-right tracking-widest">ONLINE</div>
+                            <div className="text-[9px] text-zinc-500 flex items-center gap-1 mt-1 font-mono">
+                                <Clock className="h-2.5 w-2.5" />
+                                ~2m wait
                             </div>
-                            <div className="flex-1">
-                                <div className="font-semibold text-zinc-100 text-sm">{supportName}</div>
-                                <div className="text-[11px] text-muted-foreground mt-0.5">{supportRole}</div>
-                            </div>
-                            <div className="flex flex-col items-end shrink-0">
-                                <div className="text-[9px] text-zinc-400 font-mono text-right tracking-widest">ONLINE</div>
-                                <div className="text-[9px] text-zinc-500 flex items-center gap-1 mt-1 font-mono">
-                                    <Clock className="h-2.5 w-2.5" />
-                                    ~2m wait
-                                </div>
-                            </div>
-                        </button>
+                        </div>
                     </a>
 
                     {/* WhatsApp Support */}
