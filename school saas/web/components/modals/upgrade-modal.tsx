@@ -16,6 +16,12 @@ import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import Script from "next/script"
 
+declare global {
+    interface Window {
+        PaystackPop: any;
+    }
+}
+
 interface UpgradeModalProps {
     isOpen: boolean
     onClose: () => void
@@ -95,6 +101,15 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
         setIsSubmitting(true)
         
         try {
+            // Safety check for Paystack SDK
+            if (!window.PaystackPop) {
+                toast.error("Gateway Not Ready", { 
+                    description: "The payment secure channel is still initializing. Please wait 2 seconds and try again." 
+                })
+                setIsSubmitting(false)
+                return
+            }
+
             const handler = window.PaystackPop.setup({
                 key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
                 email: userEmail || 'admin@school.com',
@@ -132,10 +147,10 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
                 }
             })
             handler.openIframe()
-        } catch (error) {
+        } catch (error: any) {
             console.error("Upgrade Modal Error:", error)
             toast.error("System Fault", {
-                description: "The upgrade protocol encountered a connectivity issue. Please retry."
+                description: error.message || "The upgrade protocol encountered a connectivity issue. Please retry."
             })
             setIsSubmitting(false)
         }
@@ -143,7 +158,7 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <Script src="https://js.paystack.co/v1/inline.js" strategy="lazyOnload" />
+            <Script src="https://js.paystack.co/v1/inline.js" strategy="afterInteractive" />
             <DialogContent className="max-w-5xl bg-slate-950 border-border text-slate-50 overflow-hidden p-0 shadow-2xl">
                 <div className="relative p-8 md:p-10">
                     <DialogHeader className="mb-8 text-center sm:text-left">
