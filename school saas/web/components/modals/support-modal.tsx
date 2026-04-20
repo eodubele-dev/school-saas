@@ -23,7 +23,8 @@ export function SupportModal({
     const supportInitials = supportName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
     const supportRole = process.env.NEXT_PUBLIC_SUPPORT_ROLE || 'Technical Success Lead'
     const supportWhatsApp = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || ''
-    const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@eduflow.platinum'
+    const supportPhone = process.env.NEXT_PUBLIC_SUPPORT_PHONE || '08130029819'
+    const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@eduflow.ng'
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -101,23 +102,23 @@ export function SupportModal({
                         <ExternalLink className="h-3.5 w-3.5 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
                     </a>
 
-                    {/* Voice Support (Locked) */}
-                    <button 
-                        onClick={() => toast.error("Connection Refused", { description: "Voice consultation requires Enterprise LTS tier. Please upgrade." })}
-                        className="group flex items-center gap-4 p-4 rounded-xl bg-black/40 border border-white/5 opacity-60 hover:opacity-100 hover:border-red-500/30 transition-all text-left w-full"
+                    {/* Voice Support */}
+                    <a 
+                        href={`tel:${supportPhone}`}
+                        className="group flex items-center gap-4 p-4 rounded-xl bg-transparent border border-white/10 hover:border-white/20 hover:bg-white/[0.02] transition-all text-left w-full"
                     >
-                        <div className="p-2.5 rounded-lg bg-zinc-900 border border-white/5 text-zinc-600 group-hover:text-red-400 transition-colors">
+                        <div className="p-2.5 rounded-lg bg-zinc-900 border border-white/5 text-zinc-400 group-hover:text-zinc-100 transition-colors shadow-sm">
                             <Phone className="h-4 w-4" />
                         </div>
                         <div className="flex-1">
-                            <div className="font-medium text-zinc-500 text-sm tracking-tight flex items-center gap-2 group-hover:text-zinc-300">
+                            <div className="font-medium text-zinc-100 text-sm tracking-tight flex items-center gap-2">
                                 Voice Consultation
-                                <span className="text-[9px] bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-400 font-mono tracking-wider group-hover:bg-red-500/20 group-hover:text-red-400">LTS ONLY</span>
+                                <span className="text-[9px] bg-emerald-500/10 px-1.5 py-0.5 rounded text-emerald-500 font-mono tracking-wider">AVAILABLE</span>
                             </div>
-                            <div className="text-[11px] text-zinc-600 mt-0.5 group-hover:text-zinc-500">Enterprise direct line</div>
+                            <div className="text-[11px] text-muted-foreground mt-0.5">Direct executive line</div>
                         </div>
-                        <Clock className="h-3.5 w-3.5 text-zinc-700 group-hover:text-red-400/50" />
-                    </button>
+                        <ExternalLink className="h-3.5 w-3.5 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+                    </a>
                 </div>
 
                 <div className="p-6 border-t border-white/5 bg-transparent relative z-10">
