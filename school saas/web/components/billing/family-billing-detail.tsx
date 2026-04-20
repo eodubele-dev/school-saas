@@ -117,11 +117,10 @@ export function FamilyBillingDetail({
             // The ledger data should ideally carry the invoiceId.
             // Assuming the invoice exists since balance > 0.
             
-            const result = await initiatePayment({
-                amount: student.balance,
                 email: familyLedger.parentEmail || 'parent@school.com', 
                 studentId: studentId,
-                invoiceId: student.invoiceId
+                invoiceId: student.invoiceId,
+                subdomain: domain
             });
 
             if (result.success && result.url) {
@@ -142,11 +141,11 @@ export function FamilyBillingDetail({
         setIsProcessing('all');
         try {
             const firstChildId = familyLedger.children[0]?.id;
-            const result = await initiatePayment({
                 amount: familyLedger.totalBalance,
                 email: familyLedger.parentEmail || 'parent@school.com',
                 studentId: firstChildId,
-                reference: `PAY-ALL-${Date.now()}`
+                reference: `PAY-ALL-${Date.now()}`,
+                subdomain: domain
             });
 
             if (result.success && result.url) {

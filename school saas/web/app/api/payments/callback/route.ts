@@ -1,12 +1,11 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyPaystackTransaction } from '@/lib/actions/paystack'
-import { revalidatePath } from 'next/cache'
 
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const reference = searchParams.get('reference')
-    const trxref = searchParams.get('trxref') // Paystack sends both sometimes
+    const trxref = searchParams.get('trxref') 
 
     const ref = reference || trxref
 
@@ -17,20 +16,26 @@ export async function GET(request: NextRequest) {
     const verification = await verifyPaystackTransaction(ref)
 
     if (verification.success) {
-        // Redirect to a success page or dashboard
-        // We could use metadata to know where to redirect, but for now, default to dashboard or a specific success page
-        // Ideally, metadata would contain a return_url
-        // Let's redirect to a generic success page on the main domain?
-        // Or if we can parse the domain from the request... 
-        // For now, let's redirect to `/dashboard` of the tenant.
-        // We don't easily know the domain here without metadata lookup or session.
-        // But `verifyPaystackTransaction` updates the transaction.
+        const metadata = verification.metadata as any
+        const subdomain = metadata?.subdomain
+        
+        // Construct the redirect URL
+        // If we are in local dev, we might be on localhost:3000
+        // In production, we assume [subdomain].eduflow.ng
+        const host = request.headers.get('host') || 'eduflow.ng'
+        const protocol = host.includes('localhost') ? 'http' : 'https'
+        
+        let redirectUrl = `${protocol}://${host}/dashboard/billing/family`
+        
+        if (subdomain && !host.startsWith(subdomain + '.')) {
+            // If the current host doesn't match the subdomain (e.g. redirected to main domain)
+            // we try to switch back to the subdomain.
+            // Note: This logic assumes a standard domain structure.
+            const baseDomain = host.replace(/^[a-z0-9-]+\./i, '')
+            redirectUrl = `${protocol}://${subdomain}.${baseDomain}/dashboard/billing/family`
+        }
 
-        // Let's redirect to a "payment-success" page at root for now, or use the referer if possible?
-        // Better: redirect to `/payment/success?reference=${ref}` which can then redirect to the proper tenant dashboard if it knows it.
-        // Even better: The student/parent likely initiated this.
-
-        return NextResponse.redirect(new URL(`/success?reference=${ref}`, request.url))
+        return NextResponse.redirect(new URL(redirectUrl))
     }
 
     return NextResponse.json({ error: 'Payment verification failed', details: verification }, { status: 400 })

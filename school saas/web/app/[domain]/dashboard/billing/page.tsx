@@ -160,7 +160,7 @@ export default async function BillingPage({
                                     <p className="text-[9px] mt-1 text-center opacity-70">Please pay at the school office</p>
                                 </div>
                             ) : (
-                                <PaymentButton amount={balance} email={user.email || ""} studentId={student.id} />
+                                <PaymentButton amount={balance} email={user.email || ""} studentId={student.id} subdomain={params.domain} />
                             )}
 
                             {/* Download Invoice Button */}

@@ -8,7 +8,7 @@ import { getDecryptedPaystackConfig } from './finance-settings'
 
 const PLATFORM_PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!
 
-export async function initializePaystackTransaction(transactionId: string) {
+export async function initializePaystackTransaction(transactionId: string, subdomain?: string) {
     const supabase = createClient()
 
     // 1. Get Transaction Details
@@ -53,9 +53,11 @@ export async function initializePaystackTransaction(transactionId: string) {
                 callback_url: callbackUrl,
                 metadata: {
                     transaction_id: trx.id,
+                    subdomain: subdomain || "",
                     student_name: trx.student?.full_name,
                     custom_fields: [
-                        { display_name: "Student", variable_name: "student", value: trx.student?.full_name }
+                        { display_name: "Student", variable_name: "student", value: trx.student?.full_name },
+                        { display_name: "Subdomain", variable_name: "subdomain", value: subdomain || "" }
                     ]
                 }
             }),
@@ -81,8 +83,10 @@ export async function initializePaystackTransaction(transactionId: string) {
     }
 }
 
-export async function verifyPaystackTransaction(reference: string) {
-    const supabase = createClient()
+import { createAdminClient } from '@/lib/supabase/admin'
+
+export async function verifyPaystackTransaction(reference: string, useAdmin: boolean = false) {
+    const supabase = useAdmin ? createAdminClient() : createClient()
     
     // 1. Get transaction to identify tenant
     const { data: trx } = await supabase
@@ -114,7 +118,7 @@ export async function verifyPaystackTransaction(reference: string) {
 
         if (data.data.status === 'success') {
             // Update Database
-            const supabase = createClient()
+            // Use same supabase client as identified above
 
             // Get transaction by reference
             const { data: trx } = await supabase.from('transactions').select('*').eq('reference', reference).single()
@@ -139,7 +143,7 @@ export async function verifyPaystackTransaction(reference: string) {
                     }
                 }
             }
-            return { success: true, data: data.data }
+            return { success: true, data: data.data, metadata: data.data.metadata }
         }
 
         return { success: false, status: data.data.status }
@@ -154,12 +158,9 @@ export async function verifyPaystackTransaction(reference: string) {
     }
 }
 
-export async function initiatePayment(data: {
-    amount: number,
-    email: string,
-    studentId?: string,
     invoiceId?: string,
-    reference?: string
+    reference?: string,
+    subdomain?: string
 }) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -187,5 +188,5 @@ export async function initiatePayment(data: {
     if (error || !trx) return { success: false, error: "Failed to create transaction record: " + error?.message }
 
     // 2. Initialize Paystack
-    return await initializePaystackTransaction(trx.id)
+    return await initializePaystackTransaction(trx.id, data.subdomain)
 }

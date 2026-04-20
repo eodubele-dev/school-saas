@@ -6,17 +6,17 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { initiatePayment } from "@/lib/actions/paystack" // Updated import
 
-export function PaymentButton({ amount, email, studentId, disabled }: { amount: number, email: string, studentId?: string, disabled?: boolean }) {
+export function PaymentButton({ amount, email, studentId, disabled, subdomain }: { amount: number, email: string, studentId?: string, disabled?: boolean, subdomain?: string }) {
     const [loading, setLoading] = useState(false)
 
     const handlePayment = async () => {
         setLoading(true)
         try {
             toast.loading("Initializing secure channel...")
-            const res = await initiatePayment({
                 amount,
                 email,
-                studentId
+                studentId,
+                subdomain
             })
 
             toast.dismiss()
