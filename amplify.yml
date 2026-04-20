@@ -11,6 +11,8 @@ applications:
             - echo "SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY" > .env.production
             - echo "NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL" >> .env.production
             - echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> .env.production
+            - echo "NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=$NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY" >> .env.production
+            - echo "PAYSTACK_SECRET_KEY=$PAYSTACK_SECRET_KEY" >> .env.production
             - npm run build
             - cp .env.production .next/standalone/ || true
       artifacts:
