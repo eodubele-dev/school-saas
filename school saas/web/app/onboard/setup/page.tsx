@@ -109,12 +109,13 @@ export default function OnboardingWizard() {
     const handleNext = () => setStep(prev => prev + 1)
     const handleBack = () => setStep(prev => prev - 1)
 
-    const handleSubmit = async (initialDeposit?: number) => {
+    const handleSubmit = async (initialDeposit?: number, transactionReference?: string) => {
         setIsSubmitting(true)
         try {
             const payload = {
                 ...data,
                 initialDeposit,
+                transactionReference,
                 levels: ['nursery', 'primary', 'jss', 'sss'],
                 waecStats: true,
                 nerdcPresets: true

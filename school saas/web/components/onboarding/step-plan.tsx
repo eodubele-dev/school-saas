@@ -5,13 +5,21 @@ import { Card } from "@/components/ui/card"
 import { Check, Sparkles, Zap, Shield } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Loader2 } from "lucide-react"
+import Script from "next/script"
+import { toast } from "sonner"
 
 interface StepPlanProps {
     data: any
     updateData: (key: string, value: any) => void
-    onSubmit: (initialDeposit?: number) => void
+    onSubmit: (initialDeposit?: number, reference?: string) => void
     onBack: () => void
     isSubmitting: boolean
+}
+
+declare global {
+    interface Window {
+        PaystackPop: any
+    }
 }
 
 export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: StepPlanProps) {
@@ -47,15 +55,16 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
         {
             id: 'pilot',
             name: `${locationState} Pilot`,
-            price: '₦0',
-            period: '/ Term 1',
-            description: `Free entry for ${locationState} Schools. prove value early.`,
+            price: '₦10,000',
+            amountKobo: 1000000,
+            period: '/ Initial Deposit',
+            description: `Fund your SMS wallet to activate. Total control from day one.`,
             features: [
                 'Forensic Audit Logs',
                 'Bento Dashboard',
                 'Revenue Engine (Recovery Hub)',
                 'AI Lesson Comments',
-                'Min. ₦10k SMS Wallet'
+                '₦10,000 SMS Credit Included'
             ],
             isNew: true
         },
@@ -63,6 +72,7 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
             id: 'starter',
             name: 'Starter',
             price: '₦20,000',
+            amountKobo: 2000000,
             period: '/ term',
             description: 'Essential tools for small schools.',
             features: ['Student Records', 'Basic Results', 'Attendance', 'Up to 100 Students']
@@ -71,6 +81,7 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
             id: 'professional',
             name: 'Professional',
             price: '₦50,000',
+            amountKobo: 5000000,
             period: '/ term',
             description: 'Advanced features for growing schools.',
             features: ['Everything in Starter', 'CBT Exams', 'Finance & Bursary', 'Parent Portal', 'Unlimited Students']
@@ -79,6 +90,7 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
             id: 'platinum',
             name: 'Platinum',
             price: '₦150,000',
+            amountKobo: 15000000,
             period: '/ term',
             description: 'AI-Powered suite for elite institutions.',
             features: [
@@ -93,17 +105,47 @@ export function StepPlan({ data, updateData, onSubmit, onBack, isSubmitting }: S
     ]
 
     const handleAction = async () => {
-        if (data.plan === 'pilot' && !isPaying) {
-            setIsPaying(true)
-            // Pilot activation grants an automatic 10k SMS deposit
-            onSubmit(10000)
-            return
+        const selectedPlan = plans.find(p => p.id === data.plan)
+        if (!selectedPlan) return
+
+        setIsPaying(true)
+
+        // Paystack Checkout
+        try {
+            const handler = window.PaystackPop.setup({
+                key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+                email: data.email,
+                amount: selectedPlan.amountKobo,
+                currency: 'NGN',
+                ref: `ONBOARD-${Date.now()}`,
+                metadata: {
+                    plan: data.plan,
+                    school: data.schoolName,
+                    subdomain: data.subdomain,
+                    onboarding: true
+                },
+                callback: (response: any) => {
+                    toast.success("Payment Received", { description: "Verifying transaction and initializing database..." })
+                    // Proceed to server setup with the reference
+                    const depositAmt = data.plan === 'pilot' ? 10000 : 0
+                    onSubmit(depositAmt, response.reference)
+                },
+                onClose: () => {
+                    setIsPaying(false)
+                    toast.error("Checkout Interrupted", { description: "Payment is required to activate your institution." })
+                }
+            })
+            handler.openIframe()
+        } catch (err) {
+            console.error("Paystack Initialization Error:", err)
+            setIsPaying(false)
+            toast.error("Checkout Unavailable", { description: "The payment gateway could not be loaded. Please check your connection." })
         }
-        onSubmit()
     }
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4" >
+            <Script src="https://js.paystack.co/v1/inline.js" strategy="lazyOnload" />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {plans.map((plan) => {
                     const isSelected = data.plan === plan.id;

@@ -240,6 +240,7 @@ interface OnboardingData {
     plan: string
     initialDeposit?: number
     logoUrl?: string
+    transactionReference?: string
 }
 
 export async function createTenant(data: OnboardingData) {
@@ -262,6 +263,41 @@ export async function createTenant(data: OnboardingData) {
             throw new Error("AUTHENTICATION_REQUIRED: Please log in to complete setup.")
         }
         const user = authUser.user
+
+        // --- 0.5. PAYMENT VERIFICATION (If not a free trial/pilot with 0 upfront) ---
+        // Note: Even Pilot requires 10k deposit now based on StepPlan
+        if (data.plan !== 'free') {
+            console.log('[createTenant] Step 0.5: Verifying Payment...', data.transactionReference)
+            
+            if (!data.transactionReference) {
+                throw new Error("PAYMENT_REQUIRED: A valid transaction reference is required for this plan.")
+            }
+
+            const SECRET_KEY = process.env.PAYSTACK_SECRET_KEY
+            const verifyRes = await fetch(`https://api.paystack.co/transaction/verify/${data.transactionReference}`, {
+                headers: { Authorization: `Bearer ${SECRET_KEY}` }
+            })
+            
+            const verifyData = await verifyRes.json()
+            
+            if (!verifyRes.ok || !verifyData.status || verifyData.data.status !== 'success') {
+                throw new Error("PAYMENT_VERIFICATION_FAILED: The provided transaction could not be verified.")
+            }
+
+            // Optional: Verify amount (Paystack amount is in kobo)
+            const paidAmount = verifyData.data.amount / 100
+            const expectedAmount = data.plan === 'pilot' ? 10000 
+                                : data.plan === 'starter' ? 20000
+                                : data.plan === 'professional' ? 50000
+                                : data.plan === 'platinum' ? 150000
+                                : 0
+            
+            if (paidAmount < expectedAmount) {
+                throw new Error(`INSUFFICIENT_PAYMENT: Expected ₦${expectedAmount}, but received ₦${paidAmount}.`)
+            }
+
+            console.log('[createTenant] Payment Verified Successfully.')
+        }
 
         // --- 1. CORE PROVISIONING ---
         console.log('[createTenant] Step 1: Creating Tenant Record...')
