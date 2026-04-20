@@ -4,6 +4,7 @@ import { FeeCategoryManager } from "@/components/finance/fee-category-manager"
 import { SmartFeeMatrix } from "@/components/finance/smart-fee-matrix"
 import { InvoiceGenerationPanel } from "@/components/finance/invoice-gen-panel"
 import { StudentFeeManager } from "@/components/finance/student-fees/student-fee-manager"
+import { PaymentGatewaySettings } from "@/components/finance/payment-gateway-settings"
 import { BursarDiscountRules } from "@/components/bursar/finance/bursar-discount-rules"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getDiscountRules } from "@/lib/actions/discounts"
@@ -65,6 +66,7 @@ export default async function FinancialConfigPage({ params }: { params: { domain
                         <TabsList className="bg-slate-900 border border-white/10 w-fit mb-6">
                             <TabsTrigger value="matrix" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 text-slate-400 transition-colors duration-200">Smart Fee Matrix</TabsTrigger>
                             <TabsTrigger value="categories" className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 text-slate-400 transition-colors duration-200">Fee Categories</TabsTrigger>
+                            <TabsTrigger value="gateway" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 text-slate-400 transition-colors duration-200">Payment Gateway</TabsTrigger>
                             <TabsTrigger value="exceptions" className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-400 text-slate-400 transition-colors duration-200">Student Exceptions</TabsTrigger>
                             <TabsTrigger value="discounts" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 text-slate-400 transition-colors duration-200">Family Waivers</TabsTrigger>
                         </TabsList>
@@ -91,6 +93,10 @@ export default async function FinancialConfigPage({ params }: { params: { domain
 
                         <TabsContent value="discounts" className="m-0 border-0 outline-none">
                             <BursarDiscountRules initialRules={rulesRes.data || []} />
+                        </TabsContent>
+
+                        <TabsContent value="gateway" className="m-0 border-0 outline-none">
+                            <PaymentGatewaySettings />
                         </TabsContent>
                     </Tabs>
                 </div>

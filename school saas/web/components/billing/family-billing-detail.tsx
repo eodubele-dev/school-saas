@@ -34,7 +34,8 @@ export function FamilyBillingDetail({
         children: any[],
         parentEmail?: string
     },
-    domain: string
+    domain: string,
+    paymentStatus?: { isEnabled: boolean, isConfigured: boolean }
 }) {
     const [isProcessing, setIsProcessing] = useState<string | null>(null);
     const [printingId, setPrintingId] = useState<string | null>(null);
@@ -209,7 +210,7 @@ export function FamilyBillingDetail({
                 </div>
 
                 <div className="flex items-center gap-4">
-                    {familyLedger.totalBalance > 0 && (
+                    {familyLedger.totalBalance > 0 && paymentStatus?.isConfigured && paymentStatus?.isEnabled && (
                         <button
                             onClick={handlePayAll}
                             disabled={!!isProcessing}
@@ -218,6 +219,12 @@ export function FamilyBillingDetail({
                             {isProcessing === 'all' ? 'Processing...' : 'Settle All Dues'}
                             {!isProcessing && <CreditCard size={14} />}
                         </button>
+                    )}
+                    {familyLedger.totalBalance > 0 && (!paymentStatus?.isConfigured || !paymentStatus?.isEnabled) && (
+                         <div className="px-4 py-2 bg-slate-900/50 border border-white/5 rounded-xl text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-2">
+                            <AlertCircle size={14} className="text-amber-500" />
+                            Online Payments Unavailable
+                         </div>
                     )}
                 </div>
             </div>
@@ -349,6 +356,7 @@ export function FamilyBillingDetail({
                                                 onPay={handlePayment}
                                                 onInvoice={triggerInvoice}
                                                 domain={domain}
+                                                paymentEnabled={paymentStatus?.isEnabled && paymentStatus?.isConfigured}
                                             />
                                         </div>
 

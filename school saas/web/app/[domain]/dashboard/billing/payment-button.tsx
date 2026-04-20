@@ -6,7 +6,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { initiatePayment } from "@/lib/actions/paystack" // Updated import
 
-export function PaymentButton({ amount, email, studentId }: { amount: number, email: string, studentId?: string }) {
+export function PaymentButton({ amount, email, studentId, disabled }: { amount: number, email: string, studentId?: string, disabled?: boolean }) {
     const [loading, setLoading] = useState(false)
 
     const handlePayment = async () => {
@@ -39,8 +39,8 @@ export function PaymentButton({ amount, email, studentId }: { amount: number, em
     return (
         <Button
             onClick={handlePayment}
-            disabled={loading}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all hover:scale-[1.02]"
+            disabled={loading || disabled}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
         >
             {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

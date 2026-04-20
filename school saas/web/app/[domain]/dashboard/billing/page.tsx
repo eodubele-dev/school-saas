@@ -27,9 +27,8 @@ import {
 } from "@/components/ui/table"
 
 import { getStudentBilling, getPaymentHistory } from "@/lib/actions/finance"
-import { PaymentButton } from "./payment-button"
-import { DownloadReceiptButton } from "./download-receipt-button"
 import { DownloadInvoiceButton } from "./download-invoice-button"
+import { getTenantPaymentStatus } from "@/lib/actions/finance-settings"
 
 export default async function BillingPage({
     params,
@@ -76,6 +75,10 @@ export default async function BillingPage({
 
     const billing = await getStudentBilling(student.id, currentSession, currentTerm)
     const history = await getPaymentHistory(student.id)
+    
+    // Check school payment status
+    const paymentStatus = await getTenantPaymentStatus(tenant?.id || "")
+    const isPaymentEnabled = paymentStatus.isEnabled && paymentStatus.isConfigured
 
     const balance = billing?.balance || 0
     const totalFees = billing?.total_fees || 0
@@ -149,6 +152,12 @@ export default async function BillingPage({
                                 <div className="flex flex-col items-center justify-center p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-emerald-400">
                                     <CheckCircle2 className="h-8 w-8 mb-2" />
                                     <span className="font-bold">Fees Cleared</span>
+                                </div>
+                            ) : !isPaymentEnabled ? (
+                                <div className="flex flex-col items-center justify-center p-4 bg-slate-900/80 rounded-xl border border-white/5 text-slate-500">
+                                    <CreditCard className="h-8 w-8 mb-2 opacity-20" />
+                                    <span className="text-[10px] uppercase font-black tracking-widest">Payments Offline</span>
+                                    <p className="text-[9px] mt-1 text-center opacity-70">Please pay at the school office</p>
                                 </div>
                             ) : (
                                 <PaymentButton amount={balance} email={user.email || ""} studentId={student.id} />

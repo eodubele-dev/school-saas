@@ -11,6 +11,7 @@ interface StudentBillingCardProps {
     onPay: (id: string) => void;
     onInvoice: (id: string, name: string, balance: number, fees: any[]) => void;
     domain: string;
+    paymentEnabled?: boolean;
 }
 
 export const StudentBillingCard = ({
@@ -19,7 +20,8 @@ export const StudentBillingCard = ({
     printingId,
     onPay,
     onInvoice,
-    domain
+    domain,
+    paymentEnabled = true
 }: StudentBillingCardProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const isUnpaid = child.balance > 0;
@@ -157,7 +159,7 @@ export const StudentBillingCard = ({
                     </button>
 
                     {/* Pay Button */}
-                    {isUnpaid && (
+                    {isUnpaid && paymentEnabled && (
                         <button
                             onClick={() => onPay(child.id)}
                             disabled={isProcessing}
@@ -170,6 +172,12 @@ export const StudentBillingCard = ({
                         >
                             {isProcessing ? 'Processing' : 'Pay Now'} <CreditCard size={14} />
                         </button>
+                    )}
+
+                    {isUnpaid && !paymentEnabled && (
+                        <div className="flex-1 sm:flex-none px-4 py-3 rounded-xl bg-slate-900 border border-white/5 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">
+                            Payments Offline
+                        </div>
                     )}
 
                     {!isUnpaid && (

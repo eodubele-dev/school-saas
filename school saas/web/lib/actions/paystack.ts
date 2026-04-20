@@ -4,7 +4,9 @@ import { createClient } from '@/lib/supabase/server'
 import { safeParseJSON } from '@/lib/utils'
 import { redirect } from 'next/navigation'
 
-const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!
+import { getDecryptedPaystackConfig } from './finance-settings'
+
+const PLATFORM_PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!
 
 export async function initializePaystackTransaction(transactionId: string) {
     const supabase = createClient()
@@ -18,7 +20,18 @@ export async function initializePaystackTransaction(transactionId: string) {
 
     if (!trx) return { success: false, error: "Transaction not found" }
 
-    // 2. Prepare Paystack Payload
+    // 2. Get Tenant-Specific Paystack Keys
+    const config = await getDecryptedPaystackConfig(trx.tenant_id)
+    if (!config || !config.isEnabled) {
+        return { 
+            success: false, 
+            error: "Payment gateway not configured for this school. Please contact administration." 
+        }
+    }
+
+    const PAYSTACK_SECRET_KEY = config.secretKey
+
+    // 3. Prepare Paystack Payload
     const email = trx.student?.email || 'bursar@school.com' // Fallback
     const amountInKobo = Math.round(trx.amount * 100)
     const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/callback`
@@ -69,13 +82,28 @@ export async function initializePaystackTransaction(transactionId: string) {
 }
 
 export async function verifyPaystackTransaction(reference: string) {
+    const supabase = createClient()
+    
+    // 1. Get transaction to identify tenant
+    const { data: trx } = await supabase
+        .from('transactions')
+        .select('tenant_id')
+        .eq('reference', reference)
+        .single()
+
+    if (!trx) return { success: false, error: "Transaction reference not found" }
+
+    // 2. Get Tenant Keys
+    const config = await getDecryptedPaystackConfig(trx.tenant_id)
+    const SECRET_KEY = config?.isEnabled ? config.secretKey : PLATFORM_PAYSTACK_SECRET_KEY
+
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 10000)
 
     try {
         const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
             headers: {
-                Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`
+                Authorization: `Bearer ${SECRET_KEY}`
             },
             signal: controller.signal
         })
