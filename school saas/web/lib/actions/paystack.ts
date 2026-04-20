@@ -158,6 +158,10 @@ export async function verifyPaystackTransaction(reference: string, useAdmin: boo
     }
 }
 
+export async function initiatePayment(data: {
+    amount: number,
+    email: string,
+    studentId?: string,
     invoiceId?: string,
     reference?: string,
     subdomain?: string
