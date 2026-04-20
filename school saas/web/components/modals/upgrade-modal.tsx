@@ -121,25 +121,33 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
                     school: tenantName,
                     modal: true
                 },
-                callback: async (response: any) => {
+                callback: (response: any) => {
                     toast.loading("Verifying transaction and updating institutional access...", { id: 'upgrade' })
                     
-                    const res = await changeSubscriptionTier(selectedPlan!, response.reference)
-                    
-                    if (res.success) {
-                        toast.success("Institutional Expansion Complete", {
-                            description: `${tenantName} has been upgraded to ${selectedPlan!.toUpperCase()}.`,
-                            id: 'upgrade'
-                        })
-                        router.refresh()
-                        setTimeout(() => window.location.reload(), 2000)
-                    } else {
-                        toast.error("Upgrade Failed", {
-                            description: res.error || "Please contact support for manual activation.",
+                    // Call the server action and handle response
+                    changeSubscriptionTier(selectedPlan!, response.reference).then((res) => {
+                        if (res.success) {
+                            toast.success("Institutional Expansion Complete", {
+                                description: `${tenantName} has been upgraded to ${selectedPlan!.toUpperCase()}.`,
+                                id: 'upgrade'
+                            })
+                            router.refresh()
+                            setTimeout(() => window.location.reload(), 2000)
+                        } else {
+                            toast.error("Upgrade Failed", {
+                                description: res.error || "Please contact support for manual activation.",
+                                id: 'upgrade'
+                            })
+                            setIsSubmitting(false)
+                        }
+                    }).catch((err) => {
+                        console.error("Verification Error:", err)
+                        toast.error("Verification Fault", {
+                            description: "Payment successful but system sync failed. Please contact support.",
                             id: 'upgrade'
                         })
                         setIsSubmitting(false)
-                    }
+                    })
                 },
                 onClose: () => {
                     setIsSubmitting(false)
