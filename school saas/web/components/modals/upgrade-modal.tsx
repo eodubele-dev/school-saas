@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
     Dialog,
     DialogContent,
@@ -12,8 +12,9 @@ import { Check, Sparkles, Zap, Shield, Loader2, Star, CheckCircle2 } from "lucid
 import { toast } from "sonner"
 import { changeSubscriptionTier } from "@/lib/actions/subscription"
 import { useRouter } from "next/navigation"
-import { generatePaystackLink } from "@/lib/actions/finance"
 import { Button } from "@/components/ui/button"
+import { createClient } from "@/lib/supabase/client"
+import Script from "next/script"
 
 interface UpgradeModalProps {
     isOpen: boolean
@@ -26,6 +27,16 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
     const router = useRouter()
     const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [userEmail, setUserEmail] = useState<string>('')
+    const supabase = createClient()
+
+    useEffect(() => {
+        if (isOpen) {
+            supabase.auth.getUser().then(({ data: { user } }) => {
+                if (user?.email) setUserEmail(user.email)
+            })
+        }
+    }, [isOpen])
 
     const normalizedCurrentTier = currentTier?.toLowerCase() || 'starter'
 
@@ -41,15 +52,17 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
         {
             id: 'pilot',
             name: 'Lagos Pilot',
-            price: '₦0',
-            period: '/ Term 1',
-            description: 'Free entry for Lagos Schools. Prove value early.',
-            features: ['Up to 100 Students', 'Core Gradebook', 'System Audit Logs', 'Min. ₦10k SMS Wallet'],
+            price: '₦10,000',
+            amountKobo: 1000000,
+            period: '/ Initial Deposit',
+            description: 'Fund your SMS wallet to activate. Total control from day one.',
+            features: ['Up to 100 Students', 'Core Gradebook', 'System Audit Logs', '₦10,000 SMS Credit'],
         },
         {
             id: 'starter',
             name: 'Starter',
             price: '₦20,000',
+            amountKobo: 2000000,
             period: '/ term',
             description: 'Essential record keeping for small schools.',
             features: ['Up to 300 Students', 'Automated Report Cards', 'Parent Portal Access', 'Global Debt Alert'],
@@ -58,6 +71,7 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
             id: 'professional',
             name: 'Professional',
             price: '₦50,000',
+            amountKobo: 5000000,
             period: '/ term',
             description: 'Advanced controls for growing institutions.',
             features: ['Unlimited Students', 'Bursary & Finance', 'CBT & Online Exams', 'Staff Payroll'],
@@ -66,6 +80,7 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
             id: 'platinum',
             name: 'Platinum',
             price: '₦150,000',
+            amountKobo: 15000000,
             period: '/ term',
             description: 'The complete AI-Powered elite OS.',
             features: ['Everything in Pro', 'AI Gemini Planner', 'Audit & Fraud Logs', 'Proprietor God-Mode App'],
@@ -74,57 +89,61 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
     ]
 
     const handleUpgrade = async () => {
-        if (!selectedPlan) return
+        const planObj = plans.find(p => p.id === selectedPlan)
+        if (!planObj) return
 
         setIsSubmitting(true)
+        
         try {
-            // 1. Simulate Payment Gateway if price > 0
-            const planObj = plans.find(p => p.id === selectedPlan)
-            const priceStr = planObj?.price || "0"
-            const priceNum = parseInt(priceStr.replace(/[^0-9]/g, ''), 10)
-
-            if (priceNum > 0) {
-                toast.loading("Initializing secure Paystack gateway...", { id: 'payment' })
-                const paymentUrl = await generatePaystackLink('admin', priceNum, 'admin@eduflow.ng')
-
-                // Simulate waiting for gateway
-                await new Promise(resolve => setTimeout(resolve, 1500))
-                toast.dismiss('payment')
-
-                // Open mock gateway in new tab
-                window.open(paymentUrl, '_blank')
-
-                toast.success("Payment Verified", {
-                    description: "Secure mock transaction completed successfully."
-                })
-            }
-
-            // 2. Perform Backend DB Tier Change
-            const res = await changeSubscriptionTier(selectedPlan)
-            if (res.success) {
-                toast.success("Institutional Expansion Complete", {
-                    description: `${tenantName} has been upgraded to ${selectedPlan.toUpperCase()}.`
-                })
-                router.refresh()
-                onClose()
-                window.location.reload()
-            } else {
-                toast.error("Upgrade Failed", {
-                    description: res.error || "Please contact support for manual activation."
-                })
-            }
-        } catch (error) {
-            toast.error("Critical Error", {
-                description: "Expansion protocol interrupted."
+            const handler = window.PaystackPop.setup({
+                key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+                email: userEmail || 'admin@school.com',
+                amount: planObj.amountKobo,
+                currency: 'NGN',
+                ref: `MODAL-UPGRADE-${Date.now()}`,
+                metadata: {
+                    plan: selectedPlan,
+                    school: tenantName,
+                    modal: true
+                },
+                callback: async (response: any) => {
+                    toast.loading("Verifying transaction and updating institutional access...", { id: 'upgrade' })
+                    
+                    const res = await changeSubscriptionTier(selectedPlan!, response.reference)
+                    
+                    if (res.success) {
+                        toast.success("Institutional Expansion Complete", {
+                            description: `${tenantName} has been upgraded to ${selectedPlan!.toUpperCase()}.`,
+                            id: 'upgrade'
+                        })
+                        router.refresh()
+                        setTimeout(() => window.location.reload(), 2000)
+                    } else {
+                        toast.error("Upgrade Failed", {
+                            description: res.error || "Please contact support for manual activation.",
+                            id: 'upgrade'
+                        })
+                        setIsSubmitting(false)
+                    }
+                },
+                onClose: () => {
+                    setIsSubmitting(false)
+                    toast.error("Process Interrupted", { description: "Payment is required for institutional expansion." })
+                }
             })
-            toast.dismiss('payment')
-        } finally {
+            handler.openIframe()
+        } catch (error) {
+            console.error("Upgrade Modal Error:", error)
+            toast.error("System Fault", {
+                description: "The upgrade protocol encountered a connectivity issue. Please retry."
+            })
             setIsSubmitting(false)
         }
     }
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
+            <Script src="https://js.paystack.co/v1/inline.js" strategy="lazyOnload" />
             <DialogContent className="max-w-5xl bg-slate-950 border-border text-slate-50 overflow-hidden p-0 shadow-2xl">
                 <div className="relative p-8 md:p-10">
                     <DialogHeader className="mb-8 text-center sm:text-left">
@@ -146,7 +165,6 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
                         {plans.map((plan) => {
                             const planRank = PLAN_RANKS[plan.id] ?? -1
                             const isCurrent = normalizedCurrentTier === plan.id
-                            // Allow upgrading to any plan with a higher rank than the current one
                             const isSelectable = planRank > currentRank
                             const isSelected = selectedPlan === plan.id
 

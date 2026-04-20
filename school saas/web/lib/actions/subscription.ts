@@ -86,3 +86,30 @@ export async function upgradeTenantPlan(data: {
         return { success: false, error: error.message || "An internal error occurred during the upgrade." }
     }
 }
+
+/**
+ * Modernized version of the legacy changeSubscriptionTier. 
+ * Resolves tenant from user context if not explicitly provided.
+ */
+export async function changeSubscriptionTier(plan: string, transactionReference?: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile?.tenant_id) return { success: false, error: "Tenant context missing" }
+
+    // Resolve subdomain (slug)
+    const { data: tenant } = await createAdminClient().from('tenants').select('slug').eq('id', profile.tenant_id).single()
+    if (!tenant) return { success: false, error: "Tenant not found" }
+
+    if (!transactionReference) {
+        return { success: false, error: "PAYMENT_REQUIRED: Reference missing." }
+    }
+
+    return await upgradeTenantPlan({
+        plan,
+        transactionReference,
+        subdomain: tenant.slug
+    })
+}
