@@ -1,9 +1,9 @@
-import { Info, AlertTriangle, ShieldCheck, HelpCircle, AlertCircle } from "lucide-react"
+import { Info, AlertTriangle, ShieldCheck, HelpCircle, AlertCircle, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface CalloutProps {
     children: React.ReactNode
-    type?: 'note' | 'tip' | 'important' | 'warning' | 'caution' | 'security'
+    type?: 'note' | 'tip' | 'important' | 'warning' | 'caution' | 'security' | 'success'
     title?: string
 }
 
@@ -49,6 +49,13 @@ const config = {
         bg: "bg-cyan-500/5",
         text: "text-cyan-400",
         title: "SECURITY PROTOCOL"
+    },
+    success: {
+        icon: CheckCircle2,
+        border: "border-emerald-500/20",
+        bg: "bg-emerald-500/5",
+        text: "text-emerald-400",
+        title: "SUCCESS"
     }
 }
 
