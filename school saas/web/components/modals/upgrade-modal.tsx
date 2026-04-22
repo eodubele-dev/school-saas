@@ -113,8 +113,7 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
 
             const publicKey = (process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "").trim();
             
-            // Absolute fallback for verification
-            window.alert(`[DEBUG] Initializing Paystack. Key length: ${publicKey.length}. Starts with: ${publicKey.substring(0, 7)}`);
+
 
             if (!publicKey) {
                 toast.error("Cloud Configuration Error", { 
