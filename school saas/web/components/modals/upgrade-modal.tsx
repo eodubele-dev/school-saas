@@ -308,7 +308,7 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
                                         Processing...
                                     </>
                                 ) : (
-                                    'Confirm Upgrade [FORCE SYNC]'
+                                    'Confirm Upgrade'
                                 )}
                             </Button>
                         </div>
