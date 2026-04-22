@@ -12,7 +12,7 @@ export async function sendWelcomeEmail(to: string, schoolName: string, subdomain
         // In a real environment with Resend installed:
         // const emailHtml = render(<WelcomePlatinumEmail schoolName={schoolName} subdomain={subdomain} userEmail={to} />);
         // await resend.emails.send({
-        //     from: 'EduFlow Platinum <onboarding@eduflow.ng>',
+        //     from: 'EduFlow Platinum <support@eduflow.ng>',
         //     to,
         //     subject: `Welcome to the Future of ${schoolName} // Your Command Center is Ready`,
         //     html: emailHtml

@@ -36,7 +36,7 @@ export default function PrivacyPolicy() {
                     <div className="text-slate-500 space-y-2 text-sm">
                         <p>{SITE_CONFIG.name} Legal Department</p>
                         <p>{SITE_CONFIG.hq.address}</p>
-                        <p className="text-blue-400 font-mono">dpo@eduflow.ng</p>
+                        <p className="text-blue-400 font-mono">support@eduflow.ng</p>
                     </div>
                 </div>
             </div>
