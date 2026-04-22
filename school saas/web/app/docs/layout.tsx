@@ -101,10 +101,16 @@ export default function DocsLayout({
                                     </Link>
                                 </li>
                                 <li>
-                                    <button onClick={() => toast.info("Immersion Sessions", { description: "Interactive tutorials are launching in Q3." })} className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-slate-500 hover:text-white hover:bg-white/5 transition-all cursor-pointer text-left">
-                                        <Globe className="w-4 h-4" />
+                                    <Link href="/docs/setup-guide" className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-slate-500 hover:text-white hover:bg-white/5 transition-all">
+                                        <LayoutDashboard className="w-4 h-4 text-slate-600" />
+                                        Setup Guide
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/docs/platform-overview" className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-slate-500 hover:text-white hover:bg-white/5 transition-all">
+                                        <Globe className="w-4 h-4 text-slate-600" />
                                         Platform Overview
-                                    </button>
+                                    </Link>
                                 </li>
                             </ul>
                         </div>
@@ -133,22 +139,22 @@ export default function DocsLayout({
                             <h5 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4 px-2">Developer Resources</h5>
                             <ul className="space-y-1 text-slate-400 font-medium tracking-tight">
                                 <li>
-                                    <button onClick={() => toast.info("REST API Keys", { description: "API key generation is available in the Institution Control Panel." })} className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm hover:text-white hover:bg-white/5 transition-all text-left">
+                                    <Link href="/docs/authentication" className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm hover:text-white hover:bg-white/5 transition-all">
                                         <Key className="w-4 h-4 text-slate-600" />
                                         Authentication
-                                    </button>
+                                    </Link>
                                 </li>
                                 <li>
-                                    <button onClick={() => toast.info("Webhook Protocol", { description: "Detailed webhook events for tuition payments are available in v4.2." })} className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm hover:text-white hover:bg-white/5 transition-all text-left">
+                                    <Link href="/docs/webhooks" className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm hover:text-white hover:bg-white/5 transition-all">
                                         <Terminal className="w-4 h-4 text-slate-600" />
                                         Webhooks
-                                    </button>
+                                    </Link>
                                 </li>
                                 <li>
-                                    <button onClick={() => toast.info("Developer Changelog", { description: "Viewing the 2026 Q1 security patches." })} className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm hover:text-white hover:bg-white/5 transition-all text-left">
+                                    <Link href="/docs/changelog" className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm hover:text-white hover:bg-white/5 transition-all">
                                         <Newspaper className="w-4 h-4 text-slate-600" />
                                         Changelog
-                                    </button>
+                                    </Link>
                                 </li>
                             </ul>
                         </div>
