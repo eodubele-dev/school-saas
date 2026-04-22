@@ -29,6 +29,8 @@ import {
 import { getStudentBilling, getPaymentHistory } from "@/lib/actions/finance"
 import { DownloadInvoiceButton } from "./download-invoice-button"
 import { getTenantPaymentStatus } from "@/lib/actions/finance-settings"
+import { PaymentButton } from "./payment-button"
+import { DownloadReceiptButton } from "./download-receipt-button"
 
 export default async function BillingPage({
     params,

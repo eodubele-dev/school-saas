@@ -1,6 +1,7 @@
 import { getFamilyBillingLedger } from "@/lib/actions/parent-portal"
 import { getTenantPaymentStatus } from "@/lib/actions/finance-settings"
 import { createClient } from "@/lib/supabase/server"
+import { FamilyBillingDetail } from "@/components/billing/family-billing-detail"
 
 export default async function FamilyBillingPage({ params }: { params: { domain: string } }) {
     const { success, data, error } = await getFamilyBillingLedger()

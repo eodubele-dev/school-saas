@@ -13,6 +13,7 @@ export function PaymentButton({ amount, email, studentId, disabled, subdomain }:
         setLoading(true)
         try {
             toast.loading("Initializing secure channel...")
+            const res = await initiatePayment({
                 amount,
                 email,
                 studentId,

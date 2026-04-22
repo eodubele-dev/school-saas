@@ -116,7 +116,7 @@ export function FamilyBillingDetail({
             // Note: In a real scenario, we'd need the actual invoiceId from the database.
             // The ledger data should ideally carry the invoiceId.
             // Assuming the invoice exists since balance > 0.
-            
+            const result = await initiatePayment({
                 email: familyLedger.parentEmail || 'parent@school.com', 
                 studentId: studentId,
                 invoiceId: student.invoiceId,
@@ -141,6 +141,7 @@ export function FamilyBillingDetail({
         setIsProcessing('all');
         try {
             const firstChildId = familyLedger.children[0]?.id;
+            const result = await initiatePayment({
                 amount: familyLedger.totalBalance,
                 email: familyLedger.parentEmail || 'parent@school.com',
                 studentId: firstChildId,

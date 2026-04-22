@@ -130,9 +130,9 @@ export function SidebarClient({
         return cats
     }, [baseCategories, permissions, role])
 
-    // State for Search
     const [openSearch, setOpenSearch] = useState(false)
     const [isSupportOpen, setIsSupportOpen] = useState(false)
+    const [logoError, setLogoError] = useState(false)
 
     // State for Collapsed Categories (Hubs) - Initialize without localStorage to prevent hydration errors
     const [openHub, setOpenHub] = useState<string | null>(null)
@@ -269,8 +269,6 @@ export function SidebarClient({
 
     // Determine if tier is premium
     const isPremium = tier === 'platinum' || tier === 'pilot'
-
-    const [logoError, setLogoError] = useState(false)
 
     return (
         <TooltipProvider>
