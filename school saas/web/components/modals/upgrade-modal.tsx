@@ -181,9 +181,17 @@ export function UpgradeModal({ isOpen, onClose, currentTier, tenantName }: Upgra
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog 
+            open={isOpen} 
+            onOpenChange={(open) => {
+                if (!open && !isSubmitting) onClose();
+            }} 
+            modal={false}
+        >
             <Script src="https://js.paystack.co/v1/inline.js" strategy="afterInteractive" />
-            <DialogContent className="max-w-5xl bg-slate-950 border-border text-slate-50 overflow-hidden p-0 shadow-2xl">
+            <DialogContent 
+                className="max-w-5xl bg-slate-950 border-border text-slate-50 overflow-hidden p-0 shadow-2xl"
+            >
                 <div className="relative p-8 md:p-10">
                     <DialogHeader className="mb-8 text-center sm:text-left">
                         <div className="flex items-center justify-center sm:justify-start gap-2 mb-3">
