@@ -5,11 +5,16 @@ import { Plus, MessageSquare, Calculator, FileText } from "lucide-react"
 import { toast } from "sonner"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
+import { useParams, useRouter } from "next/navigation"
+
 export function QuickActions() {
-    const handleAction = (action: string) => {
-        toast.info(action, {
-            description: "This executive feature is coming soon."
-        })
+    const params = useParams()
+    const router = useRouter()
+    const domain = params?.domain as string
+
+    const handleAction = (path: string) => {
+        if (!domain) return
+        router.push(`/${domain}/dashboard/${path}`)
     }
 
     return (
@@ -22,7 +27,7 @@ export function QuickActions() {
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
-                                        onClick={() => handleAction("Broadcast to Staff")}
+                                        onClick={() => handleAction("messages")}
                                         size="icon"
                                         variant="ghost"
                                         className="h-10 w-10 rounded-full hover:bg-black/20 text-black"
@@ -40,7 +45,7 @@ export function QuickActions() {
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
-                                        onClick={() => handleAction("View Bank Reconciliation")}
+                                        onClick={() => handleAction("finance")}
                                         size="icon"
                                         variant="ghost"
                                         className="h-10 w-10 rounded-full hover:bg-black/20 text-black"
@@ -58,7 +63,7 @@ export function QuickActions() {
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
-                                        onClick={() => handleAction("Generate Financial Report")}
+                                        onClick={() => handleAction("finance/analytics")}
                                         size="icon"
                                         variant="ghost"
                                         className="h-10 w-10 rounded-full hover:bg-black/20 text-black"

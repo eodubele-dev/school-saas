@@ -54,16 +54,12 @@ export default function ExecutiveDashboard({ params }: { params: { domain: strin
                         <span className="text-[10px] text-slate-400 font-mono uppercase tracking-widest">{params.domain.split('.')[0]} Campus</span>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    {/* Simulated Campus Switcher */}
-                    <select className="bg-slate-900 border border-white/10 text-xs text-slate-300 rounded px-2 py-1 outline-none focus:border-amber-500/50">
-                        <option>Lekki Campus</option>
-                        <option>Abuja Campus</option>
-                        <option>Port Harcourt Campus</option>
-                    </select>
-                    <div className="h-8 w-8 rounded-full bg-slate-800 border border-white/10 overflow-hidden">
-                        {/* Simulating Owner Avatar */}
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Proprietor" alt="Owner" />
+                <div className="flex items-center gap-3">
+                    <div className="bg-slate-900 border border-white/10 text-[10px] text-slate-300 rounded px-2 py-1 uppercase tracking-widest font-mono">
+                        Primary Campus
+                    </div>
+                    <div className="h-8 w-8 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shadow-inner">
+                        <Crown className="w-4 h-4" />
                     </div>
                 </div>
             </header>
