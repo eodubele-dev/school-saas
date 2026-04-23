@@ -26,7 +26,7 @@ export function StaffLeaderboard({ staff }: { staff: StaffPerformance[] }) {
                             </Avatar>
                             <div>
                                 <div className="text-sm font-medium text-slate-200">{s.name}</div>
-                                <div className="text-[10px] text-muted-foreground">Physics Dept</div>
+                                <div className="text-[10px] text-muted-foreground">Faculty</div>
                             </div>
                         </div>
                         <div className="flex flex-col gap-1 items-end">

@@ -72,7 +72,7 @@ export async function getExecutiveStats(domain: string): Promise<{ success: bool
         .from('profiles')
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', tenantId)
-        .eq('role', 'teacher')
+        .in('role', ['admin', 'teacher', 'bursar', 'registrar', 'owner', 'manager'])
 
     const todayDate = new Date().toISOString().split('T')[0]
     const { count: staffPresent } = await supabase
