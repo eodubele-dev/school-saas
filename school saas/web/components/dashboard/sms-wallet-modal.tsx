@@ -65,12 +65,7 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
 
                 <div className="p-6 pb-2">
                     <DialogHeader>
-                        <div className="flex items-center gap-3 mb-1">
-                            <div className="p-2 rounded-lg bg-white/5 border border-white/10 shadow-sm">
-                                <Zap className="h-4 w-4 text-zinc-100" />
-                            </div>
-                            <DialogTitle className="text-xl font-semibold tracking-tight text-foreground">Institutional Wallet</DialogTitle>
-                        </div>
+                        <DialogTitle className="text-xl font-semibold tracking-tight text-foreground">Institutional Wallet</DialogTitle>
                         <DialogDescription className="text-muted-foreground text-sm leading-relaxed mt-2">
                             Top up your balance to maintain automated revenue recovery and direct communication channels.
                         </DialogDescription>
@@ -149,7 +144,7 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                     <Button
                         onClick={handleTopUp}
                         disabled={loading || (isCustom && (!customAmount || Number(customAmount) < 1000))}
-                        className="flex-[2] bg-white hover:bg-zinc-200 text-black font-semibold shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-colors"
+                        className="flex-[2] bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-[0_0_15px_rgba(37,99,235,0.2)] transition-all duration-200"
                     >
                         {loading ? (
                             <>

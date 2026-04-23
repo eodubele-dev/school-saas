@@ -142,6 +142,25 @@ export async function verifyPaystackTransaction(reference: string, useAdmin: boo
                         }).eq('id', trx.invoice_id)
                     }
                 }
+
+                // --- Wallet Topup Integration ---
+                // If this was a wallet topup, credit the tenant's sms_balance in realtime
+                const metadata = data.data.metadata
+                if (metadata?.type === 'wallet_topup') {
+                    // Fetch current tenant to get existing balance
+                    const { data: tenant } = await supabase.from('tenants').select('sms_balance').eq('id', trx.tenant_id).single()
+                    if (tenant) {
+                        const currentBalance = Number(tenant.sms_balance) || 0
+                        const topupAmount = Number(data.data.amount) / 100 // Convert Kobo to Naira
+                        
+                        await supabase.from('tenants').update({
+                            sms_balance: currentBalance + topupAmount,
+                            updated_at: new Date().toISOString()
+                        }).eq('id', trx.tenant_id)
+
+                        console.log(`[Wallet Topup] Credited ₦${topupAmount} to Tenant ${trx.tenant_id}. New Balance: ₦${currentBalance + topupAmount}`)
+                    }
+                }
             }
             return { success: true, data: data.data, metadata: data.data.metadata }
         }

@@ -567,6 +567,16 @@ export async function generatePaystackLink(userType: string, amount: number, ema
     const tenantId = profile.tenant_id
     const amountInKobo = Math.round(amount * 100)
     const reference = `WALLET-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+
+    // 1. Record Pending Transaction for Wallet Topup
+    // This ensures the webhook can identify the transaction and credit the wallet in realtime.
+    await supabase.from('transactions').insert({
+        tenant_id: tenantId,
+        amount: amount,
+        method: 'paystack',
+        reference: reference,
+        status: 'pending'
+    })
     
     // In production, you'd want a specific callback URL to verify and credit the SMS balance
     const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`
