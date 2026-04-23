@@ -93,7 +93,7 @@ export async function logSMSTransaction(data: {
         }
 
         // Log the transaction (trigger will auto-deduct from wallet)
-        const { error } = await supabase
+        const { data: newTx, error } = await supabase
             .from('sms_transactions')
             .insert({
                 tenant_id: profile.tenant_id,
@@ -105,12 +105,40 @@ export async function logSMSTransaction(data: {
                 sent_by: user.id,
                 status: 'pending'
             })
+            .select('id')
+            .single()
 
         if (error) throw error
 
-        return { success: true, cost, newBalance: tenant.sms_balance - cost }
+        return { success: true, id: newTx.id, cost, newBalance: tenant.sms_balance - cost }
     } catch (error: any) {
         console.error('Error logging SMS transaction:', error)
+        return { success: false, error: error.message }
+    }
+}
+
+/**
+ * Update SMS Transaction Status
+ * Marks a transaction as delivered or failed based on gateway feedback
+ */
+export async function updateSMSTransactionStatus(id: string, status: 'delivered' | 'failed', gatewayRef?: string, errorReason?: string) {
+    const supabase = createClient()
+    
+    try {
+        const { error } = await supabase
+            .from('sms_transactions')
+            .update({
+                status,
+                delivery_time: status === 'delivered' ? new Date().toISOString() : null,
+                failure_reason: errorReason,
+                metadata: gatewayRef ? { gateway_ref: gatewayRef } : {}
+            })
+            .eq('id', id)
+
+        if (error) throw error
+        return { success: true }
+    } catch (error: any) {
+        console.error('Error updating SMS status:', error)
         return { success: false, error: error.message }
     }
 }

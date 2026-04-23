@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { logSMSTransaction } from '@/lib/actions/sms'
+import { logSMSTransaction, updateSMSTransactionStatus } from '@/lib/actions/sms'
 
 /**
  * SMS Event Types
@@ -200,12 +200,18 @@ export class SMSGatekeeperService {
             if (gatewayResult.success) {
                 console.log(`[SMS Gatekeeper] SENT: ${eventType} to ${recipientName} (${recipientPhone})`)
 
+                // Update transaction status to delivered
+                await updateSMSTransactionStatus(logResult.id, 'delivered', gatewayResult.messageId)
+
                 return {
                     status: 'SENT',
                     cost,
                     transactionId: gatewayResult.messageId
                 }
             } else {
+                // Update transaction status to failed
+                await updateSMSTransactionStatus(logResult.id, 'failed', undefined, gatewayResult.error)
+
                 return {
                     status: 'FAILED',
                     reason: gatewayResult.error || 'GATEWAY_ERROR'
@@ -222,26 +228,70 @@ export class SMSGatekeeperService {
     }
 
     /**
-     * Send to SMS Gateway
-     * TODO: Replace with actual SMS provider integration
+     * Send to SMS Gateway (Termii Integration)
+     * Fully wired for production with live credentials
      */
     private static async sendToSMSGateway(
         phone: string,
         message: string,
         metadata?: Record<string, any>
     ): Promise<{ success: boolean; messageId?: string; error?: string }> {
-        // Simulate SMS gateway call
-        // In production, integrate with:
-        // - Termii: https://termii.com
-        // - AfricasTalking: https://africastalking.com
-        // - Twilio: https://twilio.com
+        const apiKey = process.env.TERMII_API_KEY
+        const senderId = process.env.TERMII_SENDER_ID || 'Eduflow'
+        const apiUrl = process.env.TERMII_API_URL || 'https://api.ng.termii.com/api/sms/send'
 
-        console.log(`[SMS Gateway] Sending to ${phone}: ${message}`)
+        if (!apiKey) {
+            console.error('[SMS Gateway] TERMII_API_KEY is missing')
+            return { success: false, error: 'API_KEY_MISSING' }
+        }
 
-        // Simulate success
-        return {
-            success: true,
-            messageId: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        // Clean and format phone number (ensure 234 prefix for Nigeria)
+        let formattedPhone = phone.replace(/\s+/g, '').replace('+', '')
+        if (formattedPhone.startsWith('0')) {
+            formattedPhone = '234' + formattedPhone.substring(1)
+        } else if (!formattedPhone.startsWith('234')) {
+            formattedPhone = '234' + formattedPhone
+        }
+
+        console.log(`[SMS Gateway] Dispatching to ${formattedPhone} via Termii...`)
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    to: formattedPhone,
+                    from: senderId,
+                    sms: message,
+                    type: 'plain',
+                    channel: 'generic',
+                    api_key: apiKey
+                })
+            })
+
+            const data = await response.json()
+
+            if (response.ok && data.message_id) {
+                console.log(`[SMS Gateway] SUCCESS: Message ID ${data.message_id}`)
+                return {
+                    success: true,
+                    messageId: data.message_id
+                }
+            } else {
+                console.error(`[SMS Gateway] FAILED:`, data)
+                return {
+                    success: false,
+                    error: data.message || 'GATEWAY_REJECTED'
+                }
+            }
+        } catch (error: any) {
+            console.error(`[SMS Gateway] NETWORK_ERROR:`, error)
+            return {
+                success: false,
+                error: error.message || 'CONNECTION_FAILED'
+            }
         }
     }
 
