@@ -5,9 +5,11 @@ import { Plus, MessageSquare, Calculator, FileText } from "lucide-react"
 import { toast } from "sonner"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
+import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 
 export function QuickActions() {
+    const [isOpen, setIsOpen] = useState(false)
     const params = useParams()
     const router = useRouter()
     const domain = params?.domain as string
@@ -19,10 +21,11 @@ export function QuickActions() {
 
     return (
         <div className="fixed bottom-6 right-6 z-40">
-            <div className="bg-amber-500 rounded-2xl shadow-lg shadow-amber-500/20 p-2 flex flex-col gap-2 items-center group transition-all duration-300">
+            <div className="bg-amber-500 rounded-full shadow-lg shadow-amber-500/20 p-2 flex flex-col gap-2 items-center transition-all duration-300">
                 {/* Expanded Menu */}
-                <div className="flex flex-col gap-2 mb-2">
-                    <TooltipProvider delayDuration={0}>
+                {isOpen && (
+                    <div className="flex flex-col gap-2 mb-2 animate-in slide-in-from-bottom-2 fade-in duration-200">
+                        <TooltipProvider delayDuration={0}>
                         <div className="flex items-center gap-3 flex-row-reverse group/item">
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -77,7 +80,9 @@ export function QuickActions() {
                             </Tooltip>
                         </div>
                     </TooltipProvider>
-                </div>
+                    </div>
+                )}
+
 
                 {/* Main Trigger (Visual Only, since menu is open by default or hover-based in this design) */}
                 {/* 
@@ -89,8 +94,12 @@ export function QuickActions() {
                   Let's add visible labels next to them if we want to be super clear?
                   No, tooltips are fine, but let's make sure the Buttons WORK.
                */}
-                <Button size="icon" className="h-12 w-12 rounded-full bg-black/10 hover:bg-black/20 text-black shadow-none pointer-events-none">
-                    <Plus className="h-6 w-6" />
+                <Button 
+                    onClick={() => setIsOpen(!isOpen)}
+                    size="icon" 
+                    className="h-12 w-12 rounded-full bg-black/10 hover:bg-black/20 text-black shadow-none transition-transform"
+                >
+                    <Plus className={`h-6 w-6 transition-transform duration-300 ${isOpen ? 'rotate-45' : ''}`} />
                 </Button>
             </div>
         </div>

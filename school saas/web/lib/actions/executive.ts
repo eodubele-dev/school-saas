@@ -82,13 +82,15 @@ export async function getExecutiveStats(domain: string): Promise<{ success: bool
         .eq('date', todayDate)
         .eq('status', 'present')
 
-    // Mock Students Absent (e.g., 5% of total)
-    const { count: studentTotal } = await supabase
-        .from('students')
+    // Real Students Absent
+    const { count: studentsAbsentCount } = await supabase
+        .from('student_attendance')
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', tenantId)
+        .eq('date', todayDate)
+        .eq('status', 'absent')
 
-    const studentsAbsent = Math.floor((studentTotal || 200) * 0.08)
+    const studentsAbsent = studentsAbsentCount || 0
 
     // 3. Staff Performance (Mock Logic for "Lagging" vs "Caught Up")
     // In prod: Join lesson_plans and gradebook tables
@@ -99,12 +101,32 @@ export async function getExecutiveStats(domain: string): Promise<{ success: bool
         .eq('role', 'teacher')
         .limit(5)
 
-    const staffPerformance = teachers?.map((t, i) => ({
-        id: t.id,
-        name: t.full_name,
-        gradebookStatus: i % 3 === 0 ? 'Lagging' : 'Caught Up',
-        lessonPlanStatus: i % 2 === 0 ? 'Pending' : 'On Track'
-    })) as any[]
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    const isoSevenDays = sevenDaysAgo.toISOString()
+
+    const staffPerformance = await Promise.all((teachers || []).map(async (t) => {
+        // Check if they submitted lesson plans recently
+        const { count: lessonPlansCount } = await supabase
+            .from('lesson_plans')
+            .select('*', { count: 'exact', head: true })
+            .eq('teacher_id', t.id)
+            .gte('created_at', isoSevenDays)
+
+        // Check if they are managing their class (taking attendance, marking registers)
+        const { count: attendanceMarkedCount } = await supabase
+            .from('attendance_registers')
+            .select('*', { count: 'exact', head: true })
+            .eq('marked_by', t.id)
+            .gte('created_at', isoSevenDays)
+
+        return {
+            id: t.id,
+            name: t.full_name,
+            gradebookStatus: (attendanceMarkedCount || 0) > 0 ? 'Caught Up' : 'Lagging',
+            lessonPlanStatus: (lessonPlansCount || 0) > 0 ? 'On Track' : 'Pending'
+        }
+    }))
 
     // 4. Live Pulse Logs
     const { data: logs } = await supabase
