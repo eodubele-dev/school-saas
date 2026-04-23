@@ -31,12 +31,12 @@ export function PilotBanner({ smsBalance }: PilotBannerProps) {
 
             <div className="flex items-center gap-6">
                 <div className="text-right">
-                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">SMS Wallet</p>
-                    <p className={`text-sm font-black ${smsBalance < 2000 ? 'text-amber-400' : 'text-emerald-400'}`}>
-                        <FinancialText value={`₦${smsBalance.toLocaleString()}`} />
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">SMS Balance</p>
+                    <p className={`text-sm font-black ${smsBalance < 400 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                        {smsBalance.toLocaleString()} Units
                     </p>
                 </div>
-                {smsBalance < 2000 && (
+                {smsBalance < 400 && (
                     <SMSWalletTopupButton />
                 )}
                 <button

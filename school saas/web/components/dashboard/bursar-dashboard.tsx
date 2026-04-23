@@ -164,9 +164,9 @@ export function BursarDashboard({ stats, tier = 'starter' }: { stats: any; tier?
                 <div className="flex items-center gap-2">
                     {/* SMS Status for Bursar */}
                     {(stats.smsBalance !== undefined) && (
-                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${stats.smsBalance < 2000 ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 'bg-secondary/50 border-border text-muted-foreground'}`}>
-                            <Zap className={`h-3.5 w-3.5 ${stats.smsBalance < 2000 ? 'fill-current' : ''}`} />
-                            <span className="text-[10px] font-bold uppercase tracking-tight">Wallet: <FinancialText value={`₦${stats.smsBalance.toLocaleString()}`} /></span>
+                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${stats.smsBalance < 400 ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 'bg-secondary/50 border-border text-muted-foreground'}`}>
+                            <Zap className={`h-3.5 w-3.5 ${stats.smsBalance < 400 ? 'fill-current' : ''}`} />
+                            <span className="text-[10px] font-bold uppercase tracking-tight">Wallet: {stats.smsBalance.toLocaleString()} Units</span>
                         </div>
                     )}
                     <Button variant="outline" size="sm" onClick={handleExport} className="bg-card text-card-foreground border-border text-slate-300 hover:bg-slate-800 hover:text-foreground">

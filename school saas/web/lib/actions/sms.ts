@@ -75,8 +75,8 @@ export async function logSMSTransaction(data: {
 
         if (!profile) throw new Error('Profile not found')
 
-        // Check SMS balance before logging transaction
-        const cost = data.cost || 5.00
+        // Check SMS balance before logging transaction (Unit-Based)
+        const cost = data.cost || 1.00
         const { data: tenant } = await supabase
             .from('tenants')
             .select('sms_balance')

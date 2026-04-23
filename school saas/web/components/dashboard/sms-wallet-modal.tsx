@@ -67,7 +67,8 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                     <DialogHeader>
                         <DialogTitle className="text-xl font-semibold tracking-tight text-foreground">Institutional Wallet</DialogTitle>
                         <DialogDescription className="text-muted-foreground text-sm leading-relaxed mt-2">
-                            Top up your balance to maintain automated revenue recovery and direct communication channels.
+                            Top up your balance to maintain automated revenue recovery and direct communication channels. <br />
+                            <span className="text-blue-400/80 font-mono text-[11px] uppercase tracking-wider">Rate: 1 Unit per SMS (₦5.00/unit)</span>
                         </DialogDescription>
                     </DialogHeader>
                 </div>

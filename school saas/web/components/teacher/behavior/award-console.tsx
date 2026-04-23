@@ -214,7 +214,7 @@ export function AwardConsole({ students }: { students: any[] }) {
                     studentName={selectedStudent?.full_name}
                     badgeTitle={selectedBadge?.title}
                     teacherNote={comment}
-                    creditStatus={walletBalance >= 5 ? 'Sufficient' : 'Low'}
+                    creditStatus={walletBalance >= 1 ? 'Sufficient' : 'Low'}
                     onConfirm={confirmAward}
                     onCancel={() => setShowPreview(false)}
                 />

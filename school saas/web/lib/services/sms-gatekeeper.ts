@@ -125,8 +125,8 @@ export class SMSGatekeeperService {
                 }
             }
 
-            // 3. Wallet Balance Check
-            const smsCost = 5.00 // Standard SMS cost
+            // 3. Wallet Balance Check (Unit-Based)
+            const smsCost = 1.00 // 1 Unit per SMS dispatch
             if (tenant.sms_balance < smsCost) {
                 console.warn(`[SMS Gatekeeper] FAILED: Insufficient funds for ${tenant.name}`)
 

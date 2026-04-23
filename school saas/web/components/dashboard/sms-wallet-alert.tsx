@@ -15,7 +15,7 @@ interface SMSWalletAlertProps {
  * Neon Amber for low balance (< 2000), Pulse Red for critical (<= 0).
  */
 const HALT_THRESHOLD = 0 // Threshold where communication stops
-const LOW_THRESHOLD = 2000 // Threshold for warning
+const LOW_THRESHOLD = 400 // Threshold for warning (400 Units)
 
 export function SMSWalletAlert({ balance }: SMSWalletAlertProps) {
     const [isVisible, setIsVisible] = React.useState(true)
@@ -51,10 +51,8 @@ export function SMSWalletAlert({ balance }: SMSWalletAlertProps) {
                             </p>
                             <p className="text-[10px] text-slate-100 font-mono uppercase tracking-widest mt-1 opacity-90">
                                 Balance: <span className={isCritical ? 'text-red-300 font-black' : 'text-amber-300 font-black'}>
-                                    ₦{balance.toLocaleString()}
+                                    {balance.toLocaleString()} Units
                                 </span>
-                                <span className="mx-2 opacity-30 text-foreground">//</span>
-                                Est. Units: <span className="text-foreground font-black underline decoration-white/20 underline-offset-2">~{Math.floor(balance / 5)}</span>
                             </p>
                         </div>
                     </div>

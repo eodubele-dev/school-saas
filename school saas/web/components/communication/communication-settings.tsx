@@ -72,9 +72,9 @@ export function CommunicationSettingsView() {
                 {isAdmin && (
                     <div className="bg-secondary/50 border border-border px-6 py-3 rounded-2xl flex items-center gap-4 group hover:border-cyan-500/50 transition-all duration-500 cursor-help">
                         <div className="text-right">
-                            <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">SMS_Wallet_Balance</p>
+                            <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">SMS_Unit_Balance</p>
                             <p className="text-xl font-bold text-cyan-400 font-mono tracking-tighter">
-                                ₦{walletBalance.toLocaleString()}
+                                {walletBalance.toLocaleString()} Units
                             </p>
                         </div>
                         <div className="p-2 bg-cyan-500/10 rounded-lg group-hover:bg-cyan-500/20 transition-colors">

@@ -117,9 +117,6 @@ export async function verifyPaystackTransaction(reference: string, useAdmin: boo
         if (!response.ok || !data.status) return { success: false, error: data.message || "Verification failed" }
 
         if (data.data.status === 'success') {
-            // Update Database
-            // Use same supabase client as identified above
-
             // Get transaction by reference
             const { data: trx } = await supabase.from('transactions').select('*').eq('reference', reference).single()
 
@@ -151,14 +148,16 @@ export async function verifyPaystackTransaction(reference: string, useAdmin: boo
                     const { data: tenant } = await supabase.from('tenants').select('sms_balance').eq('id', trx.tenant_id).single()
                     if (tenant) {
                         const currentBalance = Number(tenant.sms_balance) || 0
-                        const topupAmount = Number(data.data.amount) / 100 // Convert Kobo to Naira
+                        const topupAmountNaira = Number(data.data.amount) / 100 // Convert Kobo to Naira
+                        const retailRate = 5.00 // ₦5.00 per unit
+                        const unitsToCredit = Math.floor(topupAmountNaira / retailRate)
                         
                         await supabase.from('tenants').update({
-                            sms_balance: currentBalance + topupAmount,
+                            sms_balance: currentBalance + unitsToCredit,
                             updated_at: new Date().toISOString()
                         }).eq('id', trx.tenant_id)
 
-                        console.log(`[Wallet Topup] Credited ₦${topupAmount} to Tenant ${trx.tenant_id}. New Balance: ₦${currentBalance + topupAmount}`)
+                        console.log(`[Wallet Topup] Credited ${unitsToCredit} Units (from ₦${topupAmountNaira}) to Tenant ${trx.tenant_id}. New Balance: ${currentBalance + unitsToCredit} Units`)
                     }
                 }
             }
