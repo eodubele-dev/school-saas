@@ -24,7 +24,8 @@ import { printDirectly } from "@/lib/utils/printer";
  */
 export function FamilyBillingDetail({
     familyLedger,
-    domain
+    domain,
+    paymentStatus
 }: {
     familyLedger: {
         totalBalance: number,
@@ -268,7 +269,7 @@ export function FamilyBillingDetail({
                                 </div>
                                 <h3 className="font-bold text-sm text-foreground uppercase tracking-wider">Pending Dues</h3>
                             </div>
-                            <p className="text-3xl font-black text-foreground mb-2">₦{familyLedger.totalBalance.toLocaleString()}</p>
+                            <p suppressHydrationWarning className="text-3xl font-black text-foreground mb-2">₦{familyLedger.totalBalance.toLocaleString()}</p>
                             <Progress value={100 - (familyLedger.paymentHealth || 0)} className="h-1.5 bg-slate-800" indicatorClassName="bg-rose-500" />
                             <p className="text-[10px] text-muted-foreground mt-2">Family Debt</p>
                         </div>
@@ -380,7 +381,7 @@ export function FamilyBillingDetail({
                                                                         <p className="text-xs font-bold text-foreground truncate max-w-[120px]">
                                                                             {trx.method?.toUpperCase()} Payment
                                                                         </p>
-                                                                        <p className="text-[9px] text-muted-foreground font-mono tracking-tighter">
+                                                                        <p suppressHydrationWarning className="text-[9px] text-muted-foreground font-mono tracking-tighter">
                                                                             {trx.date ? format(new Date(trx.date), 'MMM dd') : 'N/A'} • {trx.reference?.slice(0, 10) || 'REF-N/A'}
                                                                         </p>
                                                                     </div>

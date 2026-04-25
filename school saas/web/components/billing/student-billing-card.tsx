@@ -63,7 +63,7 @@ export const StudentBillingCard = ({
                             <img src={child.avatar} alt={child.name} className="w-full h-full object-cover" />
                         ) : (
                             <div className="text-lg font-bold text-muted-foreground">
-                                {child.name.charAt(0)}
+                                {(child.name || '?').charAt(0)}
                             </div>
                         )}
                     </div>
@@ -108,7 +108,7 @@ export const StudentBillingCard = ({
                                     {fee.label}
                                 </span>
                             </div>
-                            <span className="font-mono font-bold text-foreground tracking-tight">
+                            <span suppressHydrationWarning className="font-mono font-bold text-foreground tracking-tight">
                                 ₦{fee.amount.toLocaleString()}
                             </span>
                         </div>
@@ -127,7 +127,7 @@ export const StudentBillingCard = ({
             {/* Footer / Total */}
             <div className="mt-auto pt-6 border-t border-border/50 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div className="text-center sm:text-left">
-                    <span className={cn(
+                    <span suppressHydrationWarning className={cn(
                         "block text-2xl font-black italic tracking-tighter",
                         isUnpaid ? "text-cyan-400" : "text-blue-500"
                     )}>
