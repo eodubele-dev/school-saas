@@ -12,6 +12,9 @@ export function SearchInput({ placeholder = "Search..." }: { placeholder?: strin
     const [query, setQuery] = useState(searchParams.get('query') || "")
 
     useEffect(() => {
+        const currentQueryInUrl = searchParams.get('query') || ""
+        if (query === currentQueryInUrl) return
+
         const timer = setTimeout(() => {
             const params = new URLSearchParams(searchParams)
             if (query) {
@@ -19,7 +22,7 @@ export function SearchInput({ placeholder = "Search..." }: { placeholder?: strin
             } else {
                 params.delete('query')
             }
-            params.set('page', '1') // Reset to page 1 on search
+            params.set('page', '1') // Reset to page 1 on new search
             router.replace(`${pathname}?${params.toString()}`)
         }, 300)
 
