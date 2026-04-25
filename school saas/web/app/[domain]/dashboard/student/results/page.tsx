@@ -3,6 +3,7 @@ import { ResultGatekeeper } from "@/components/student/results/result-gatekeeper
 import { ReportCard } from "@/components/student/results/report-card"
 import { PerformanceRadar } from "@/components/student/results/performance-radar"
 import { getActiveAcademicSession } from "@/lib/actions/academic"
+import { getTenantPaymentStatus } from "@/lib/actions/finance-settings"
 
 export default async function ResultCheckerPage() {
     const { session: activeSession } = await getActiveAcademicSession()
@@ -18,6 +19,10 @@ export default async function ResultCheckerPage() {
     const isPaid = feeStatus.success ? (feeStatus.isPaid ?? false) : true
     const balance = feeStatus.balance || 0
 
+    const paymentStatus = feeStatus.tenantId 
+        ? await getTenantPaymentStatus(feeStatus.tenantId) 
+        : { isEnabled: false, isConfigured: false }
+
     return (
         <div className="p-6 md:p-8 max-w-7xl mx-auto min-h-screen bg-slate-950 space-y-8">
             <div className="flex justify-between items-end">
@@ -31,7 +36,12 @@ export default async function ResultCheckerPage() {
                 </div>
             </div>
 
-            <ResultGatekeeper isPaid={isPaid} balance={balance} studentId={feeStatus.studentId}>
+            <ResultGatekeeper 
+                isPaid={isPaid} 
+                balance={balance} 
+                studentId={feeStatus.studentId}
+                paymentEnabled={paymentStatus.isEnabled && paymentStatus.isConfigured}
+            >
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div className="lg:col-span-3">
                         <ReportCard grades={grades || []} />

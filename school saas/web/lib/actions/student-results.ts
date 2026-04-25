@@ -50,7 +50,8 @@ export async function checkFeeStatus(term: string, session: string) {
         isPaid,
         balance: Number(invoice.amount) - Number(invoice.amount_paid),
         total: invoice.amount,
-        studentId: student.id
+        studentId: student.id,
+        tenantId: student.tenant_id
     }
 }
 

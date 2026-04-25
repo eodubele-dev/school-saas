@@ -2,6 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getStudentResultPortalData } from "@/lib/actions/parent-portal"
 import { getActiveAcademicSession } from "@/lib/actions/academic"
+import { getTenantPaymentStatus } from "@/lib/actions/finance-settings"
 import { verifyExistingSnapshot } from "@/lib/actions/snapshots"
 import { ResultGatekeeper } from "@/components/student/results/result-gatekeeper"
 import { ResultSheet } from "@/components/results/result-sheet"
@@ -42,6 +43,8 @@ export default async function VerifiedResultPortal({ params }: { params: { domai
     const snapshotCheck = await verifyExistingSnapshot(student.id, session, term, 'result_sheet')
     const hasSnapshot = snapshotCheck.exists && snapshotCheck.snapshot?.file_url
     const officialPdfUrl = snapshotCheck.snapshot?.file_url
+
+    const paymentStatus = tenant ? await getTenantPaymentStatus(tenant.id) : { isEnabled: false, isConfigured: false }
 
     // Construct ResultData shape for the ResultSheet component
     // We reuse existing component but will wrap it in the new Portal UI
@@ -176,7 +179,12 @@ export default async function VerifiedResultPortal({ params }: { params: { domai
 
             {/* 3. The Result Sheet (Gated) */}
             <div className="max-w-[210mm] mx-auto mt-8 px-4 md:px-0 flex flex-col items-center">
-                <ResultGatekeeper isPaid={billing.isPaid} balance={billing.balance} email={student.email || "parent@example.com"}>
+                <ResultGatekeeper 
+                    isPaid={billing.isPaid} 
+                    balance={billing.balance} 
+                    email={student.email || "parent@example.com"}
+                    paymentEnabled={paymentStatus.isEnabled && paymentStatus.isConfigured}
+                >
 
                     {hasSnapshot ? (
                         <div className="w-full bg-slate-900 border border-emerald-500/30 rounded-2xl p-12 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden">

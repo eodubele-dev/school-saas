@@ -7,7 +7,7 @@ import { toast } from "sonner"
 import { initiatePayment } from "@/lib/actions/paystack"
 import confetti from "canvas-confetti"
 
-export function ResultGatekeeper({ isPaid, balance, email, studentId, children }: { isPaid: boolean, balance: number, email?: string, studentId?: string, children: React.ReactNode }) {
+export function ResultGatekeeper({ isPaid, balance, email, studentId, paymentEnabled = true, children }: { isPaid: boolean, balance: number, email?: string, studentId?: string, paymentEnabled?: boolean, children: React.ReactNode }) {
     const [loading, setLoading] = useState(false)
 
     const handlePayment = async () => {
@@ -74,20 +74,36 @@ export function ResultGatekeeper({ isPaid, balance, email, studentId, children }
                     on your tuition.
                 </p>
 
-                <Button
-                    className="bg-green-600 hover:bg-green-700 text-foreground font-bold h-12 px-8 text-lg shadow-[0_0_20px_rgba(22,163,74,0.4)]"
-                    onClick={handlePayment}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                        <CreditCard className="h-5 w-5 mr-2" />
-                    )}
-                    Pay Now to Unlock
-                </Button>
-
-                <p className="mt-4 text-xs text-muted-foreground">Secure payment via Paystack</p>
+                {paymentEnabled ? (
+                    <>
+                        <Button
+                            className="bg-green-600 hover:bg-green-700 text-foreground font-bold h-12 px-8 text-lg shadow-[0_0_20px_rgba(22,163,74,0.4)]"
+                            onClick={handlePayment}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <CreditCard className="h-5 w-5 mr-2" />
+                            )}
+                            Pay Now to Unlock
+                        </Button>
+                        <p className="mt-4 text-xs text-muted-foreground">Secure payment via Paystack</p>
+                    </>
+                ) : (
+                    <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-col items-center">
+                        <Button
+                            className="bg-slate-800 text-slate-500 font-bold h-12 px-8 text-lg cursor-not-allowed border border-slate-700"
+                            disabled
+                        >
+                            <CreditCard className="h-5 w-5 mr-2" />
+                            Online Payments Offline
+                        </Button>
+                        <p className="mt-4 text-xs font-medium text-slate-400">
+                            Please contact the bursar to make a direct bank transfer or cash payment.
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     )
