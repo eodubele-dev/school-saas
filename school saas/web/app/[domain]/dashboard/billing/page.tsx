@@ -48,7 +48,7 @@ export default async function BillingPage({
     // Identify Student & School Branding
     const { data: tenant } = await supabase
         .from('tenants')
-        .select('id, name, logo_url, theme_config')
+        .select('id, name, logo_url, theme_config, settings')
         .eq('slug', params.domain)
         .single()
 
@@ -174,8 +174,9 @@ export default async function BillingPage({
                                 billing={{ ...billing, breakdown, session: currentSession, term: currentTerm }} 
                                 studentName={student.full_name} 
                                 schoolName={tenant?.name || "School"}
+                                schoolAddress={tenant?.settings?.address || tenant?.theme_config?.settings?.address || "Lagos, Nigeria"}
                                 logoUrl={tenant?.logo_url || ""}
-                                principalSignature={tenant?.theme_config?.settings?.principal_signature || ""}
+                                principalSignature={tenant?.theme_config?.settings?.principal_signature || tenant?.settings?.principal_signature || ""}
                             />
                         </div>
                     </CardContent>
@@ -248,7 +249,8 @@ export default async function BillingPage({
                                                 payment={payment} 
                                                 studentName={student.full_name}
                                                 schoolName={tenant?.name || "School"}
-                                                principalSignature={tenant?.theme_config?.settings?.principal_signature || ""}
+                                                schoolAddress={tenant?.settings?.address || tenant?.theme_config?.settings?.address || "Lagos, Nigeria"}
+                                                principalSignature={tenant?.theme_config?.settings?.principal_signature || tenant?.settings?.principal_signature || ""}
                                             />
                                         )}
                                     </TableCell>

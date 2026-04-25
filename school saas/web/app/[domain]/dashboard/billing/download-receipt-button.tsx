@@ -10,11 +10,13 @@ export function DownloadReceiptButton({
     payment, 
     studentName,
     schoolName,
+    schoolAddress,
     principalSignature
 }: { 
     payment: any, 
     studentName: string,
     schoolName: string,
+    schoolAddress: string,
     principalSignature: string
 }) {
     const [generating, setGenerating] = useState(false)
@@ -23,98 +25,118 @@ export function DownloadReceiptButton({
         setGenerating(true)
         try {
             const doc = new jsPDF()
-            const accentColor = [16, 185, 129] // Emerald 500
 
-            // Background Header Decoration
-            doc.setFillColor(accentColor[0], accentColor[1], accentColor[2])
-            doc.rect(0, 0, 210, 40, "F")
+            // --- Helper: Draw Section Line ---
+            const drawLine = (yPos: number, thickness = 0.5) => {
+                doc.setDrawColor(0, 0, 0)
+                doc.setLineWidth(thickness)
+                doc.line(20, yPos, 190, yPos)
+            }
 
-            // Logo or School Name in Header
-            doc.setTextColor(255, 255, 255)
-            doc.setFontSize(22)
-            doc.setFont("helvetica", "bold")
+            // --- 1. HEADER SECTION ---
+            doc.setTextColor(0, 0, 0)
+            doc.setFontSize(24)
+            doc.setFont("times", "bold")
             doc.text(schoolName.toUpperCase(), 20, 25)
             
+            doc.setFontSize(20)
+            doc.text("OFFICIAL RECEIPT", 190, 25, { align: "right" })
+
             doc.setFontSize(9)
             doc.setFont("helvetica", "normal")
-            doc.text("OFFICIAL PAYMENT RECEIPT", 20, 32)
+            doc.setTextColor(100, 100, 100)
+            doc.text(schoolAddress.toUpperCase(), 20, 32)
+            doc.text(`REF: ${payment.reference || "REF-"+Math.floor(Math.random()*100000)}`, 190, 32, { align: "right" })
 
-            // Receipt Meta (Top Right)
-            doc.setFontSize(9)
-            doc.text(`DATE: ${new Date(payment.date).toLocaleDateString()}`, 190, 20, { align: "right" })
-            doc.text(`REF: ${payment.reference || "N/A"}`, 190, 25, { align: "right" })
-            doc.text(`METHOD: ${payment.method.toUpperCase()}`, 190, 30, { align: "right" })
+            drawLine(45, 0.8)
 
-            // Received From Section
+            // --- 2. PAYMENT INFO ---
             let y = 60
-            doc.setTextColor(100, 116, 139)
-            doc.setFontSize(10)
+            doc.setTextColor(150, 150, 150)
+            doc.setFontSize(8)
             doc.setFont("helvetica", "bold")
-            doc.text("RECEIVED FROM:", 20, y)
-            
-            doc.setTextColor(30, 41, 59)
-            doc.setFontSize(14)
-            doc.text(studentName.toUpperCase(), 20, y + 8)
+            doc.text("PAID BY", 20, y)
+            doc.text("DATE OF PAYMENT", 190, y, { align: "right" })
 
-            // Payment Details
-            y = 90
-            doc.setFillColor(248, 250, 252) // Slate 50
-            doc.rect(20, y - 6, 170, 40, "F")
+            y += 8
+            doc.setTextColor(0, 0, 0)
+            doc.setFontSize(16)
+            doc.setFont("times", "bold")
+            doc.text(studentName.toUpperCase(), 20, y)
             
-            doc.setFontSize(10)
-            doc.setTextColor(51, 65, 85)
+            doc.setFontSize(14)
+            doc.text(new Date(payment.date).toLocaleDateString('en-GB'), 190, y, { align: "right" })
+
+            // Thin line under names
+            doc.setDrawColor(200, 200, 200)
+            doc.setLineWidth(0.2)
+            doc.line(20, y + 2, 60, y + 2)
+
+            // --- 3. TABLE SECTION ---
+            y = 95
+            drawLine(y - 6, 0.5)
+            
+            doc.setFontSize(8)
             doc.setFont("helvetica", "bold")
-            doc.text("DESCRIPTION", 25, y + 2)
-            doc.text("STATUS", 105, y + 2, { align: "center" })
-            doc.text("AMOUNT", 185, y + 2, { align: "right" })
+            doc.setTextColor(0, 0, 0)
+            doc.text("DESCRIPTION", 25, y)
+            doc.text("METHOD", 105, y, { align: "center" })
+            doc.text("AMOUNT (NGN)", 185, y, { align: "right" })
+            drawLine(y + 4, 0.5)
 
             y += 15
-            doc.setFont("helvetica", "normal")
+            doc.setFontSize(11)
+            doc.setFont("times", "normal")
             doc.text("School Fees Payment", 25, y)
-            doc.setTextColor(accentColor[0], accentColor[1], accentColor[2])
-            doc.text("PAID", 105, y, { align: "center" })
-            doc.setTextColor(51, 65, 85)
-            doc.text(`NGN ${payment.amount.toLocaleString()}`, 185, y, { align: "right" })
+            doc.text(payment.method.toUpperCase(), 105, y, { align: "center" })
+            doc.setFont("times", "bold")
+            doc.text(`N${payment.amount.toLocaleString()}`, 185, y, { align: "right" })
 
-            // Total Summary
-            y += 40
-            doc.setFillColor( accentColor[0], accentColor[1], accentColor[2])
-            doc.rect(120, y - 6, 70, 12, "F")
+            // --- 4. TOTAL SECTION ---
+            y += 20
+            doc.setFillColor(0, 0, 0)
+            doc.rect(20, y, 170, 15, "F")
+            
+            doc.setFontSize(10)
             doc.setTextColor(255, 255, 255)
-            doc.setFontSize(12)
             doc.setFont("helvetica", "bold")
-            doc.text("TOTAL PAID:", 125, y + 2)
-            doc.text(`NGN ${payment.amount.toLocaleString()}`, 185, y + 2, { align: "right" })
+            doc.text("TOTAL AMOUNT RECEIVED", 100, y + 9.5, { align: "center" })
+            doc.setFontSize(14)
+            doc.text(`N${payment.amount.toLocaleString()}`, 185, y + 10, { align: "right" })
 
-            // Confirmation Text
-            y += 30
-            doc.setFontSize(9)
-            doc.setTextColor(100, 116, 139)
-            doc.setFont("helvetica", "normal")
-            doc.text("This receipt confirms that the payment mentioned above has been received and processed successfully. Thank you for your continued support.", 20, y, { maxWidth: 100 })
-
-            // Signature Section
+            // --- 5. SIGNATURE & AUTH ---
             y += 40
+            
+            // Digital Auth Hash (Bottom Left)
+            doc.setTextColor(100, 116, 139)
+            doc.setFontSize(8)
+            doc.setFont("helvetica", "bold")
+            doc.text("DIGITAL_AUTH: " + (payment.reference || Math.random().toString(36).substring(2, 8).toUpperCase()), 20, y + 20)
+
+            // Signature (Bottom Right)
             if (principalSignature) {
                 try {
-                    doc.addImage(principalSignature, 'PNG', 150, y - 15, 30, 15)
+                    doc.addImage(principalSignature, 'PNG', 150, y - 10, 35, 15)
                 } catch (e) {
-                    console.warn("Could not add signature image", e)
+                    console.warn("Signature load failed", e)
                 }
             }
+
+            doc.setDrawColor(150, 150, 150)
+            doc.setLineWidth(0.3)
+            doc.line(140, y + 15, 190, y + 15)
             
-            doc.setDrawColor(200, 200, 200)
-            doc.line(140, y, 190, y)
-            doc.setFontSize(8)
-            doc.setTextColor(100, 116, 139)
-            doc.text("PRINCIPAL / AUTHORIZED SIGNATORY", 165, y + 5, { align: "center" })
+            doc.setFontSize(7)
+            doc.setTextColor(150, 150, 150)
+            doc.text("AUTHORIZED SCHOOL SIGNATURE", 165, y + 20, { align: "center" })
 
-            // Final Footer
-            doc.setFontSize(8)
-            doc.setTextColor(148, 163, 184)
-            doc.text(`${schoolName} - Official Payment Receipt`, 105, 285, { align: "center" })
+            // Watermark / Footer
+            doc.setFontSize(40)
+            doc.setTextColor(240, 240, 240)
+            doc.setFont("times", "bold")
+            doc.text(schoolName.split(' ')[0].toUpperCase(), 105, 200, { align: "center", angle: 45 })
 
-            doc.save(`${schoolName.replace(/\s+/g, '_')}_Receipt_${payment.reference}.pdf`)
+            doc.save(`${schoolName.replace(/\s+/g, '_')}_Receipt.pdf`)
             toast.success("Receipt Downloaded")
         } catch (e) {
             console.error(e)

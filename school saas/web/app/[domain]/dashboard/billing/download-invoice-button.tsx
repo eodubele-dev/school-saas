@@ -26,12 +26,14 @@ export function DownloadInvoiceButton({
     billing, 
     studentName,
     schoolName,
+    schoolAddress,
     logoUrl,
     principalSignature
 }: { 
     billing: any, 
     studentName: string,
     schoolName: string,
+    schoolAddress: string,
     logoUrl: string,
     principalSignature: string
 }) {
@@ -41,71 +43,80 @@ export function DownloadInvoiceButton({
         setGenerating(true)
         try {
             const doc = new jsPDF()
-            const accentColor = [15, 23, 42] // Slate 900
-            const secondaryColor = [100, 116, 139] // Slate 500
+            
+            // --- Helper: Draw Section Line ---
+            const drawLine = (yPos: number, thickness = 0.5) => {
+                doc.setDrawColor(0, 0, 0)
+                doc.setLineWidth(thickness)
+                doc.line(20, yPos, 190, yPos)
+            }
 
-            // Background Header Decoration
-            doc.setFillColor(accentColor[0], accentColor[1], accentColor[2])
-            doc.rect(0, 0, 210, 40, "F")
-
-            // Logo or School Name in Header
-            doc.setTextColor(255, 255, 255)
-            doc.setFontSize(22)
-            doc.setFont("helvetica", "bold")
+            // --- 1. HEADER SECTION ---
+            doc.setTextColor(0, 0, 0)
+            doc.setFontSize(24)
+            doc.setFont("times", "bold")
             doc.text(schoolName.toUpperCase(), 20, 25)
             
+            doc.setFontSize(20)
+            doc.text("OFFICIAL INVOICE", 190, 25, { align: "right" })
+
             doc.setFontSize(9)
             doc.setFont("helvetica", "normal")
-            doc.text("OFFICIAL FEE INVOICE", 20, 32)
+            doc.setTextColor(100, 100, 100)
+            doc.text(schoolAddress.toUpperCase(), 20, 32)
+            doc.text(`REF: INV-${Math.floor(100000 + Math.random() * 900000)}`, 190, 32, { align: "right" })
 
-            // Invoice Meta (Top Right)
-            doc.setFontSize(9)
-            doc.text(`DATE: ${new Date().toLocaleDateString()}`, 190, 20, { align: "right" })
-            doc.text(`SESSION: ${billing.session}`, 190, 25, { align: "right" })
-            doc.text(`TERM: ${billing.term.toUpperCase()}`, 190, 30, { align: "right" })
+            drawLine(45, 0.8)
 
-            // Bill To Section
+            // --- 2. BILLING INFO ---
             let y = 60
-            doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2])
-            doc.setFontSize(10)
+            doc.setTextColor(150, 150, 150)
+            doc.setFontSize(8)
             doc.setFont("helvetica", "bold")
-            doc.text("BILL TO:", 20, y)
-            
-            doc.setTextColor(30, 41, 59)
-            doc.setFontSize(14)
-            doc.text(studentName.toUpperCase(), 20, y + 8)
-            
-            doc.setFontSize(10)
-            doc.setFont("helvetica", "normal")
-            doc.text(`ID: STU-${studentName.substring(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`, 20, y + 14)
+            doc.text("PAID BY / BILL TO", 20, y)
+            doc.text("DATE OF ISSUE", 190, y, { align: "right" })
 
-            // Table Header
-            y = 90
-            doc.setFillColor(248, 250, 252) // Slate 50
-            doc.rect(20, y - 6, 170, 12, "F")
+            y += 8
+            doc.setTextColor(0, 0, 0)
+            doc.setFontSize(16)
+            doc.setFont("times", "bold")
+            doc.text(studentName.toUpperCase(), 20, y)
             
-            doc.setFontSize(9)
+            doc.setFontSize(14)
+            doc.text(new Date().toLocaleDateString('en-GB'), 190, y, { align: "right" })
+
+            // Thin line under names
+            doc.setDrawColor(200, 200, 200)
+            doc.setLineWidth(0.2)
+            doc.line(20, y + 2, 60, y + 2)
+
+            // --- 3. TABLE SECTION ---
+            y = 95
+            drawLine(y - 6, 0.5)
+            
+            doc.setFontSize(8)
             doc.setFont("helvetica", "bold")
-            doc.setTextColor(100, 116, 139)
-            doc.text("ITEM DESCRIPTION", 25, y + 2)
-            doc.text("AMOUNT (NGN)", 185, y + 2, { align: "right" })
+            doc.setTextColor(0, 0, 0)
+            doc.text("ITEM CATEGORY", 25, y)
+            doc.text("AMOUNT (NGN)", 185, y, { align: "right" })
+            drawLine(y + 4, 0.5)
 
             y += 15
 
             const addRow = (label: string, amount: number) => {
                 if (amount <= 0) return
-                doc.setFontSize(10)
-                doc.setTextColor(51, 65, 85)
-                doc.setFont("helvetica", "normal")
+                doc.setFontSize(11)
+                doc.setTextColor(0, 0, 0)
+                doc.setFont("times", "normal")
                 doc.text(label, 25, y)
-                doc.setFont("helvetica", "bold")
-                doc.text(amount.toLocaleString(), 185, y, { align: "right" })
+                doc.setFont("times", "bold")
+                doc.text(`N${amount.toLocaleString()}`, 185, y, { align: "right" })
 
-                // Thin separator
-                doc.setDrawColor(241, 245, 249)
-                doc.line(25, y + 4, 185, y + 4)
+                // Very light separator
+                doc.setDrawColor(245, 245, 245)
+                doc.line(20, y + 4, 190, y + 4)
 
-                y += 12
+                y += 15
             }
 
             if (billing.breakdown) {
@@ -115,53 +126,51 @@ export function DownloadInvoiceButton({
                 addRow("School Uniforms", billing.breakdown.uniforms)
             }
 
-            // Total Summary
-            y += 10
-            doc.setDrawColor(15, 23, 42)
-            doc.setLineWidth(0.5)
-            doc.line(120, y, 190, y)
+            // --- 4. TOTAL SECTION ---
+            y += 5
+            doc.setFillColor(0, 0, 0)
+            doc.rect(20, y, 170, 15, "F")
             
-            y += 10
-            doc.setFontSize(12)
-            doc.setTextColor(15, 23, 42)
-            doc.text("TOTAL AMOUNT DUE:", 120, y)
-            doc.setFontSize(14)
-            doc.text(`NGN ${billing.total_fees.toLocaleString()}`, 185, y, { align: "right" })
-
-            // Payment Instructions
-            y += 30
-            doc.setFontSize(9)
-            doc.setTextColor(100, 116, 139)
+            doc.setFontSize(10)
+            doc.setTextColor(255, 255, 255)
             doc.setFont("helvetica", "bold")
-            doc.text("PAYMENT INSTRUCTIONS:", 20, y)
-            doc.setFont("helvetica", "normal")
-            doc.text("1. Payments can be made via the Parent Dashboard.", 20, y + 6)
-            doc.text("2. For bank transfers, use the school account details provided at the office.", 20, y + 11)
-            doc.text("3. Please keep this invoice for your records.", 20, y + 16)
+            doc.text("TOTAL AMOUNT DUE", 100, y + 9.5, { align: "center" })
+            doc.setFontSize(14)
+            doc.text(`N${billing.total_fees.toLocaleString()}`, 185, y + 10, { align: "right" })
 
-            // Signature Section
+            // --- 5. SIGNATURE & AUTH ---
             y += 40
+            
+            // Digital Auth Hash (Bottom Left)
+            doc.setTextColor(100, 116, 139)
+            doc.setFontSize(8)
+            doc.setFont("helvetica", "bold")
+            doc.text("DIGITAL_AUTH: " + Math.random().toString(36).substring(2, 8).toUpperCase(), 20, y + 20)
+
+            // Signature (Bottom Right)
             if (principalSignature) {
                 try {
-                    // Try to add the signature image if it's a valid data URL or path
-                    doc.addImage(principalSignature, 'PNG', 150, y - 15, 30, 15)
+                    doc.addImage(principalSignature, 'PNG', 150, y - 10, 35, 15)
                 } catch (e) {
-                    console.warn("Could not add signature image", e)
+                    console.warn("Signature load failed", e)
                 }
             }
+
+            doc.setDrawColor(150, 150, 150)
+            doc.setLineWidth(0.3)
+            doc.line(140, y + 15, 190, y + 15)
             
-            doc.setDrawColor(200, 200, 200)
-            doc.line(140, y, 190, y)
-            doc.setFontSize(8)
-            doc.setTextColor(100, 116, 139)
-            doc.text("PRINCIPAL / AUTHORIZED SIGNATORY", 165, y + 5, { align: "center" })
+            doc.setFontSize(7)
+            doc.setTextColor(150, 150, 150)
+            doc.text("AUTHORIZED SCHOOL SIGNATURE", 165, y + 20, { align: "center" })
 
-            // Final Footer
-            doc.setFontSize(8)
-            doc.setTextColor(148, 163, 184)
-            doc.text(`${schoolName} - Official Institutional Document`, 105, 285, { align: "center" })
+            // Watermark / Footer
+            doc.setFontSize(40)
+            doc.setTextColor(240, 240, 240)
+            doc.setFont("times", "bold")
+            doc.text(schoolName.split(' ')[0].toUpperCase(), 105, 200, { align: "center", angle: 45 })
 
-            doc.save(`${schoolName.replace(/\s+/g, '_')}_Invoice_${billing.session}.pdf`)
+            doc.save(`${schoolName.replace(/\s+/g, '_')}_Invoice.pdf`)
             toast.success("Invoice Downloaded")
         } catch (e) {
             console.error(e)
