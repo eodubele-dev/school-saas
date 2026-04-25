@@ -21,10 +21,42 @@ export function DownloadReceiptButton({
 }) {
     const [generating, setGenerating] = useState(false)
 
-    const handleDownload = () => {
+    const getBase64Image = (url: string): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.setAttribute('crossOrigin', 'anonymous');
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext("2d");
+                ctx?.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL("image/png"));
+            };
+            img.onerror = () => reject(new Error("Failed to load image"));
+            img.src = url;
+        });
+    };
+
+    const handleDownload = async () => {
         setGenerating(true)
         try {
             const doc = new jsPDF()
+
+            // Signature (Bottom Right)
+            let signatureBase64 = ""
+            if (principalSignature) {
+                try {
+                    // Check if it's already a data URL
+                    if (principalSignature.startsWith('data:')) {
+                        signatureBase64 = principalSignature
+                    } else {
+                        signatureBase64 = await getBase64Image(principalSignature)
+                    }
+                } catch (e) {
+                    console.warn("Signature load failed", e)
+                }
+            }
 
             // --- Helper: Draw Section Line ---
             const drawLine = (yPos: number, thickness = 0.5) => {
@@ -114,11 +146,11 @@ export function DownloadReceiptButton({
             doc.text("DIGITAL_AUTH: " + (payment.reference || Math.random().toString(36).substring(2, 8).toUpperCase()), 20, y + 20)
 
             // Signature (Bottom Right)
-            if (principalSignature) {
+            if (signatureBase64) {
                 try {
-                    doc.addImage(principalSignature, 'PNG', 150, y - 10, 35, 15)
+                    doc.addImage(signatureBase64, 'PNG', 150, y - 10, 35, 15)
                 } catch (e) {
-                    console.warn("Signature load failed", e)
+                    console.warn("Signature add failed", e)
                 }
             }
 
