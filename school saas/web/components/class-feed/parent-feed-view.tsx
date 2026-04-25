@@ -12,7 +12,7 @@ interface ParentFeedViewProps {
 export function ParentFeedView({ posts }: ParentFeedViewProps) {
     if (posts.length === 0) {
         return (
-            <Card className="bg-card text-card-foreground/50 border-border/50 backdrop-blur-xl">
+            <Card className="bg-slate-900 border-white/10 backdrop-blur-xl">
                 <CardContent className="p-8 text-center text-muted-foreground">
                     No class updates available at this time.
                 </CardContent>
@@ -23,14 +23,14 @@ export function ParentFeedView({ posts }: ParentFeedViewProps) {
     return (
         <div className="space-y-6">
             {posts.map(post => (
-                <Card key={post.id} className="overflow-hidden bg-card text-card-foreground/50 border-border/50 backdrop-blur-xl transition-all hover:border-blue-500/30 group">
-                    <CardHeader className="flex flex-row items-start space-x-4 pb-4 border-b border-border/50 bg-secondary/50">
-                        <Avatar className="h-10 w-10 border border-border">
-                            <AvatarFallback className="bg-blue-600 text-foreground font-bold">{post.teacher_name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                <Card key={post.id} className="overflow-hidden bg-slate-900 border-white/10 backdrop-blur-xl transition-all hover:border-blue-500/30 group">
+                    <CardHeader className="flex flex-row items-start space-x-4 pb-4 border-b border-white/5 bg-slate-950/50">
+                        <Avatar className="h-10 w-10 border border-white/10">
+                            <AvatarFallback className="bg-blue-600 text-white font-bold">{post.teacher_name.substring(0, 2).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div className="space-y-1">
-                            <CardTitle className="text-base font-semibold text-foreground group-hover:text-blue-400 transition-colors">{post.title}</CardTitle>
-                            <CardDescription className="text-sm text-muted-foreground">
+                            <CardTitle className="text-base font-semibold text-white group-hover:text-blue-400 transition-colors">{post.title}</CardTitle>
+                            <CardDescription className="text-sm text-slate-400">
                                 {post.teacher_name} • {post.class_name} • {format(new Date(post.created_at), "MMM d, yyyy h:mm a")}
                             </CardDescription>
                         </div>
@@ -59,7 +59,7 @@ export function ParentFeedView({ posts }: ParentFeedViewProps) {
                             </div>
                         )}
                     </CardContent>
-                    <div className="px-6 py-3 bg-secondary/50 border-t border-border/50 flex justify-end">
+                    <div className="px-6 py-3 bg-slate-950/50 border-t border-white/5 flex justify-end">
                         <div className="text-xs text-blue-400 font-medium cursor-pointer hover:text-blue-300 transition-colors">
                             Read full update &rarr;
                         </div>
