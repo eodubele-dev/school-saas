@@ -5,9 +5,19 @@ import { GeofenceConfig } from "@/components/admin/settings/geofence-config"
 import { SecuritySettings } from "@/components/admin/settings/security-settings"
 import { SystemUpdate } from "@/components/admin/settings/system-update"
 import { createClient } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
 
 export default async function SettingsPage({ params }: { params: { domain: string } }) {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    if (!profile || !['admin', 'owner'].includes(profile.role?.toLowerCase())) {
+        const domainPrefix = params.domain ? `/${params.domain}` : ''
+        return redirect(`${domainPrefix}/dashboard`)
+    }
+
     const { data: tenant } = await supabase
         .from('tenants')
         .select('id')

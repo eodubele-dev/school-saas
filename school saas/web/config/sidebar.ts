@@ -171,13 +171,6 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
                 { icon: ShieldCheck, label: "Debt Network", href: "/dashboard/bursar/debt-network", badge: "Live" },
             ]
         },
-        {
-            category: "System",
-            items: [
-                { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-                { icon: MessageSquare, label: "SMS Notifications", href: "/dashboard/settings/notifications" },
-            ]
-        }
     ],
     // Teacher etc kept flat for simplicity or grouped as 'General'
     teacher: [
