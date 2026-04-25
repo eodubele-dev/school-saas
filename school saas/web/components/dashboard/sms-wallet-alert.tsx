@@ -35,7 +35,7 @@ export function SMSWalletAlert({ balance }: SMSWalletAlertProps) {
                     : 'bg-amber-500/20 border-amber-500/40 shadow-[inset_0_0_30px_rgba(245,158,11,0.1)]'
                     }`}
             >
-                <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4 relative group">
+                <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4 relative group">
                     <div className="flex items-center gap-4">
                         <div className={`h-11 w-11 rounded-2xl flex items-center justify-center border shadow-lg transition-all ${isCritical
                             ? 'bg-red-500/30 text-red-100 border-red-500/50 shadow-red-900/40'

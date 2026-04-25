@@ -97,17 +97,23 @@ export function PayrollDashboard() {
     }
 
     const handleDownloadCSV = () => {
-        if (!activeRunDetails) return
+        if (!activeRunDetails || !activeRunDetails.items) {
+            toast.error("No items found to export")
+            return
+        }
 
         // Simple CSV generation
         const headers = ["Account Name", "Account Number", "Bank Code", "Amount", "Narration"]
-        const rows = activeRunDetails.items.map((item: any) => [
-            item.staff.salary_struct?.account_name || `${item.staff.first_name} ${item.staff.last_name}`,
-            item.staff.salary_struct?.account_number || "N/A",
-            "000", // Placeholder bank code
-            item.net_pay,
-            `Salary ${activeRunDetails.run.month}`
-        ])
+        const rows = activeRunDetails.items.map((item: any) => {
+            const struct = Array.isArray(item.staff?.salary_struct) ? item.staff.salary_struct[0] : item.staff?.salary_struct
+            return [
+                struct?.account_name || `${item.staff.first_name} ${item.staff.last_name}`,
+                struct?.account_number || "N/A",
+                "000", // Placeholder bank code
+                item.net_pay,
+                `Salary ${activeRunDetails.run.month}`
+            ]
+        })
 
         const csvContent = "data:text/csv;charset=utf-8,"
             + headers.join(",") + "\n"

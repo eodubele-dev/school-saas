@@ -96,7 +96,7 @@ export async function BentoDashboardLoader({
                 <SMSWalletAlert balance={smsBalance} />
             )}
 
-            <div className="p-4 md:p-8">
+            <div className="">
                 {/* Dynamic Header removed to prevent duplication with inner dashboards */}
                 {/* Each Dashboard component (Admin, Teacher, etc.) now handles its own header */}
 

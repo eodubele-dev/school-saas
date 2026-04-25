@@ -169,7 +169,17 @@ export async function getPayrollRunDetails(runId: string) {
         .from('payroll_items')
         .select(`
             *,
-            staff:profiles(first_name, last_name, photo_url, role)
+            staff:profiles(
+                first_name, 
+                last_name, 
+                photo_url, 
+                role,
+                salary_struct:salary_structures(
+                    account_name,
+                    account_number,
+                    bank_name
+                )
+            )
         `)
         .eq('payroll_run_id', runId)
 

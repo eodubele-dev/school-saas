@@ -254,7 +254,7 @@ export function DynamicTopBar({
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-slate-950/80 backdrop-blur-md">
-            <div className="flex h-16 items-center px-4 md:px-8 gap-4 justify-between">
+            <div className="flex h-16 items-center px-4 md:px-6 lg:px-8 gap-4 justify-between">
 
                 {/* ZONE 1: BRANDING & MOBILE TRIGGER */}
                 <div className="flex items-center gap-4">
@@ -264,7 +264,7 @@ export function DynamicTopBar({
                 </div>
 
                 {/* ZONE 2: SCOPED SEARCH (FLEX GROW) */}
-                <div className="flex-1 max-w-2xl px-2 md:px-8 flex items-center gap-4">
+                <div className="flex-1 max-w-2xl flex items-center gap-4">
                     <OmniSearch role={role} />
                     {activeSession && (
                         <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/50 border border-border text-xs font-medium text-slate-300 whitespace-nowrap">
