@@ -45,8 +45,12 @@ export default async function BillingPage({
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect(`/${params.domain}/login`)
 
-    // Identify Student
-    const { data: tenant } = await supabase.from('tenants').select('id').eq('slug', params.domain).single()
+    // Identify Student & School Branding
+    const { data: tenant } = await supabase
+        .from('tenants')
+        .select('id, name, logo_url, theme_config')
+        .eq('slug', params.domain)
+        .single()
 
     // Fetch all students for this parent (to support switching)
     const { data: students } = await supabase
@@ -166,7 +170,13 @@ export default async function BillingPage({
                             )}
 
                             {/* Download Invoice Button */}
-                            <DownloadInvoiceButton billing={{ ...billing, breakdown, session: currentSession, term: currentTerm }} studentName={student.full_name} />
+                            <DownloadInvoiceButton 
+                                billing={{ ...billing, breakdown, session: currentSession, term: currentTerm }} 
+                                studentName={student.full_name} 
+                                schoolName={tenant?.name || "School"}
+                                logoUrl={tenant?.logo_url || ""}
+                                principalSignature={tenant?.theme_config?.settings?.principal_signature || ""}
+                            />
                         </div>
                     </CardContent>
                 </Card>
@@ -234,7 +244,12 @@ export default async function BillingPage({
                                     </TableCell>
                                     <TableCell className="text-right">
                                         {payment.status === 'success' && (
-                                            <DownloadReceiptButton payment={payment} studentName={student.full_name} />
+                                            <DownloadReceiptButton 
+                                                payment={payment} 
+                                                studentName={student.full_name}
+                                                schoolName={tenant?.name || "School"}
+                                                principalSignature={tenant?.theme_config?.settings?.principal_signature || ""}
+                                            />
                                         )}
                                     </TableCell>
                                 </TableRow>
