@@ -142,6 +142,23 @@ export async function recordManualCollection(data: {
         return { success: false, error: "System failed to save the updated balance. Contact support." }
     }
 
+    if (isPaid) {
+        // Since invoice.term is "2025/2026 1st Term" but report cards use "1st Term" and "2025/2026",
+        // we can extract the term, or safely unlock all report cards for this student in the current session.
+        // The simplest is to just split the string, e.g. "2025/2026 1st Term" -> term: "1st Term", session: "2025/2026"
+        const parts = updatedInvoice[0].term.split(' ');
+        const session = parts[0]; // "2025/2026"
+        const term = parts.slice(1).join(' '); // "1st Term"
+        
+        await adminClient.from('student_report_cards').update({
+            is_locked: false,
+            updated_at: new Date().toISOString()
+        }).eq('student_id', data.studentId)
+          .eq('session', session)
+          .eq('term', term);
+    }
+
+    revalidatePath('/dashboard/bursar', 'layout')
     revalidatePath('/dashboard/bursar/finance/collections')
     return { success: true }
 }
