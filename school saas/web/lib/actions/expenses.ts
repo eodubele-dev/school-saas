@@ -95,16 +95,14 @@ export async function getFinancialSummary() {
         // Assumption: 'invoices' table exists with 'amount_paid' or 'total_amount' and 'status'
 
         let totalInflow = 0
-
-        // Attempt fetch from 'invoices'
-        const { data: invoices, error: invError } = await supabase
-            .from('invoices')
-            .select('amount_paid') // Assuming partial payments track 'amount_paid'
+        const { data: transactions, error: trxError } = await supabase
+            .from('transactions')
+            .select('amount')
             .eq('tenant_id', profile.tenant_id)
-            .eq('status', 'paid')
+            .eq('status', 'success')
 
-        if (!invError && invoices) {
-            totalInflow = invoices.reduce((sum, inv) => sum + (Number(inv.amount_paid) || 0), 0)
+        if (!trxError && transactions) {
+            totalInflow = transactions.reduce((sum, trx) => sum + (Number(trx.amount) || 0), 0)
         }
 
         // 2. Calculate Outflow
