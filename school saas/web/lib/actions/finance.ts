@@ -799,7 +799,7 @@ export async function getPaginatedTransactions(options: {
     if (!profile) return { success: false, error: "Profile not found" }
 
     const page = options.page || 1
-    const limit = options.limit || 20
+    const limit = options.limit || 15
     const from = (page - 1) * limit
     const to = from + limit - 1
 
@@ -829,12 +829,15 @@ export async function getPaginatedTransactions(options: {
 
     if (error) return { success: false, error: error.message }
 
+    const totalCount = count || 0
+    const totalPages = Math.ceil(totalCount / limit)
+
     return {
         success: true,
         data,
-        count: count || 0,
+        count: totalCount,
         page,
-        totalPages: Math.ceil((count || 0) / limit)
+        totalPages: totalPages
     }
 }
 
@@ -852,7 +855,7 @@ export async function getPaginatedInvoices(options: {
     if (!profile) return { success: false, error: "Profile not found" }
 
     const page = options.page || 1
-    const limit = options.limit || 20
+    const limit = options.limit || 15
     const from = (page - 1) * limit
     const to = from + limit - 1
 
@@ -882,11 +885,14 @@ export async function getPaginatedInvoices(options: {
 
     if (error) return { success: false, error: error.message }
 
+    const totalCount = count || 0
+    const totalPages = Math.ceil(totalCount / limit)
+
     return {
         success: true,
         data,
-        count: count || 0,
+        count: totalCount,
         page,
-        totalPages: Math.ceil((count || 0) / limit)
+        totalPages: totalPages
     }
 }

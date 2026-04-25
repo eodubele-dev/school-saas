@@ -16,7 +16,7 @@ export default async function BursarTransactionsPage({
 
     const result = await getPaginatedTransactions({
         page,
-        limit: 20,
+        limit: 15,
         search: query
     })
 
@@ -96,7 +96,7 @@ export default async function BursarTransactionsPage({
                         currentPage={page}
                         totalPages={totalPages}
                         totalCount={totalCount}
-                        pageSize={20}
+                        pageSize={15}
                     />
                 </CardContent>
             </Card>

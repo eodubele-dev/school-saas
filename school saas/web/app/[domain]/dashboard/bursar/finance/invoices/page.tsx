@@ -18,7 +18,7 @@ export default async function BursarInvoicesPage({
 
     const result = await getPaginatedInvoices({
         page,
-        limit: 20,
+        limit: 15,
         search: query
     })
 
@@ -103,7 +103,7 @@ export default async function BursarInvoicesPage({
                         currentPage={page}
                         totalPages={totalPages}
                         totalCount={totalCount}
-                        pageSize={20}
+                        pageSize={15}
                     />
                 </CardContent>
             </Card>
