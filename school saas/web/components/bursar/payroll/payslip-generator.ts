@@ -10,15 +10,17 @@ export const generatePayslip = async (item: any, run: any) => {
     doc.setFillColor(37, 99, 235) // Blue-600
     doc.rect(0, 0, 210, 40, "F")
 
+    const schoolName = run.tenants?.name || "EDUFLOW SCHOOL"
+    
     doc.setTextColor(255, 255, 255)
-    doc.setFontSize(22)
+    doc.setFontSize(18)
     doc.setFont("helvetica", "bold")
-    doc.text("SCHOOL NAME", 105, 15, { align: "center" }) // Placeholder Name
+    doc.text(schoolName.toUpperCase(), 105, 15, { align: "center" }) 
 
-    doc.setFontSize(12)
+    doc.setFontSize(11)
     doc.setFont("helvetica", "normal")
-    doc.text("Payslip", 105, 25, { align: "center" })
-    doc.text(`${run.month} ${run.year}`, 105, 32, { align: "center" })
+    doc.text("Official Salary Payslip", 105, 25, { align: "center" })
+    doc.text(`${run.month} ${run.year}`, 105, 31, { align: "center" })
 
     // 2. Staff Details
     doc.setTextColor(0, 0, 0)

@@ -164,7 +164,12 @@ export async function getPayrollRuns() {
  */
 export async function getPayrollRunDetails(runId: string) {
     const supabase = createClient()
-    const { data: run } = await supabase.from('payroll_runs').select('*').eq('id', runId).single()
+    const { data: run } = await supabase
+        .from('payroll_runs')
+        .select('*, tenants(name)')
+        .eq('id', runId)
+        .single()
+        
     const { data: items } = await supabase
         .from('payroll_items')
         .select(`
@@ -177,7 +182,9 @@ export async function getPayrollRunDetails(runId: string) {
                 salary_struct:salary_structures(
                     account_name,
                     account_number,
-                    bank_name
+                    bank_name,
+                    housing_allowance,
+                    transport_allowance
                 )
             )
         `)
@@ -334,4 +341,27 @@ export async function getReconciledLedger(runId: string) {
     })
 
     return { success: true, data: ledger }
+}
+
+/**
+ * Mark Payroll Run as Completed/Disbursed
+ */
+export async function markPayrollRunCompleted(runId: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Profile not found" }
+
+    const { error } = await supabase
+        .from('payroll_runs')
+        .update({ status: 'completed' })
+        .eq('id', runId)
+        .eq('tenant_id', profile.tenant_id)
+
+    if (error) return { success: false, error: error.message }
+
+    revalidatePath('/dashboard/bursar/finance/payroll')
+    return { success: true }
 }

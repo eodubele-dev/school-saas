@@ -784,3 +784,109 @@ export async function getDebtorStudents() {
         data: debtors
     }
 }
+
+export async function getPaginatedTransactions(options: {
+    page?: number,
+    limit?: number,
+    search?: string,
+    status?: string
+}) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Profile not found" }
+
+    const page = options.page || 1
+    const limit = options.limit || 20
+    const from = (page - 1) * limit
+    const to = from + limit - 1
+
+    let query = supabase
+        .from('transactions')
+        .select(`
+            id,
+            amount,
+            method,
+            date,
+            reference,
+            status,
+            students:student_id (full_name, admission_number)
+        `, { count: 'exact' })
+        .eq('tenant_id', profile.tenant_id)
+        .order('date', { ascending: false })
+
+    if (options.search) {
+        query = query.or(`reference.ilike.%${options.search}%,students.full_name.ilike.%${options.search}%`)
+    }
+
+    if (options.status && options.status !== 'all') {
+        query = query.eq('status', options.status)
+    }
+
+    const { data, count, error } = await query.range(from, to)
+
+    if (error) return { success: false, error: error.message }
+
+    return {
+        success: true,
+        data,
+        count: count || 0,
+        page,
+        totalPages: Math.ceil((count || 0) / limit)
+    }
+}
+
+export async function getPaginatedInvoices(options: {
+    page?: number,
+    limit?: number,
+    search?: string,
+    status?: string
+}) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Profile not found" }
+
+    const page = options.page || 1
+    const limit = options.limit || 20
+    const from = (page - 1) * limit
+    const to = from + limit - 1
+
+    let query = supabase
+        .from('invoices')
+        .select(`
+            id,
+            term,
+            amount,
+            amount_paid,
+            status,
+            created_at,
+            students:student_id (full_name, admission_number)
+        `, { count: 'exact' })
+        .eq('tenant_id', profile.tenant_id)
+        .order('created_at', { ascending: false })
+
+    if (options.search) {
+        query = query.or(`term.ilike.%${options.search}%,students.full_name.ilike.%${options.search}%`)
+    }
+
+    if (options.status && options.status !== 'all') {
+        query = query.eq('status', options.status)
+    }
+
+    const { data, count, error } = await query.range(from, to)
+
+    if (error) return { success: false, error: error.message }
+
+    return {
+        success: true,
+        data,
+        count: count || 0,
+        page,
+        totalPages: Math.ceil((count || 0) / limit)
+    }
+}

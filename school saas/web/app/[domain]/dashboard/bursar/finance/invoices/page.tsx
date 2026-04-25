@@ -1,35 +1,32 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
+import { getPaginatedInvoices } from "@/lib/actions/finance"
+import { SimplePagination } from "@/components/shared/pagination"
+import { SearchInput } from "@/components/shared/search-input"
+import { InvoiceExportButton } from "@/components/finance/invoice-export-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatDate } from "@/lib/utils"
-import { FileText, Search, Download } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { FileText } from "lucide-react"
 
-export default async function BursarInvoicesPage({ params }: { params: { domain: string } }) {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+export default async function BursarInvoicesPage({ 
+    params,
+    searchParams 
+}: { 
+    params: { domain: string },
+    searchParams: { page?: string, query?: string }
+}) {
+    const page = Number(searchParams.page) || 1
+    const query = searchParams.query || ""
 
-    if (!user) redirect(`/${params.domain}/login`)
+    const result = await getPaginatedInvoices({
+        page,
+        limit: 20,
+        search: query
+    })
 
-    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
-    if (!profile) return <div>Access Denied</div>
+    if (!result.success) return <div>Error loading invoices: {result.error}</div>
 
-    // Fetch Invoices
-    const { data: invoices } = await supabase
-        .from('invoices')
-        .select(`
-            id,
-            term,
-            amount,
-            amount_paid,
-            status,
-            created_at,
-            students:student_id (full_name, admission_number)
-        `)
-        .eq('tenant_id', profile.tenant_id)
-        .order('created_at', { ascending: false })
-        .limit(100)
+    const invoices = result.data
+    const totalPages = result.totalPages
+    const totalCount = result.count
 
     return (
         <div className="bg-slate-950 p-6 min-h-screen space-y-6">
@@ -38,19 +35,14 @@ export default async function BursarInvoicesPage({ params }: { params: { domain:
                     <h1 className="text-2xl font-bold text-white tracking-tight">Invoice Management</h1>
                     <p className="text-slate-400">Track and manage student billings.</p>
                 </div>
-                <Button>
-                    <Download className="mr-2 h-4 w-4" /> Export Report
-                </Button>
+                <InvoiceExportButton />
             </div>
 
             <Card className="bg-slate-900 border-white/10">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle className="text-white">Generated Invoices</CardTitle>
-                        <div className="relative w-64">
-                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-500" />
-                            <Input placeholder="Search student..." className="pl-8 bg-slate-950 border-white/10" />
-                        </div>
+                        <SearchInput placeholder="Search term..." />
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -69,14 +61,16 @@ export default async function BursarInvoicesPage({ params }: { params: { domain:
                             </thead>
                             <tbody>
                                 {invoices && invoices.length > 0 ? (
-                                    invoices.map((inv) => {
+                                    invoices.map((inv: any) => {
                                         const balance = (inv.amount || 0) - (inv.amount_paid || 0)
                                         return (
                                             <tr key={inv.id} className="border-b border-white/5 hover:bg-white/5">
                                                 <td className="px-6 py-4 font-medium">{inv.term}</td>
                                                 <td className="px-6 py-4 text-white">
-                                                    {/* @ts-ignore */}
                                                     {inv.students?.full_name}
+                                                    <div className="text-xs text-slate-500">
+                                                        {inv.students?.admission_number}
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4">{formatDate(inv.created_at)}</td>
                                                 <td className="px-6 py-4">
@@ -104,6 +98,13 @@ export default async function BursarInvoicesPage({ params }: { params: { domain:
                             </tbody>
                         </table>
                     </div>
+
+                    <SimplePagination 
+                        currentPage={page}
+                        totalPages={totalPages}
+                        totalCount={totalCount}
+                        pageSize={20}
+                    />
                 </CardContent>
             </Card>
         </div>

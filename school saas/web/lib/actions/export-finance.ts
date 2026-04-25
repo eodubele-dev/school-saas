@@ -56,3 +56,57 @@ export async function exportMonthlyFinanceReport() {
         filename: `finance_report_${now.getFullYear()}_${now.getMonth() + 1}.csv`
     }
 }
+
+export async function exportInvoices() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Profile not found" }
+
+    const { data: invoices, error } = await supabase
+        .from('invoices')
+        .select(`
+            id,
+            term,
+            amount,
+            amount_paid,
+            status,
+            created_at,
+            student:students(full_name, admission_number)
+        `)
+        .eq('tenant_id', profile.tenant_id)
+        .order('created_at', { ascending: false })
+
+    if (error) return { success: false, error: error.message }
+    if (!invoices || invoices.length === 0) return { success: false, error: "No invoices found" }
+
+    // Convert to CSV
+    const headers = ['Term', 'Student Name', 'Admission No', 'Date Generated', 'Status', 'Amount', 'Paid', 'Balance']
+    const rows = invoices?.map((inv: any) => {
+        const balance = (inv.amount || 0) - (inv.amount_paid || 0)
+        return [
+            inv.term,
+            inv.student?.full_name || 'Unknown',
+            inv.student?.admission_number || 'N/A',
+            new Date(inv.created_at).toLocaleDateString(),
+            inv.status,
+            inv.amount,
+            inv.amount_paid,
+            balance
+        ]
+    }) || []
+
+    const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n')
+
+    return {
+        success: true,
+        csv: csvContent,
+        filename: `invoices_export_${new Date().toISOString().split('T')[0]}.csv`
+    }
+}

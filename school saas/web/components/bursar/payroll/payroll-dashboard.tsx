@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Loader2, Download, RefreshCw, FileText, CheckCircle, DatabaseZap } from "lucide-react"
-import { generatePayrollRun, getPayrollRuns, getPayrollRunDetails, getPayrollReconciliationReport, getReconciledLedger } from "@/lib/actions/payroll"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { generatePayrollRun, getPayrollRuns, getPayrollRunDetails, getPayrollReconciliationReport, getReconciledLedger, markPayrollRunCompleted } from "@/lib/actions/payroll"
 import { generatePayslip } from "./payslip-generator"
 import { SalaryStructureModal } from "./salary-structure-modal"
 import { PayrollReconciliationReport } from "./payroll-reconciliation-report"
@@ -23,9 +24,10 @@ export function PayrollDashboard() {
     const [reconciliationData, setReconciliationData] = useState<any[]>([])
     const [ledgerData, setLedgerData] = useState<any[]>([])
     const [generating, setGenerating] = useState(false)
+    const [disbursing, setDisbursing] = useState(false)
 
     // Form state for generation
-    const [genMonth, setGenMonth] = useState("October")
+    const [genMonth, setGenMonth] = useState(format(new Date(), 'MMMM'))
     const [genYear, setGenYear] = useState(new Date().getFullYear().toString())
 
     useEffect(() => {
@@ -96,6 +98,27 @@ export function PayrollDashboard() {
         }
     }
 
+    const handleDisburse = async () => {
+        if (!activeRunId) return
+        
+
+        setDisbursing(true)
+        try {
+            const res = await markPayrollRunCompleted(activeRunId)
+            if (res.success) {
+                toast.success("Payroll marked as disbursed")
+                await loadRuns()
+                await loadRunDetails(activeRunId)
+            } else {
+                toast.error(res.error || "Failed to disburse")
+            }
+        } catch (error) {
+            toast.error("An error occurred")
+        } finally {
+            setDisbursing(false)
+        }
+    }
+
     const handleDownloadCSV = () => {
         if (!activeRunDetails || !activeRunDetails.items) {
             toast.error("No items found to export")
@@ -127,30 +150,34 @@ export function PayrollDashboard() {
         link.click()
     }
 
-    if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-blue-500" /></div>
+    if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-emerald-500" /></div>
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* 1. Header & Controls */}
-            <Card className="p-6 bg-card text-card-foreground border-border/50">
+            <Card className="p-6 bg-slate-900 border-white/10 shadow-xl">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                        <h2 className="text-xl font-bold text-foreground">Payroll Management</h2>
-                        <p className="text-sm text-muted-foreground">Generate, review, and export monthly salary schedules.</p>
+                        <h2 className="text-2xl font-bold text-white tracking-tight">Payroll Management</h2>
+                        <p className="text-sm text-slate-400">Generate, review, and export monthly salary schedules.</p>
                     </div>
 
-                    <div className="flex items-center gap-2 bg-slate-950 p-2 rounded-lg border border-border">
+                    <div className="flex items-center gap-2 bg-slate-950 p-2 rounded-xl border border-white/5">
                         <Select value={genMonth} onValueChange={setGenMonth}>
-                            <SelectTrigger className="w-32 bg-transparent border-none text-foreground"><SelectValue /></SelectTrigger>
-                            <SelectContent>
+                            <SelectTrigger className="w-32 bg-transparent border-none text-white focus:ring-0">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-900 border-white/10 text-white">
                                 {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => (
                                     <SelectItem key={m} value={m}>{m}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                         <Select value={genYear} onValueChange={setGenYear}>
-                            <SelectTrigger className="w-24 bg-transparent border-none text-foreground"><SelectValue /></SelectTrigger>
-                            <SelectContent>
+                            <SelectTrigger className="w-24 bg-transparent border-none text-white focus:ring-0">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-900 border-white/10 text-white">
                                 <SelectItem value="2025">2025</SelectItem>
                                 <SelectItem value="2026">2026</SelectItem>
                             </SelectContent>
@@ -158,7 +185,7 @@ export function PayrollDashboard() {
                         <Button
                             onClick={handleGenerate}
                             disabled={generating}
-                            className="bg-[hsl(var(--school-accent))] hover:opacity-90 text-foreground font-bold"
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 rounded-lg transition-all"
                         >
                             {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
                             Generate Run
@@ -168,33 +195,35 @@ export function PayrollDashboard() {
             </Card>
 
             <Tabs defaultValue="runs" className="w-full">
-                <TabsList className="bg-card text-card-foreground border border-border/50 p-1 rounded-xl mb-6">
-                    <TabsTrigger value="runs" className="rounded-lg px-6">Payroll Runs</TabsTrigger>
-                    <TabsTrigger value="reconciliation" className="rounded-lg px-6">Rec. Report</TabsTrigger>
-                    <TabsTrigger value="sync" className="rounded-lg px-6">Ledger Sync</TabsTrigger>
+                <TabsList className="bg-slate-900 border border-white/10 p-1 h-12 rounded-xl mb-6 w-full md:w-auto justify-start">
+                    <TabsTrigger value="runs" className="rounded-lg px-8 data-[state=active]:bg-emerald-600 data-[state=active]:text-white transition-all text-slate-400">Payroll Runs</TabsTrigger>
+                    <TabsTrigger value="reconciliation" className="rounded-lg px-8 data-[state=active]:bg-emerald-600 data-[state=active]:text-white transition-all text-slate-400">Rec. Report</TabsTrigger>
+                    <TabsTrigger value="sync" className="rounded-lg px-8 data-[state=active]:bg-emerald-600 data-[state=active]:text-white transition-all text-slate-400">Ledger Sync</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="runs">
+                <TabsContent value="runs" className="mt-0 focus-visible:outline-none">
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                         {/* 2. Sidebar: History */}
-                        <Card className="lg:col-span-1 bg-card text-card-foreground border-border/50 p-4 h-[600px] flex flex-col">
-                            <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4">Run History</h3>
-                            <div className="space-y-2 overflow-y-auto flex-1">
+                        <Card className="lg:col-span-1 bg-slate-900 border-white/10 p-4 h-[650px] flex flex-col shadow-lg">
+                            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 px-2">Run History</h3>
+                            <div className="space-y-2 overflow-y-auto flex-1 pr-2 custom-scrollbar">
                                 {runs.map(run => (
                                     <button
                                         key={run.id}
                                         onClick={() => setActiveRunId(run.id)}
-                                        className={`w-full text-left p-3 rounded-lg border transition-all ${activeRunId === run.id
-                                            ? "bg-blue-600/10 border-blue-500/50 text-foreground"
-                                            : "bg-card text-card-foreground/50 border-border/50 text-muted-foreground hover:bg-secondary/50"
+                                        className={`w-full text-left p-4 rounded-xl border transition-all duration-200 ${activeRunId === run.id
+                                            ? "bg-emerald-600/10 border-emerald-500/50 text-white ring-1 ring-emerald-500/20"
+                                            : "bg-slate-950/40 border-white/5 text-slate-400 hover:bg-slate-800/50 hover:border-white/10"
                                             }`}
                                     >
-                                        <div className="flex justify-between items-center mb-1">
+                                        <div className="flex justify-between items-center mb-2">
                                             <span className="font-bold">{run.month} {run.year}</span>
-                                            <Badge variant="outline" className="text-xs">{run.status}</Badge>
+                                            <Badge variant="outline" className={`text-[10px] uppercase tracking-tighter ${
+                                                run.status === 'completed' ? 'border-emerald-500/50 text-emerald-400' : 'border-amber-500/50 text-amber-400'
+                                            }`}>{run.status}</Badge>
                                         </div>
-                                        <div className="text-xs opacity-70">
-                                            Generated: {format(new Date(run.created_at), 'MMM d, HH:mm')}
+                                        <div className="text-[10px] opacity-50">
+                                            {format(new Date(run.created_at), 'MMM d, yyyy · HH:mm')}
                                         </div>
                                     </button>
                                 ))}
@@ -202,31 +231,59 @@ export function PayrollDashboard() {
                         </Card>
 
                         {/* 3. Main Content: Details Table */}
-                        <Card className="lg:col-span-3 bg-card text-card-foreground border-border/50 p-0 overflow-hidden flex flex-col h-[600px]">
+                        <Card className="lg:col-span-3 bg-slate-900 border-white/10 p-0 overflow-hidden flex flex-col h-[650px] shadow-2xl">
                             {activeRunDetails ? (
                                 <>
-                                    <div className="p-4 border-b border-border/50 flex justify-between items-center bg-slate-950/30">
+                                    <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-950/40">
                                         <div>
-                                            <h3 className="font-bold text-foreground text-lg">{activeRunDetails.run.month} {activeRunDetails.run.year} Payroll</h3>
-                                            <p className="text-sm text-muted-foreground">Total Payout: <span className="text-emerald-400 font-mono font-bold">₦{activeRunDetails.run.total_payout.toLocaleString()}</span></p>
+                                            <h3 className="font-bold text-white text-xl tracking-tight">{activeRunDetails.run.month} {activeRunDetails.run.year} Payroll</h3>
+                                            <p className="text-sm text-slate-400 mt-1">
+                                                Total Payout: <span className="text-emerald-400 font-bold ml-1">₦{activeRunDetails.run.total_payout.toLocaleString()}</span>
+                                            </p>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <Button variant="outline" size="sm" onClick={handleDownloadCSV} className="border-border text-slate-300 hover:text-foreground">
+                                        <div className="flex gap-3">
+                                            <Button variant="outline" size="sm" onClick={handleDownloadCSV} className="bg-slate-950 border-white/10 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg h-10 px-4">
                                                 <Download className="h-4 w-4 mr-2" />
                                                 Bank File
                                             </Button>
-                                            <Button variant="default" size="sm" className="bg-emerald-600 hover:bg-emerald-500">
-                                                <CheckCircle className="h-4 w-4 mr-2" />
-                                                Disburse
-                                            </Button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button 
+                                                        variant="default" 
+                                                        size="sm" 
+                                                        disabled={disbursing || activeRunDetails.run.status === 'completed' || activeRunDetails.run.total_payout === 0}
+                                                        className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg h-10 px-6 font-bold shadow-lg shadow-emerald-900/20 disabled:opacity-50 disabled:bg-slate-800"
+                                                    >
+                                                        {disbursing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4 mr-2" />}
+                                                        {activeRunDetails.run.status === 'completed' ? 'Disbursed' : 'Disburse'}
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent className="bg-slate-900 border-white/10 text-white">
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle className="text-xl font-bold">Confirm Disbursement</AlertDialogTitle>
+                                                        <AlertDialogDescription className="text-slate-400">
+                                                            Are you sure you want to mark this payroll as disbursed? This will lock the run status and cannot be undone.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel className="bg-slate-950 border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white">Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction 
+                                                            onClick={handleDisburse}
+                                                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
+                                                        >
+                                                            Confirm & Disburse
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </div>
                                     </div>
 
-                                    <div className="flex-1 overflow-auto">
+                                    <div className="flex-1 overflow-auto custom-scrollbar">
                                         <table className="w-full text-sm text-left border-collapse">
-                                            <thead className="text-[10px] text-muted-foreground uppercase font-mono bg-slate-950 sticky top-0 z-10">
+                                            <thead className="text-[10px] text-slate-500 uppercase font-bold tracking-widest bg-slate-950/80 backdrop-blur-md sticky top-0 z-10 border-b border-white/5">
                                                 <tr>
-                                                    <th className="px-6 py-4">Staff</th>
+                                                    <th className="px-6 py-4">Staff Member</th>
                                                     <th className="px-6 py-4 text-right">Base Pay</th>
                                                     <th className="px-6 py-4 text-center">Attendance</th>
                                                     <th className="px-6 py-4 text-right">Deductions</th>
@@ -236,46 +293,46 @@ export function PayrollDashboard() {
                                             </thead>
                                             <tbody className="divide-y divide-white/5 text-slate-300">
                                                 {(activeRunDetails.items || []).map((item: any) => (
-                                                    <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
-                                                        <td className="px-6 py-5 font-medium text-foreground">
-                                                            {item.staff.first_name} {item.staff.last_name}
-                                                            <div className="text-[10px] text-muted-foreground uppercase font-mono mt-1">{item.staff.role}</div>
+                                                    <tr key={item.id} className="hover:bg-white/[0.02] transition-colors group">
+                                                        <td className="px-6 py-5">
+                                                            <div className="font-bold text-slate-200 group-hover:text-white">{item.staff.first_name} {item.staff.last_name}</div>
+                                                            <div className="text-[10px] text-slate-500 uppercase font-mono mt-0.5">{item.staff.role}</div>
                                                         </td>
-                                                        <td className="px-6 py-5 text-right font-mono text-muted-foreground">
+                                                        <td className="px-6 py-5 text-right text-slate-400">
                                                             ₦{item.base_salary.toLocaleString()}
                                                         </td>
                                                         <td className="px-6 py-5 text-center">
                                                             <div className="flex flex-col items-center gap-1">
-                                                                <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-400 border-none rounded-md px-2 py-0">
-                                                                    P: {item.days_present}
-                                                                </Badge>
+                                                                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                                                                    PRES: {item.days_present}
+                                                                </span>
                                                                 {item.lateness_count > 0 && (
-                                                                    <Badge variant="secondary" className="bg-amber-500/10 text-amber-400 border-none text-[10px] rounded-md px-2 py-0">
-                                                                        L: {item.lateness_count}
-                                                                    </Badge>
+                                                                    <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">
+                                                                        LATE: {item.lateness_count}
+                                                                    </span>
                                                                 )}
                                                             </div>
                                                         </td>
-                                                        <td className="px-6 py-5 text-right font-mono text-red-500/80">
+                                                        <td className="px-6 py-5 text-right text-red-400/80">
                                                             -₦{(item.attendance_deductions + item.tax_deduction + item.pension_deduction).toLocaleString()}
                                                         </td>
-                                                        <td className="px-6 py-5 text-right font-mono font-black text-emerald-500">
+                                                        <td className="px-6 py-5 text-right font-bold text-emerald-400 text-base">
                                                             ₦{item.net_pay.toLocaleString()}
                                                         </td>
                                                         <td className="px-6 py-5 text-right">
-                                                            <div className="flex justify-end gap-1">
+                                                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                                 <SalaryStructureModal staff={item.staff} onSuccess={() => loadRunDetails(activeRunDetails.run.id)}>
-                                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-secondary/50">
+                                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-blue-500/10">
                                                                         <FileText className="h-4 w-4 text-blue-400" />
                                                                     </Button>
                                                                 </SalaryStructureModal>
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="sm"
-                                                                    className="h-8 w-8 p-0 hover:bg-secondary/50"
+                                                                    className="h-8 w-8 p-0 hover:bg-emerald-500/10"
                                                                     onClick={() => generatePayslip(item, activeRunDetails.run)}
                                                                 >
-                                                                    <Download className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                                                                    <Download className="h-4 w-4 text-emerald-400" />
                                                                 </Button>
                                                             </div>
                                                         </td>
@@ -286,16 +343,18 @@ export function PayrollDashboard() {
                                     </div>
                                 </>
                             ) : (
-                                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4">
-                                    <FileText className="h-16 w-16 opacity-20" />
-                                    <p className="text-sm font-mono uppercase tracking-widest">Select_A_Payroll_Run</p>
+                                <div className="flex flex-col items-center justify-center h-full text-slate-600 gap-4 bg-slate-950/20">
+                                    <div className="bg-slate-900 p-6 rounded-full border border-white/5 shadow-inner">
+                                        <FileText className="h-12 w-12 opacity-20" />
+                                    </div>
+                                    <p className="text-xs uppercase tracking-[0.3em]">Select A Payroll Run</p>
                                 </div>
                             )}
                         </Card>
                     </div>
                 </TabsContent>
 
-                <TabsContent value="reconciliation">
+                <TabsContent value="reconciliation" className="mt-0 focus-visible:outline-none">
                     <PayrollReconciliationReport
                         staffData={reconciliationData}
                         month={genMonth}
@@ -303,16 +362,18 @@ export function PayrollDashboard() {
                     />
                 </TabsContent>
 
-                <TabsContent value="sync">
+                <TabsContent value="sync" className="mt-0 focus-visible:outline-none">
                     {activeRunId ? (
                         <BursaryLedgerSync
                             reconciledPayroll={ledgerData}
                             batchId={`PAY-${genMonth.toUpperCase()}-${genYear}`}
                         />
                     ) : (
-                        <Card className="p-12 text-center bg-card text-card-foreground border-border/50">
-                            <DatabaseZap className="h-12 w-12 text-slate-700 mx-auto mb-4" />
-                            <p className="text-muted-foreground font-mono uppercase tracking-widest">Select_A_Run_To_Sync_Ledger</p>
+                        <Card className="p-20 text-center bg-slate-900 border-white/10 shadow-2xl flex flex-col items-center justify-center min-h-[400px]">
+                            <div className="bg-slate-950 p-6 rounded-full border border-white/5 mb-6">
+                                <DatabaseZap className="h-12 w-12 text-slate-700" />
+                            </div>
+                            <p className="text-slate-500 text-sm uppercase tracking-widest">Select A Run To Sync Ledger</p>
                         </Card>
                     )}
                 </TabsContent>

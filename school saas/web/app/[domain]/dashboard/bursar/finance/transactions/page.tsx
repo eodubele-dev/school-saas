@@ -1,34 +1,30 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
+import { getPaginatedTransactions } from "@/lib/actions/finance"
+import { SimplePagination } from "@/components/shared/pagination"
+import { SearchInput } from "@/components/shared/search-input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatDate } from "@/lib/utils"
-import { ArrowUpRight, ArrowDownLeft, Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
 
-export default async function BursarTransactionsPage({ params }: { params: { domain: string } }) {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+export default async function BursarTransactionsPage({ 
+    params,
+    searchParams 
+}: { 
+    params: { domain: string },
+    searchParams: { page?: string, query?: string }
+}) {
+    const page = Number(searchParams.page) || 1
+    const query = searchParams.query || ""
 
-    if (!user) redirect(`/${params.domain}/login`)
+    const result = await getPaginatedTransactions({
+        page,
+        limit: 20,
+        search: query
+    })
 
-    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
-    if (!profile) return <div>Access Denied</div>
+    if (!result.success) return <div>Error loading transactions: {result.error}</div>
 
-    // Fetch Transactions
-    const { data: transactions } = await supabase
-        .from('transactions')
-        .select(`
-            id,
-            amount,
-            method,
-            date,
-            reference,
-            status,
-            students:student_id (full_name, admission_number)
-        `)
-        .eq('tenant_id', profile.tenant_id)
-        .order('date', { ascending: false })
-        .limit(100)
+    const transactions = result.data
+    const totalPages = result.totalPages
+    const totalCount = result.count
 
     return (
         <div className="bg-slate-950 p-6 min-h-screen space-y-6">
@@ -43,10 +39,7 @@ export default async function BursarTransactionsPage({ params }: { params: { dom
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle className="text-white">Recent Transactions</CardTitle>
-                        <div className="relative w-64">
-                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-500" />
-                            <Input placeholder="Search reference..." className="pl-8 bg-slate-950 border-white/10" />
-                        </div>
+                        <SearchInput placeholder="Search reference..." />
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -64,14 +57,12 @@ export default async function BursarTransactionsPage({ params }: { params: { dom
                             </thead>
                             <tbody>
                                 {transactions && transactions.length > 0 ? (
-                                    transactions.map((tx) => (
+                                    transactions.map((tx: any) => (
                                         <tr key={tx.id} className="border-b border-white/5 hover:bg-white/5">
                                             <td className="px-6 py-4 font-medium">{formatDate(tx.date)}</td>
                                             <td className="px-6 py-4 text-white">
-                                                {/* @ts-ignore */}
                                                 {tx.students?.full_name}
                                                 <div className="text-xs text-slate-500">
-                                                    {/* @ts-ignore */}
                                                     {tx.students?.admission_number}
                                                 </div>
                                             </td>
@@ -100,6 +91,13 @@ export default async function BursarTransactionsPage({ params }: { params: { dom
                             </tbody>
                         </table>
                     </div>
+
+                    <SimplePagination 
+                        currentPage={page}
+                        totalPages={totalPages}
+                        totalCount={totalCount}
+                        pageSize={20}
+                    />
                 </CardContent>
             </Card>
         </div>

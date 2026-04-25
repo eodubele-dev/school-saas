@@ -37,14 +37,14 @@ export const BursarOverrideDetail: React.FC<BursarOverrideDetailProps> = ({
                         </div>
                         <div>
                             <h3 className="text-foreground font-black text-lg tracking-tight uppercase">Manual Override Audit</h3>
-                            <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-0.5">
-                                EMP_ID: {staffMember.name.split(' ').join('_').toUpperCase()} // {staffMember.role}
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">
+                                EMP ID: {staffMember.name.toUpperCase()} // {staffMember.role}
                             </p>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-right hidden sm:block">
-                            <p className="text-[10px] font-mono text-red-500 font-black uppercase tracking-tighter">Status: Flagged_Manual</p>
+                            <p className="text-[10px] text-red-500 font-black uppercase tracking-tighter">Status: Flagged Manual</p>
                             <p className="text-xs text-foreground font-bold opacity-80 mt-0.5">Date: {evidence.date}</p>
                         </div>
                         <button
@@ -60,7 +60,7 @@ export const BursarOverrideDetail: React.FC<BursarOverrideDetailProps> = ({
                     {/* 📸 Evidence Panel */}
                     <div className="space-y-4">
                         <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] flex items-center gap-2">
-                            <FileCheck size={14} className="text-cyan-400" /> Submitted_Evidence_Proof
+                            <FileCheck size={14} className="text-emerald-400" /> Submitted Evidence Proof
                         </label>
                         <div className="aspect-video bg-black rounded-2xl border border-border overflow-hidden relative group shadow-inner">
                             <img
@@ -83,10 +83,10 @@ export const BursarOverrideDetail: React.FC<BursarOverrideDetailProps> = ({
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <MapPin size={48} className="text-red-500" />
                             </div>
-                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">GPS_Deviation_Metrix</p>
+                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">GPS Deviation Metrics</p>
                             <div className="flex items-baseline gap-2">
                                 <span className="font-black text-3xl text-red-500 tracking-tighter">{evidence.distance}</span>
-                                <span className="text-sm font-mono text-red-500/60 uppercase">Meters</span>
+                                <span className="text-sm text-red-500/60 uppercase">Meters</span>
                             </div>
                             <div className="mt-3 w-full bg-red-500/10 h-1.5 rounded-full overflow-hidden">
                                 <div className="bg-red-500 h-full w-[65%] animate-pulse" />
@@ -98,14 +98,14 @@ export const BursarOverrideDetail: React.FC<BursarOverrideDetailProps> = ({
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <UserCheck size={48} className="text-cyan-400" />
                             </div>
-                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">Institutional_Authorizer</p>
+                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">Institutional Authorizer</p>
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
                                     <span className="text-cyan-400 font-black text-xs">AP</span>
                                 </div>
                                 <div>
-                                    <p className="text-foreground font-black text-base italic tracking-tight">{evidence.authorizerName || "Admin_Principal"}</p>
-                                    <p className="text-[10px] font-mono text-cyan-400 uppercase font-bold">Encrypted_Signature_Verified</p>
+                                    <p className="text-foreground font-black text-base italic tracking-tight">{evidence.authorizerName || "Admin Principal"}</p>
+                                    <p className="text-[10px] text-emerald-400 uppercase font-bold">Encrypted Signature Verified</p>
                                 </div>
                             </div>
                         </div>
@@ -114,7 +114,7 @@ export const BursarOverrideDetail: React.FC<BursarOverrideDetailProps> = ({
                     {/* 📝 Administrative Note */}
                     <div className="bg-white/[0.01] p-6 rounded-2xl border border-border/50 space-y-3">
                         <div className="flex items-center justify-between">
-                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Administrative_Audit_Rationale</p>
+                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Administrative Audit Rationale</p>
                             <div className="flex gap-1">
                                 {[1, 2, 3].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-emerald-500/20" />)}
                             </div>
@@ -131,14 +131,14 @@ export const BursarOverrideDetail: React.FC<BursarOverrideDetailProps> = ({
                         onClick={onClose}
                         className="flex-1 bg-secondary/50 hover:bg-white/10 text-muted-foreground hover:text-foreground font-bold py-4 rounded-2xl border border-border transition-all uppercase text-[11px] tracking-widest"
                     >
-                        Cancel_Review
+                        Cancel Review
                     </button>
                     <button
                         onClick={onConfirm}
-                        className="flex-[2] bg-cyan-600 hover:bg-cyan-500 text-foreground font-black py-4 rounded-2xl transition-all shadow-[0_0_30px_rgba(8,145,178,0.3)] hover:shadow-[0_0_40px_rgba(8,145,178,0.4)] active:scale-95 uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 group"
+                        className="flex-[2] bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.4)] active:scale-95 uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 group"
                     >
                         <UserCheck size={18} className="group-hover:animate-bounce" />
-                        CONFIRM_FOR_PAYROLL_DISBURSEMENT
+                        CONFIRM FOR PAYROLL DISBURSEMENT
                     </button>
                 </div>
             </div>
