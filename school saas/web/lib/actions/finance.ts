@@ -818,7 +818,7 @@ export async function getPaginatedTransactions(options: {
         .order('date', { ascending: false })
 
     if (options.search) {
-        query = query.or(`reference.ilike.%${options.search}%,students.full_name.ilike.%${options.search}%`)
+        query = query.ilike('reference', `%${options.search}%`)
     }
 
     if (options.status && options.status !== 'all') {
@@ -874,7 +874,7 @@ export async function getPaginatedInvoices(options: {
         .order('created_at', { ascending: false })
 
     if (options.search) {
-        query = query.or(`term.ilike.%${options.search}%,students.full_name.ilike.%${options.search}%`)
+        query = query.ilike('term', `%${options.search}%`)
     }
 
     if (options.status && options.status !== 'all') {
