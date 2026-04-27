@@ -12,6 +12,13 @@ import { StudentBillingCard } from "./student-billing-card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
 import { initiatePayment } from "@/lib/actions/paystack";
 import { format } from "date-fns";
 import { isDesktop } from "@/lib/utils/desktop";
@@ -42,6 +49,7 @@ export function FamilyBillingDetail({
     const [printingId, setPrintingId] = useState<string | null>(null);
     const [showSuccess, setShowSuccess] = useState<any>(null);
     const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'unpaid'>('all');
+    const [showFullHistory, setShowFullHistory] = useState(false);
 
     // Print Logic
     const componentRef = React.useRef(null);
@@ -402,11 +410,16 @@ export function FamilyBillingDetail({
                                                             <p className="text-[10px] font-bold uppercase tracking-widest">No recent records</p>
                                                         </div>
                                                     )}
-                                                    <div className="pt-4 mt-4 border-t border-border/50 text-center">
-                                                        <button className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold hover:text-cyan-400 transition-colors">
-                                                            View Full History →
-                                                        </button>
-                                                    </div>
+                                                    {familyLedger.recentTransactions && familyLedger.recentTransactions.filter(t => t.student_id === child.id).length > 0 && (
+                                                        <div className="pt-4 mt-4 border-t border-border/50 text-center">
+                                                            <button 
+                                                                onClick={() => setShowFullHistory(true)}
+                                                                className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold hover:text-cyan-400 transition-colors"
+                                                            >
+                                                                View Full History →
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -417,6 +430,64 @@ export function FamilyBillingDetail({
                     </div>
                 </div>
             </div>
+
+            {/* Transaction History Dialog */}
+            <Dialog open={showFullHistory} onOpenChange={setShowFullHistory}>
+                <DialogContent className="bg-slate-900 border-white/10 text-foreground max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-bold">Family Transaction History</DialogTitle>
+                        <DialogDescription className="text-slate-400">
+                            Comprehensive record of all payments and fees settled.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-3 mt-4">
+                        {familyLedger.recentTransactions && familyLedger.recentTransactions.length > 0 ? (
+                            familyLedger.recentTransactions.map((trx, i) => (
+                                <div key={trx.id || i} className="flex justify-between items-center p-4 bg-slate-950/50 rounded-2xl border border-border/50">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 rounded-xl bg-card text-muted-foreground">
+                                            {trx.method === 'paystack' ? <CreditCard size={16} /> : 
+                                             trx.method === 'bank_transfer' ? <ExternalLink size={16} /> : 
+                                             <Wallet size={16} />}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-foreground">
+                                                {trx.method?.toUpperCase()} Payment
+                                            </p>
+                                            <p className="text-xs text-muted-foreground font-mono">
+                                                {trx.date ? format(new Date(trx.date), 'PPPP') : 'N/A'}
+                                            </p>
+                                            <p className="text-[10px] text-slate-500 font-mono mt-0.5">
+                                                REF: {trx.reference || 'N/A'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className={cn(
+                                            "text-sm font-black",
+                                            trx.status === 'success' ? "text-emerald-400" : "text-amber-400"
+                                        )}>
+                                            {trx.status === 'success' ? '+' : ''} ₦{(Number(trx.amount) || 0).toLocaleString()}
+                                        </p>
+                                        <Badge variant="outline" className={cn(
+                                            "text-[9px] uppercase tracking-tighter px-2",
+                                            trx.status === 'success' ? "border-emerald-500/20 text-emerald-400" : "border-amber-500/20 text-amber-400"
+                                        )}>
+                                            {trx.status}
+                                        </Badge>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="py-20 text-center opacity-40">
+                                <Wallet size={48} className="mx-auto mb-4" />
+                                <p className="font-bold uppercase tracking-widest">No history available</p>
+                            </div>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
 
 
 

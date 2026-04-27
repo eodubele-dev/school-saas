@@ -116,7 +116,7 @@ export default async function middleware(req: NextRequest) {
         'docs', 'about', 'login', 'privacy', 'success-stories', 'terms',
         'dashboard', 'settings', 'profile', 'billing', 'visuals'
       ]
-      if (!reservedPaths.includes(firstSegment)) {
+      if (!reservedPaths.includes(firstSegment) && !firstSegment.includes('[') && !firstSegment.includes(']')) {
         currentHost = firstSegment
         isPathBasedTenant = true
         // Set isMainDomain to false since we found a path-based tenant
