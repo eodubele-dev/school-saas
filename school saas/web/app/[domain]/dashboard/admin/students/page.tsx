@@ -19,7 +19,7 @@ export default async function StudentListPage({ params }: { params: { domain: st
         .eq('id', user.id)
         .single()
 
-    if (profile?.role !== 'admin' && profile?.role !== 'registrar') {
+    if (profile?.role !== 'admin' && profile?.role !== 'registrar' && profile?.role !== 'super-admin') {
         return <div className="p-8 text-center text-red-500">Access Denied</div>
     }
 

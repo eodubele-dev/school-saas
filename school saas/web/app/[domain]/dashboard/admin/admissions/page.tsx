@@ -17,7 +17,7 @@ export default async function AdmissionsPage({ params }: { params: { domain: str
         .eq('id', user.id)
         .single()
 
-    if (profile?.role !== 'admin' && profile?.role !== 'registrar') {
+    if (profile?.role !== 'admin' && profile?.role !== 'registrar' && profile?.role !== 'super-admin') {
         // Simple role check for now, can be expanded
         return <div className="p-8 text-center text-red-500">Access Denied: Only Admins or Registrars can admit students.</div>
     }

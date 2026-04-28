@@ -21,7 +21,7 @@ export default async function StaffPage({ params, searchParams }: { params: { do
         .eq('id', user.id)
         .single()
 
-    if (profile?.role !== 'admin') {
+    if (profile?.role !== 'admin' && profile?.role !== 'super-admin') {
         return <div className="p-8 text-center text-red-500">Access Denied: Only Admins can manage staff.</div>
     }
 

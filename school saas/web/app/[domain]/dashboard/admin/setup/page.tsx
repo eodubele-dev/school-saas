@@ -18,7 +18,7 @@ export default async function AcademicSetupPage({ params }: { params: { domain: 
         .eq('id', user.id)
         .single()
 
-    if (profile?.role !== 'admin') {
+    if (profile?.role !== 'admin' && profile?.role !== 'super-admin') {
         return <div className="p-8 text-center text-red-500">Access Denied</div>
     }
 

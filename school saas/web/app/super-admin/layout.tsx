@@ -20,12 +20,8 @@ export default async function SuperAdminLayout({
         .eq('id', user.id)
         .single()
 
-    if (profile?.role !== 'system_owner' && profile?.role !== 'owner' && profile?.role !== 'admin') {
-        // Only allow high-level roles. 
-        // For production, we might want to strictly lock it to 'system_owner'
-        if (profile?.role !== 'system_owner') {
-             redirect('/403')
-        }
+    if (profile?.role !== 'super-admin') {
+        redirect('/403')
     }
 
     return (
