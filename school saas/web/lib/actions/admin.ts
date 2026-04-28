@@ -33,15 +33,48 @@ export async function getAdminStats() {
     }
 }
 
-export async function getAllTenants() {
+export async function getAllTenants(page = 1, limit = 10) {
     const supabase = createClient()
-    const { data, error } = await supabase
+    const from = (page - 1) * limit
+    const to = from + limit - 1
+
+    const { data, error, count } = await supabase
         .from('tenants')
-        .select('id, name, slug, sms_balance, created_at')
+        .select('id, name, slug, sms_balance, created_at', { count: 'exact' })
         .order('created_at', { ascending: false })
+        .range(from, to)
 
     if (error) return { success: false, error: error.message }
-    return { success: true, data }
+    return { success: true, data, count, totalPages: Math.ceil((count || 0) / limit) }
+}
+
+export async function getRevenueStats(range: '7d' | '30d' | '90d' = '30d') {
+    const supabase = createClient()
+    const days = range === '7d' ? 7 : range === '30d' ? 30 : 90
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
+
+    const { data, error } = await supabase
+        .from('transactions')
+        .select('created_at, amount')
+        .eq('status', 'success')
+        .gte('created_at', startDate)
+        .order('created_at', { ascending: true })
+
+    if (error) return { success: false, error: error.message }
+
+    // Group by date
+    const grouped = data?.reduce((acc: any, curr: any) => {
+        const date = curr.created_at.split('T')[0]
+        acc[date] = (acc[date] || 0) + (Number(curr.amount) || 0)
+        return acc
+    }, {})
+
+    const chartData = Object.keys(grouped || {}).map(date => ({
+        date,
+        amount: grouped[date]
+    }))
+
+    return { success: true, data: chartData }
 }
 
 export async function adjustSmsBalance(tenantId: string, amount: number, reason: string) {
