@@ -118,18 +118,31 @@ export default function SuperAdminDashboard() {
 
     const handleToggleStatus = async () => {
         if (!tenantToToggle) return
+        const targetId = tenantToToggle.id
+        const newStatus = !tenantToToggle.is_active
+        
+        // Optimistic Update
+        setTenants(prev => prev.map(t => t.id === targetId ? { ...t, is_active: newStatus } : t))
+        
         setTogglingStatus(true)
         try {
-            const res = await toggleTenantActiveStatus(tenantToToggle.id, tenantToToggle.is_active)
+            const res = await toggleTenantActiveStatus(targetId, tenantToToggle.is_active)
             if (res.success) {
-                toast.success(`School ${res.newStatus ? 'activated' : 'suspended'} successfully`)
-                fetchData(page)
+                toast.success(`School ${newStatus ? 'activated' : 'suspended'} successfully`)
+                await fetchData(page)
             } else {
+                // Revert on error
+                setTenants(prev => prev.map(t => t.id === targetId ? { ...t, is_active: !newStatus } : t))
                 toast.error(res.error || "Action failed")
             }
+        } catch (err) {
+            // Revert on error
+            setTenants(prev => prev.map(t => t.id === targetId ? { ...t, is_active: !newStatus } : t))
+            toast.error("An unexpected error occurred")
         } finally {
             setTogglingStatus(false)
             setSuspendDialogOpen(false)
+            setTenantToToggle(null)
         }
     }
 
@@ -278,7 +291,8 @@ export default function SuperAdminDashboard() {
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center gap-2">
                                                             <Switch 
-                                                                checked={tenant.is_active} 
+                                                                key={`${tenant.id}-${tenant.is_active}`}
+                                                                checked={!!tenant.is_active} 
                                                                 onCheckedChange={() => {
                                                                     setTenantToToggle(tenant)
                                                                     setSuspendDialogOpen(true)
