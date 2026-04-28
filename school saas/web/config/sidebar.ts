@@ -94,6 +94,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             icon: LayoutDashboard,
             items: [
                 { icon: LayoutDashboard, label: "Global Overview", href: "/dashboard" },
+                { icon: ShieldCheck, label: "Platform Management", href: "/super-admin", badge: "Admin" },
                 { icon: Crown, label: "Executive View", href: "/dashboard/owner/executive" },
             ]
         },

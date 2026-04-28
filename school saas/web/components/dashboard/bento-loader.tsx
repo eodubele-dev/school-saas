@@ -52,6 +52,7 @@ export async function BentoDashboardLoader({
     switch (normalizedRole) {
         case 'admin':
         case 'proprietor':
+        case 'owner':
             ContentComponent = (
                 <AdminDashboard
                     tier={normalizedTier}
