@@ -169,6 +169,10 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
                     {/* 🔗 Dynamic Links */}
                     <div className="p-2 space-y-1">
                         <DropdownLink href={`${basePath}/dashboard/profile`} icon={<User size={14} />} label="My Profile" />
+                        
+                        {userRole?.toUpperCase() === 'SYSTEM_OWNER' && (
+                            <DropdownLink href="/super-admin" icon={<Shield size={14} />} label="Super-Admin Console" color="text-red-500" />
+                        )}
 
                         {(userRole?.toUpperCase() === 'PROPRIETOR' || userRole?.toUpperCase() === 'ADMIN' || userRole?.toUpperCase() === 'OWNER') && (
                             <DropdownLink href={`${basePath}/dashboard/admin/security/audit`} icon={<Shield size={14} />} label="Security & Audit" color="text-amber-500" />

@@ -1,6 +1,4 @@
-"use client"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import {
     Users,
@@ -14,35 +12,59 @@ import {
     Globe,
     AlertTriangle,
     Database,
-    Zap
+    Zap,
+    MessageSquare,
+    RefreshCw
 } from "lucide-react"
-
-// --- Mock Data ---
-
-const metrics = [
-    { title: "Total Active Schools", value: "84", change: "+12% this month", icon: Building2, color: "text-blue-400" },
-    { title: "Total Student Pop.", value: "42,500", change: "+850 this week", icon: Users, color: "text-cyan-400" },
-    { title: "Monthly Recurring Revenue", value: "₦125M", change: "+15% vs last month", icon: TrendingUp, color: "text-emerald-400" },
-    { title: "Platform Integrity Score", value: "99.9%", change: "All Systems Forensic", icon: ShieldAlert, color: "text-purple-400" },
-]
-
-const tenants = [
-    { id: 1, name: "Lekki British International", subdomain: "lekki.eduflow.ng", tier: "Platinum", status: "Active", lastAudit: "2 mins ago" },
-    { id: 2, name: "Greensprings School", subdomain: "greensprings.eduflow.ng", tier: "Platinum", status: "Active", lastAudit: "15 mins ago" },
-    { id: 3, name: "Corona Schools Trust", subdomain: "corona.eduflow.ng", tier: "Professional", status: "Active", lastAudit: "1 hour ago" },
-    { id: 4, name: "Day Waterman College", subdomain: "dwc.eduflow.ng", tier: "Platinum", status: "Active", lastAudit: "5 mins ago" },
-    { id: 5, name: "Meadow Hall", subdomain: "meadowhall.eduflow.ng", tier: "Starter", status: "Payment Due", lastAudit: "1 day ago" },
-]
-
-const securityEvents = [
-    { id: 1, school: "Meadow Hall", event: "Manual SQL Injection Attempt", severity: "CRITICAL", time: "10:42 AM" },
-    { id: 2, school: "Lekki British", event: "Grade Alteration (Post-Lock)", severity: "HIGH", time: "10:15 AM" },
-    { id: 3, school: "Corona Schools", event: "Multiple Failed Admin Logins", severity: "MEDIUM", time: "09:30 AM" },
-    { id: 4, school: "Greensprings", event: "Unauthorized IP Access Blocked", severity: "HIGH", time: "08:45 AM" },
-]
+import { getAdminStats, getAllTenants } from "@/lib/actions/admin"
+import { AdminSmsAdjustModal } from "@/components/admin/sms-adjust-modal"
+import { toast } from "sonner"
 
 export default function SuperAdminDashboard() {
     const [searchTerm, setSearchTerm] = useState("")
+    const [stats, setStats] = useState<any>(null)
+    const [tenants, setTenants] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
+    const [refreshing, setRefreshing] = useState(false)
+    
+    // SMS Adjustment State
+    const [adjustModalOpen, setAdjustModalOpen] = useState(false)
+    const [selectedTenant, setSelectedTenant] = useState<any>(null)
+
+    const fetchData = async () => {
+        setRefreshing(true)
+        try {
+            const [statsRes, tenantsRes] = await Promise.all([
+                getAdminStats(),
+                getAllTenants()
+            ])
+            
+            if (statsRes.success) setStats(statsRes)
+            if (tenantsRes.success) setTenants(tenantsRes.data || [])
+        } catch (error) {
+            toast.error("Failed to sync platform data")
+        } finally {
+            setLoading(false)
+            setRefreshing(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchData()
+    }, [])
+
+    const filteredTenants = tenants.filter(t => 
+        t.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        t.slug?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        t.id?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+
+    const metrics = [
+        { title: "Total Schools", value: stats?.schoolCount || "0", change: "Registered Tenants", icon: Building2, color: "text-blue-400" },
+        { title: "Global SMS Balance", value: (stats?.totalSmsBalance || 0).toLocaleString(), change: "Units across nodes", icon: MessageSquare, color: "text-cyan-400" },
+        { title: "Recent Activity", value: stats?.recentTrxCount || "0", change: "Transactions (24h)", icon: TrendingUp, color: "text-emerald-400" },
+        { title: "Platform Integrity", value: "99.9%", change: "All Systems Operational", icon: ShieldAlert, color: "text-purple-400" },
+    ]
 
     return (
         <div className="min-h-screen bg-[#0A0A0B] text-white font-sans selection:bg-cyan-500/30 selection:text-cyan-100">
@@ -56,11 +78,15 @@ export default function SuperAdminDashboard() {
                         <span className="font-bold text-lg tracking-tight">EduFlow <span className="text-slate-500 font-normal">Super-Admin</span></span>
                     </div>
                     <div className="flex items-center gap-4 text-sm font-mono text-slate-400">
-                        <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            PLATFORM_OPERATIONAL
-                        </div>
-                        <div className="px-3 py-1 rounded bg-white/5 border border-white/5">v4.2.0-RC1</div>
+                        <button 
+                            onClick={fetchData} 
+                            disabled={refreshing}
+                            className="flex items-center gap-2 hover:text-white transition-colors"
+                        >
+                            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                            {refreshing ? 'SYNCING...' : 'SYNC_PLATFORM'}
+                        </button>
+                        <div className="px-3 py-1 rounded bg-white/5 border border-white/5">v4.2.0-PROD</div>
                     </div>
                 </div>
             </header>
@@ -85,8 +111,8 @@ export default function SuperAdminDashboard() {
                             </div>
                             <div className="text-2xl font-bold mb-1">{metric.value}</div>
                             <div className="text-xs text-slate-400">{metric.title}</div>
-                            <div className="mt-3 text-xs font-mono text-emerald-400 flex items-center gap-1">
-                                {metric.change.includes("+") ? "↑" : ""} {metric.change}
+                            <div className="mt-3 text-xs font-mono text-slate-500 flex items-center gap-1">
+                                {metric.change}
                             </div>
                         </motion.div>
                     ))}
@@ -99,7 +125,7 @@ export default function SuperAdminDashboard() {
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl font-bold flex items-center gap-2">
                                 <Building2 className="w-5 h-5 text-slate-400" />
-                                Active Tenants
+                                Registered Schools
                             </h2>
                             <div className="flex gap-3">
                                 <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-all flex items-center gap-2">
@@ -114,7 +140,7 @@ export default function SuperAdminDashboard() {
                             <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
                             <input
                                 type="text"
-                                placeholder="Search by school name, subdomain, or tenant ID..."
+                                placeholder="Search by school name, slug, or tenant ID..."
                                 className="w-full bg-[#0F1115] border border-white/10 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 transition-all"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -127,36 +153,57 @@ export default function SuperAdminDashboard() {
                                 <thead className="bg-white/5 text-slate-400 font-medium">
                                     <tr>
                                         <th className="px-6 py-4">School Name</th>
-                                        <th className="px-6 py-4">Subdomain</th>
-                                        <th className="px-6 py-4">Status</th>
+                                        <th className="px-6 py-4">Context (Slug)</th>
+                                        <th className="px-6 py-4">SMS Balance</th>
                                         <th className="px-6 py-4 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                    {tenants.map((tenant) => (
-                                        <tr key={tenant.id} className="hover:bg-white/[0.02] transition-colors">
-                                            <td className="px-6 py-4 font-medium text-white">{tenant.name}</td>
-                                            <td className="px-6 py-4 text-slate-500 font-mono text-xs">{tenant.subdomain}</td>
-                                            <td className="px-6 py-4">
-                                                <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium border ${tenant.status === 'Active'
-                                                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                                        : "bg-red-500/10 text-red-400 border-red-500/20"
-                                                    }`}>
-                                                    {tenant.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <button className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors" title="Impersonate">
-                                                        <Search className="w-4 h-4" />
-                                                    </button>
-                                                    <button className="text-xs text-blue-400 hover:text-blue-300 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 transition-all">
-                                                        Manage
-                                                    </button>
-                                                </div>
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan={4} className="px-6 py-12 text-center text-slate-500 italic">
+                                                Hydrating platform state...
                                             </td>
                                         </tr>
-                                    ))}
+                                    ) : filteredTenants.length > 0 ? (
+                                        filteredTenants.map((tenant) => (
+                                            <tr key={tenant.id} className="hover:bg-white/[0.02] transition-colors">
+                                                <td className="px-6 py-4 font-medium text-white">{tenant.name}</td>
+                                                <td className="px-6 py-4 text-slate-500 font-mono text-xs">{tenant.slug}.eduflow.ng</td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-mono font-bold ${tenant.sms_balance < 500 ? 'text-amber-500 bg-amber-500/5' : 'text-emerald-400 bg-emerald-500/5'}`}>
+                                                        {tenant.sms_balance?.toLocaleString() || 0} Units
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button 
+                                                            onClick={() => {
+                                                                setSelectedTenant(tenant)
+                                                                setAdjustModalOpen(true)
+                                                            }}
+                                                            className="text-xs text-blue-400 hover:text-blue-300 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 transition-all flex items-center gap-1.5"
+                                                        >
+                                                            <Zap className="w-3.5 h-3.5" /> Adjust SMS
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => window.open(`https://${tenant.slug}.eduflow.ng`, '_blank')}
+                                                            className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors" 
+                                                            title="Impersonate / Visit"
+                                                        >
+                                                            <Search className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                                                No tenants found matching "{searchTerm}"
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -167,50 +214,52 @@ export default function SuperAdminDashboard() {
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl font-bold flex items-center gap-2">
                                 <ShieldAlert className="w-5 h-5 text-red-500" />
-                                Global Security Feed
+                                Global Security
                             </h2>
                             <span className="text-xs text-red-400 animate-pulse font-mono">LIVE</span>
                         </div>
 
-                        {/* Audit Feed */}
-                        <div className="bg-[#0F1115] border border-red-900/20 rounded-xl p-4 space-y-4 max-h-[400px] overflow-y-auto">
-                            {securityEvents.map((event) => (
-                                <div key={event.id} className="p-3 rounded bg-red-950/10 border border-red-500/10 flex gap-3 items-start">
-                                    <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                                    <div>
-                                        <div className="text-xs font-mono text-red-400 mb-0.5">{event.time} • {event.severity}</div>
-                                        <div className="text-sm font-medium text-white">{event.event}</div>
-                                        <div className="text-xs text-slate-500 mt-1">{event.school}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Global Override Controls */}
+                        {/* Quick Actions */}
                         <div className="p-6 rounded-xl bg-indigo-950/20 border border-indigo-500/20 space-y-4">
                             <div className="flex items-center gap-3 mb-2">
                                 <Zap className="w-5 h-5 text-indigo-400" />
                                 <h3 className="font-bold text-white">Global Overrides</h3>
                             </div>
 
-                            <div className="flex items-center justify-between p-3 rounded bg-black/20 border border-white/5">
+                            <div className="flex items-center justify-between p-3 rounded bg-black/20 border border-white/5 opacity-50 cursor-not-allowed">
                                 <div>
                                     <div className="text-sm font-medium text-white">Maintenance Mode</div>
-                                    <div className="text-xs text-slate-500">Push "Under Maintenance" to all nodes</div>
+                                    <div className="text-xs text-slate-500">System-wide blackout</div>
                                 </div>
-                                <div className="w-10 h-6 rounded-full bg-slate-700 relative cursor-pointer">
-                                    <div className="absolute left-1 top-1 w-4 h-4 rounded-full bg-white" />
+                                <div className="w-10 h-6 rounded-full bg-slate-700 relative">
+                                    <div className="absolute left-1 top-1 w-4 h-4 rounded-full bg-white/20" />
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between p-3 rounded bg-black/20 border border-white/5">
-                                <div>
-                                    <div className="text-sm font-medium text-white">Force Logout All</div>
-                                    <div className="text-xs text-slate-500">Revoke all active session tokens</div>
+                            <button className="w-full text-xs bg-red-500/10 text-red-400 px-4 py-3 rounded-lg border border-red-500/20 hover:bg-red-500/20 transition-all font-bold uppercase tracking-widest">
+                                Revoke Global Sessions
+                            </button>
+                        </div>
+
+                        {/* Platform Health */}
+                        <div className="p-6 rounded-xl bg-emerald-950/20 border border-emerald-500/20 space-y-4">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <Server className="w-4 h-4 text-emerald-400" />
+                                API Integrity
+                            </h3>
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="text-slate-400">Paystack Gateway</span>
+                                    <span className="text-emerald-400 font-mono">OPERATIONAL</span>
                                 </div>
-                                <button className="text-xs bg-red-500/10 text-red-400 px-2 py-1 rounded border border-red-500/20 hover:bg-red-500/20">
-                                    EXECUTE
-                                </button>
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="text-slate-400">Termii SMS Bridge</span>
+                                    <span className="text-emerald-400 font-mono">OPERATIONAL</span>
+                                </div>
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="text-slate-400">Supabase DB Cluster</span>
+                                    <span className="text-emerald-400 font-mono">HEALTHY</span>
+                                </div>
                             </div>
                         </div>
 
@@ -218,6 +267,13 @@ export default function SuperAdminDashboard() {
                 </div>
 
             </main>
+
+            <AdminSmsAdjustModal 
+                open={adjustModalOpen}
+                onOpenChange={setAdjustModalOpen}
+                tenant={selectedTenant}
+                onSuccess={fetchData}
+            />
         </div>
     )
 }
