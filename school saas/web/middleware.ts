@@ -147,14 +147,20 @@ export default async function middleware(req: NextRequest) {
         .eq('id', user.id)
         .single()
 
-      if (profile?.role !== 'owner') {
-        console.warn(`UNAUTHORIZED SUPER-ADMIN ACCESS: ${user.email} attempted to visit /super-admin`)
+      if (profile?.role !== 'super-admin') {
+        console.warn(`UNAUTHORIZED PLATFORM ACCESS ATTEMPT: ${user.email} with role ${profile?.role} attempted to visit /super-admin`)
         return NextResponse.rewrite(new URL('/403', req.url))
       }
     }
 
     // Reset internal pathname if it was accidentally modified by path-based branch
     return response
+  }
+
+  // 🚨 Subdomain-to-Main Redirect for Platform Tools
+  if (url.pathname.startsWith('/super-admin')) {
+    const mainUrl = new URL(url.pathname, `https://eduflow.ng`)
+    return NextResponse.redirect(mainUrl)
   }
 
   // 2. Tenant Verification (The "Filter")

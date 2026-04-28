@@ -1,7 +1,7 @@
 import { LayoutDashboard, CalendarDays, BookOpen, Activity, FileText, MapPin, Users, Settings, GraduationCap, ClipboardCheck, CreditCard, UserCircle, BrainCircuit, MessageSquare, BookCheck as BookOpenCheck, Banknote, Wallet, ShieldCheck, Smartphone, Sparkles, Crown, Bus, Bed, Package, Search, Building2, Landmark, Truck, Shield, Award } from "lucide-react"
 import { NairaIcon } from "@/components/ui/naira-icon"
 
-export type UserRole = 'admin' | 'teacher' | 'parent' | 'student' | 'bursar' | 'owner' | 'driver' | 'staff'
+export type UserRole = 'admin' | 'teacher' | 'parent' | 'student' | 'bursar' | 'owner' | 'driver' | 'staff' | 'super-admin'
 
 export type SidebarItem = {
     icon: any
@@ -94,7 +94,6 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             icon: LayoutDashboard,
             items: [
                 { icon: LayoutDashboard, label: "Global Overview", href: "/dashboard" },
-                { icon: ShieldCheck, label: "Platform Management", href: "/super-admin", badge: "Admin" },
                 { icon: Crown, label: "Executive View", href: "/dashboard/owner/executive" },
             ]
         },
@@ -250,6 +249,40 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
                 { icon: UserCircle, label: "My Profile", href: "/dashboard/student/profile" },
             ]
         }
+    ],
+    "super-admin": [ // Global Platform Developer/Owner
+        {
+            category: "Platform Control",
+            icon: ShieldCheck,
+            items: [
+                { icon: ShieldCheck, label: "Platform Management", href: "/super-admin", badge: "Global" },
+                { icon: LayoutDashboard, label: "School Overview", href: "/dashboard" },
+            ]
+        },
+        {
+            category: "People & Records",
+            icon: Users,
+            items: [
+                { icon: Users, label: "Student Enrollment", href: "/dashboard/admin/admissions" },
+                { icon: Users, label: "Faculty Directory", href: "/dashboard/admin/staff" },
+            ]
+        },
+        {
+            category: "Academic Oversight",
+            icon: GraduationCap,
+            items: [
+                { icon: BookOpen, label: "Curriculum Planning", href: "/dashboard/admin/curriculum" },
+                { icon: GraduationCap, label: "Result Processor", href: "/dashboard/admin/results/generate" },
+            ]
+        },
+        {
+            category: "Financial Suite",
+            icon: Landmark,
+            items: [
+                { icon: NairaIcon, label: "Bursar Hub", href: "/dashboard/bursar" },
+                { icon: CreditCard, label: "Revenue & Collections", href: "/dashboard/bursar/finance/collections" },
+            ]
+        }
     ]
 }
 
@@ -261,7 +294,8 @@ export const ROLE_LABELS: Record<UserRole, string> = {
     bursar: "Bursar",
     owner: "Proprietor",
     driver: "Driver",
-    staff: "Staff Assistant"
+    staff: "Staff Assistant",
+    "super-admin": "System Developer"
 }
 
 export const ROLE_BADGES: Record<UserRole, string> = {
@@ -272,5 +306,6 @@ export const ROLE_BADGES: Record<UserRole, string> = {
     bursar: "💰",
     owner: "👑",
     driver: "🚌",
-    staff: "📋"
+    staff: "📋",
+    "super-admin": "⚡"
 }
