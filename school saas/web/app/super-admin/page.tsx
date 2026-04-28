@@ -20,12 +20,20 @@ import {
     ChevronLeft,
     ChevronRight,
     ArrowUpRight,
-    Calendar
+    Calendar,
+    Sliders
 } from "lucide-react"
 import { getAdminStats, getAllTenants, getRevenueStats } from "@/lib/actions/admin"
 import { AdminSmsAdjustModal } from "@/components/admin/sms-adjust-modal"
 import { AdminProvisionModal } from "@/components/admin/provision-modal"
 import { toast } from "sonner"
+import { 
+    DropdownMenu, 
+    DropdownMenuContent, 
+    DropdownMenuItem, 
+    DropdownMenuSeparator, 
+    DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu"
 import { 
     AreaChart, 
     Area, 
@@ -232,25 +240,35 @@ export default function SuperAdminDashboard() {
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
-                                                        <div className="flex items-center justify-end gap-2">
-                                                            <button 
-                                                                onClick={() => {
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <button className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors">
+                                                                <MoreHorizontal className="w-4 h-4" />
+                                                            </button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end" className="w-48 bg-[#0F1115] border border-white/10 text-slate-200">
+                                                            <DropdownMenuItem 
+                                                                onSelect={() => {
                                                                     setSelectedTenant(tenant)
                                                                     setAdjustModalOpen(true)
                                                                 }}
-                                                                className="text-xs text-blue-400 hover:text-blue-300 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 transition-all flex items-center gap-1.5"
+                                                                className="flex items-center gap-2 cursor-pointer focus:bg-white/5 focus:text-blue-400"
                                                             >
-                                                                <Zap className="w-3.5 h-3.5" /> Adjust
-                                                            </button>
-                                                            <button 
-                                                                onClick={() => window.open(`https://${tenant.slug}.eduflow.ng`, '_blank')}
-                                                                className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors border border-transparent hover:border-white/10" 
-                                                                title="Impersonate / Visit"
+                                                                <Zap className="w-3.5 h-3.5" /> Adjust SMS Balance
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem 
+                                                                onSelect={() => window.open(`https://${tenant.slug}.eduflow.ng`, '_blank')}
+                                                                className="flex items-center gap-2 cursor-pointer focus:bg-white/5 focus:text-emerald-400"
                                                             >
-                                                                <ArrowUpRight className="w-4 h-4" />
-                                                            </button>
-                                                        </div>
-                                                    </td>
+                                                                <ArrowUpRight className="w-3.5 h-3.5" /> Visit Dashboard
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuSeparator className="bg-white/5" />
+                                                            <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400 cursor-pointer">
+                                                                <AlertTriangle className="w-3.5 h-3.5" /> Suspend School
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </td>
                                                 </motion.tr>
                                             ))
                                         ) : (
@@ -360,7 +378,7 @@ export default function SuperAdminDashboard() {
                         {/* Quick Platform Controls */}
                         <div className="p-6 rounded-xl bg-indigo-950/10 border border-indigo-500/20 space-y-4">
                             <div className="flex items-center gap-3 mb-2">
-                                <Zap className="w-5 h-5 text-indigo-400" />
+                                <Sliders className="w-5 h-5 text-indigo-400" />
                                 <h3 className="font-bold text-white">Global Controls</h3>
                             </div>
 
