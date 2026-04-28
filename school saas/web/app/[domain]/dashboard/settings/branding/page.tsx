@@ -11,7 +11,7 @@ export default async function BrandingSettingsPage({ params }: { params: { domai
     if (!user) redirect(`/${params.domain}/login`)
 
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-    if (profile?.role !== 'admin' && profile?.role !== 'super-admin') {
+    if (profile?.role !== 'admin' && profile?.role !== 'super-admin' && profile?.role !== 'owner') {
         return <div className="p-8 text-center text-red-500">Only school administrators can access branding settings.</div>
     }
 

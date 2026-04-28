@@ -18,7 +18,7 @@ export default async function DebtNetworkPage({ params }: { params: { domain: st
         .eq('id', user.id)
         .single()
 
-    if (profile?.role !== 'admin' && profile?.role !== 'bursar' && profile?.role !== 'super-admin') {
+    if (profile?.role !== 'admin' && profile?.role !== 'bursar' && profile?.role !== 'super-admin' && profile?.role !== 'owner') {
         return <div className="p-8 text-center text-red-500">Access Denied: Only Admins or Bursars can manage Debt Flags.</div>
     }
 

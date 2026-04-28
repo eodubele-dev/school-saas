@@ -147,7 +147,8 @@ export default async function middleware(req: NextRequest) {
         .eq('id', user.id)
         .single()
 
-      if (profile?.role !== 'super-admin') {
+      const developers = ['devimagined@gmail.com', 'e.odubele@gmail.com']
+      if (profile?.role !== 'super-admin' && profile?.role !== 'owner' && !developers.includes(user.email || '')) {
         console.warn(`UNAUTHORIZED PLATFORM ACCESS ATTEMPT: ${user.email} with role ${profile?.role} attempted to visit /super-admin`)
         return NextResponse.rewrite(new URL('/403', req.url))
       }
