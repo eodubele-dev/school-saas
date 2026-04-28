@@ -33,7 +33,17 @@ export async function GET(request: NextRequest) {
             targetPath = `/${subdomain}${targetPath}`
         }
 
-        return NextResponse.redirect(new URL(targetPath, request.url))
+        const redirectUrl = new URL(targetPath, request.url)
+        
+        // FINAL RESCUE: If we are in production but the host is still localhost, 
+        // force the live domain to prevent broken redirects.
+        if (process.env.NODE_ENV === 'production' && redirectUrl.hostname === 'localhost') {
+            redirectUrl.hostname = subdomain ? `${subdomain}.eduflow.ng` : 'eduflow.ng'
+            redirectUrl.protocol = 'https:'
+            redirectUrl.port = ''
+        }
+
+        return NextResponse.redirect(redirectUrl)
     }
 
     return NextResponse.json({ error: 'Payment verification failed', details: verification }, { status: 400 })
