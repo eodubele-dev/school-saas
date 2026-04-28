@@ -136,9 +136,9 @@ export default async function middleware(req: NextRequest) {
     console.log('[Middleware] Main domain detected')
 
     // 🚨 Super-Admin Protection Gate
-    if (url.pathname.startsWith('/super-admin')) {
+    if (url.pathname.startsWith('/super-admin') && url.pathname !== '/super-admin/login') {
       if (!user) {
-        return NextResponse.redirect(new URL(`/login?next=${url.pathname}`, req.url))
+        return NextResponse.redirect(new URL(`/super-admin/login?next=${url.pathname}`, req.url))
       }
 
       const { data: profile } = await supabase
