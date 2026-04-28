@@ -31,6 +31,7 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
     const [amount, setAmount] = React.useState<number>(10000)
     const [customAmount, setCustomAmount] = React.useState<string>("")
     const [isCustom, setIsCustom] = React.useState(false)
+    const [email, setEmail] = React.useState("")
 
     const handleTopUp = async () => {
         setLoading(true)
@@ -43,7 +44,7 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                 return
             }
 
-            const link = await generatePaystackLink("admin", finalAmount, "", window.location.origin)
+            const link = await generatePaystackLink("admin", finalAmount, email, window.location.origin)
             toast.success("Checkout initialized. Closing window...")
 
             // Close modal immediately after starting redirect/popup to avoid staled state
@@ -121,6 +122,18 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                         </button>
                     </div>
 
+                    <div className="space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground px-1">Verification Email</p>
+                        <Input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Email for payment receipt"
+                            className="bg-zinc-950 border-white/10 focus-visible:ring-1 focus-visible:ring-zinc-400 text-foreground h-10 shadow-inner"
+                        />
+                        <p className="text-[10px] text-muted-foreground px-1 italic">Use a verified email if you encounter fraud flags.</p>
+                    </div>
+
                     <div className="flex items-center justify-between px-1 pt-2 pb-1">
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                             <MessageSquare className="h-3.5 w-3.5" />
@@ -144,7 +157,7 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                     </Button>
                     <Button
                         onClick={handleTopUp}
-                        disabled={loading || (isCustom && (!customAmount || Number(customAmount) < 1000))}
+                        disabled={loading || (isCustom && (!customAmount || Number(customAmount) < 1000)) || !email}
                         className="flex-[2] bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-[0_0_15px_rgba(37,99,235,0.2)] transition-all duration-200"
                     >
                         {loading ? (
