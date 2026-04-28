@@ -613,7 +613,7 @@ export async function generatePaystackLink(userType: string, amount: number, ema
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                email: email || profile.email || 'admin@school.com',
+                email: user.email || profile.email || 'finance@eduflow.ng',
                 amount: amountInKobo,
                 reference: reference,
                 callback_url: callbackUrl,
