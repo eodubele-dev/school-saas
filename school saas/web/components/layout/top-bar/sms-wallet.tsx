@@ -32,8 +32,8 @@ export function SMSWalletMonitor() {
                 <div className="flex items-center gap-3 bg-secondary/50 border border-border px-4 py-1.5 rounded-xl group hover:border-white/20 transition-colors">
                     <div className="flex flex-col items-start">
                         <p className="text-xs text-gray-500 font-mono uppercase leading-none mb-0.5 group-hover:text-gray-400 transition-colors">SMS Wallet</p>
-                        <p className={`text-sm font-bold ${balance < 1000 ? 'text-red-500' : 'text-emerald-400'}`}>
-                            ₦{balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        <p className={`text-sm font-bold ${balance < 400 ? 'text-amber-500' : 'text-emerald-400'}`}>
+                            {balance.toLocaleString()} Units
                         </p>
                     </div>
                     <button
