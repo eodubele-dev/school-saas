@@ -13,7 +13,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'No reference provided' }, { status: 400 })
     }
 
-    const verification = await verifyPaystackTransaction(ref)
+    // Use admin client (true) for verification to bypass RLS issues during redirects
+    const verification = await verifyPaystackTransaction(ref, true)
 
     if (verification.success) {
         const metadata = verification.metadata as any
