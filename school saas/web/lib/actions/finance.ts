@@ -584,10 +584,16 @@ export async function generatePaystackLink(userType: string, amount: number, ema
     const slug = tenant?.slug || 'admin'
     
     // Use the origin from the client if provided, otherwise fallback to headers
-    const host = origin 
+    let host = origin 
         ? origin.replace('https://', '').replace('http://', '') 
         : (headers().get('x-forwarded-host') || headers().get('host') || 'eduflow.ng')
     
+    // PLATINUM GUARD: If we are in production but detected localhost (likely due to proxy), 
+    // force the live domain to prevent incorrect redirects.
+    if (process.env.NODE_ENV === 'production' && host.includes('localhost')) {
+        host = slug ? `${slug}.eduflow.ng` : 'eduflow.ng'
+    }
+
     const protocol = host.includes('localhost') ? 'http' : 'https'
     const callbackUrl = `${protocol}://${host}/api/payments/callback`
 
