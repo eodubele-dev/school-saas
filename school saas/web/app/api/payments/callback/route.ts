@@ -27,12 +27,21 @@ export async function GET(request: NextRequest) {
         
         let redirectUrl = `${protocol}://${host}/dashboard/billing/family`
         
-        if (subdomain && !host.startsWith(subdomain + '.')) {
-            // If the current host doesn't match the subdomain (e.g. redirected to main domain)
-            // we try to switch back to the subdomain.
-            // Note: This logic assumes a standard domain structure.
-            const baseDomain = host.replace(/^[a-z0-9-]+\./i, '')
-            redirectUrl = `${protocol}://${subdomain}.${baseDomain}/dashboard/billing/family`
+        if (metadata?.type === 'wallet_topup') {
+            // Admin wallet topup redirect
+            if (host.includes('localhost')) {
+                redirectUrl = `${protocol}://${host}/${subdomain}/dashboard/admin`
+            } else {
+                redirectUrl = `${protocol}://${subdomain}.${host.replace(/^[a-z0-9-]+\./i, '')}/dashboard/admin`
+            }
+        } else {
+            // Normal student billing redirect
+            if (host.includes('localhost') && subdomain) {
+                 redirectUrl = `${protocol}://${host}/${subdomain}/dashboard/billing/family`
+            } else if (subdomain && !host.startsWith(subdomain + '.')) {
+                 const baseDomain = host.replace(/^[a-z0-9-]+\./i, '')
+                 redirectUrl = `${protocol}://${subdomain}.${baseDomain}/dashboard/billing/family`
+            }
         }
 
         return NextResponse.redirect(new URL(redirectUrl))

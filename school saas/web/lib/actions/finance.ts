@@ -578,8 +578,20 @@ export async function generatePaystackLink(userType: string, amount: number, ema
         status: 'pending'
     })
     
-    // In production, you'd want a specific callback URL to verify and credit the SMS balance
-    const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`
+    // 2. Build tenant-aware callback URL
+    const { data: tenant } = await supabase.from('tenants').select('slug').eq('id', tenantId).single()
+    const slug = tenant?.slug || 'admin'
+    
+    const isProd = process.env.NODE_ENV === 'production'
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const domain = appUrl.replace('https://', '').replace('http://', '')
+    
+    let callbackUrl = ''
+    if (isProd && !appUrl.includes('localhost')) {
+        callbackUrl = `https://${slug}.${domain}/api/payments/callback`
+    } else {
+        callbackUrl = `${appUrl}/api/payments/callback`
+    }
 
     const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY
     if (!PAYSTACK_SECRET_KEY) {
@@ -602,6 +614,7 @@ export async function generatePaystackLink(userType: string, amount: number, ema
                 metadata: {
                     type: 'wallet_topup',
                     tenant_id: tenantId,
+                    subdomain: slug,
                     user_id: user.id
                 }
             })
