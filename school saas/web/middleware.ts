@@ -134,6 +134,25 @@ export default async function middleware(req: NextRequest) {
   // Handle Main Domain matches (No tenant found in subdomain or path)
   if (isMainDomain) {
     console.log('[Middleware] Main domain detected')
+
+    // 🚨 Super-Admin Protection Gate
+    if (url.pathname.startsWith('/super-admin')) {
+      if (!user) {
+        return NextResponse.redirect(new URL(`/login?next=${url.pathname}`, req.url))
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (profile?.role !== 'owner') {
+        console.warn(`UNAUTHORIZED SUPER-ADMIN ACCESS: ${user.email} attempted to visit /super-admin`)
+        return NextResponse.rewrite(new URL('/403', req.url))
+      }
+    }
+
     // Reset internal pathname if it was accidentally modified by path-based branch
     return response
   }
