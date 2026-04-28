@@ -43,7 +43,7 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
                 return
             }
 
-            const link = await generatePaystackLink("admin", finalAmount, "")
+            const link = await generatePaystackLink("admin", finalAmount, "", window.location.origin)
             toast.success("Checkout initialized. Closing window...")
 
             // Close modal immediately after starting redirect/popup to avoid staled state

@@ -557,7 +557,7 @@ export async function getPaymentHistory(studentId: string) {
     return history || []
 }
 
-export async function generatePaystackLink(userType: string, amount: number, email: string) {
+export async function generatePaystackLink(userType: string, amount: number, email: string, origin?: string) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error("Unauthorized")
@@ -583,8 +583,11 @@ export async function generatePaystackLink(userType: string, amount: number, ema
     const { data: tenant } = await supabase.from('tenants').select('slug').eq('id', tenantId).single()
     const slug = tenant?.slug || 'admin'
     
-    // Get host from headers to ensure we use the actual domain the user is on
-    const host = headers().get('host') || 'eduflow.ng'
+    // Use the origin from the client if provided, otherwise fallback to headers
+    const host = origin 
+        ? origin.replace('https://', '').replace('http://', '') 
+        : (headers().get('x-forwarded-host') || headers().get('host') || 'eduflow.ng')
+    
     const protocol = host.includes('localhost') ? 'http' : 'https'
     const callbackUrl = `${protocol}://${host}/api/payments/callback`
 
