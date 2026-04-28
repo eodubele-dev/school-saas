@@ -30,7 +30,8 @@ export async function sendSMS(to: string, message: string) {
             channel: "generic"
         }
 
-        const response = await fetch(`${baseUrl}/api/sms/send`, {
+        const url = process.env.TERMII_API_URL || `${baseUrl}/api/sms/send`
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),

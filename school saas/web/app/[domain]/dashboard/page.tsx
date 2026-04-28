@@ -39,7 +39,7 @@ export default async function DashboardPage({
     let primaryColor = tenantData?.theme_config?.primary || appMeta.primaryColor
     let tier = tenantData?.theme_config?.subscription_tier || appMeta.subscriptionTier || 'starter'
     let isPilot = tenantData?.theme_config?.is_active && (tenantData?.theme_config?.subscription_tier === 'pilot')
-    let smsBalance = tenantData?.sms_balance || tenantData?.theme_config?.sms_balance || appMeta.smsBalance || 0
+    let smsBalance = tenantData?.sms_balance || 0
 
     // Redundant fallback block removed since we fetched DB above
 
