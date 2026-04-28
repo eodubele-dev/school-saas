@@ -142,7 +142,11 @@ export async function verifyPaystackTransaction(reference: string, useAdmin: boo
 
                 // --- Wallet Topup Integration ---
                 // If this was a wallet topup, credit the tenant's sms_balance in realtime
-                const metadata = data.data.metadata
+                let metadata = data.data.metadata
+                if (typeof metadata === 'string') {
+                    try { metadata = JSON.parse(metadata) } catch(e) {}
+                }
+
                 if (metadata?.type === 'wallet_topup') {
                     // Fetch current tenant to get existing balance
                     const { data: tenant } = await supabase.from('tenants').select('sms_balance').eq('id', trx.tenant_id).single()
@@ -152,12 +156,18 @@ export async function verifyPaystackTransaction(reference: string, useAdmin: boo
                         const retailRate = 5.00 // ₦5.00 per unit
                         const unitsToCredit = Math.floor(topupAmountNaira / retailRate)
                         
-                        await supabase.from('tenants').update({
+                        console.log(`[Wallet Topup] Attempting to credit ${unitsToCredit} units to tenant ${trx.tenant_id}`)
+                        
+                        const { error: balanceError } = await supabase.from('tenants').update({
                             sms_balance: currentBalance + unitsToCredit,
                             updated_at: new Date().toISOString()
                         }).eq('id', trx.tenant_id)
 
-                        console.log(`[Wallet Topup] Credited ${unitsToCredit} Units (from ₦${topupAmountNaira}) to Tenant ${trx.tenant_id}. New Balance: ${currentBalance + unitsToCredit} Units`)
+                        if (balanceError) {
+                            console.error("[Wallet Topup] CRITICAL: Failed to update tenant balance", balanceError)
+                        } else {
+                            console.log(`[Wallet Topup] Successfully credited ${unitsToCredit} units to Tenant ${trx.tenant_id}. New Balance: ${currentBalance + unitsToCredit} Units`)
+                        }
                     }
                 }
             }

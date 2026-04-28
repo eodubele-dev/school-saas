@@ -650,8 +650,11 @@ export async function getSMSWalletBalance() {
     const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
     if (!profile) return { success: false, balance: 0, error: "Profile not found" }
 
-    const { data: tenant } = await supabase.from('tenants').select('sms_balance').eq('id', profile.tenant_id).single()
-    return { success: true, balance: tenant?.sms_balance || 0 }
+    const { data: tenant } = await supabase.from('tenants').select('sms_balance, theme_config').eq('id', profile.tenant_id).single()
+    
+    // Platinum Sync: Use the same logic as the dashboard banner to include pilot gifts
+    const balance = tenant?.sms_balance || tenant?.theme_config?.sms_balance || 0
+    return { success: true, balance }
 }
 
 // --- Optional Fee Overrides ---
