@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 import { logActivity } from "./audit"
+import { headers } from "next/headers"
 
 // --- Fee Categories ---
 
@@ -582,16 +583,10 @@ export async function generatePaystackLink(userType: string, amount: number, ema
     const { data: tenant } = await supabase.from('tenants').select('slug').eq('id', tenantId).single()
     const slug = tenant?.slug || 'admin'
     
-    const isProd = process.env.NODE_ENV === 'production'
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const domain = appUrl.replace('https://', '').replace('http://', '')
-    
-    let callbackUrl = ''
-    if (isProd && !appUrl.includes('localhost')) {
-        callbackUrl = `https://${slug}.${domain}/api/payments/callback`
-    } else {
-        callbackUrl = `${appUrl}/api/payments/callback`
-    }
+    // Get host from headers to ensure we use the actual domain the user is on
+    const host = headers().get('host') || 'eduflow.ng'
+    const protocol = host.includes('localhost') ? 'http' : 'https'
+    const callbackUrl = `${protocol}://${host}/api/payments/callback`
 
     const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY
     if (!PAYSTACK_SECRET_KEY) {
