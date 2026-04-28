@@ -40,7 +40,7 @@ export async function getAllTenants(page = 1, limit = 10) {
 
     const { data, error, count } = await supabase
         .from('tenants')
-        .select('id, name, slug, sms_balance, created_at', { count: 'exact' })
+        .select('id, name, slug, sms_balance, created_at, is_active', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to)
 
@@ -117,4 +117,18 @@ export async function adjustSmsBalance(tenantId: string, amount: number, reason:
 
     revalidatePath('/super-admin')
     return { success: true, newBalance }
+}
+
+export async function toggleTenantActiveStatus(tenantId: string, currentStatus: boolean) {
+    const supabase = createClient()
+    
+    const { error } = await supabase
+        .from('tenants')
+        .update({ is_active: !currentStatus })
+        .eq('id', tenantId)
+
+    if (error) return { success: false, error: error.message }
+
+    revalidatePath('/super-admin')
+    return { success: true, newStatus: !currentStatus }
 }

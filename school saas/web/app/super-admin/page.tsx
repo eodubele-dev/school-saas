@@ -21,9 +21,11 @@ import {
     ChevronRight,
     ArrowUpRight,
     Calendar,
-    Sliders
+    Sliders,
+    Ban,
+    CheckCircle
 } from "lucide-react"
-import { getAdminStats, getAllTenants, getRevenueStats } from "@/lib/actions/admin"
+import { getAdminStats, getAllTenants, getRevenueStats, toggleTenantActiveStatus } from "@/lib/actions/admin"
 import { AdminSmsAdjustModal } from "@/components/admin/sms-adjust-modal"
 import { AdminProvisionModal } from "@/components/admin/provision-modal"
 import { toast } from "sonner"
@@ -34,6 +36,16 @@ import {
     DropdownMenuSeparator, 
     DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { 
     AreaChart, 
     Area, 
@@ -65,6 +77,11 @@ export default function SuperAdminDashboard() {
     const [adjustModalOpen, setAdjustModalOpen] = useState(false)
     const [selectedTenant, setSelectedTenant] = useState<any>(null)
     const [provisionModalOpen, setProvisionModalOpen] = useState(false)
+    
+    // Suspension State
+    const [suspendDialogOpen, setSuspendDialogOpen] = useState(false)
+    const [tenantToToggle, setTenantToToggle] = useState<any>(null)
+    const [togglingStatus, setTogglingStatus] = useState(false)
 
     const fetchData = async (targetPage = page) => {
         setRefreshing(true)
@@ -95,6 +112,23 @@ export default function SuperAdminDashboard() {
             if (res.success) setRevenueData(res.data)
         } finally {
             setLoadingChart(false)
+        }
+    }
+
+    const handleToggleStatus = async () => {
+        if (!tenantToToggle) return
+        setTogglingStatus(true)
+        try {
+            const res = await toggleTenantActiveStatus(tenantToToggle.id, tenantToToggle.is_active)
+            if (res.success) {
+                toast.success(`School ${res.newStatus ? 'activated' : 'suspended'} successfully`)
+                fetchData(page)
+            } else {
+                toast.error(res.error || "Action failed")
+            }
+        } finally {
+            setTogglingStatus(false)
+            setSuspendDialogOpen(false)
         }
     }
 
@@ -232,7 +266,16 @@ export default function SuperAdminDashboard() {
                                                     exit={{ opacity: 0 }}
                                                     className="hover:bg-white/[0.02] transition-colors"
                                                 >
-                                                    <td className="px-6 py-4 font-medium text-white">{tenant.name}</td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium text-white">{tenant.name}</span>
+                                                            {!tenant.is_active && (
+                                                                <span className="text-[10px] text-red-500 font-bold uppercase tracking-tighter mt-1 flex items-center gap-1">
+                                                                    <Ban size={10} /> Suspended
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </td>
                                                     <td className="px-6 py-4 text-slate-500 font-mono text-xs">{tenant.slug}.eduflow.ng</td>
                                                     <td className="px-6 py-4">
                                                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold ${tenant.sms_balance < 500 ? 'text-amber-500 bg-amber-500/10 border border-amber-500/20' : 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20'}`}>
@@ -263,8 +306,18 @@ export default function SuperAdminDashboard() {
                                                                 <ArrowUpRight className="w-3.5 h-3.5" /> Visit Dashboard
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator className="bg-white/5" />
-                                                            <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400 cursor-pointer">
-                                                                <AlertTriangle className="w-3.5 h-3.5" /> Suspend School
+                                                            <DropdownMenuItem 
+                                                                onSelect={() => {
+                                                                    setTenantToToggle(tenant)
+                                                                    setSuspendDialogOpen(true)
+                                                                }}
+                                                                className={`flex items-center gap-2 cursor-pointer ${tenant.is_active ? 'text-red-400 focus:bg-red-500/10 focus:text-red-400' : 'text-emerald-400 focus:bg-emerald-500/10 focus:text-emerald-400'}`}
+                                                            >
+                                                                {tenant.is_active ? (
+                                                                    <><Ban className="w-3.5 h-3.5" /> Suspend School</>
+                                                                ) : (
+                                                                    <><CheckCircle className="w-3.5 h-3.5" /> Activate School</>
+                                                                )}
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
@@ -414,6 +467,41 @@ export default function SuperAdminDashboard() {
                 onOpenChange={setProvisionModalOpen}
                 onSuccess={() => fetchData(page)}
             />
+
+            {/* Confirmation Dialog for Suspension/Activation */}
+            <AlertDialog open={suspendDialogOpen} onOpenChange={setSuspendDialogOpen}>
+                <AlertDialogContent className="bg-slate-950 border-slate-800 text-slate-100">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">
+                            {tenantToToggle?.is_active ? (
+                                <><Ban className="text-red-500" /> Suspend Institutional Access?</>
+                            ) : (
+                                <><CheckCircle className="text-emerald-500" /> Re-Activate Institution?</>
+                            )}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-slate-400">
+                            {tenantToToggle?.is_active ? (
+                                `Are you sure you want to suspend ${tenantToToggle?.name}? This will immediately block all teachers, students, and parents from accessing their dashboards.`
+                            ) : (
+                                `Are you sure you want to restore access for ${tenantToToggle?.name}? All users will regain immediate access to their accounts.`
+                            )}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel className="bg-transparent border-slate-800 text-slate-400 hover:bg-white/5">Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={(e) => {
+                                e.preventDefault()
+                                handleToggleStatus()
+                            }}
+                            className={tenantToToggle?.is_active ? "bg-red-600 hover:bg-red-700 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white"}
+                        >
+                            {togglingStatus ? <RefreshCw className="animate-spin w-4 h-4 mr-2" /> : null}
+                            Confirm Action
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
