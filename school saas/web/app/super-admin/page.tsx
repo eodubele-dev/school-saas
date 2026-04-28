@@ -175,13 +175,8 @@ export default function SuperAdminDashboard() {
             {/* Top Navigation Bar */}
             <header className="border-b border-white/5 bg-[#0A0A0B]/80 backdrop-blur-md sticky top-0 z-50">
                 <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-                    <div className="flex items-center gap-6">
-                        <div className="relative group">
-                            <div className="absolute -inset-1 bg-blue-500/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-                            <img src="/visuals/eduflow-logo-transparent.png" alt="EduFlow Logo" className="h-12 w-auto relative" />
-                        </div>
-                        <div className="h-8 w-[1px] bg-white/10 hidden md:block" />
-                        <span className="font-bold text-xl tracking-tight hidden md:block text-slate-100">Super-Admin <span className="text-slate-500 font-normal">Console</span></span>
+                    <div className="flex items-center gap-4">
+                        <span className="font-bold text-2xl tracking-tight text-slate-100">Super-Admin <span className="text-slate-500 font-normal">Console</span></span>
                     </div>
                     <div className="flex items-center gap-4 text-sm font-mono text-slate-400">
                         <button 
