@@ -41,14 +41,14 @@ export function PilotBanner({ smsBalance }: PilotBannerProps) {
                 )}
                 <button
                     onClick={() => setIsVisible(false)}
-                    className="p-2 hover:bg-emerald-500/20 rounded-xl text-emerald-500/40 hover:text-emerald-400 transition-all"
+                    className="p-2 hover:bg-emerald-500/20 rounded-xl text-emerald-500/40 hover:text-emerald-400 transition-all relative z-10"
                     title="Dismiss"
                 >
                     <X size={20} />
                 </button>
             </div>
 
-            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -mr-16 -mt-16" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
         </div>
     )
 }
