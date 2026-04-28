@@ -128,7 +128,10 @@ export default function SuperAdminDashboard() {
         try {
             const res = await toggleTenantActiveStatus(targetId, tenantToToggle.is_active)
             if (res.success) {
-                toast.success(`School ${newStatus ? 'activated' : 'suspended'} successfully`)
+                const finalStatus = res.newStatus
+                // Update local state precisely
+                setTenants(prev => prev.map(t => t.id === targetId ? { ...t, is_active: finalStatus } : t))
+                toast.success(`School ${finalStatus ? 'activated' : 'suspended'} successfully`)
                 await fetchData(page)
             } else {
                 // Revert on error
@@ -171,11 +174,14 @@ export default function SuperAdminDashboard() {
         <div className="min-h-screen bg-[#0A0A0B] text-white font-sans selection:bg-cyan-500/30 selection:text-cyan-100">
             {/* Top Navigation Bar */}
             <header className="border-b border-white/5 bg-[#0A0A0B]/80 backdrop-blur-md sticky top-0 z-50">
-                <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <img src="/visuals/eduflow-logo-transparent.png" alt="EduFlow Logo" className="h-8 w-auto" />
-                        <div className="h-6 w-[1px] bg-white/10 hidden md:block" />
-                        <span className="font-bold text-lg tracking-tight hidden md:block">Super-Admin <span className="text-slate-500 font-normal">Console</span></span>
+                <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+                    <div className="flex items-center gap-6">
+                        <div className="relative group">
+                            <div className="absolute -inset-1 bg-blue-500/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                            <img src="/visuals/eduflow-logo-transparent.png" alt="EduFlow Logo" className="h-12 w-auto relative" />
+                        </div>
+                        <div className="h-8 w-[1px] bg-white/10 hidden md:block" />
+                        <span className="font-bold text-xl tracking-tight hidden md:block text-slate-100">Super-Admin <span className="text-slate-500 font-normal">Console</span></span>
                     </div>
                     <div className="flex items-center gap-4 text-sm font-mono text-slate-400">
                         <button 

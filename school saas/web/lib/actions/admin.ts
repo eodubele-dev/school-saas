@@ -121,14 +121,17 @@ export async function adjustSmsBalance(tenantId: string, amount: number, reason:
 
 export async function toggleTenantActiveStatus(tenantId: string, currentStatus: boolean) {
     const supabase = createClient()
+    const newStatus = !currentStatus
     
-    const { error } = await supabase
+    const { data, error } = await supabase
         .from('tenants')
-        .update({ is_active: !currentStatus })
+        .update({ is_active: newStatus })
         .eq('id', tenantId)
+        .select('is_active')
+        .single()
 
     if (error) return { success: false, error: error.message }
 
     revalidatePath('/super-admin')
-    return { success: true, newStatus: !currentStatus }
+    return { success: true, newStatus: data.is_active }
 }
