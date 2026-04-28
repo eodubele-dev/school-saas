@@ -36,6 +36,7 @@ import {
     DropdownMenuSeparator, 
     DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
+import { Switch } from "@/components/ui/switch"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -245,6 +246,7 @@ export default function SuperAdminDashboard() {
                                         <th className="px-6 py-4">School Name</th>
                                         <th className="px-6 py-4">Context (Slug)</th>
                                         <th className="px-6 py-4">SMS Balance</th>
+                                        <th className="px-6 py-4">Status</th>
                                         <th className="px-6 py-4 text-right">Actions</th>
                                     </tr>
                                 </thead>
@@ -252,7 +254,7 @@ export default function SuperAdminDashboard() {
                                     <AnimatePresence mode="wait">
                                         {loading ? (
                                             <tr key="loading">
-                                                <td colSpan={4} className="px-6 py-12 text-center text-slate-500 italic">
+                                                <td colSpan={5} className="px-6 py-12 text-center text-slate-500 italic">
                                                     <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-500" />
                                                     Hydrating platform state...
                                                 </td>
@@ -266,21 +268,27 @@ export default function SuperAdminDashboard() {
                                                     exit={{ opacity: 0 }}
                                                     className="hover:bg-white/[0.02] transition-colors"
                                                 >
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex flex-col">
-                                                            <span className="font-medium text-white">{tenant.name}</span>
-                                                            {!tenant.is_active && (
-                                                                <span className="text-[10px] text-red-500 font-bold uppercase tracking-tighter mt-1 flex items-center gap-1">
-                                                                    <Ban size={10} /> Suspended
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </td>
+                                                    <td className="px-6 py-4 font-medium text-white">{tenant.name}</td>
                                                     <td className="px-6 py-4 text-slate-500 font-mono text-xs">{tenant.slug}.eduflow.ng</td>
                                                     <td className="px-6 py-4">
                                                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold ${tenant.sms_balance < 500 ? 'text-amber-500 bg-amber-500/10 border border-amber-500/20' : 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20'}`}>
                                                             {tenant.sms_balance?.toLocaleString() || 0} Units
                                                         </span>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center gap-2">
+                                                            <Switch 
+                                                                checked={tenant.is_active} 
+                                                                onCheckedChange={() => {
+                                                                    setTenantToToggle(tenant)
+                                                                    setSuspendDialogOpen(true)
+                                                                }}
+                                                                className="data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-slate-700"
+                                                            />
+                                                            <span className={`text-[10px] font-bold uppercase tracking-widest ${tenant.is_active ? 'text-emerald-500' : 'text-red-500'}`}>
+                                                                {tenant.is_active ? 'Active' : 'Suspended'}
+                                                            </span>
+                                                        </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
                                                     <DropdownMenu>
@@ -306,18 +314,8 @@ export default function SuperAdminDashboard() {
                                                                 <ArrowUpRight className="w-3.5 h-3.5" /> Visit Dashboard
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator className="bg-white/5" />
-                                                            <DropdownMenuItem 
-                                                                onSelect={() => {
-                                                                    setTenantToToggle(tenant)
-                                                                    setSuspendDialogOpen(true)
-                                                                }}
-                                                                className={`flex items-center gap-2 cursor-pointer ${tenant.is_active ? 'text-red-400 focus:bg-red-500/10 focus:text-red-400' : 'text-emerald-400 focus:bg-emerald-500/10 focus:text-emerald-400'}`}
-                                                            >
-                                                                {tenant.is_active ? (
-                                                                    <><Ban className="w-3.5 h-3.5" /> Suspend School</>
-                                                                ) : (
-                                                                    <><CheckCircle className="w-3.5 h-3.5" /> Activate School</>
-                                                                )}
+                                                            <DropdownMenuItem className="text-slate-500 focus:bg-white/5 cursor-not-allowed">
+                                                                <ShieldAlert className="w-3.5 h-3.5" /> Forensic Logs
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
