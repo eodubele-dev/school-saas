@@ -50,8 +50,8 @@ export function SMSWalletModal({ open, onOpenChange }: SMSWalletModalProps) {
             onOpenChange(false)
             setLoading(false)
 
-            // Open payment link
-            window.open(link, "_blank")
+            // Redirect to payment link
+            window.location.href = link
         } catch (error) {
             toast.error("Failed to initialize payment gateway.")
             setLoading(false)
