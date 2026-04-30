@@ -24,13 +24,15 @@ export async function getAdminStats() {
     const { count: recentTrxCount } = await supabase
         .from('transactions')
         .select('*', { count: 'exact', head: true })
+        .is('student_id', null)
         .gt('created_at', twentyFourHoursAgo)
 
-    // 4. Total Platform Revenue (all time successful)
+    // 4. Total Platform Revenue (all time successful, not student fees)
     const { data: revenueData } = await supabase
         .from('transactions')
         .select('amount')
         .eq('status', 'success')
+        .is('student_id', null)
 
     const totalRevenue = revenueData?.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0) || 0
 
@@ -67,6 +69,7 @@ export async function getRevenueStats(range: '7d' | '30d' | '90d' = '30d') {
         .from('transactions')
         .select('created_at, amount')
         .eq('status', 'success')
+        .is('student_id', null)
         .gte('created_at', startDate)
         .order('created_at', { ascending: true })
 
