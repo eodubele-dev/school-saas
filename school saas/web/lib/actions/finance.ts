@@ -15,7 +15,7 @@ export async function upsertFeeCategory(data: any) {
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
     if (!profile?.tenant_id) return { success: false, error: "Tenant context missing" }
-    if (!['admin', 'bursar'].includes(profile?.role)) return { success: false, error: "Permission denied" }
+    if (!['admin', 'bursar', 'super-admin', 'owner'].includes(profile?.role)) return { success: false, error: "Permission denied" }
 
     const { error } = await supabase
         .from('fee_categories')
@@ -52,7 +52,7 @@ export async function updateFeeSchedule(updates: any[]) {
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
     if (!profile?.tenant_id) return { success: false, error: "Tenant context missing" }
-    if (!['admin', 'bursar'].includes(profile?.role)) return { success: false, error: "Permission denied" }
+    if (!['admin', 'bursar', 'super-admin', 'owner'].includes(profile?.role)) return { success: false, error: "Permission denied" }
 
     const data = updates.map(u => ({ ...u, tenant_id: profile.tenant_id }))
 
@@ -72,7 +72,7 @@ export async function generateTermlyInvoices(domain: string) {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (!profile || !['admin', 'bursar'].includes(profile.role)) return { success: false, error: "Permission denied" }
+    if (!profile || !['admin', 'bursar', 'super-admin', 'owner'].includes(profile.role)) return { success: false, error: "Permission denied" }
 
     // 1. Get Active Session
     const { data: session } = await supabase
@@ -286,7 +286,7 @@ export async function getBursarStats() {
     if (!user) return null
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (!profile || !['admin', 'bursar'].includes(profile.role)) return null
+    if (!profile || !['admin', 'bursar', 'super-admin', 'owner'].includes(profile.role)) return null
 
     const tenantId = profile.tenant_id
 
@@ -434,7 +434,7 @@ export async function recordManualPayment(data: {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (!profile || !['admin', 'bursar'].includes(profile.role)) return { success: false, error: "Permission denied" }
+    if (!profile || !['admin', 'bursar', 'super-admin', 'owner'].includes(profile.role)) return { success: false, error: "Permission denied" }
 
     const tenantId = profile.tenant_id
     const adminClient = createAdminClient()
@@ -480,7 +480,7 @@ export async function reconcileTransaction(transactionId: string) {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (!profile || !['admin', 'bursar'].includes(profile.role)) return { success: false, error: "Permission denied" }
+    if (!profile || !['admin', 'bursar', 'super-admin', 'owner'].includes(profile.role)) return { success: false, error: "Permission denied" }
 
     const tenantId = profile.tenant_id
     const adminClient = createAdminClient()

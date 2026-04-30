@@ -17,7 +17,7 @@ export async function getDebtorsList(filters: {
     if (!user) return []
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (!profile || !['admin', 'bursar'].includes(profile.role)) return []
+    if (!profile || !['admin', 'bursar', 'super-admin', 'owner'].includes(profile.role)) return []
 
     let query = supabase
         .from('invoices')
@@ -100,7 +100,7 @@ export async function recordManualCollection(data: {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (!profile || !['admin', 'bursar'].includes(profile.role)) return { success: false, error: "Permission denied" }
+    if (!profile || !['admin', 'bursar', 'super-admin', 'owner'].includes(profile.role)) return { success: false, error: "Permission denied" }
 
     const adminClient = createAdminClient()
 
@@ -257,7 +257,7 @@ export async function flagInvoiceAsInvalid(invoiceId: string) {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (!profile || !['admin', 'bursar'].includes(profile.role)) return { success: false, error: "Permission denied" }
+    if (!profile || !['admin', 'bursar', 'super-admin', 'owner'].includes(profile.role)) return { success: false, error: "Permission denied" }
 
     const adminClient = createAdminClient()
 

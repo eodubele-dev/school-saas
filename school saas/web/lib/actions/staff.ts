@@ -110,7 +110,8 @@ export async function updateStaffRole(userId: string, newRole: string, newDepart
         .eq('id', user.id)
         .single()
 
-    if (adminProfile?.role !== 'admin') return { success: false, error: "Only admins can update roles" }
+    const isAdmin = adminProfile?.role === 'admin' || adminProfile?.role === 'super-admin' || adminProfile?.role === 'owner'
+    if (!isAdmin) return { success: false, error: "Only admins can update roles" }
 
     // 3. Update Target User
     const updates: any = { role: newRole }
@@ -156,7 +157,8 @@ export async function createStaff(formData: any) {
         .eq('id', user.id)
         .single()
 
-    if (!adminProfile || adminProfile.role !== 'admin') {
+    const isAdmin = adminProfile?.role === 'admin' || adminProfile?.role === 'super-admin' || adminProfile?.role === 'owner'
+    if (!adminProfile || !isAdmin) {
         return { success: false, error: "Only admins can add staff" }
     }
 
@@ -258,7 +260,8 @@ export async function updateStaffProfile(userId: string, data: {
         .eq('id', user.id)
         .single()
 
-    if (!adminProfile || adminProfile.role !== 'admin') {
+    const isAdmin = adminProfile?.role === 'admin' || adminProfile?.role === 'super-admin' || adminProfile?.role === 'owner'
+    if (!adminProfile || !isAdmin) {
         return { success: false, error: "Only admins can edit staff profiles" }
     }
 

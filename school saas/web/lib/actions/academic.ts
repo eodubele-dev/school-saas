@@ -34,7 +34,8 @@ export async function updateGlobalSession(domain: string, sessionData: any) {
 
     // Get Tenant
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'super-admin' || profile?.role === 'owner'
+    if (!isAdmin) return { success: false, error: "Admin access required" }
 
     // 1. Deactivate all other sessions
     if (sessionData.is_active) {
@@ -78,7 +79,8 @@ export async function saveGradeScales(scales: any[]) {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'super-admin' || profile?.role === 'owner'
+    if (!isAdmin) return { success: false, error: "Admin access required" }
 
     // Enrich with tenant_id
     const data = scales.map(s => ({ ...s, tenant_id: profile.tenant_id }))

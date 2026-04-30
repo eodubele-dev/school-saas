@@ -16,7 +16,7 @@ export async function upgradeTenantTier(tier: string) {
         .eq('id', user.id)
         .single()
 
-    if (!profile || (profile.role !== 'admin' && profile.role !== 'owner')) {
+    if (!profile || !['admin', 'owner', 'super-admin'].includes(profile.role)) {
         return { success: false, error: "Unauthorized access" }
     }
 

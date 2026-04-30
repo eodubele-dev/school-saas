@@ -38,7 +38,7 @@ export async function admitStudent(data: AdmissionData) {
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
     const tenantId = profile?.tenant_id
 
-    if (!profile || !['admin', 'bursar', 'teacher'].includes(profile.role)) {
+    if (!profile || !['admin', 'bursar', 'teacher', 'super-admin', 'owner'].includes(profile.role)) {
         return { success: false, error: 'Permission denied: Insufficient privileges.' }
     }
 
