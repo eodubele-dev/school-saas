@@ -79,6 +79,7 @@ export function ProfileDropdown({ userName, userRole, userEmail, userAvatarUrl, 
             case 'ADMIN':
             case 'OWNER':
             case 'PROPRIETOR':
+            case 'SUPER-ADMIN':
                 return { color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20', label: 'SYSTEM_OWNER' }
             case 'BURSAR':
                 return { color: 'text-cyan-400', bg: 'bg-cyan-400/10', border: 'border-cyan-400/20', label: 'BURSARY_CHIEF' }

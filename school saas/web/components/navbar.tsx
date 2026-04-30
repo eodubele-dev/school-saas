@@ -58,7 +58,7 @@ export async function Navbar({ domain }: { domain?: string }) {
 
         if (profile) {
             userName = profile.full_name || user.email?.split('@')[0] || "User"
-            userRole = profile.role || "User"
+            userRole = profile.role || user.app_metadata?.role || "User"
             userAvatarUrl = profile.avatar_url
             const tenantId = profile.tenant_id
 
@@ -72,7 +72,7 @@ export async function Navbar({ domain }: { domain?: string }) {
                 }
 
                 // 1. Fetch Campuses (School Locations) - For Admin/Bursar
-                if (['admin', 'bursar', 'owner', 'proprietor', 'super-admin'].includes(userRole)) {
+                if (['admin', 'bursar', 'owner', 'proprietor', 'super-admin', 'system-developer'].includes(userRole.toLowerCase())) {
                     const { data: locations } = await supabase
                         .from('school_locations')
                         .select('id, name')

@@ -119,6 +119,7 @@ export function DynamicTopBar({
             case 'ADMIN':
             case 'OWNER':
             case 'PROPRIETOR':
+            case 'SUPER-ADMIN':
                 return (
                     <>
                         <DropdownMenu>
