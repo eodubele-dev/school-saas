@@ -7,16 +7,17 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, Trash2, ArrowRight, User } from "lucide-react"
+import { Plus, Trash2, ArrowRight, User, Edit, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/modals/confirm-modal"
 import { getTeachersForAssignment } from "@/lib/actions/staff"
 import {
     assignFormTeacher,
-    createClassLevel,
     createClass,
     deleteClassLevel,
-    deleteClass
+    deleteClass,
+    updateClassLevel,
+    updateClass
 } from "@/lib/actions/classes"
 
 interface ClassLevel {
@@ -55,6 +56,15 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
     const [isAddArmOpen, setIsAddArmOpen] = useState(false)
     const [activeLevelId, setActiveLevelId] = useState<string | null>(null)
     const [newArmName, setNewArmName] = useState("")
+
+    const [isEditLevelOpen, setIsEditLevelOpen] = useState(false)
+    const [editingLevel, setEditingLevel] = useState<ClassLevel | null>(null)
+    const [editLevelName, setEditLevelName] = useState("")
+    const [editLevelSection, setEditLevelSection] = useState<'Junior' | 'Senior' | 'Primary' | 'Nursery'>('Junior')
+
+    const [isEditArmOpen, setIsEditArmOpen] = useState(false)
+    const [editingArm, setEditingArm] = useState<Arm | null>(null)
+    const [editArmName, setEditArmName] = useState("")
 
     const [confirmConfig, setConfirmConfig] = useState<{ isOpen: boolean, title: string, description: string, onConfirm: () => void }>({
         isOpen: false,
@@ -103,17 +113,37 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
 
     const addLevel = async () => {
         if (!newLevelName) return
+        setSaving(true)
 
         const res = await createClassLevel({ name: newLevelName, section: newLevelSection })
 
         if (res.success && res.data) {
             setLevels([...levels, res.data])
-            toast.success("Level Added")
+            toast.success("Institutional Level Created", {
+                description: `${newLevelName} has been added to the registry.`
+            })
             setIsAddLevelOpen(false)
             setNewLevelName("")
         } else {
             toast.error(res.error || "Failed to add level")
         }
+        setSaving(false)
+    }
+
+    const editLevel = async () => {
+        if (!editLevelName || !editingLevel) return
+        setSaving(true)
+
+        const res = await updateClassLevel(editingLevel.id, { name: editLevelName, section: editLevelSection })
+
+        if (res.success && res.data) {
+            setLevels(levels.map(l => l.id === editingLevel.id ? res.data : l))
+            toast.success("Level Updated")
+            setIsEditLevelOpen(false)
+        } else {
+            toast.error(res.error || "Failed to update level")
+        }
+        setSaving(false)
     }
 
     const deleteLevel = async (id: string) => {
@@ -147,6 +177,7 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
 
     const addArm = async () => {
         if (!newArmName || !activeLevelId) return
+        setSaving(true)
 
         const level = levels.find(l => l.id === activeLevelId)
         const constructedName = `${level?.name} ${newArmName}`
@@ -159,12 +190,38 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
 
         if (res.success && res.data) {
             setArms([...arms, res.data])
-            toast.success("Arm Added")
+            toast.success("Class Arm Created", {
+                description: `${constructedName} is now active.`
+            })
             setIsAddArmOpen(false)
             setNewArmName("")
         } else {
             toast.error(res.error || "Failed to add arm")
         }
+        setSaving(false)
+    }
+
+    const editArm = async () => {
+        if (!editArmName || !editingArm) return
+        setSaving(true)
+
+        const level = levels.find(l => l.id === editingArm.class_level_id)
+        const constructedName = `${level?.name} ${editArmName}`
+
+        const res = await updateClass(editingArm.id, {
+            name: constructedName,
+            grade_level: level?.name || "",
+            class_level_id: editingArm.class_level_id
+        })
+
+        if (res.success && res.data) {
+            setArms(arms.map(a => a.id === editingArm.id ? res.data : a))
+            toast.success("Arm Updated")
+            setIsEditArmOpen(false)
+        } else {
+            toast.error(res.error || "Failed to update arm")
+        }
+        setSaving(false)
     }
 
     const updateArmTeacher = async (armId: string, teacherId: string) => {
@@ -214,6 +271,14 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
                                     <Button size="sm" variant="outline" onClick={() => openAddArm(level.id)} className="border-white/20 bg-transparent hover:bg-white/10 hover:text-foreground text-slate-300 transition-colors">
                                         <Plus className="mr-1 h-3 w-3" /> Add Arm
                                     </Button>
+                                    <Button size="icon" variant="ghost" onClick={() => {
+                                        setEditingLevel(level)
+                                        setEditLevelName(level.name)
+                                        setEditLevelSection(level.section)
+                                        setIsEditLevelOpen(true)
+                                    }} className="text-blue-400 hover:bg-blue-500/10">
+                                        <Edit className="h-4 w-4" />
+                                    </Button>
                                     <Button size="icon" variant="ghost" onClick={() => deleteLevel(level.id)} className="text-red-400 hover:bg-red-500/10">
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
@@ -230,24 +295,35 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
                                             <div key={arm.id} className="p-3 rounded bg-slate-950 border border-border/50 flex flex-col gap-3">
                                                 <div className="flex justify-between items-start">
                                                     <span className="font-medium text-foreground">{arm.name}</span>
-                                                    <Button size="icon" variant="ghost" className="h-6 w-6 text-red-500/50 hover:text-red-500" onClick={() => {
-                                                        setConfirmConfig({
-                                                            isOpen: true,
-                                                            title: "Delete Arm?",
-                                                            description: `Are you sure you want to delete ${arm.name}?`,
-                                                            onConfirm: async () => {
-                                                                const res = await deleteClass(arm.id)
-                                                                if (res.success) {
-                                                                    setArms(arms.filter(a => a.id !== arm.id))
-                                                                    toast.success("Arm Deleted")
-                                                                } else {
-                                                                    toast.error(res.error || "Failed to delete arm")
+                                                    <div className="flex items-center gap-1">
+                                                        <Button size="icon" variant="ghost" className="h-6 w-6 text-blue-500/50 hover:text-blue-500" onClick={() => {
+                                                            setEditingArm(arm)
+                                                            // Extract arm suffix if possible, or just use full name
+                                                            const parts = arm.name.split(' ')
+                                                            setEditArmName(parts.length > 1 ? parts.slice(1).join(' ') : arm.name)
+                                                            setIsEditArmOpen(true)
+                                                        }}>
+                                                            <Edit className="h-3 w-3" />
+                                                        </Button>
+                                                        <Button size="icon" variant="ghost" className="h-6 w-6 text-red-500/50 hover:text-red-500" onClick={() => {
+                                                            setConfirmConfig({
+                                                                isOpen: true,
+                                                                title: "Delete Arm?",
+                                                                description: `Are you sure you want to delete ${arm.name}?`,
+                                                                onConfirm: async () => {
+                                                                    const res = await deleteClass(arm.id)
+                                                                    if (res.success) {
+                                                                        setArms(arms.filter(a => a.id !== arm.id))
+                                                                        toast.success("Arm Deleted")
+                                                                    } else {
+                                                                        toast.error(res.error || "Failed to delete arm")
+                                                                    }
                                                                 }
-                                                            }
-                                                        })
-                                                    }}>
-                                                        <Trash2 className="h-3 w-3" />
-                                                    </Button>
+                                                            })
+                                                        }}>
+                                                            <Trash2 className="h-3 w-3" />
+                                                        </Button>
+                                                    </div>
                                                 </div>
 
                                                 <div className="space-y-1">
@@ -314,8 +390,50 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
                             </div>
                         </div>
                         <div className="flex justify-end gap-3 pt-2">
-                            <Button variant="ghost" onClick={() => setIsAddLevelOpen(false)} className="text-muted-foreground">Cancel</Button>
-                            <Button onClick={addLevel} className="bg-[var(--school-accent)] text-foreground">Create Level</Button>
+                            <Button variant="ghost" onClick={() => setIsAddLevelOpen(false)} className="text-muted-foreground" disabled={saving}>Cancel</Button>
+                            <Button onClick={addLevel} className="bg-[var(--school-accent)] text-foreground min-w-[120px]" disabled={saving}>
+                                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create Level"}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Level Dialog */}
+            {isEditLevelOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="w-full max-w-md bg-card text-card-foreground border border-border rounded-xl p-6 shadow-xl space-y-4 m-4">
+                        <h3 className="text-lg font-bold text-foreground">Edit Level</h3>
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label className="text-muted-foreground">Level Name</Label>
+                                <Input
+                                    value={editLevelName}
+                                    onChange={e => setEditLevelName(e.target.value)}
+                                    placeholder="Enter level name"
+                                    className="bg-slate-950 border-border text-foreground"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-muted-foreground">Section</Label>
+                                <Select value={editLevelSection} onValueChange={(val: any) => setEditLevelSection(val)}>
+                                    <SelectTrigger className="bg-slate-950 border-border text-foreground">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Junior">Junior Secondary</SelectItem>
+                                        <SelectItem value="Senior">Senior Secondary</SelectItem>
+                                        <SelectItem value="Primary">Primary</SelectItem>
+                                        <SelectItem value="Nursery">Nursery</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-3 pt-2">
+                            <Button variant="ghost" onClick={() => setIsEditLevelOpen(false)} className="text-muted-foreground" disabled={saving}>Cancel</Button>
+                            <Button onClick={editLevel} className="bg-[var(--school-accent)] text-foreground min-w-[120px]" disabled={saving}>
+                                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save Changes"}
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -336,8 +454,34 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
                             />
                         </div>
                         <div className="flex justify-end gap-3 pt-2">
-                            <Button variant="ghost" onClick={() => setIsAddArmOpen(false)} className="text-muted-foreground">Cancel</Button>
-                            <Button onClick={addArm} className="bg-[var(--school-accent)] text-foreground">Create Arm</Button>
+                            <Button variant="ghost" onClick={() => setIsAddArmOpen(false)} className="text-muted-foreground" disabled={saving}>Cancel</Button>
+                            <Button onClick={addArm} className="bg-[var(--school-accent)] text-foreground min-w-[120px]" disabled={saving}>
+                                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create Arm"}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Arm Dialog */}
+            {isEditArmOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="w-full max-w-sm bg-card text-card-foreground border border-border rounded-xl p-6 shadow-xl space-y-4 m-4">
+                        <h3 className="text-lg font-bold text-foreground">Edit Arm</h3>
+                        <div className="space-y-2">
+                            <Label className="text-muted-foreground">Arm Name (e.g. Gold, A)</Label>
+                            <Input
+                                value={editArmName}
+                                onChange={e => setEditArmName(e.target.value)}
+                                placeholder="Enter arm suffix"
+                                className="bg-slate-950 border-border text-foreground"
+                            />
+                        </div>
+                        <div className="flex justify-end gap-3 pt-2">
+                            <Button variant="ghost" onClick={() => setIsEditArmOpen(false)} className="text-muted-foreground" disabled={saving}>Cancel</Button>
+                            <Button onClick={editArm} className="bg-[var(--school-accent)] text-foreground min-w-[120px]" disabled={saving}>
+                                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save Changes"}
+                            </Button>
                         </div>
                     </div>
                 </div>

@@ -132,7 +132,7 @@ export async function assignFormTeacher(classId: string, teacherId: string | nul
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+    if (profile?.role !== 'admin' && profile?.role !== 'super-admin' && profile?.role !== 'owner') return { success: false, error: "Admin access required" }
 
     const supabaseAdmin = createAdminClient()
     const { error } = await supabaseAdmin
@@ -157,7 +157,7 @@ export async function assignTeacherToSubject(data: {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+    if (profile?.role !== 'admin' && profile?.role !== 'super-admin' && profile?.role !== 'owner') return { success: false, error: "Admin access required" }
 
     const supabaseAdmin = createAdminClient()
 
@@ -214,7 +214,7 @@ export async function createClassLevel(data: { name: string, section: string }) 
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+    if (profile?.role !== 'admin' && profile?.role !== 'super-admin' && profile?.role !== 'owner') return { success: false, error: "Admin access required" }
 
     const supabaseAdmin = createAdminClient()
     const { data: newLevel, error } = await supabaseAdmin
@@ -234,7 +234,7 @@ export async function deleteClassLevel(id: string) {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+    if (profile?.role !== 'admin' && profile?.role !== 'super-admin' && profile?.role !== 'owner') return { success: false, error: "Admin access required" }
 
     const supabaseAdmin = createAdminClient()
     const { error } = await supabaseAdmin
@@ -254,7 +254,7 @@ export async function createClass(data: { name: string, grade_level: string, cla
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+    if (profile?.role !== 'admin' && profile?.role !== 'super-admin' && profile?.role !== 'owner') return { success: false, error: "Admin access required" }
 
     const supabaseAdmin = createAdminClient()
     const { data: newClass, error } = await supabaseAdmin
@@ -274,7 +274,7 @@ export async function deleteClass(id: string) {
     if (!user) return { success: false, error: "Unauthorized" }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (profile?.role !== 'admin') return { success: false, error: "Admin access required" }
+    if (profile?.role !== 'admin' && profile?.role !== 'super-admin' && profile?.role !== 'owner') return { success: false, error: "Admin access required" }
 
     const supabaseAdmin = createAdminClient()
     const { error } = await supabaseAdmin
@@ -286,4 +286,48 @@ export async function deleteClass(id: string) {
     if (error) return { success: false, error: error.message }
 
     return { success: true }
+}
+
+export async function updateClassLevel(id: string, data: { name: string, section: string }) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (profile?.role !== 'admin' && profile?.role !== 'super-admin' && profile?.role !== 'owner') return { success: false, error: "Admin access required" }
+
+    const supabaseAdmin = createAdminClient()
+    const { data: updatedLevel, error } = await supabaseAdmin
+        .from('class_levels')
+        .update(data)
+        .eq('id', id)
+        .eq('tenant_id', profile.tenant_id)
+        .select()
+        .single()
+
+    if (error) return { success: false, error: error.message }
+
+    return { success: true, data: updatedLevel }
+}
+
+export async function updateClass(id: string, data: { name: string, grade_level: string, class_level_id: string }) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (profile?.role !== 'admin' && profile?.role !== 'super-admin' && profile?.role !== 'owner') return { success: false, error: "Admin access required" }
+
+    const supabaseAdmin = createAdminClient()
+    const { data: updatedClass, error } = await supabaseAdmin
+        .from('classes')
+        .update(data)
+        .eq('id', id)
+        .eq('tenant_id', profile.tenant_id)
+        .select()
+        .single()
+
+    if (error) return { success: false, error: error.message }
+
+    return { success: true, data: updatedClass }
 }
