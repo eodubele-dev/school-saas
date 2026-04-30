@@ -109,6 +109,9 @@ export async function Sidebar({ className, domain }: { className?: string, domai
             if (profile) {
                 if (profile.role) userRole = profile.role.toLowerCase().trim()
                 if (profile.full_name) userName = profile.full_name
+            } else if (user.app_metadata?.role) {
+                userRole = user.app_metadata.role.toLowerCase().trim()
+                userName = user.user_metadata?.full_name || user.email
             }
             permissions = permissionsRes.data
             // Only set linked students if the role is confirmed as parent
