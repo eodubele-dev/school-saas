@@ -56,20 +56,28 @@ export async function upgradeTenantPlan(data: {
         }
 
         // --- 3. UPDATE TENANT RECORD ---
-        const newThemeConfig = {
-            ...(tenant.theme_config as object),
-            subscription_tier: data.plan,
-            is_active: true,
-            features: {
-                ...((tenant.theme_config as any)?.features || {}),
-                ai_enabled: data.plan === 'platinum'
-            }
+        // Calculate SMS Units if upgrading to a plan that includes initial credit (e.g., Pilot)
+        let smsCredit = 0
+        if (data.plan === 'pilot') {
+            smsCredit = 2000 // ₦10,000 / ₦5.00
         }
 
         const { error: updateError } = await adminClient
             .from('tenants')
             .update({
-                theme_config: newThemeConfig
+                subscription_tier: data.plan,
+                is_active: true,
+                sms_balance: (Number((tenant as any).sms_balance) || 0) + smsCredit,
+                pilot_ends_at: data.plan === 'pilot'
+                    ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+                    : null,
+                theme_config: {
+                    ...(tenant.theme_config as any),
+                    features: {
+                        ...((tenant.theme_config as any)?.features || {}),
+                        ai_enabled: data.plan === 'platinum' || data.plan === 'pilot'
+                    }
+                }
             })
             .eq('id', tenant.id)
 

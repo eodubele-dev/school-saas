@@ -171,6 +171,10 @@ export async function verifyPaystackTransaction(reference: string, useAdmin: boo
                     }
                 }
             }
+            
+            // Revalidate to ensure UI (like SMS balance) updates immediately
+            revalidatePath('/', 'layout')
+
             return { success: true, data: data.data, metadata: data.data.metadata }
         }
 
