@@ -72,7 +72,7 @@ export async function Navbar({ domain }: { domain?: string }) {
                 }
 
                 // 1. Fetch Campuses (School Locations) - For Admin/Bursar
-                if (['admin', 'bursar', 'owner', 'proprietor'].includes(userRole)) {
+                if (['admin', 'bursar', 'owner', 'proprietor', 'super-admin'].includes(userRole)) {
                     const { data: locations } = await supabase
                         .from('school_locations')
                         .select('id, name')

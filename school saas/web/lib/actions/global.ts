@@ -37,8 +37,8 @@ export async function getTenants(): Promise<TenantOption[]> {
         .eq('id', user.id)
         .single()
 
-    // If super_admin, they can see all campuses
-    if (profile?.role === 'super_admin') {
+    // If super-admin, they can see all campuses
+    if (profile?.role === 'super-admin') {
         const { data: allTenants } = await supabase
             .from('tenants')
             .select('id, name, slug, logo_url')

@@ -22,7 +22,7 @@ export default async function FinancialConfigPage({ params }: { params: { domain
         .eq('id', user.id)
         .single()
 
-    if (!['admin', 'bursar'].includes(profile?.role)) {
+    if (!['admin', 'bursar', 'super-admin', 'owner', 'proprietor'].includes(profile?.role)) {
         return <div className="p-8 text-center text-red-500">Access Denied: Admin or Bursar only.</div>
     }
 

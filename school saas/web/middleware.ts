@@ -307,7 +307,7 @@ export default async function middleware(req: NextRequest) {
 
     // Allow owners to access admin routes natively. Staff can ONLY access specific admin sub-routes like Gate Control.
     if (isTryingAdmin) {
-      if (role === 'owner' || role === 'admin') {
+      if (role === 'owner' || role === 'admin' || role === 'super-admin') {
         // Built-in logic: Fully permitted
       } else if (role === 'staff' && (path.startsWith('/dashboard/admin/security/gate') || path.startsWith('/dashboard/admin/health'))) {
         // Staff logic: Permitted ONLY for Gate Control & Health
@@ -318,7 +318,7 @@ export default async function middleware(req: NextRequest) {
       }
     }
 
-    if (isTryingBursar && role !== 'bursar' && role !== 'admin' && role !== 'owner') {
+    if (isTryingBursar && role !== 'bursar' && role !== 'admin' && role !== 'owner' && role !== 'super-admin') {
       // Permission-based "Sub-Role" bypass
       const { data: perm } = await supabase
         .from('staff_permissions')

@@ -14,7 +14,7 @@ export default async function BursarDashboardPage({ params }: { params: { domain
         supabase.from('staff_permissions').select('can_view_financials').eq('staff_id', user.id).single()
     ])
 
-    const hasAccess = ['admin', 'bursar', 'owner'].includes(profile?.role) || permission?.can_view_financials
+    const hasAccess = ['admin', 'bursar', 'owner', 'super-admin', 'proprietor'].includes(profile?.role) || permission?.can_view_financials
 
     if (!hasAccess) {
         return (
