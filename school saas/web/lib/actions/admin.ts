@@ -1,10 +1,11 @@
 'use server'
 
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 
 export async function getAdminStats() {
-    const supabase = createClient()
+    const supabase = createAdminClient()
     
     // 1. Total Schools
     const { count: schoolCount } = await supabase
@@ -34,7 +35,7 @@ export async function getAdminStats() {
 }
 
 export async function getAllTenants(page = 1, limit = 10) {
-    const supabase = createClient()
+    const supabase = createAdminClient()
     const from = (page - 1) * limit
     const to = from + limit - 1
 
@@ -49,7 +50,7 @@ export async function getAllTenants(page = 1, limit = 10) {
 }
 
 export async function getRevenueStats(range: '7d' | '30d' | '90d' = '30d') {
-    const supabase = createClient()
+    const supabase = createAdminClient()
     const days = range === '7d' ? 7 : range === '30d' ? 30 : 90
     const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
 
@@ -78,7 +79,7 @@ export async function getRevenueStats(range: '7d' | '30d' | '90d' = '30d') {
 }
 
 export async function adjustSmsBalance(tenantId: string, amount: number, reason: string) {
-    const supabase = createClient()
+    const supabase = createAdminClient()
 
     // 1. Get current balance
     const { data: tenant } = await supabase
@@ -120,7 +121,7 @@ export async function adjustSmsBalance(tenantId: string, amount: number, reason:
 }
 
 export async function toggleTenantActiveStatus(tenantId: string, currentStatus: boolean) {
-    const supabase = createClient()
+    const supabase = createAdminClient()
     const newStatus = !currentStatus
     
     const { data, error } = await supabase
