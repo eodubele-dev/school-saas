@@ -301,22 +301,25 @@ export async function createTenant(data: OnboardingData) {
 
         // --- 1. CORE PROVISIONING ---
         console.log('[createTenant] Step 1: Creating Tenant Record...')
+        // Calculate SMS Units (₦5.00 per unit)
+        const unitsToCredit = Math.floor((data.initialDeposit || 0) / 5.00)
+        
         const { data: tenant, error: tenantError } = await adminClient
             .from('tenants')
             .insert({
                 name: data.schoolName,
                 slug: data.subdomain,
                 logo_url: data.logoUrl,
+                subscription_tier: data.plan,
+                is_active: true,
+                sms_balance: unitsToCredit,
+                pilot_ends_at: data.plan === 'pilot'
+                    ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+                    : null,
                 theme_config: {
                     primary: data.brandColor || '#00F5FF',
                     accent: data.brandColor || '#0ea5e9',
                     type: 'school',
-                    subscription_tier: data.plan,
-                    is_active: true,
-                    sms_balance: data.initialDeposit || 0,
-                    pilot_ends_at: data.plan === 'pilot'
-                        ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
-                        : null,
                     levels: data.levels,
                     features: {
                         waec_integration: data.waecStats,
