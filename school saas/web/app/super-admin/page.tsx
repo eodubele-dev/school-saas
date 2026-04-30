@@ -166,8 +166,8 @@ export default function SuperAdminDashboard() {
     const metrics = [
         { title: "Total Schools", value: stats?.schoolCount || "0", change: "Registered Tenants", icon: Building2, color: "text-blue-400", border: "border-t-blue-500" },
         { title: "Global SMS Balance", value: (stats?.totalSmsBalance || 0).toLocaleString(), change: "Units across nodes", icon: MessageSquare, color: "text-cyan-400", border: "border-t-cyan-500" },
-        { title: "Recent Activity", value: stats?.recentTrxCount || "0", change: "Transactions (24h)", icon: TrendingUp, color: "text-emerald-400", border: "border-t-emerald-500" },
-        { title: "Platform Integrity", value: "99.9%", change: "All Systems Operational", icon: ShieldAlert, color: "text-purple-400", border: "border-t-purple-500" },
+        { title: "Platform Revenue", value: `₦${(stats?.totalRevenue || 0).toLocaleString()}`, change: "All-time earnings", icon: TrendingUp, color: "text-emerald-400", border: "border-t-emerald-500" },
+        { title: "Recent Activity", value: stats?.recentTrxCount || "0", change: "Transactions (24h)", icon: Activity, color: "text-purple-400", border: "border-t-purple-500" },
     ]
 
     return (

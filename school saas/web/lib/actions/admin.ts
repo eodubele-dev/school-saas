@@ -26,10 +26,19 @@ export async function getAdminStats() {
         .select('*', { count: 'exact', head: true })
         .gt('created_at', twentyFourHoursAgo)
 
+    // 4. Total Platform Revenue (all time successful)
+    const { data: revenueData } = await supabase
+        .from('transactions')
+        .select('amount')
+        .eq('status', 'success')
+
+    const totalRevenue = revenueData?.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0) || 0
+
     return {
         schoolCount: schoolCount || 0,
         totalSmsBalance,
         recentTrxCount: recentTrxCount || 0,
+        totalRevenue,
         success: true
     }
 }
@@ -63,17 +72,26 @@ export async function getRevenueStats(range: '7d' | '30d' | '90d' = '30d') {
 
     if (error) return { success: false, error: error.message }
 
-    // Group by date
+    // 1. Group by date
     const grouped = data?.reduce((acc: any, curr: any) => {
         const date = curr.created_at.split('T')[0]
         acc[date] = (acc[date] || 0) + (Number(curr.amount) || 0)
         return acc
     }, {})
 
-    const chartData = Object.keys(grouped || {}).map(date => ({
-        date,
-        amount: grouped[date]
-    }))
+    // 2. Fill in gaps to ensure a smooth chart line
+    const chartData = []
+    const now = new Date()
+    for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(now)
+        d.setDate(d.getDate() - i)
+        const dateStr = d.toISOString().split('T')[0]
+        
+        chartData.push({
+            date: dateStr,
+            amount: grouped[dateStr] || 0
+        })
+    }
 
     return { success: true, data: chartData }
 }
