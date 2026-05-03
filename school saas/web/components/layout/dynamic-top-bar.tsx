@@ -123,7 +123,6 @@ export function DynamicTopBar({
             case 'SUPER-ADMIN':
                 return (
                     <>
-                        <SetupGuideSheet />
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <button className="flex items-center gap-2 bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-lg border border-amber-500/20 text-[10px] font-mono font-black hover:bg-amber-500/20 transition-colors outline-none">
@@ -285,6 +284,11 @@ export function DynamicTopBar({
 
                     {/* Divider */}
                     <div className="h-6 w-px bg-white/10 hidden sm:block" />
+
+                    {/* Setup Guide (Admins Only) */}
+                    {['ADMIN', 'OWNER', 'PROPRIETOR', 'SUPER-ADMIN'].includes(normalizedRole) && (
+                        <SetupGuideSheet />
+                    )}
 
                     {/* Notifications */}
                     <DropdownMenu open={isNotifOpen} onOpenChange={handleNotifOpen}>
