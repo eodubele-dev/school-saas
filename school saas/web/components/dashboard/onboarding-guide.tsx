@@ -131,30 +131,27 @@ export function OnboardingGuide({ subdomain }: { subdomain: string }) {
                 </div>
                 
                 <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                        <h2 className="text-lg font-black text-white tracking-wide">Quick Setup Guide</h2>
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-white/40 hover:text-white hover:bg-white/5 -mr-2 -mt-2"
+                            onClick={handleDismiss}
+                        >
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </div>
+
                     <div className="flex items-start gap-6">
-                        <div className="hidden md:flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
-                            <Icon className="h-8 w-8 animate-pulse" />
-                        </div>
-                        
                         <div className="flex-1 space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400">
-                                        Step {currentStep + 1} of {ONBOARDING_STEPS.length}
-                                    </span>
-                                    <h3 className="text-xl font-bold text-white mt-0.5 flex items-center gap-2">
-                                        {step.title}
-                                        <Sparkles className="h-4 w-4 text-amber-400" />
-                                    </h3>
-                                </div>
-                                <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="text-white/40 hover:text-white hover:bg-white/5 -mt-2"
-                                    onClick={handleDismiss}
-                                >
-                                    <X className="h-4 w-4" />
-                                </Button>
+                            <div>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400">
+                                    Step {currentStep + 1} of {ONBOARDING_STEPS.length}
+                                </span>
+                                <h3 className="text-xl font-bold text-white mt-0.5">
+                                    {step.title}
+                                </h3>
                             </div>
 
                             <div className="space-y-2">
