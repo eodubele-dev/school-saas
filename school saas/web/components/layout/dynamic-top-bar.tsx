@@ -40,6 +40,7 @@ import { SMSWalletMonitor } from "@/components/layout/top-bar/sms-wallet"
 import { ReconciliationAction } from "@/components/layout/top-bar/reconciliation-action"
 import { usePreferencesStore } from '@/lib/stores/preferences-store'
 import { getUserNotifications, markNotificationsAsRead } from '@/lib/actions/notifications'
+import { SetupGuideSheet } from '@/components/dashboard/setup-guide-sheet'
 
 interface DynamicTopBarProps {
     user: any
@@ -122,6 +123,7 @@ export function DynamicTopBar({
             case 'SUPER-ADMIN':
                 return (
                     <>
+                        <SetupGuideSheet />
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <button className="flex items-center gap-2 bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-lg border border-amber-500/20 text-[10px] font-mono font-black hover:bg-amber-500/20 transition-colors outline-none">

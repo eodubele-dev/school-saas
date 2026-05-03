@@ -5,7 +5,6 @@ import { GlobalUpdateBanner } from "@/components/layout/global-update-banner"
 import { getKioskPin } from "@/lib/actions/kiosk"
 import { KioskInitializer } from "@/components/providers/kiosk-initializer"
 import { createClient } from "@/lib/supabase/server"
-import { OnboardingGuide } from "@/components/dashboard/onboarding-guide"
 
 export const dynamic = 'force-dynamic'
 
@@ -64,7 +63,6 @@ export default async function DashboardLayout({
                     </main>
                 </div>
             </div>
-            {isAdmin && <OnboardingGuide subdomain={params.domain} />}
         </div>
     )
 }
