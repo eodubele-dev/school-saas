@@ -21,6 +21,7 @@ import { FinancialText } from "@/components/ui/financial-text"
 import { GlobalCampusSwitcher } from "./global-campus-switcher"
 import { getActiveAcademicSession } from "@/lib/actions/academic"
 import { DashboardModalProvider } from "./dashboard-modal-provider"
+import { OnboardingGuide } from "./onboarding-guide"
 
 export async function AdminDashboard({
     tier = 'starter',
@@ -280,6 +281,7 @@ export async function AdminDashboard({
                         </LockedGenericWidget>
                     </div>
                 </div>
+                <OnboardingGuide subdomain={subdomain} />
             </div>
         </DashboardModalProvider>
     )
