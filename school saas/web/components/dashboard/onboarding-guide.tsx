@@ -81,9 +81,16 @@ export function OnboardingGuide({ subdomain }: { subdomain: string }) {
         }
     }, [subdomain])
 
+    useEffect(() => {
+        if (!isDismissed && isVisible) {
+            window.dispatchEvent(new CustomEvent('tour-step', { detail: { href: ONBOARDING_STEPS[currentStep].link } }))
+        }
+    }, [currentStep, isVisible, isDismissed])
+
     const handleDismiss = () => {
         setIsVisible(false)
         localStorage.setItem(`onboarding_dismissed_${subdomain}`, "true")
+        window.dispatchEvent(new CustomEvent('tour-end'))
         setTimeout(() => setIsDismissed(true), 500)
     }
 
@@ -109,10 +116,13 @@ export function OnboardingGuide({ subdomain }: { subdomain: string }) {
 
     return (
         <div className={cn(
-            "fixed inset-x-0 bottom-6 z-50 flex justify-center px-4 transition-all duration-500",
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"
+            "fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-all duration-500",
+            isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
         )}>
-            <Card className="w-full max-w-2xl bg-black/80 backdrop-blur-xl border-white/10 shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
+            <Card className={cn(
+                "w-full max-w-2xl bg-slate-950/90 backdrop-blur-xl border-white/10 shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden transition-all duration-500",
+                isVisible ? "scale-100 translate-y-0" : "scale-95 translate-y-8"
+            )}>
                 <div className="absolute top-0 left-0 w-full h-1 bg-white/5">
                     <div 
                         className="h-full bg-blue-500 transition-all duration-500 ease-out" 

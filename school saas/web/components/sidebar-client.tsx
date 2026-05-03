@@ -230,6 +230,47 @@ export function SidebarClient({
         setOpenHub(prev => prev === hubName ? null : hubName)
     }
 
+    // Guided Tour Event Listener
+    useEffect(() => {
+        const handleTourStep = (e: CustomEvent) => {
+            if (!categories) return
+            const href = e.detail?.href
+            if (!href) return
+
+            // Find the category containing this href
+            const targetCategory = categories.find(cat =>
+                cat.items?.some(item => item.href === href || href.startsWith(item.href))
+            )
+            
+            if (targetCategory && openHub !== targetCategory.category) {
+                setOpenHub(targetCategory.category)
+            }
+
+            // Remove existing highlights
+            document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight', 'ring-2', 'ring-amber-500', 'ring-offset-2', 'ring-offset-slate-900', 'z-50', 'bg-amber-500/20'))
+            
+            // Wait for React to render the newly opened hub, then highlight
+            setTimeout(() => {
+                const el = document.querySelector(`[data-tour="${href}"]`)
+                if (el) {
+                    el.classList.add('tour-highlight', 'ring-2', 'ring-amber-500', 'ring-offset-2', 'ring-offset-slate-900', 'z-50', 'bg-amber-500/20', 'rounded-lg')
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                }
+            }, 300)
+        }
+
+        const handleTourEnd = () => {
+             document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight', 'ring-2', 'ring-amber-500', 'ring-offset-2', 'ring-offset-slate-900', 'z-50', 'bg-amber-500/20', 'rounded-lg'))
+        }
+
+        window.addEventListener('tour-step' as any, handleTourStep)
+        window.addEventListener('tour-end' as any, handleTourEnd)
+        return () => {
+            window.removeEventListener('tour-step' as any, handleTourStep)
+            window.removeEventListener('tour-end' as any, handleTourEnd)
+        }
+    }, [categories, openHub])
+
     // Keyboard shortcut for search
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
@@ -439,6 +480,7 @@ export function SidebarClient({
                                                     key={fullHref}
                                                     href={linkHref}
                                                     prefetch={false}
+                                                    data-tour={item.href}
                                                     onClick={(e) => {
                                                         const normalizedPath = pathname?.replace(/\/$/, '') || '/'
                                                         const targetPath = linkHref.replace(/\/$/, '') || '/'
