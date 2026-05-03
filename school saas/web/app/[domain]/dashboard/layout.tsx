@@ -5,6 +5,7 @@ import { GlobalUpdateBanner } from "@/components/layout/global-update-banner"
 import { getKioskPin } from "@/lib/actions/kiosk"
 import { KioskInitializer } from "@/components/providers/kiosk-initializer"
 import { createClient } from "@/lib/supabase/server"
+import { OnboardingGuide } from "@/components/dashboard/onboarding-guide"
 
 export const dynamic = 'force-dynamic'
 
@@ -19,11 +20,21 @@ export default async function DashboardLayout({
 
     // Fetch Tenant Security Context
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
     const { data: tenant } = await supabase
         .from('tenants')
         .select('id')
         .eq('slug', params.domain)
         .maybeSingle()
+
+    let role = 'student'
+    if (user) {
+        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+        role = profile?.role || user.app_metadata?.role || 'student'
+    }
+    
+    const isAdmin = ['admin', 'owner', 'super-admin'].includes(role)
 
     let masterPin = "1234"
     if (tenant?.id) {
@@ -53,6 +64,7 @@ export default async function DashboardLayout({
                     </main>
                 </div>
             </div>
+            {isAdmin && <OnboardingGuide subdomain={params.domain} />}
         </div>
     )
 }

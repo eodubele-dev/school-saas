@@ -76,10 +76,21 @@ export function OnboardingGuide({ subdomain }: { subdomain: string }) {
     useEffect(() => {
         const dismissed = localStorage.getItem(`onboarding_dismissed_${subdomain}`)
         if (!dismissed) {
+            const savedStep = localStorage.getItem(`onboarding_step_${subdomain}`)
+            if (savedStep) {
+                setCurrentStep(parseInt(savedStep, 10))
+            }
             setIsVisible(true)
             setIsDismissed(false)
         }
     }, [subdomain])
+
+    // Update localStorage when step changes
+    useEffect(() => {
+        if (!isDismissed) {
+            localStorage.setItem(`onboarding_step_${subdomain}`, currentStep.toString())
+        }
+    }, [currentStep, isDismissed, subdomain])
 
     useEffect(() => {
         if (!isDismissed && isVisible) {
