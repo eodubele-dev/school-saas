@@ -23,7 +23,7 @@ const ONBOARDING_STEPS: Step[] = [
         note: "First impressions matter. Let’s make this dashboard feel like home.",
         why: "This personalizes the portal for your staff, parents, and students, ensuring the school's identity is reflected on every invoice and report card.",
         icon: Sparkles,
-        link: "/dashboard/admin/setup", // Assuming settings is under setup or campus
+        link: "/dashboard/settings",
         actionText: "Upload Logo & Colors"
     },
     {
@@ -31,7 +31,7 @@ const ONBOARDING_STEPS: Step[] = [
         note: "Every school needs a clock. Let’s set yours.",
         why: "The system uses this 'Active Session' to anchor all future records, from student attendance to exam results.",
         icon: Rocket,
-        link: "/dashboard/admin/setup",
+        link: "/dashboard/admin/setup/academic",
         actionText: "Set Academic Session"
     },
     {
@@ -39,7 +39,7 @@ const ONBOARDING_STEPS: Step[] = [
         note: "Define the rooms in your digital building.",
         why: "You cannot admit students without having classes to put them in. This step builds the directory for your entire institution.",
         icon: School,
-        link: "/dashboard/admin/setup",
+        link: "/dashboard/admin/setup/academic",
         actionText: "Create Classes & Levels"
     },
     {
@@ -55,7 +55,7 @@ const ONBOARDING_STEPS: Step[] = [
         note: "Ensure the school stays profitable and organized.",
         why: "This automates your billing. Once students are admitted, the system will instantly generate their invoices.",
         icon: Banknote,
-        link: "/dashboard/admin/finance/setup",
+        link: "/dashboard/admin/finance/config",
         actionText: "Configure Fee Structure"
     },
     {
@@ -63,7 +63,7 @@ const ONBOARDING_STEPS: Step[] = [
         note: "Keep the conversation going with parents.",
         why: "Real-time notifications are the #1 feature parents value. Having a funded wallet ensures they receive instant alerts.",
         icon: ShieldCheck,
-        link: "/dashboard/admin/finance/sms",
+        link: "/dashboard/settings/notifications",
         actionText: "Top up SMS Wallet"
     }
 ]
