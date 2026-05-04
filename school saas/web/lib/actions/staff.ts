@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 import { sendSMS } from "@/lib/services/termii"
+import { SMS_CONFIG } from "@/lib/constants/communication"
 
 export async function getTeachersForAssignment() {
     const supabase = createClient()
@@ -232,9 +233,51 @@ export async function createStaff(formData: any) {
         console.error("Permission Error", permError)
     }
 
-    // 5. Send Credentials via SMS
-    const loginMessage = `Welcome to the ${adminProfile.tenant_id.split('-')[0].toUpperCase()} Team! Your EduFlow login is: ${formData.email}. Password: ${tempPassword}. Login at: ${process.env.NEXT_PUBLIC_SITE_URL || 'eduflow.ng'}/login`
-    await sendSMS(formData.phone, loginMessage)
+    // 5. Send Credentials via SMS (with Wallet Deduction)
+    const { data: tenant } = await supabaseAdmin
+        .from('tenants')
+        .select('name, sms_balance')
+        .eq('id', adminProfile.tenant_id)
+        .single()
+        
+    let currentBalance = Number(tenant?.sms_balance) || 0
+    const SMS_COST = SMS_CONFIG.UNIT_COST
+    const schoolName = tenant?.name || "our"
+    const loginMessage = `Welcome to the ${schoolName} Team! Your EduFlow login is: ${formData.email}. Password: ${tempPassword}. Login at: ${process.env.NEXT_PUBLIC_SITE_URL || 'eduflow.ng'}/login`
+
+    let smsStatus = "skipped"
+    if (currentBalance >= SMS_COST) {
+        const smsRes = await sendSMS(formData.phone, loginMessage)
+        
+        if (smsRes.success) {
+            smsStatus = "sent"
+            // Deduct balance
+            await supabaseAdmin
+                .from('tenants')
+                .update({ sms_balance: currentBalance - SMS_COST })
+                .eq('id', adminProfile.tenant_id)
+                
+            // Log transaction
+            await supabaseAdmin
+                .from('message_logs')
+                .insert({
+                    tenant_id: adminProfile.tenant_id,
+                    sender_id: user.id,
+                    recipient_phone: formData.phone,
+                    recipient_name: `${formData.firstName} ${formData.lastName}`,
+                    message_content: loginMessage,
+                    channel: 'sms',
+                    status: 'sent',
+                    cost: SMS_COST,
+                    provider_ref: (smsRes.data as any)?.message_id
+                })
+        } else {
+            smsStatus = "failed"
+            console.error("Staff SMS Failed:", smsRes.error)
+        }
+    } else {
+        console.warn(`[SMS_SKIPPED] Insufficient SMS balance to send credentials to ${formData.phone}`)
+    }
 
     revalidatePath('/[domain]/dashboard/admin/staff', 'page')
     return { success: true, tempPassword }
