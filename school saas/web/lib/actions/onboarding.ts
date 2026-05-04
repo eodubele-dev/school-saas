@@ -77,7 +77,7 @@ export async function admitStudent(data: AdmissionData) {
             // Create root Auth User to satisfy `profiles_id_fkey` constraint
             isNewParent = true
             parentPassword = Math.random().toString(36).slice(-8) + "!"
-            const dummyEmail = data.parentEmail || `parent_${data.parentPhone.replace(/\D/g, '')}@eduflow.local`;
+            const dummyEmail = data.parentEmail || `parent_${data.parentPhone.replace(/\D/g, '')}@eduflow.ng`;
 
             const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
                 email: dummyEmail,
@@ -166,33 +166,35 @@ export async function admitStudent(data: AdmissionData) {
         .eq('is_active', true)
         .single()
 
-    const tuitionAmount = feeParams?.amount || 50000
+    const tuitionAmount = feeParams?.amount || 0
 
-    const { data: invoice, error: invoiceError } = await adminClient
-        .from('invoices')
-        .insert({
-            tenant_id: tenantId,
-            student_id: student.id,
-            term: `${session.session} ${session.term}`,
-            amount: tuitionAmount,
-            status: 'pending',
-            due_date: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString()
-        })
-        .select()
-        .single()
+    // Only generate invoice if a fee structure was found
+    if (feeParams) {
+        const { data: invoice, error: invoiceError } = await adminClient
+            .from('invoices')
+            .insert({
+                tenant_id: tenantId,
+                student_id: student.id,
+                term: `${session.session} ${session.term}`,
+                amount: tuitionAmount,
+                status: 'pending',
+                due_date: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString()
+            })
+            .select()
+            .single()
 
-    if (invoice && !invoiceError) {
-        await adminClient.from('invoice_items').insert({
-            tenant_id: tenantId,
-            invoice_id: invoice.id,
-            description: feeParams?.name || 'Tuition Fees',
-            amount: tuitionAmount
-        })
+        if (invoice && !invoiceError) {
+            await adminClient.from('invoice_items').insert({
+                tenant_id: tenantId,
+                invoice_id: invoice.id,
+                description: feeParams?.name || 'Academic Fees',
+                amount: tuitionAmount
+            })
+        }
     }
 
-    // 5. Student Dashboard Provisioning
-    // Standard student email based on admission number: student_[adm_no]@eduflow.local
-    const studentAuthEmail = `student_${admissionNumber.replace(/\//g, '_').toLowerCase()}@eduflow.local`;
+    // Standard student email based on admission number: student_[adm_no]@eduflow.ng
+    const studentAuthEmail = `student_${admissionNumber.replace(/\//g, '_').toLowerCase()}@eduflow.ng`;
     const studentPassword = Math.random().toString(36).slice(-8) + "!";
 
     await adminClient.auth.admin.createUser({
