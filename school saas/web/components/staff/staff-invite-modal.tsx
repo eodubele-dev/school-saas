@@ -44,7 +44,7 @@ export function StaffInviteModal({ domain }: { domain: string }) {
         setLoading(true)
 
         try {
-            const res = await createStaff(formData)
+            const res = await createStaff(formData, domain)
 
             if (res.success) {
                 toast.success(`Staff member created successfully!`)

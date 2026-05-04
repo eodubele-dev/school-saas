@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 import { sendSMS } from "@/lib/services/termii"
 import { SMS_CONFIG } from "@/lib/constants/communication"
+import { sendWelcomeEmail } from "@/lib/services/email"
 
 export async function getTeachersForAssignment() {
     const supabase = createClient()
@@ -144,7 +145,7 @@ export async function updateStaffStatus(userId: string, status: 'active' | 'inac
     return { success: true }
 }
 
-export async function createStaff(formData: any) {
+export async function createStaff(formData: any, domain?: string) {
     const supabase = createClient()
     const supabaseAdmin = createAdminClient()
 
@@ -278,6 +279,12 @@ export async function createStaff(formData: any) {
     } else {
         console.warn(`[SMS_SKIPPED] Insufficient SMS balance to send credentials to ${formData.phone}`)
     }
+
+    // 6. Send Welcome Email
+    if (domain) {
+        await sendWelcomeEmail(formData.email, schoolName, domain, tempPassword)
+    }
+
 
     revalidatePath('/[domain]/dashboard/admin/staff', 'page')
     return { success: true, tempPassword }

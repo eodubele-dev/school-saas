@@ -5,7 +5,7 @@ import { WelcomePlatinumEmail } from '@/components/emails/welcome-platinum';
 
 // const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function sendWelcomeEmail(to: string, schoolName: string, subdomain: string) {
+export async function sendWelcomeEmail(to: string, schoolName: string, subdomain: string, password?: string) {
     console.log(`[Email Service] Attempting to send Welcome Email to ${to}`);
 
     try {
@@ -23,6 +23,10 @@ export async function sendWelcomeEmail(to: string, schoolName: string, subdomain
         console.log(`📧 EMAIL SENT: Welcome to the Future of ${schoolName}`);
         console.log(`To: ${to}`);
         console.log(`Subject: Your Command Center is Ready`);
+        if (password) {
+            console.log(`Email: ${to}`);
+            console.log(`Password: ${password}`);
+        }
         console.log(`Link: https://${subdomain}.eduflow.ng`);
         console.log("---------------------------------------------------");
 
