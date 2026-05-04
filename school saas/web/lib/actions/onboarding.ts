@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { sendSMS } from '@/lib/services/termii'
+import { SMS_CONFIG } from '@/lib/constants/communication'
+import { sendWelcomeEmail } from '@/lib/services/email'
 
 export interface AdmissionData {
     firstName: string
@@ -56,6 +58,8 @@ export async function admitStudent(data: AdmissionData) {
 
     // 2. Handle Parent (Use ID, Find by Phone, or Create)
     let parentId = data.parentId
+    let isNewParent = false
+    let parentPassword = 'password123' // Fallback for existing or error
 
     if (!parentId) {
         // Search for existing parent by phone
@@ -71,11 +75,13 @@ export async function admitStudent(data: AdmissionData) {
             parentId = existingParent.id
         } else {
             // Create root Auth User to satisfy `profiles_id_fkey` constraint
+            isNewParent = true
+            parentPassword = Math.random().toString(36).slice(-8) + "!"
             const dummyEmail = data.parentEmail || `parent_${data.parentPhone.replace(/\D/g, '')}@eduflow.local`;
 
             const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
                 email: dummyEmail,
-                password: 'password123',
+                password: parentPassword,
                 email_confirm: true,
                 user_metadata: {
                     full_name: data.parentName || `Parent of ${data.firstName}`,
@@ -89,9 +95,19 @@ export async function admitStudent(data: AdmissionData) {
                 return { success: false, error: "Failed to provision parent account: " + authError.message }
             }
 
-            // Create new parent profile
-            const authId = authData?.user?.id || crypto.randomUUID(); // Fallback conceptually, but shouldn't be reached on error
+            // If user already exists in auth, find their ID
+            let authId = authData?.user?.id;
+            if (!authId) {
+                const { data: { users }, error: listError } = await adminClient.auth.admin.listUsers();
+                const existingUser = users.find(u => u.email === dummyEmail);
+                authId = existingUser?.id;
+            }
 
+            if (!authId) {
+                return { success: false, error: "Critical Error: Could not resolve parent identity." }
+            }
+
+            // Create new parent profile for this school
             const { data: newParent, error: parentError } = await adminClient
                 .from('profiles')
                 .insert({
@@ -191,10 +207,55 @@ export async function admitStudent(data: AdmissionData) {
         }
     });
 
-    // 6. Send Welcome SMS to Parent
-    const parentPassword = 'password123'; // Matches the legacy dummy password for parents
-    const smsMessage = `Welcome to Blue-Horizon! Child: ${data.firstName} (${admissionNumber}). Parent Portal: Log in with your Phone Number (${data.parentPhone}). Password: ${parentPassword}. Link: eduflow.ng/login`
-    await sendSMS(data.parentPhone, smsMessage)
+    // 6. Send Welcome SMS to Parent (with Wallet Deduction)
+    const { data: tenant } = await adminClient
+        .from('tenants')
+        .select('name, sms_balance, slug')
+        .eq('id', tenantId)
+        .single()
+
+    const schoolName = tenant?.name || 'the school'
+    const currentBalance = Number(tenant?.sms_balance) || 0
+    const SMS_COST = SMS_CONFIG.UNIT_COST
+
+    let smsMessage = ''
+    if (isNewParent) {
+        smsMessage = `Welcome to ${schoolName}! Child: ${data.firstName} (${admissionNumber}). Parent Portal: Log in with your Phone Number (${data.parentPhone}). Password: ${parentPassword}. Link: eduflow.ng/login`
+    } else {
+        smsMessage = `Hello from ${schoolName}! Your child ${data.firstName} (${admissionNumber}) has been successfully registered. Access the parent portal at eduflow.ng/login`
+    }
+
+    if (currentBalance >= SMS_COST) {
+        const smsRes = await sendSMS(data.parentPhone, smsMessage)
+        if (smsRes.success) {
+            // Deduct balance
+            await adminClient
+                .from('tenants')
+                .update({ sms_balance: currentBalance - SMS_COST })
+                .eq('id', tenantId)
+
+            // Log transaction
+            await adminClient
+                .from('message_logs')
+                .insert({
+                    tenant_id: tenantId,
+                    sender_id: user.id,
+                    recipient_phone: data.parentPhone,
+                    recipient_name: data.parentName || 'Parent',
+                    message_content: smsMessage,
+                    channel: 'sms',
+                    status: 'sent',
+                    cost: SMS_COST,
+                    provider_ref: (smsRes.data as any)?.message_id
+                })
+        }
+    }
+
+    // 7. Send Welcome Email to Parent
+    if (data.parentEmail && tenant?.slug) {
+        await sendWelcomeEmail(data.parentEmail, schoolName, tenant.slug, isNewParent ? parentPassword : undefined)
+    }
+
 
     revalidatePath('/dashboard/admin/students')
     revalidatePath('/dashboard/admin/admissions') // Ensure wizard state might refresh if needed
