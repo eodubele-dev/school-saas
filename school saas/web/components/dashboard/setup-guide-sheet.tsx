@@ -83,7 +83,7 @@ export function SetupGuideSheet() {
                 <Button 
                     variant="outline" 
                     size="sm" 
-                    className="hidden lg:flex bg-blue-500/10 border-blue-500/20 text-blue-400 hover:bg-blue-500/20 hover:text-blue-300"
+                    className="hidden lg:flex bg-blue-500/10 border-blue-500/20 text-blue-400 hover:bg-blue-500/20 hover:text-blue-300 shrink-0 whitespace-nowrap"
                 >
                     Setup Guide
                 </Button>

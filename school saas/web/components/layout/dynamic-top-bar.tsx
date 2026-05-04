@@ -277,7 +277,7 @@ export function DynamicTopBar({
                 </div>
 
                 {/* ZONE 3: DYNAMIC UTILITIES & PROFILE */}
-                <div className="flex items-center gap-3 md:gap-4">
+                <div className="flex items-center gap-3 md:gap-4 shrink-0">
 
                     {/* Role Specific Actions */}
                     {renderRoleUtilities()}
@@ -324,13 +324,7 @@ export function DynamicTopBar({
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    {/* Help */}
-                    <button
-                        onClick={() => toast.info("Help Center coming soon!")}
-                        className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-full hover:bg-secondary/50 hidden sm:block outline-none"
-                    >
-                        <HelpCircle size={20} />
-                    </button>
+
 
                     {/* Profile */}
                     {userProfile && (
