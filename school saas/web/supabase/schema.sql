@@ -23,7 +23,7 @@ create table if not exists public.profiles (
 );
 
 -- Classes
-create table public.classes (
+create table if not exists public.classes (
   id uuid default gen_random_uuid() primary key,
   tenant_id uuid references public.tenants(id) not null,
   name text not null,
@@ -32,7 +32,7 @@ create table public.classes (
 );
 
 -- Students
-create table public.students (
+create table if not exists public.students (
   id uuid default gen_random_uuid() primary key,
   tenant_id uuid references public.tenants(id) not null,
   full_name text not null,
@@ -42,7 +42,7 @@ create table public.students (
 );
 
 -- Lesson Plans
-create table public.lesson_plans (
+create table if not exists public.lesson_plans (
   id uuid default gen_random_uuid() primary key,
   tenant_id uuid references public.tenants(id) not null,
   class_id uuid references public.classes(id),
@@ -55,7 +55,7 @@ create table public.lesson_plans (
 );
 
 -- Staff Attendance
-create table public.staff_attendance (
+create table if not exists public.staff_attendance (
   id uuid default gen_random_uuid() primary key,
   tenant_id uuid references public.tenants(id) not null,
   staff_id uuid references public.profiles(id) not null,
@@ -77,6 +77,7 @@ alter table public.staff_attendance enable row level security;
 -- Policies
 
 -- Tenants: Public read for subdomain resolution (or restrict to authenticated later)
+drop policy if exists "Tenants are viewable by everyone" on public.tenants;
 create policy "Tenants are viewable by everyone" on public.tenants for select using (true);
 
 -- Functions to get current user tenant(s)
@@ -86,31 +87,37 @@ returns setof uuid as $$
 $$ language sql security definer;
 
 -- Profiles: Viewable if in same tenant
+drop policy if exists "Profiles viewable by same tenant" on public.profiles;
 create policy "Profiles viewable by same tenant" on public.profiles
   for select using (tenant_id in (select get_auth_tenants()));
 
 -- Users can update their own profile
+drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile" on public.profiles
   for update using (auth.uid() = id);
 
 -- Classes: Viewable by tenant members
+drop policy if exists "Classes viewable by tenant" on public.classes;
 create policy "Classes viewable by tenant" on public.classes
   for select using (tenant_id in (select get_auth_tenants()));
 
 -- Students: Viewable by tenant members
+drop policy if exists "Students viewable by tenant" on public.students;
 create policy "Students viewable by tenant" on public.students
   for select using (tenant_id in (select get_auth_tenants()));
 
 -- Lesson Plans: Viewable by tenant members
+drop policy if exists "Lesson plans viewable by tenant" on public.lesson_plans;
 create policy "Lesson plans viewable by tenant" on public.lesson_plans
   for select using (tenant_id in (select get_auth_tenants()));
 
 -- Staff Attendance: Viewable by tenant members
+drop policy if exists "Staff attendance viewable by tenant" on public.staff_attendance;
 create policy "Staff attendance viewable by tenant" on public.staff_attendance
   for select using (tenant_id in (select get_auth_tenants()));
 
 -- Fees
-create table public.fees (
+create table if not exists public.fees (
   id uuid default gen_random_uuid() primary key,
   tenant_id uuid references public.tenants(id) not null,
   student_id uuid references public.students(id) not null,
@@ -122,7 +129,7 @@ create table public.fees (
 );
 
 -- Hostels
-create table public.hostels (
+create table if not exists public.hostels (
   id uuid default gen_random_uuid() primary key,
   tenant_id uuid references public.tenants(id) not null,
   name text not null,
@@ -132,7 +139,7 @@ create table public.hostels (
 );
 
 -- Hostel Rooms
-create table public.hostel_rooms (
+create table if not exists public.hostel_rooms (
   id uuid default gen_random_uuid() primary key,
   hostel_id uuid references public.hostels(id) not null,
   room_number text not null,
@@ -146,18 +153,21 @@ alter table public.fees enable row level security;
 alter table public.hostels enable row level security;
 alter table public.hostel_rooms enable row level security;
 
+drop policy if exists "Fees viewable by tenant" on public.fees;
 create policy "Fees viewable by tenant" on public.fees
-  for select using (tenant_id = get_auth_tenant_id());
+  for select using (tenant_id in (select get_auth_tenants()));
 
+drop policy if exists "Hostels viewable by tenant" on public.hostels;
 create policy "Hostels viewable by tenant" on public.hostels
-  for select using (tenant_id = get_auth_tenant_id());
+  for select using (tenant_id in (select get_auth_tenants()));
 
+drop policy if exists "Hostel rooms viewable by tenant" on public.hostel_rooms;
 create policy "Hostel rooms viewable by tenant" on public.hostel_rooms
   for select using (
     exists (
       select 1 from public.hostels h
       where h.id = hostel_id
-      and h.tenant_id = get_auth_tenant_id()
+      and h.tenant_id in (select get_auth_tenants())
     )
   );
 
