@@ -26,12 +26,12 @@ alter table public.class_levels enable row level security;
 -- 5. Policies for Class Levels
 drop policy if exists "Class levels viewable by tenant" on public.class_levels;
 create policy "Class levels viewable by tenant" on public.class_levels
-    for select using (tenant_id = (select tenant_id from public.profiles where id = auth.uid()));
+    for select using (tenant_id in (select get_auth_tenants()));
 
 drop policy if exists "Class levels manageable by admin" on public.class_levels;
 create policy "Class levels manageable by admin" on public.class_levels
     for all using (
-        (select tenant_id from public.profiles where id = auth.uid()) = tenant_id
+        tenant_id in (select get_auth_tenants())
         and (select role from public.profiles where id = auth.uid()) IN ('admin', 'owner', 'super-admin')
     );
 
@@ -57,12 +57,12 @@ alter table public.grade_scales enable row level security;
 -- 9. Policies for Grade Scales
 drop policy if exists "Grade scales viewable by tenant" on public.grade_scales;
 create policy "Grade scales viewable by tenant" on public.grade_scales
-    for select using (tenant_id = (select tenant_id from public.profiles where id = auth.uid()));
+    for select using (tenant_id in (select get_auth_tenants()));
 
 drop policy if exists "Grade scales manageable by admin" on public.grade_scales;
 create policy "Grade scales manageable by admin" on public.grade_scales
     for all using (
-        (select tenant_id from public.profiles where id = auth.uid()) = tenant_id
+        tenant_id in (select get_auth_tenants())
         and (select role from public.profiles where id = auth.uid()) IN ('admin', 'owner', 'super-admin')
     );
 
@@ -70,7 +70,7 @@ create policy "Grade scales manageable by admin" on public.grade_scales
 drop policy if exists "Classes manageable by admin" on public.classes;
 create policy "Classes manageable by admin" on public.classes
     for all using (
-        (select tenant_id from public.profiles where id = auth.uid()) = tenant_id
+        tenant_id in (select get_auth_tenants())
         and (select role from public.profiles where id = auth.uid()) IN ('admin', 'owner', 'super-admin')
     );
 
@@ -78,6 +78,6 @@ create policy "Classes manageable by admin" on public.classes
 drop policy if exists "Subjects manageable by admin" on public.subjects;
 create policy "Subjects manageable by admin" on public.subjects
     for all using (
-        (select tenant_id from public.profiles where id = auth.uid()) = tenant_id
+        tenant_id in (select get_auth_tenants())
         and (select role from public.profiles where id = auth.uid()) IN ('admin', 'owner', 'super-admin')
     );

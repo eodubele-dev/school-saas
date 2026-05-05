@@ -79,15 +79,15 @@ alter table public.staff_attendance enable row level security;
 -- Tenants: Public read for subdomain resolution (or restrict to authenticated later)
 create policy "Tenants are viewable by everyone" on public.tenants for select using (true);
 
--- Functions to get current user tenant
-create or replace function get_auth_tenant_id()
-returns uuid as $$
+-- Functions to get current user tenant(s)
+create or replace function get_auth_tenants()
+returns setof uuid as $$
   select tenant_id from public.profiles where id = auth.uid();
 $$ language sql security definer;
 
 -- Profiles: Viewable if in same tenant
 create policy "Profiles viewable by same tenant" on public.profiles
-  for select using (tenant_id = get_auth_tenant_id());
+  for select using (tenant_id in (select get_auth_tenants()));
 
 -- Users can update their own profile
 create policy "Users can update own profile" on public.profiles
@@ -95,19 +95,19 @@ create policy "Users can update own profile" on public.profiles
 
 -- Classes: Viewable by tenant members
 create policy "Classes viewable by tenant" on public.classes
-  for select using (tenant_id = get_auth_tenant_id());
+  for select using (tenant_id in (select get_auth_tenants()));
 
 -- Students: Viewable by tenant members
 create policy "Students viewable by tenant" on public.students
-  for select using (tenant_id = get_auth_tenant_id());
+  for select using (tenant_id in (select get_auth_tenants()));
 
 -- Lesson Plans: Viewable by tenant members
 create policy "Lesson plans viewable by tenant" on public.lesson_plans
-  for select using (tenant_id = get_auth_tenant_id());
+  for select using (tenant_id in (select get_auth_tenants()));
 
 -- Staff Attendance: Viewable by tenant members
 create policy "Staff attendance viewable by tenant" on public.staff_attendance
-  for select using (tenant_id = get_auth_tenant_id());
+  for select using (tenant_id in (select get_auth_tenants()));
 
 -- Fees
 create table public.fees (

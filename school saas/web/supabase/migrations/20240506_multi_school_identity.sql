@@ -46,9 +46,15 @@ ALTER TABLE public.hostels
     REFERENCES public.profiles(id, tenant_id) ON DELETE SET NULL;
 
 -- 4. Update RLS Policies to be tenant-aware for profiles
+-- Use a security definer function to break recursion
+CREATE OR REPLACE FUNCTION get_auth_tenants()
+RETURNS SETOF uuid AS $$
+  SELECT tenant_id FROM public.profiles WHERE id = auth.uid();
+$$ LANGUAGE sql SECURITY DEFINER;
+
 DROP POLICY IF EXISTS "Profiles viewable by same tenant" ON public.profiles;
 CREATE POLICY "Profiles viewable by same tenant" ON public.profiles
-    FOR SELECT USING (tenant_id = (SELECT tenant_id FROM public.profiles WHERE id = auth.uid() LIMIT 1));
+    FOR SELECT USING (tenant_id IN (SELECT get_auth_tenants()));
 
 DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile" ON public.profiles
