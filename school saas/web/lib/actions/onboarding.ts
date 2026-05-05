@@ -84,7 +84,7 @@ export async function admitStudent(data: AdmissionData) {
     // 2. Handle Parent (Use ID, Find by Phone, or Create)
     let parentId = data.parentId
     let isNewParent = false
-    let parentPassword = 'password123' // Fallback for existing or error
+    let parentPassword = Math.random().toString(36).slice(-8) // Generate a random 8-char password
 
     if (!parentId) {
         // Search for existing parent by phone
