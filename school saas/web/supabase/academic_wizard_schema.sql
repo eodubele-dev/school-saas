@@ -32,7 +32,7 @@ drop policy if exists "Class levels manageable by admin" on public.class_levels;
 create policy "Class levels manageable by admin" on public.class_levels
     for all using (
         (select tenant_id from public.profiles where id = auth.uid()) = tenant_id
-        and (select role from public.profiles where id = auth.uid()) = 'admin'
+        and (select role from public.profiles where id = auth.uid()) IN ('admin', 'owner', 'super-admin')
     );
 
 -- 6. Indexes
@@ -63,7 +63,7 @@ drop policy if exists "Grade scales manageable by admin" on public.grade_scales;
 create policy "Grade scales manageable by admin" on public.grade_scales
     for all using (
         (select tenant_id from public.profiles where id = auth.uid()) = tenant_id
-        and (select role from public.profiles where id = auth.uid()) = 'admin'
+        and (select role from public.profiles where id = auth.uid()) IN ('admin', 'owner', 'super-admin')
     );
 
 -- 10. Missing RLS Policies for Classes (Fixed)
@@ -71,7 +71,7 @@ drop policy if exists "Classes manageable by admin" on public.classes;
 create policy "Classes manageable by admin" on public.classes
     for all using (
         (select tenant_id from public.profiles where id = auth.uid()) = tenant_id
-        and (select role from public.profiles where id = auth.uid()) = 'admin'
+        and (select role from public.profiles where id = auth.uid()) IN ('admin', 'owner', 'super-admin')
     );
 
 -- 11. Missing RLS Policies for Subjects (Fixed)
@@ -79,5 +79,5 @@ drop policy if exists "Subjects manageable by admin" on public.subjects;
 create policy "Subjects manageable by admin" on public.subjects
     for all using (
         (select tenant_id from public.profiles where id = auth.uid()) = tenant_id
-        and (select role from public.profiles where id = auth.uid()) = 'admin'
+        and (select role from public.profiles where id = auth.uid()) IN ('admin', 'owner', 'super-admin')
     );

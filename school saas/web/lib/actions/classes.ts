@@ -37,14 +37,26 @@ export async function getClasses() {
     const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
     if (!profile) return { success: false, error: "Profile not found" }
 
-    const { data, error } = await supabase
+    const supabaseAdmin = createAdminClient()
+    const { data, error } = await supabaseAdmin
         .from('classes')
-        .select('*')
+        .select('*, class_levels(name)')
         .eq('tenant_id', profile.tenant_id)
         .order('name')
 
-    if (error) return { success: false, error: error.message }
-    return { success: true, data }
+    console.log(`[getClasses] Tenant: ${profile.tenant_id}, Found: ${data?.length || 0} classes`)
+    if (error) {
+        console.error(`[getClasses] Error:`, error)
+        return { success: false, error: error.message }
+    }
+    
+    // Format the name to include the level (e.g. "JSS 1 Gold")
+    const formattedData = (data || []).map((cls: any) => ({
+        ...cls,
+        name: cls.class_levels?.name ? `${cls.class_levels.name} ${cls.name}` : cls.name
+    }))
+
+    return { success: true, data: formattedData }
 }
 
 /**

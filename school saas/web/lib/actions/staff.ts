@@ -29,6 +29,8 @@ export async function getTeachersForAssignment() {
         .eq('role', 'teacher')
         .order('full_name')
 
+    console.log(`[getTeachers] Tenant: ${profile.tenant_id}, Found: ${data?.length || 0} teachers`)
+
     if (error) return { success: false, error: error.message }
 
     return { success: true, data }
