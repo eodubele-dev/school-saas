@@ -1,0 +1,19 @@
+import { createClient } from '@supabase/supabase-js'
+
+const SUPABASE_URL = 'https://jggcixrapxccbxckuofw.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnZ2NpeHJhcHhjY2J4Y2t1b2Z3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTUxMjQ5NCwiZXhwIjoyMDg1MDg4NDk0fQ.9XH9gzZdNRu1zkSl4BBo5jOmSIuvdAEJGBWgLcHl-vU'
+
+const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+async function testListUsersPagination() {
+    console.log("Testing listUsers with pagination...")
+    const listResponse = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 })
+    
+    if (listResponse.error) {
+        console.error("List Users Error:", listResponse.error)
+    } else {
+        console.log(`Success! Found ${listResponse.data.users.length} users.`)
+    }
+}
+
+testListUsersPagination()

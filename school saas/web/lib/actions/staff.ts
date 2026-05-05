@@ -218,21 +218,22 @@ export async function createStaff(formData: any, domain?: string) {
         return { success: false, error: "Only admins can add staff" }
     }
 
-    // 2. Check if user already exists in Auth
-    const listResponse = await supabaseAdmin.auth.admin.listUsers()
-    if (listResponse.error) {
-        console.error("List Users Error:", listResponse.error)
-        return { success: false, error: listResponse.error.message }
+    // 2. Check if user already exists in Auth (Using RPC for stability)
+    const { data: existingUserId, error: searchError } = await supabaseAdmin.rpc('get_user_id_by_email', { 
+        user_email: formData.email 
+    })
+
+    if (searchError) {
+        console.error("RPC Error finding user:", searchError)
+        // Fallback to createUser if RPC fails or isn't installed yet
     }
-    const existingUsers = listResponse.data?.users || []
-    const existingUser = existingUsers.find(u => u.email === formData.email)
 
     let staffId: string
     let isNewUser = false
     let tempPassword = ""
 
-    if (existingUser) {
-        staffId = existingUser.id
+    if (existingUserId) {
+        staffId = existingUserId
         
         // Check if they already have a profile in THIS school
         const { data: existingProfile } = await supabaseAdmin
