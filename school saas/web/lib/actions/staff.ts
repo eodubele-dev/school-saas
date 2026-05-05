@@ -158,14 +158,14 @@ export async function createStaff(formData: any, domain?: string) {
     if (!user) return { success: false, error: "Unauthorized" }
 
     // Get Tenant ID via Domain
-    const { data: tenant } = await supabase
+    const { data: school } = await supabase
         .from('tenants')
         .select('id')
         .eq('slug', domain)
         .single()
 
-    if (!tenant?.id) return { success: false, error: "School not found" }
-    const tenantId = tenant.id
+    if (!school?.id) return { success: false, error: "School not found" }
+    const tenantId = school.id
 
     // Check if user is authorized for THIS tenant
     const { data: adminProfile } = await supabase
