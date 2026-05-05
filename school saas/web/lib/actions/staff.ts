@@ -166,32 +166,49 @@ export async function createStaff(formData: any, domain?: string) {
         return { success: false, error: "Only admins can add staff" }
     }
 
-    // 2. Create User (Standard Auth)
-    // Using admin client to invite by email to skip email verification (optional) or just signUp
-    // For credential delivery logic (Magic Link), we typically use inviteUserByEmail
+    // 2. Check if user already exists in Auth
+    const { data: { users: existingUsers }, error: searchError } = await supabaseAdmin.auth.admin.listUsers()
+    const existingUser = existingUsers?.find(u => u.email === formData.email)
 
-    // Note: This sends the built-in Supabase invite email. 
-    // To send custom Termii SMS, we would generate the link manually or use a password reset flow.
-    // For this prototype, we will create the user with a temporary password and "Simulate" the SMS.
+    let staffId: string
+    let isNewUser = false
+    let tempPassword = ""
 
-    // For credentials delivery, we create a secure random password
-    const tempPassword = Math.random().toString(36).slice(-8) + "!" // 8 chars + !
+    if (existingUser) {
+        staffId = existingUser.id
+        
+        // Check if they already have a profile in THIS school
+        const { data: existingProfile } = await supabaseAdmin
+            .from('profiles')
+            .select('id')
+            .eq('id', staffId)
+            .eq('tenant_id', adminProfile.tenant_id)
+            .maybeSingle()
 
-    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-        email: formData.email,
-        password: tempPassword,
-        email_confirm: true,
-        user_metadata: {
-            full_name: `${formData.firstName} ${formData.lastName}`,
-            tenant_id: adminProfile.tenant_id,
-            phone: formData.phone // Save to metadata
+        if (existingProfile) {
+            return { success: false, error: "This person is already registered as staff in this school." }
         }
-    })
+    } else {
+        // Create User (Standard Auth)
+        isNewUser = true
+        tempPassword = Math.random().toString(36).slice(-8) + "!" // 8 chars + !
 
-    if (createError) return { success: false, error: createError.message }
-    if (!newUser.user) return { success: false, error: "Failed to create user" }
+        const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+            email: formData.email,
+            password: tempPassword,
+            email_confirm: true,
+            user_metadata: {
+                full_name: `${formData.firstName} ${formData.lastName}`,
+                tenant_id: adminProfile.tenant_id,
+                phone: formData.phone
+            }
+        })
 
-    const staffId = newUser.user.id
+        if (createError) return { success: false, error: createError.message }
+        if (!newUser.user) return { success: false, error: "Failed to create user" }
+        
+        staffId = newUser.user.id
+    }
 
     // 3. Create Profile (Manually if trigger doesn't handle it, or update it)
     // Assuming we need to insert or update profile with role
@@ -248,7 +265,13 @@ export async function createStaff(formData: any, domain?: string) {
     const schoolName = tenant?.name || "our"
     const appName = process.env.NEXT_PUBLIC_APP_NAME || "EduFlow"
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "eduflow.ng"
-    const loginMessage = `Welcome to the ${schoolName} Team! Your ${appName} login is: ${formData.email}. Password: ${tempPassword}. Login at: ${siteUrl}/login`
+
+    let loginMessage = ""
+    if (isNewUser) {
+        loginMessage = `Welcome to the ${schoolName} Team! Your ${appName} login is: ${formData.email}. Password: ${tempPassword}. Login at: ${siteUrl}/login`
+    } else {
+        loginMessage = `You have been added to the ${schoolName} team on ${appName}. Log in with your existing credentials at: ${siteUrl}/login`
+    }
 
     let smsStatus = "skipped"
     if (currentBalance >= SMS_COST) {
