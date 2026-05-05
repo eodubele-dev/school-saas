@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner"
 import { SignaturePad } from "@/components/ui/signature-pad"
 import { updateStaffProfile } from "@/lib/actions/staff"
+import { useParams } from "next/navigation"
 
 interface StaffEditModalProps {
     user: any
@@ -42,11 +43,13 @@ export function StaffEditModal({ user, isOpen, onClose }: StaffEditModalProps) {
     })
 
     const router = useRouter()
+    const params = useParams()
+    const domain = params.domain as string
 
     const handleUpdate = async () => {
         setLoading(true)
         try {
-            const res = await updateStaffProfile(user.id, formData)
+            const res = await updateStaffProfile(user.id, formData, domain)
 
             if (res.success) {
                 toast.success("Staff profile updated successfully")

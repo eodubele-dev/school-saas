@@ -42,14 +42,15 @@ export async function getStaffList(domain: string, page = 1, query = "") {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
-    // Get Tenant ID
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('tenant_id')
-        .eq('id', user.id)
+    // Get Tenant ID via Domain
+    const { data: tenant } = await supabase
+        .from('tenants')
+        .select('id')
+        .eq('slug', domain)
         .single()
 
-    if (!profile?.tenant_id) return { success: false, error: "Tenant not found" }
+    if (!tenant?.id) return { success: false, error: "School not found" }
+    const tenantId = tenant.id
 
     const ITEMS_PER_PAGE = 10
     const from = (page - 1) * ITEMS_PER_PAGE
@@ -69,7 +70,7 @@ export async function getStaffList(domain: string, page = 1, query = "") {
                 can_send_bulk_sms
             )
         `, { count: 'exact' })
-        .eq('tenant_id', profile.tenant_id)
+        .eq('tenant_id', tenantId)
         .in('role', ['admin', 'teacher', 'bursar', 'registrar', 'support_staff', 'owner'])
         .order('created_at', { ascending: false })
         .range(from, to)
@@ -156,10 +157,22 @@ export async function createStaff(formData: any, domain?: string) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
+    // Get Tenant ID via Domain
+    const { data: tenant } = await supabase
+        .from('tenants')
+        .select('id')
+        .eq('slug', domain)
+        .single()
+
+    if (!tenant?.id) return { success: false, error: "School not found" }
+    const tenantId = tenant.id
+
+    // Check if user is authorized for THIS tenant
     const { data: adminProfile } = await supabase
         .from('profiles')
-        .select('tenant_id, role')
+        .select('role')
         .eq('id', user.id)
+        .eq('tenant_id', tenantId)
         .single()
 
     const isAdmin = adminProfile?.role === 'admin' || adminProfile?.role === 'super-admin' || adminProfile?.role === 'owner'
@@ -183,7 +196,7 @@ export async function createStaff(formData: any, domain?: string) {
             .from('profiles')
             .select('id')
             .eq('id', staffId)
-            .eq('tenant_id', adminProfile.tenant_id)
+            .eq('tenant_id', tenantId)
             .maybeSingle()
 
         if (existingProfile) {
@@ -200,7 +213,7 @@ export async function createStaff(formData: any, domain?: string) {
             email_confirm: true,
             user_metadata: {
                 full_name: `${formData.firstName} ${formData.lastName}`,
-                tenant_id: adminProfile.tenant_id,
+                tenant_id: tenantId,
                 phone: formData.phone
             }
         })
@@ -217,7 +230,7 @@ export async function createStaff(formData: any, domain?: string) {
         .from('profiles')
         .insert({
             id: staffId,
-            tenant_id: adminProfile.tenant_id,
+            tenant_id: tenantId,
             full_name: `${formData.firstName} ${formData.lastName}`,
             role: formData.role,
             department: formData.department,
@@ -241,7 +254,7 @@ export async function createStaff(formData: any, domain?: string) {
     const { error: permError } = await supabaseAdmin
         .from('staff_permissions')
         .insert({
-            tenant_id: adminProfile.tenant_id,
+            tenant_id: tenantId,
             staff_id: staffId,
             designation: formData.designation,
             signature_url: formData.signature, // Storing Data URL directly
@@ -258,7 +271,7 @@ export async function createStaff(formData: any, domain?: string) {
     const { data: tenant } = await supabaseAdmin
         .from('tenants')
         .select('name, sms_balance')
-        .eq('id', adminProfile.tenant_id)
+        .eq('id', tenantId)
         .single()
         
     let currentBalance = Number(tenant?.sms_balance) || 0
@@ -284,13 +297,13 @@ export async function createStaff(formData: any, domain?: string) {
             await supabaseAdmin
                 .from('tenants')
                 .update({ sms_balance: currentBalance - SMS_COST })
-                .eq('id', adminProfile.tenant_id)
+                .eq('id', tenantId)
                 
             // Log transaction
             await supabaseAdmin
                 .from('message_logs')
                 .insert({
-                    tenant_id: adminProfile.tenant_id,
+                    tenant_id: tenantId,
                     sender_id: user.id,
                     recipient_phone: formData.phone,
                     recipient_name: `${formData.firstName} ${formData.lastName}`,
@@ -323,8 +336,9 @@ export async function updateStaffProfile(userId: string, data: {
     phone: string,
     department: string,
     designation: string,
-    signature?: string | null
-}) {
+    signature?: string | null,
+    tenant_id?: string
+}, domain?: string) {
     const supabase = createClient()
     const supabaseAdmin = createAdminClient()
 
@@ -332,10 +346,25 @@ export async function updateStaffProfile(userId: string, data: {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
+    let tenantId = data.tenant_id // Optional override
+    
+    if (domain) {
+        const { data: tenant } = await supabase
+            .from('tenants')
+            .select('id')
+            .eq('slug', domain)
+            .single()
+        if (tenant) tenantId = tenant.id
+    }
+
+    if (!tenantId) return { success: false, error: "Tenant context required" }
+
+    // Check if user is authorized for THIS tenant
     const { data: adminProfile } = await supabase
         .from('profiles')
-        .select('tenant_id, role')
+        .select('role')
         .eq('id', user.id)
+        .eq('tenant_id', tenantId)
         .single()
 
     const isAdmin = adminProfile?.role === 'admin' || adminProfile?.role === 'super-admin' || adminProfile?.role === 'owner'
@@ -352,14 +381,14 @@ export async function updateStaffProfile(userId: string, data: {
             department: data.department
         })
         .eq('id', userId)
-        .eq('tenant_id', adminProfile.tenant_id)
+        .eq('tenant_id', tenantId)
 
     if (profileError) return { success: false, error: profileError.message }
 
     // 3. Update Staff Permissions (Using Upsert for robustness)
     const permUpdates: any = {
         staff_id: userId,
-        tenant_id: adminProfile.tenant_id,
+        tenant_id: tenantId,
         designation: data.designation
     }
     if (data.signature) {
