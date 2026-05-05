@@ -247,9 +247,9 @@ export async function admitStudent(data: AdmissionData) {
 
     let smsMessage = ''
     if (isNewParent) {
-        smsMessage = `Welcome to ${schoolName}! Child: ${data.firstName} (${admissionNumber}). Parent Portal: Log in with your Phone Number (${data.parentPhone}). Password: ${parentPassword}. Link: eduflow.ng/login`
+        smsMessage = `Welcome to ${schoolName}! \nParent Login: ${data.parentPhone} (Pwd: ${parentPassword})\nStudent (${data.firstName}) Login: ${studentAuthEmail} (Pwd: ${studentPassword})\nLogin at: eduflow.ng/login`
     } else {
-        smsMessage = `Hello from ${schoolName}! Your child ${data.firstName} (${admissionNumber}) has been successfully registered. Access the parent portal at eduflow.ng/login`
+        smsMessage = `Hello from ${schoolName}! ${data.firstName} (${admissionNumber}) registered successfully.\nStudent Login: ${studentAuthEmail} (Pwd: ${studentPassword})\nLogin at: eduflow.ng/login`
     }
 
     if (currentBalance >= SMS_COST) {
@@ -280,7 +280,17 @@ export async function admitStudent(data: AdmissionData) {
 
     // 7. Send Welcome Email to Parent
     if (data.parentEmail && tenant?.slug) {
-        await sendWelcomeEmail(data.parentEmail, schoolName, tenant.slug, isNewParent ? parentPassword : undefined)
+        await sendWelcomeEmail(
+            data.parentEmail, 
+            schoolName, 
+            tenant.slug, 
+            isNewParent ? parentPassword : undefined,
+            {
+                name: data.firstName,
+                email: studentAuthEmail,
+                password: studentPassword
+            }
+        )
     }
 
 

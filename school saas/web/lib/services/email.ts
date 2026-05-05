@@ -5,27 +5,32 @@ import { WelcomePlatinumEmail } from '@/components/emails/welcome-platinum';
 
 // const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function sendWelcomeEmail(to: string, schoolName: string, subdomain: string, password?: string) {
+export async function sendWelcomeEmail(
+    to: string, 
+    schoolName: string, 
+    subdomain: string, 
+    password?: string,
+    studentDetails?: { name: string, email: string, password: string }
+) {
     console.log(`[Email Service] Attempting to send Welcome Email to ${to}`);
 
     try {
-        // In a real environment with Resend installed:
-        // const emailHtml = render(<WelcomePlatinumEmail schoolName={schoolName} subdomain={subdomain} userEmail={to} />);
-        // await resend.emails.send({
-        //     from: 'EduFlow Platinum <support@eduflow.ng>',
-        //     to,
-        //     subject: `Welcome to the Future of ${schoolName} // Your Command Center is Ready`,
-        //     html: emailHtml
-        // });
-
         // SIMULATION FOR DEMO:
         console.log("---------------------------------------------------");
         console.log(`📧 EMAIL SENT: Welcome to the Future of ${schoolName}`);
         console.log(`To: ${to}`);
         console.log(`Subject: Your Command Center is Ready`);
+        
         if (password) {
-            console.log(`Email: ${to}`);
+            console.log(`PARENT CREDENTIALS:`);
+            console.log(`Email/Phone: ${to}`);
             console.log(`Password: ${password}`);
+        }
+
+        if (studentDetails) {
+            console.log(`STUDENT CREDENTIALS (${studentDetails.name}):`);
+            console.log(`Login ID: ${studentDetails.email}`);
+            console.log(`Password: ${studentDetails.password}`);
         }
         console.log(`Link: https://${subdomain}.eduflow.ng`);
         console.log("---------------------------------------------------");
