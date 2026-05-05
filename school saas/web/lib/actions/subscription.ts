@@ -4,6 +4,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { SubscriptionTier, SUBSCRIPTION_PRICING } from '@/config/subscriptions'
 
 /**
  * Upgrade a tenant's plan from within the dashboard.
@@ -35,10 +36,7 @@ export async function upgradeTenantPlan(data: {
 
         // Verify amount (Naira to Kobo)
         const paidAmount = verifyData.data.amount / 100
-        const expectedAmount = data.plan === 'starter' ? 20000
-                            : data.plan === 'professional' ? 50000
-                            : data.plan === 'platinum' ? 150000
-                            : 0
+        const expectedAmount = SUBSCRIPTION_PRICING[data.plan as SubscriptionTier] || 0
         
         if (paidAmount < expectedAmount) {
             throw new Error(`INSUFFICIENT_PAYMENT: Expected ₦${expectedAmount}, but received ₦${paidAmount}.`)

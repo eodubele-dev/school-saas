@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { SubscriptionTier, SUBSCRIPTION_LIMITS } from '@/config/subscriptions'
 import { sendSMS } from '@/lib/services/termii'
 import { SMS_CONFIG } from '@/lib/constants/communication'
 import { sendWelcomeEmail } from '@/lib/services/email'
@@ -53,7 +54,7 @@ export async function admitStudent(data: AdmissionData) {
         .eq('id', tenantId)
         .single()
 
-    const currentTier = tenantInfo?.subscription_tier || 'starter'
+    const currentTier = (tenantInfo?.subscription_tier || 'starter') as SubscriptionTier
     
     // Check current student count
     const { count: studentCount } = await adminClient
@@ -61,9 +62,7 @@ export async function admitStudent(data: AdmissionData) {
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', tenantId)
 
-    const limit = currentTier === 'pilot' ? 100 
-                : currentTier === 'starter' ? 300 
-                : Infinity
+    const limit = SUBSCRIPTION_LIMITS.STUDENT_CAPACITY[currentTier]
 
     if ((studentCount || 0) >= limit) {
         return { 
@@ -376,10 +375,7 @@ export async function createTenant(data: OnboardingData) {
             // Optional: Verify amount (Paystack amount is in kobo)
             const paidAmount = verifyData.data.amount / 100
             const expectedAmount = data.plan === 'pilot' ? 10000 
-                                : data.plan === 'starter' ? 20000
-                                : data.plan === 'professional' ? 50000
-                                : data.plan === 'platinum' ? 150000
-                                : 0
+                                : SUBSCRIPTION_PRICING[data.plan as SubscriptionTier] || 0
             
             if (paidAmount < expectedAmount) {
                 throw new Error(`INSUFFICIENT_PAYMENT: Expected ₦${expectedAmount}, but received ₦${paidAmount}.`)

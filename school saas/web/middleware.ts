@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { SIDEBAR_LINKS, type UserRole } from '@/config/sidebar'
+import { PROTECTED_ZONES, TIER_RANK as TIER_MAP } from './config/subscriptions'
 
 export const config = {
   matcher: [
@@ -290,22 +291,9 @@ export default async function middleware(req: NextRequest) {
     }
 
     // d. Subscription Tier Guard (The "Tier-Gate")
-    const TIER_MAP: Record<string, number> = { 'pilot': 0, 'starter': 1, 'professional': 2, 'platinum': 3 }
     const currentTierRank = TIER_MAP[userTier] ?? 1
 
-    const protectedZones = [
-      { prefix: '/dashboard/admin/security/gate', min: 'platinum' },
-      { prefix: '/dashboard/admin/health', min: 'platinum' },
-      { prefix: '/dashboard/admin/voice', min: 'platinum' },
-      { prefix: '/dashboard/admin/curriculum', min: 'platinum' },
-      { prefix: '/dashboard/logistics', min: 'professional' },
-      { prefix: '/dashboard/admin/hostels', min: 'professional' },
-      { prefix: '/dashboard/admin/inventory', min: 'professional' },
-      { prefix: '/dashboard/bursar', min: 'professional' },
-      { prefix: '/dashboard/admin/executive', min: 'professional' },
-    ]
-
-    const zone = protectedZones.find(z => path.startsWith(z.prefix))
+    const zone = PROTECTED_ZONES.find(z => path.startsWith(z.prefix))
     if (zone && currentTierRank < TIER_MAP[zone.min]) {
       console.warn(`TIER VIOLATION: ${user.email} (${userTier}) attempted ${path} (Required: ${zone.min})`)
       return NextResponse.rewrite(new URL('/403?reason=upgrade', req.url))

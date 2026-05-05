@@ -38,14 +38,7 @@ import { getUnreadMessageCount } from "@/lib/actions/communication"
 import { createClient } from "@/lib/supabase/client"
 import { useOfflineVault } from "@/components/providers/offline-vault-provider"
 import { Database } from "lucide-react"
-import { SubscriptionTier } from "@/lib/hooks/use-feature-access"
-
-const TIER_RANK: Record<string, number> = {
-    'pilot': 0,
-    'starter': 1,
-    'professional': 2,
-    'platinum': 3
-}
+import { SubscriptionTier, TIER_RANK } from "@/config/subscriptions"
 
 
 export function SidebarClient({

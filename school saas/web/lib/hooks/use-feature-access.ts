@@ -6,15 +6,7 @@ import { useSession } from "next-auth/react" // Note: Assuming standard session 
 
 import { createClient } from "@/lib/supabase/client"
 import { useEffect, useState } from "react"
-
-export type SubscriptionTier = 'pilot' | 'starter' | 'professional' | 'platinum'
-
-const TIER_RANK: Record<SubscriptionTier, number> = {
-    'pilot': 0,
-    'starter': 1,
-    'professional': 2,
-    'platinum': 3
-}
+import { SubscriptionTier, TIER_RANK } from "@/config/subscriptions"
 
 export function useFeatureAccess() {
     const [tier, setTier] = useState<SubscriptionTier>('starter')
