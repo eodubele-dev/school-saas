@@ -11,7 +11,7 @@ export const SITE_CONFIG = {
         linkedin: "https://linkedin.com/company/eduflow",
         github: "https://github.com/eduflow",
         download: {
-            windows: "/downloads/win/EduFlow-Setup.exe",
+            windows: "https://jggcixrapxccbxckuofw.supabase.co/storage/v1/object/public/workstation-releases/EduFlow-Platinum_1.0.0_x64_en-US.msi",
             mac: "/downloads/mac/EduFlow-Installer.dmg"
         }
     },

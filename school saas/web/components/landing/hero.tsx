@@ -3,13 +3,17 @@ import { ArrowRight, PlayCircle, Monitor, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { isDesktop } from "@/lib/utils/desktop"
+import { SITE_CONFIG } from "@/lib/constants/site-config"
 
 export function HeroSection() {
     const [showDownload, setShowDownload] = useState(false)
+    const [hasDownloaded, setHasDownloaded] = useState(false)
 
     useEffect(() => {
-        // Only show download button if we are on the web
-        setShowDownload(!isDesktop())
+        // Only show download button if we are on the web and NOT already downloaded
+        const downloaded = localStorage.getItem('eduflow_downloaded') === 'true'
+        setHasDownloaded(downloaded)
+        setShowDownload(!isDesktop() && !downloaded)
     }, [])
 
     return (
@@ -48,7 +52,14 @@ export function HeroSection() {
                     
                     {showDownload ? (
                         <Button asChild size="lg" variant="outline" className="bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20 text-blue-400 h-12 px-8 w-full sm:w-auto backdrop-blur-md group relative">
-                            <Link href="https://jggcixrapxccbxckuofw.supabase.co/storage/v1/object/public/workstation-releases/EduFlow-Platinum_1.0.0_x64_en-US.msi">
+                            <Link 
+                                href={SITE_CONFIG.links.download.windows}
+                                onClick={() => {
+                                    localStorage.setItem('eduflow_downloaded', 'true')
+                                    setHasDownloaded(true)
+                                    setShowDownload(false)
+                                }}
+                            >
                                 <Monitor className="mr-2 h-4 w-4" /> Download for Windows
                                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
