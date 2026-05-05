@@ -1,8 +1,9 @@
 import { safeParseJSON } from "@/lib/utils"
+import { SITE_CONFIG } from "@/lib/constants/site-config"
 
 export async function sendSMS(to: string, message: string) {
     const apiKey = process.env.TERMII_API_KEY
-    const senderId = process.env.TERMII_SENDER_ID || 'EduFlow'
+    const senderId = process.env.TERMII_SENDER_ID || SITE_CONFIG.shortName
     const baseUrl = process.env.TERMII_BASE_URL || 'https://v3.api.termii.com'
 
     if (!apiKey) {

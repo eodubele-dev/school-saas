@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache"
 import { sendSMS } from "@/lib/services/termii"
 import { SMS_CONFIG } from "@/lib/constants/communication"
 import { sendWelcomeEmail } from "@/lib/services/email"
+import { SITE_CONFIG } from "@/lib/constants/site-config"
 
 export async function getTeachersForAssignment() {
     const supabase = createClient()
@@ -262,9 +263,9 @@ export async function createStaff(formData: any, domain?: string) {
         
     let currentBalance = Number(tenant?.sms_balance) || 0
     const SMS_COST = SMS_CONFIG.UNIT_COST
-    const schoolName = tenant?.name || "our"
-    const appName = process.env.NEXT_PUBLIC_APP_NAME || "EduFlow"
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "eduflow.ng"
+    const schoolName = tenant?.name || "the school"
+    const appName = process.env.NEXT_PUBLIC_APP_NAME || SITE_CONFIG.shortName
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `https://${process.env.NEXT_PUBLIC_COOKIE_DOMAIN || 'app.site'}`
 
     let loginMessage = ""
     if (isNewUser) {

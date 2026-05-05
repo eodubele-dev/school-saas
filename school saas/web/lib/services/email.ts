@@ -32,7 +32,7 @@ export async function sendWelcomeEmail(
             console.log(`Login ID: ${studentDetails.email}`);
             console.log(`Password: ${studentDetails.password}`);
         }
-        console.log(`Link: https://${subdomain}.eduflow.ng`);
+        console.log(`Link: https://${subdomain}.${process.env.NEXT_PUBLIC_COOKIE_DOMAIN || 'app.site'}`);
         console.log("---------------------------------------------------");
 
         return { success: true };
