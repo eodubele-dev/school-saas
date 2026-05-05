@@ -219,8 +219,13 @@ export async function createStaff(formData: any, domain?: string) {
     }
 
     // 2. Check if user already exists in Auth
-    const { data: { users: existingUsers }, error: searchError } = await supabaseAdmin.auth.admin.listUsers()
-    const existingUser = existingUsers?.find(u => u.email === formData.email)
+    const listResponse = await supabaseAdmin.auth.admin.listUsers()
+    if (listResponse.error) {
+        console.error("List Users Error:", listResponse.error)
+        return { success: false, error: listResponse.error.message }
+    }
+    const existingUsers = listResponse.data?.users || []
+    const existingUser = existingUsers.find(u => u.email === formData.email)
 
     let staffId: string
     let isNewUser = false
@@ -257,7 +262,7 @@ export async function createStaff(formData: any, domain?: string) {
         })
 
         if (createError) return { success: false, error: createError.message }
-        if (!newUser.user) return { success: false, error: "Failed to create user" }
+        if (!newUser?.user) return { success: false, error: "Failed to create user" }
         
         staffId = newUser.user.id
     }
@@ -276,16 +281,21 @@ export async function createStaff(formData: any, domain?: string) {
         })
         .select()
 
-    // If conflict (trigger created it), update it
-    if (profileError && profileError.code === '23505') {
-        await supabaseAdmin
-            .from('profiles')
-            .update({
-                role: formData.role,
-                department: formData.department,
-                full_name: `${formData.firstName} ${formData.lastName}`
-            })
-            .eq('id', staffId)
+    // If error occurs, check if it's a conflict
+    if (profileError) {
+        if (profileError.code === '23505') {
+            await supabaseAdmin
+                .from('profiles')
+                .update({
+                    role: formData.role,
+                    department: formData.department,
+                    full_name: `${formData.firstName} ${formData.lastName}`
+                })
+                .eq('id', staffId)
+        } else {
+            console.error("Profile Creation Error:", profileError)
+            return { success: false, error: "Failed to create staff profile: " + profileError.message }
+        }
     }
 
     // 4. Create Staff Permissions & Signature
@@ -303,6 +313,7 @@ export async function createStaff(formData: any, domain?: string) {
 
     if (permError) {
         console.error("Permission Error", permError)
+        return { success: false, error: "Failed to assign permissions: " + permError.message }
     }
 
     // 5. Send Credentials via SMS (with Wallet Deduction)
