@@ -38,6 +38,14 @@ import { getUnreadMessageCount } from "@/lib/actions/communication"
 import { createClient } from "@/lib/supabase/client"
 import { useOfflineVault } from "@/components/providers/offline-vault-provider"
 import { Database } from "lucide-react"
+import { SubscriptionTier } from "@/lib/hooks/use-feature-access"
+
+const TIER_RANK: Record<string, number> = {
+    'pilot': 0,
+    'starter': 1,
+    'professional': 2,
+    'platinum': 3
+}
 
 
 export function SidebarClient({
@@ -309,7 +317,9 @@ export function SidebarClient({
     }
 
     // Determine if tier is premium
-    const isPremium = tier === 'platinum' || tier === 'pilot'
+    const currentTierRank = TIER_RANK[tier] || 1
+    const isPremium = currentTierRank >= TIER_RANK['professional']
+    const isPlatinum = tier === 'platinum'
 
     return (
         <TooltipProvider>
@@ -443,10 +453,13 @@ export function SidebarClient({
                                                 ? normalizedPath === normalizedHref
                                                 : normalizedPath.startsWith(normalizedHref))
 
-                                            const isPremiumFeature = item.badge === 'Premium'
+                                            const requiredTier = item.requiredTier
+                                            const isLockedByTier = requiredTier && TIER_RANK[tier] < TIER_RANK[requiredTier]
+                                            const isDisabled = item.disabled || isLockedByTier
+                                            const isPremiumFeature = item.badge === 'Premium' || (requiredTier && TIER_RANK[requiredTier] >= TIER_RANK['professional'])
 
-                                            // Tooltip Wrapper for Disabled Items
-                                            if (item.disabled) {
+                                            // Tooltip Wrapper for Disabled/Locked Items
+                                            if (isDisabled) {
                                                 return (
                                                     <Tooltip key={item.label} delayDuration={0}>
                                                         <TooltipTrigger asChild>
@@ -466,10 +479,14 @@ export function SidebarClient({
                                                             </div>
                                                         </TooltipTrigger>
                                                         <TooltipContent side="right" className="bg-card text-card-foreground border-border text-slate-300">
-                                                            <p className="font-semibold text-amber-500 mb-1 flex items-center gap-1">
-                                                                <Crown size={12} /> Premium Feature
+                                                            <p className="font-semibold text-amber-500 mb-1 flex items-center gap-1 text-[10px] uppercase tracking-tighter">
+                                                                <Crown size={12} /> {isLockedByTier ? `${requiredTier?.toUpperCase()} UPGRADE REQUIRED` : 'Premium Module'}
                                                             </p>
-                                                            <p className="text-xs">Contact administration to unlock {t(item.label)}.</p>
+                                                            <p className="text-[10px] opacity-80 leading-relaxed uppercase tracking-widest font-bold">
+                                                                {isLockedByTier 
+                                                                    ? `This module is restricted to ${requiredTier} institutions.` 
+                                                                    : `Contact administration to unlock ${t(item.label)}.`}
+                                                            </p>
                                                         </TooltipContent>
                                                     </Tooltip>
                                                 )

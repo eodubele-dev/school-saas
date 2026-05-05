@@ -1,5 +1,6 @@
 'use server'
 
+import { createClient } from '@/lib/supabase/server'
 import { model } from '@/lib/gemini'
 
 interface StudentScores {
@@ -16,6 +17,15 @@ interface StudentScores {
  * Generates a professional 3-sentence academic narrative for a Nigerian report card.
  */
 export async function generateStudentRemark(scores: StudentScores): Promise<string> {
+    // --- TIER CHECK ---
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const tier = user?.app_metadata?.subscriptionTier
+    
+    if (tier !== 'platinum') {
+        return "AI Behavioral Remarks are exclusive to Platinum institutions. Please upgrade to unlock this feature."
+    }
+
     const prompt = `
         Act as a Senior Principal of a prestigious Nigerian Private School.
         Your tone must be strictly formal, academically rigorous, and encouraging.

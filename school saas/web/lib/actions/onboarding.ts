@@ -46,6 +46,32 @@ export async function admitStudent(data: AdmissionData) {
 
     const adminClient = createAdminClient()
 
+    // --- 0.5. CAPACITY CHECK ---
+    const { data: tenantInfo } = await adminClient
+        .from('tenants')
+        .select('subscription_tier')
+        .eq('id', tenantId)
+        .single()
+
+    const currentTier = tenantInfo?.subscription_tier || 'starter'
+    
+    // Check current student count
+    const { count: studentCount } = await adminClient
+        .from('students')
+        .select('*', { count: 'exact', head: true })
+        .eq('tenant_id', tenantId)
+
+    const limit = currentTier === 'pilot' ? 100 
+                : currentTier === 'starter' ? 300 
+                : Infinity
+
+    if ((studentCount || 0) >= limit) {
+        return { 
+            success: false, 
+            error: `CAPACITY_REACHED: Your current ${currentTier.toUpperCase()} plan is limited to ${limit} students. Please upgrade to admit more students.` 
+        }
+    }
+
     // 1. Get Active Session
     const { data: session } = await supabase
         .from('academic_sessions')
@@ -386,7 +412,7 @@ export async function createTenant(data: OnboardingData) {
                     levels: data.levels,
                     features: {
                         waec_integration: data.waecStats,
-                        ai_enabled: data.plan === 'platinum' || data.plan === 'pilot'
+                        ai_enabled: data.plan === 'platinum'
                     }
                 }
             })

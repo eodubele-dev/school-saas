@@ -269,7 +269,8 @@ export default async function middleware(req: NextRequest) {
     // Try to get context from JWT (Stateless) to avoid DB Call
     let userTenantId = user.app_metadata?.tenantId
     let userRole = user.app_metadata?.role as UserRole
-    let userFullName = user.user_metadata?.full_name // user_metadata is standard for profile info
+    let userTier = user.app_metadata?.subscriptionTier as string
+    let userFullName = user.user_metadata?.full_name 
 
     // Fallback: If JWT claims are missing (e.g. old session), fetch from DB
     if (!userTenantId || !userRole) {
@@ -283,7 +284,31 @@ export default async function middleware(req: NextRequest) {
         userTenantId = profile.tenant_id
         userRole = profile.role as UserRole
         userFullName = profile.full_name
+        // @ts-ignore
+        userTier = profile.subscription_tier || 'starter'
       }
+    }
+
+    // d. Subscription Tier Guard (The "Tier-Gate")
+    const TIER_MAP: Record<string, number> = { 'pilot': 0, 'starter': 1, 'professional': 2, 'platinum': 3 }
+    const currentTierRank = TIER_MAP[userTier] ?? 1
+
+    const protectedZones = [
+      { prefix: '/dashboard/admin/security/gate', min: 'platinum' },
+      { prefix: '/dashboard/admin/health', min: 'platinum' },
+      { prefix: '/dashboard/admin/voice', min: 'platinum' },
+      { prefix: '/dashboard/admin/curriculum', min: 'platinum' },
+      { prefix: '/dashboard/logistics', min: 'professional' },
+      { prefix: '/dashboard/admin/hostels', min: 'professional' },
+      { prefix: '/dashboard/admin/inventory', min: 'professional' },
+      { prefix: '/dashboard/bursar', min: 'professional' },
+      { prefix: '/dashboard/admin/executive', min: 'professional' },
+    ]
+
+    const zone = protectedZones.find(z => path.startsWith(z.prefix))
+    if (zone && currentTierRank < TIER_MAP[zone.min]) {
+      console.warn(`TIER VIOLATION: ${user.email} (${userTier}) attempted ${path} (Required: ${zone.min})`)
+      return NextResponse.rewrite(new URL('/403?reason=upgrade', req.url))
     }
 
     // c. Tenant Isolation Guard

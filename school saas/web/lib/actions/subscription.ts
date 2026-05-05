@@ -75,7 +75,7 @@ export async function upgradeTenantPlan(data: {
                     ...(tenant.theme_config as any),
                     features: {
                         ...((tenant.theme_config as any)?.features || {}),
-                        ai_enabled: data.plan === 'platinum' || data.plan === 'pilot'
+                        ai_enabled: data.plan === 'platinum'
                     }
                 }
             })
