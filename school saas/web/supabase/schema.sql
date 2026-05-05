@@ -15,11 +15,12 @@ create table if not exists public.tenants (
 -- Create profiles table (extends auth.users)
 -- Note: auth.users is managed by Supabase. We link to it via ID.
 create table if not exists public.profiles (
-  id uuid references auth.users on delete cascade primary key,
+  id uuid references auth.users on delete cascade,
   tenant_id uuid references public.tenants(id),
   full_name text,
-  role text check (role in ('admin', 'teacher', 'parent', 'student', 'bursar', 'registrar', 'owner', 'manager')) default 'parent',
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  role text check (role in ('admin', 'teacher', 'parent', 'student', 'bursar', 'registrar', 'owner', 'manager', 'support_staff')) default 'parent',
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  primary key (id, tenant_id)
 );
 
 -- Classes
