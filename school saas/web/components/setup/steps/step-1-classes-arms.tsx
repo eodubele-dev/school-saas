@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -47,8 +46,6 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
     const [teachers, setTeachers] = useState<Teacher[]>([])
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
-    const [tenantId, setTenantId] = useState<string | null>(null)
-    const supabase = createClient()
 
     // Dialog States
     const [isAddLevelOpen, setIsAddLevelOpen] = useState(false)

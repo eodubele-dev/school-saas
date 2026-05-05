@@ -244,7 +244,9 @@ export async function createStaff(formData: any, domain?: string) {
     let currentBalance = Number(tenant?.sms_balance) || 0
     const SMS_COST = SMS_CONFIG.UNIT_COST
     const schoolName = tenant?.name || "our"
-    const loginMessage = `Welcome to the ${schoolName} Team! Your EduFlow login is: ${formData.email}. Password: ${tempPassword}. Login at: ${process.env.NEXT_PUBLIC_SITE_URL || 'eduflow.ng'}/login`
+    const appName = process.env.NEXT_PUBLIC_APP_NAME || "EduFlow"
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "eduflow.ng"
+    const loginMessage = `Welcome to the ${schoolName} Team! Your ${appName} login is: ${formData.email}. Password: ${tempPassword}. Login at: ${siteUrl}/login`
 
     let smsStatus = "skipped"
     if (currentBalance >= SMS_COST) {

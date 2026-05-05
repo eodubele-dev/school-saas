@@ -18,7 +18,7 @@ export function createClient() {
                             name,
                             value,
                             ...options,
-                            domain: process.env.NODE_ENV === 'production' ? '.eduflow.ng' : undefined
+                            domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN
                         })
                     } catch {
                         // The `set` method was called from a Server Component.
@@ -32,7 +32,7 @@ export function createClient() {
                             name,
                             value: '',
                             ...options,
-                            domain: process.env.NODE_ENV === 'production' ? '.eduflow.ng' : undefined
+                            domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN
                         })
                     } catch {
                         // The `delete` method was called from a Server Component.

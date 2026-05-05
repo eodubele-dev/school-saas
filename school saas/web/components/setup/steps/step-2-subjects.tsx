@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,7 +17,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getSubjects } from "@/lib/actions/academic"
+import { getSubjects, addSubject, importSubjects, deleteSubject } from "@/lib/actions/academic"
 
 // Placeholder NERDC Data
 const NERDC_JUNIOR = ["Mathematics", "English Language", "Basic Science", "Basic Technology", "Civic Education", "Social Studies", "Agricultural Science", "Business Studies", "Home Economics", "Computer Studies"]
@@ -28,8 +27,6 @@ export function SubjectRegistryStep({ onNext, onPrev }: { onNext: () => void, on
     const [subjects, setSubjects] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [importing, setImporting] = useState(false)
-    const [tenantId, setTenantId] = useState<string | null>(null)
-    const supabase = createClient()
 
     // Modal States
     const [isAddSubjectOpen, setIsAddSubjectOpen] = useState(false)
@@ -64,34 +61,38 @@ export function SubjectRegistryStep({ onNext, onPrev }: { onNext: () => void, on
     }
 
     const importNERDC = async () => {
-        if (!tenantId) {
-            toast.error("Tenant ID not found. Please refresh.")
-            return
-        }
-
         setConfirmConfig({
             isOpen: true,
             title: "Import NERDC Subjects?",
             description: "This will bulk import Standard Nigerian Subjects into your registry. Existing subjects with same names will be skipped.",
             onConfirm: async () => {
                 setImporting(true)
-                const allSubjects = [
-                    ...NERDC_JUNIOR.map(s => ({ name: s, category: 'Junior', code: s.substring(0, 3).toUpperCase(), tenant_id: tenantId })),
-                    ...NERDC_SENIOR.map(s => ({ name: s, category: 'Senior', code: s.substring(0, 3).toUpperCase(), tenant_id: tenantId }))
-                ]
+                try {
+                    const allSubjects = [
+                        ...NERDC_JUNIOR.map(s => ({ name: s, category: 'Junior', code: s.substring(0, 3).toUpperCase() })),
+                        ...NERDC_SENIOR.map(s => ({ name: s, category: 'Senior', code: s.substring(0, 3).toUpperCase() }))
+                    ]
 
-                let count = 0
-                for (const sub of allSubjects) {
-                    const exists = subjects.find(s => s.name === sub.name && s.category === sub.category)
-                    if (!exists) {
-                        await supabase.from('subjects').insert(sub)
-                        count++
+                    const newSubjects = allSubjects.filter(sub => 
+                        !subjects.find(s => s.name === sub.name && s.category === sub.category)
+                    )
+
+                    if (newSubjects.length > 0) {
+                        const res = await importSubjects(newSubjects)
+                        if (res.success) {
+                            toast.success(`Imported ${newSubjects.length} new subjects`)
+                            await fetchSubjects()
+                        } else {
+                            toast.error(res.error)
+                        }
+                    } else {
+                        toast.info("All standard subjects already exist.")
                     }
+                } catch (e) {
+                    toast.error("Import failed")
+                } finally {
+                    setImporting(false)
                 }
-
-                await fetchSubjects()
-                setImporting(false)
-                toast.success(`Imported ${count} new subjects from NERDC curriculum`)
             }
         })
     }
@@ -102,39 +103,36 @@ export function SubjectRegistryStep({ onNext, onPrev }: { onNext: () => void, on
         setIsAddSubjectOpen(true)
     }
 
-    const addSubject = async () => {
-        if (!tenantId) {
-            toast.error("Tenant ID not found")
-            return
-        }
+    const handleAddSubject = async () => {
         if (!newSubjectName) return
 
-        const { error } = await supabase.from('subjects').insert({
+        const res = await addSubject({
             name: newSubjectName,
             category: newSubjectCategory,
-            code: newSubjectName.substring(0, 3).toUpperCase(),
-            tenant_id: tenantId
+            code: newSubjectName.substring(0, 3).toUpperCase()
         })
 
-        if (!error) {
+        if (res.success) {
             fetchSubjects()
             toast.success("Subject Added")
             setIsAddSubjectOpen(false)
         } else {
-            toast.error("Failed to add subject: " + error.message)
+            toast.error("Failed to add subject: " + res.error)
         }
     }
 
-    const deleteSubject = async (id: string) => {
+    const handleDeleteSubject = async (id: string) => {
         setConfirmConfig({
             isOpen: true,
             title: "Delete Subject?",
             description: "Are you sure you want to remove this subject?",
             onConfirm: async () => {
-                const { error } = await supabase.from('subjects').delete().eq('id', id)
-                if (!error) {
+                const res = await deleteSubject(id)
+                if (res.success) {
                     setSubjects(subjects.filter(s => s.id !== id))
                     toast.success("Subject Deleted")
+                } else {
+                    toast.error(res.error)
                 }
             }
         })
@@ -166,13 +164,13 @@ export function SubjectRegistryStep({ onNext, onPrev }: { onNext: () => void, on
                 <SubjectList
                     title="Junior Secondary"
                     subjects={subjects.filter(s => s.category === 'Junior' || s.category === 'Universal')}
-                    onDelete={deleteSubject}
+                    onDelete={handleDeleteSubject}
                 />
                 {/* Senior Subjects */}
                 <SubjectList
                     title="Senior Secondary"
                     subjects={subjects.filter(s => s.category === 'Senior' || s.category === 'Universal')}
-                    onDelete={deleteSubject}
+                    onDelete={handleDeleteSubject}
                 />
             </div>
 
@@ -231,7 +229,7 @@ export function SubjectRegistryStep({ onNext, onPrev }: { onNext: () => void, on
                     </div>
                     <DialogFooter>
                         <Button variant="ghost" onClick={() => setIsAddSubjectOpen(false)} className="text-muted-foreground">Cancel</Button>
-                        <Button onClick={addSubject} className="bg-[var(--school-accent)] text-foreground">Add Subject</Button>
+                        <Button onClick={handleAddSubject} className="bg-[var(--school-accent)] text-foreground">Add Subject</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

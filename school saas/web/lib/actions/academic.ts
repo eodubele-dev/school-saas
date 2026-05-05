@@ -337,3 +337,51 @@ export async function getSubjects() {
     if (error) return { success: false, error: error.message }
     return { success: true, data }
 }
+/**
+ * Add a new subject
+ */
+export async function addSubject(data: { name: string, category: string, code: string }) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Profile not found" }
+
+    const { error } = await supabase.from('subjects').insert({
+        ...data,
+        tenant_id: profile.tenant_id
+    })
+
+    if (error) return { success: false, error: error.message }
+    return { success: true }
+}
+
+/**
+ * Bulk import subjects
+ */
+export async function importSubjects(subjects: { name: string, category: string, code: string }[]) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Profile not found" }
+
+    const subjectsWithTenant = subjects.map(s => ({ ...s, tenant_id: profile.tenant_id }))
+
+    const { error } = await supabase.from('subjects').insert(subjectsWithTenant)
+
+    if (error) return { success: false, error: error.message }
+    return { success: true }
+}
+
+/**
+ * Delete a subject
+ */
+export async function deleteSubject(id: string) {
+    const supabase = createClient()
+    const { error } = await supabase.from('subjects').delete().eq('id', id)
+    if (error) return { success: false, error: error.message }
+    return { success: true }
+}
