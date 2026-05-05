@@ -3,7 +3,7 @@ import { safeParseJSON } from "@/lib/utils"
 export async function sendSMS(to: string, message: string) {
     const apiKey = process.env.TERMII_API_KEY
     const senderId = process.env.TERMII_SENDER_ID || 'EduFlow'
-    const baseUrl = process.env.TERMII_BASE_URL || 'https://api.ng.termii.com'
+    const baseUrl = process.env.TERMII_BASE_URL || 'https://v3.api.termii.com'
 
     if (!apiKey) {
         console.warn('⚠️ TERMII_API_KEY not set. SMS simulated.')
@@ -40,11 +40,25 @@ export async function sendSMS(to: string, message: string) {
 
         const data = await safeParseJSON(response)
 
-        if (!response.ok) {
-            console.error('Termii API Error:', data)
-            return { success: false, error: data.message || 'SMS failed' }
+        // Termii often returns 200 OK even for failures, but includes a 'message' field
+        // Typical success message is "Successfully Sent" or "Sent"
+        const isSuccess = response.ok && (
+            data?.message === "Successfully Sent" || 
+            data?.message === "Sent" || 
+            data?.code === "ok" || 
+            data?.message?.toLowerCase().includes("successfully")
+        )
+
+        if (!isSuccess) {
+            console.error('Termii Delivery Failure:', data)
+            return { 
+                success: false, 
+                error: data?.message || 'SMS delivery failed at provider level',
+                code: data?.code
+            }
         }
 
+        console.log(`[SMS SUCCESS] Sent to ${formattedTo} via Termii`)
         return { success: true, data }
 
     } catch (error: any) {
@@ -61,7 +75,7 @@ export async function sendSMS(to: string, message: string) {
 
 export async function getWalletBalance() {
     const apiKey = process.env.TERMII_API_KEY
-    const baseUrl = process.env.TERMII_BASE_URL || 'https://api.ng.termii.com'
+    const baseUrl = process.env.TERMII_BASE_URL || 'https://v3.api.termii.com'
 
     if (!apiKey) {
         console.warn('⚠️ TERMII_API_KEY not set. Using mock balance.')
