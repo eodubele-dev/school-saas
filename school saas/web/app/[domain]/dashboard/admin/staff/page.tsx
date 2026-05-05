@@ -14,11 +14,22 @@ export default async function StaffPage({ params, searchParams }: { params: { do
 
     if (!user) redirect(`/${params.domain}/login`)
 
-    // Admin Check
+    // Get Tenant Context via Domain
+    const { data: tenantContext } = await supabase
+        .from('tenants')
+        .select('id')
+        .eq('slug', params.domain)
+        .single()
+
+    if (!tenantContext) redirect('/login')
+    const tenantId = tenantContext.id
+
+    // Admin Check for THIS tenant
     const { data: profile } = await supabase
         .from('profiles')
         .select('role, tenant_id')
         .eq('id', user.id)
+        .eq('tenant_id', tenantId)
         .single()
 
     if (profile?.role !== 'admin' && profile?.role !== 'super-admin' && profile?.role !== 'owner') {
@@ -35,14 +46,14 @@ export default async function StaffPage({ params, searchParams }: { params: { do
     const { data: classes } = await supabase
         .from('classes')
         .select('id, name')
-        .eq('tenant_id', profile.tenant_id as any)
+        .eq('tenant_id', tenantId as any)
         .order('name')
 
     // Fetch Branding using tenant_id (Most reliable since we already verified the admin profile)
     const { data: tenant, error: tenantError } = await supabase
         .from('tenants')
         .select('name, logo_url, theme_config')
-        .eq('id', profile.tenant_id as any)
+        .eq('id', tenantId as any)
         .single()
 
     if (tenantError) {

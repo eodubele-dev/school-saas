@@ -8,29 +8,45 @@ import { SMS_CONFIG } from "@/lib/constants/communication"
 import { sendWelcomeEmail } from "@/lib/services/email"
 import { SITE_CONFIG } from "@/lib/constants/site-config"
 
-export async function getTeachersForAssignment() {
+export async function getTeachersForAssignment(domain?: string) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
-    // Get Tenant ID
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('tenant_id')
-        .eq('id', user.id)
-        .single()
+    // Get Tenant ID via Domain
+    let tenantId: string | undefined
+    
+    if (domain) {
+        const { data: tenant } = await supabase
+            .from('tenants')
+            .select('id')
+            .eq('slug', domain)
+            .single()
+        tenantId = tenant?.id
+    }
 
-    if (!profile?.tenant_id) return { success: false, error: "Tenant not found" }
+    if (!tenantId) {
+        // Fallback to first tenant if no domain provided (legacy support)
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('tenant_id')
+            .eq('id', user.id)
+            .limit(1)
+            .single()
+        tenantId = profile?.tenant_id
+    }
+
+    if (!tenantId) return { success: false, error: "Tenant not found" }
 
     const supabaseAdmin = createAdminClient()
     const { data, error } = await supabaseAdmin
         .from('profiles')
         .select('id, full_name')
-        .eq('tenant_id', profile.tenant_id)
+        .eq('tenant_id', tenantId)
         .eq('role', 'teacher')
         .order('full_name')
 
-    console.log(`[getTeachers] Tenant: ${profile.tenant_id}, Found: ${data?.length || 0} teachers`)
+    console.log(`[getTeachers] Tenant: ${tenantId}, Found: ${data?.length || 0} teachers`)
 
     if (error) return { success: false, error: error.message }
 
@@ -49,7 +65,10 @@ export async function getStaffList(domain: string, page = 1, query = "") {
         .eq('slug', domain)
         .single()
 
-    if (!tenant?.id) return { success: false, error: "School not found" }
+    if (!tenant?.id) {
+        console.error(`[getStaffList] Tenant not found for domain: ${domain}`)
+        return { success: false, error: "School not found" }
+    }
     const tenantId = tenant.id
 
     const ITEMS_PER_PAGE = 10
@@ -81,7 +100,10 @@ export async function getStaffList(domain: string, page = 1, query = "") {
 
     const { data: profiles, count, error } = await dbQuery
 
-    if (error) return { success: false, error: error.message }
+    if (error) {
+        console.error(`[getStaffList] Database query error for tenant ${tenantId}:`, error)
+        return { success: false, error: error.message }
+    }
 
     // 4. Enrich with emails from auth.users (since email column is missing in profiles)
     const { data: { users: authUsers }, error: authError } = await supabaseAdmin.auth.admin.listUsers()
@@ -102,22 +124,33 @@ export async function getStaffList(domain: string, page = 1, query = "") {
     }
 }
 
-export async function updateStaffRole(userId: string, newRole: string, newDepartment?: string) {
+export async function updateStaffRole(userId: string, newRole: string, domain?: string, newDepartment?: string) {
     const supabase = createClient()
 
     // 1. Auth Check
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
-    // 2. Admin Check
+    // Get Tenant ID via Domain
+    const { data: tenant } = await supabase
+        .from('tenants')
+        .select('id')
+        .eq('slug', domain)
+        .single()
+
+    if (!tenant?.id) return { success: false, error: "School not found" }
+    const tenantId = tenant.id
+
+    // 2. Admin Check for THIS tenant
     const { data: adminProfile } = await supabase
         .from('profiles')
-        .select('role, tenant_id')
+        .select('role')
         .eq('id', user.id)
+        .eq('tenant_id', tenantId)
         .single()
 
     const isAdmin = adminProfile?.role === 'admin' || adminProfile?.role === 'super-admin' || adminProfile?.role === 'owner'
-    if (!isAdmin) return { success: false, error: "Only admins can update roles" }
+    if (!adminProfile || !isAdmin) return { success: false, error: "Only admins can update roles" }
 
     // 3. Update Target User
     const updates: any = { role: newRole }
@@ -128,7 +161,7 @@ export async function updateStaffRole(userId: string, newRole: string, newDepart
         .from('profiles')
         .update(updates)
         .eq('id', userId)
-        .eq('tenant_id', adminProfile.tenant_id)
+        .eq('tenant_id', tenantId)
 
     if (error) return { success: false, error: error.message }
 
@@ -136,13 +169,18 @@ export async function updateStaffRole(userId: string, newRole: string, newDepart
     return { success: true }
 }
 
-export async function updateStaffStatus(userId: string, status: 'active' | 'inactive') {
+export async function updateStaffStatus(userId: string, status: 'active' | 'inactive', domain?: string) {
     const supabase = createClient()
     // Admin check assumed similar to above (omitted for brevity)
+    // Resolve Tenant ID
+    const { data: tenant } = await supabase.from('tenants').select('id').eq('slug', domain).single()
+    const tenantId = tenant?.id
+
     const { error } = await supabase
         .from('profiles')
         .update({ status })
         .eq('id', userId)
+        .eq('tenant_id', tenantId)
 
     if (error) return { success: false, error: error.message }
     revalidatePath('/[domain]/dashboard/admin/staff', 'page')
