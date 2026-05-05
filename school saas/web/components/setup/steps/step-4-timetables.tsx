@@ -10,6 +10,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Plus, Trash2, ArrowLeft, Check, Clock, Calendar, User, BookOpen } from "lucide-react"
 import { toast } from "sonner"
 import { createTimetableSlot, deleteTimetableSlot, getFullTimetable } from "@/lib/actions/schedule"
+import { getClasses } from "@/lib/actions/classes"
+import { getSubjects } from "@/lib/actions/academic"
+import { getTeachersForAssignment } from "@/lib/actions/staff"
 import { cn } from "@/lib/utils"
 
 export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
@@ -37,15 +40,15 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
         setLoading(true)
         try {
             const [classesRes, subjectsRes, teachersRes, timetableRes] = await Promise.all([
-                supabase.from('classes').select('id, name').order('name'),
-                supabase.from('subjects').select('id, name').order('name'),
-                supabase.from('profiles').select('id, full_name').eq('role', 'teacher').order('full_name'),
+                getClasses(),
+                getSubjects(),
+                getTeachersForAssignment(),
                 getFullTimetable()
             ])
 
-            if (classesRes.data) setClasses(classesRes.data)
-            if (subjectsRes.data) setSubjects(subjectsRes.data)
-            if (teachersRes.data) setTeachers(teachersRes.data)
+            if (classesRes.success && classesRes.data) setClasses(classesRes.data)
+            if (subjectsRes.success && subjectsRes.data) setSubjects(subjectsRes.data)
+            if (teachersRes.success && teachersRes.data) setTeachers(teachersRes.data)
             setSlots(timetableRes)
         } catch (error) {
             console.error(error)

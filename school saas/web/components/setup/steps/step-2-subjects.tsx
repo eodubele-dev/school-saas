@@ -18,7 +18,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-// Unused import removed
+import { getSubjects } from "@/lib/actions/academic"
 
 // Placeholder NERDC Data
 const NERDC_JUNIOR = ["Mathematics", "English Language", "Basic Science", "Basic Technology", "Civic Education", "Social Studies", "Agricultural Science", "Business Studies", "Home Economics", "Computer Studies"]
@@ -51,17 +51,10 @@ export function SubjectRegistryStep({ onNext, onPrev }: { onNext: () => void, on
     const fetchSubjects = async () => {
         setLoading(true)
         try {
-            // Get current user tenant
-            if (!tenantId) {
-                const { data: { user } } = await supabase.auth.getUser()
-                if (user) {
-                    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
-                    if (profile) setTenantId(profile.tenant_id)
-                }
+            const res = await getSubjects()
+            if (res.success && res.data) {
+                setSubjects(res.data)
             }
-
-            const { data } = await supabase.from('subjects').select('*').order('name')
-            if (data) setSubjects(data)
         } catch (e) {
             console.error(e)
             toast.error("Failed to load subjects")

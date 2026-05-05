@@ -184,18 +184,32 @@ export async function checkStudentFeeStatus(studentId: string, term: string, ses
 
 export async function getClassesForSelection() {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return []
+
     const { data } = await supabase
         .from('classes')
         .select('id, name')
+        .eq('tenant_id', profile.tenant_id)
         .order('name')
     return data || []
 }
 
 export async function getStudentsForSelection(classId?: string) {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return []
+
     let query = supabase
         .from('students')
         .select('id, full_name, admission_number, class_id, classes(name)')
+        .eq('tenant_id', profile.tenant_id)
         .order('full_name')
 
     if (classId) {

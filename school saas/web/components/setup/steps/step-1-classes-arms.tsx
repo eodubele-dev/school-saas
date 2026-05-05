@@ -17,7 +17,9 @@ import {
     deleteClassLevel,
     deleteClass,
     updateClassLevel,
-    updateClass
+    updateClass,
+    getClasses,
+    getClassLevels
 } from "@/lib/actions/classes"
 
 interface ClassLevel {
@@ -83,26 +85,15 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
         try {
             setLoading(true)
 
-            // Get current user tenant
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
-
-            const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
-            if (profile) setTenantId(profile.tenant_id)
-            else {
-                toast.error("User profile not found")
-                return
-            }
-
             const [levelsRes, armsRes, teachersRes] = await Promise.all([
-                supabase.from('class_levels').select('*').order('name'),
-                supabase.from('classes').select('*, class_levels(name)').order('name'),
+                getClassLevels(),
+                getClasses(),
                 getTeachersForAssignment()
             ])
 
-            if (levelsRes.data) setLevels(levelsRes.data)
-            if (armsRes.data) setArms(armsRes.data)
-            if (teachersRes.success && teachersRes.data) setTeachers(teachersRes.data)
+            if (levelsRes.success && levelsRes.data) setLevels(levelsRes.data as any)
+            if (armsRes.success && armsRes.data) setArms(armsRes.data as any)
+            if (teachersRes.success && teachersRes.data) setTeachers(teachersRes.data as any)
         } catch (error) {
             console.error(error)
             toast.error("Failed to load data")

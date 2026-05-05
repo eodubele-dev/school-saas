@@ -318,15 +318,22 @@ function getGradeLetter(score: number) {
 }
 
 /**
- * MOCK: Get Subjects
- * Needed to bypass build error from gradebook/page.tsx
+ * Get all subjects for the current tenant
  */
 export async function getSubjects() {
-    return {
-        success: true,
-        data: [
-            { id: "1", name: "Mathematics" },
-            { id: "2", name: "English Language" }
-        ]
-    }
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+    if (!profile) return { success: false, error: "Profile not found" }
+
+    const { data, error } = await supabase
+        .from('subjects')
+        .select('*')
+        .eq('tenant_id', profile.tenant_id)
+        .order('name')
+
+    if (error) return { success: false, error: error.message }
+    return { success: true, data }
 }
