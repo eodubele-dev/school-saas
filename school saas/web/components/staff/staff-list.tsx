@@ -5,7 +5,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { Search, MoreVertical, ShieldAlert, UserCog, Mail, ChevronLeft, ChevronRight } from "lucide-react"
 import { toast } from "sonner"
 import { RoleBadge } from "@/components/staff/role-badge"
-import { updateStaffRole, updateStaffStatus } from "@/lib/actions/staff"
+import { updateStaffRole, updateStaffStatus, resendStaffInvite } from "@/lib/actions/staff"
 import {
     Table,
     TableBody,
@@ -258,12 +258,27 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                                                     <Mail className="mr-2 h-4 w-4" /> Resend Invite
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-white/10" />
-                                                <DropdownMenuItem onClick={() => {
-                                                    setSelectedUser(user)
-                                                    setIsDeactivateModalOpen(true)
-                                                }} className="text-red-500 hover:bg-red-500/10 cursor-pointer">
-                                                    Deactivate Account
-                                                </DropdownMenuItem>
+                                                {user.status === 'inactive' ? (
+                                                    <DropdownMenuItem onClick={async () => {
+                                                        toast.promise(updateStaffStatus(user.id, 'active', domain), {
+                                                            loading: 'Reactivating account...',
+                                                            success: () => {
+                                                                setOptimisticStaff(prev => prev.map(u => u.id === user.id ? { ...u, status: 'active' } : u))
+                                                                return "Account reactivated successfully"
+                                                            },
+                                                            error: (err) => err.message || "Failed to reactivate"
+                                                        })
+                                                    }} className="text-green-500 hover:bg-green-500/10 cursor-pointer font-medium">
+                                                        Reactivate Account
+                                                    </DropdownMenuItem>
+                                                ) : (
+                                                    <DropdownMenuItem onClick={() => {
+                                                        setSelectedUser(user)
+                                                        setIsDeactivateModalOpen(true)
+                                                    }} className="text-red-500 hover:bg-red-500/10 cursor-pointer">
+                                                        Deactivate Account
+                                                    </DropdownMenuItem>
+                                                )}
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
