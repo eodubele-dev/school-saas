@@ -15,54 +15,77 @@ export default async function DashboardLayout({
     children: React.ReactNode
     params: { domain: string }
 }) {
-    console.log('[DashboardLayout] params:', params)
+    try {
+        console.log('[DashboardLayout] params:', params)
 
-    // Fetch Tenant Security Context
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+        // Fetch Tenant Security Context
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
 
-    const { data: tenant } = await supabase
-        .from('tenants')
-        .select('id')
-        .eq('slug', params.domain)
-        .maybeSingle()
+        const { data: tenant } = await supabase
+            .from('tenants')
+            .select('id')
+            .eq('slug', params.domain)
+            .maybeSingle()
 
-    let role = 'student'
-    if (user) {
-        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-        role = profile?.role || user.app_metadata?.role || 'student'
-    }
-    
-    const isAdmin = ['admin', 'owner', 'super-admin'].includes(role)
-
-    let masterPin = "1234"
-    if (tenant?.id) {
-        const kioskRes = await getKioskPin(tenant.id)
-        if (kioskRes.success) {
-            masterPin = kioskRes.pin || "1234"
+        let role = 'student'
+        if (user) {
+            const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+            role = profile?.role || user.app_metadata?.role || 'student'
         }
-    }
+        
+        const isAdmin = ['admin', 'owner', 'super-admin'].includes(role)
 
-    return (
-        <div className="flex flex-col h-screen w-full bg-slate-950 text-slate-100 font-sans selection:bg-blue-500/30">
-            {/* Security Hydration */}
-            <KioskInitializer masterPin={masterPin} />
+        let masterPin = "1234"
+        if (tenant?.id) {
+            const kioskRes = await getKioskPin(tenant.id)
+            if (kioskRes.success) {
+                masterPin = kioskRes.pin || "1234"
+            }
+        }
 
-            {/* Dynamic Evolution Notifications */}
-            <GlobalUpdateBanner domain={params.domain} />
+        return (
+            <div className="flex flex-col h-screen w-full bg-slate-950 text-slate-100 font-sans selection:bg-blue-500/30">
+                {/* Security Hydration */}
+                <KioskInitializer masterPin={masterPin} />
 
-            {/* Multi-School Empire Navigation (For Proprietors) */}
-            <EmpireTabBar />
-            
-            <div className="flex flex-1 overflow-hidden">
-                <Sidebar domain={params?.domain} className="hidden md:flex border-r border-slate-800" />
-                <div className="flex flex-1 flex-col overflow-hidden">
-                    <Navbar domain={params?.domain} />
-                    <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-slate-950">
-                        {children}
-                    </main>
+                {/* Dynamic Evolution Notifications */}
+                <GlobalUpdateBanner domain={params.domain} />
+
+                {/* Multi-School Empire Navigation (For Proprietors) */}
+                <EmpireTabBar />
+                
+                <div className="flex flex-1 overflow-hidden">
+                    <Sidebar domain={params?.domain} className="hidden md:flex border-r border-slate-800" />
+                    <div className="flex flex-1 flex-col overflow-hidden">
+                        <Navbar domain={params?.domain} />
+                        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-slate-950">
+                            {children}
+                        </main>
+                    </div>
                 </div>
             </div>
-        </div>
-    )
+        )
+    } catch (err: any) {
+        // Re-throw Next.js internal redirect errors
+        if (err?.message === 'NEXT_REDIRECT' || err?.digest?.includes('NEXT_REDIRECT')) {
+            throw err;
+        }
+
+        console.error("[DashboardLayout Fatal Error]:", err)
+        return (
+            <div className="p-12 text-center h-screen flex flex-col items-center justify-center bg-slate-950 text-white">
+                <div className="p-8 max-w-2xl bg-red-500/10 border border-red-500/20 rounded-2xl">
+                    <h2 className="text-2xl font-bold text-red-500 mb-4">Layout Error (500)</h2>
+                    <p className="text-slate-300 mb-6 text-sm">
+                        An error occurred in the dashboard layout.
+                    </p>
+                    <div className="text-left bg-black/40 p-4 rounded-lg overflow-auto max-h-64 text-[10px] font-mono text-red-400/80">
+                        <p className="font-bold mb-2">Error: {err?.message || "Unknown Error"}</p>
+                        {err?.stack && <pre className="whitespace-pre-wrap">{err.stack}</pre>}
+                    </div>
+                </div>
+            </div>
+        )
+    }
 }
