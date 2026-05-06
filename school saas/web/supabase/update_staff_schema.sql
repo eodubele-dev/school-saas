@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS public.teacher_allocations (
     class_id uuid REFERENCES public.classes(id) ON DELETE CASCADE,
     subject text NOT NULL,
     is_form_teacher boolean DEFAULT false,
-    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(tenant_id, teacher_id, class_id, subject)
 );
 
 -- 3. Enable RLS on Teacher Allocations
