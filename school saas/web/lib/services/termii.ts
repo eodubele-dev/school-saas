@@ -28,7 +28,7 @@ export async function sendSMS(to: string, message: string) {
             sms: message,
             type: "plain",
             api_key: apiKey,
-            channel: "generic"
+            channel: "dnd" // Switched to DND channel to bypass telco blocks
         }
 
         const url = process.env.TERMII_API_URL || `${baseUrl}/api/sms/send`
