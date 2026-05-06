@@ -291,7 +291,7 @@ export default async function middleware(req: NextRequest) {
     }
 
     // d. Subscription Tier Guard (The "Tier-Gate")
-    let currentTierRank = TIER_MAP[userTier] ?? 1
+    let currentTierRank = TIER_MAP[userTier as keyof typeof TIER_MAP] ?? 1
 
     // Trial Expiration Logic for Pilot Tier (120 days)
     if (userTier === 'pilot' && tenant?.created_at) {
