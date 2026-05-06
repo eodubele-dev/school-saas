@@ -244,6 +244,7 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                                                 <StaffIDCard user={user} tenant={tenant} />
 
                                                 <DropdownMenuItem onClick={async () => {
+                                                    console.log("[StaffList] Resending invite for user:", user.id, "Domain:", domain);
                                                     toast.promise(resendStaffInvite(user.id, domain), {
                                                         loading: 'Resending credentials...',
                                                         success: (res) => {
