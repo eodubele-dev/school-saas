@@ -470,13 +470,30 @@ export async function resendStaffInvite(userId: string, domain: string) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
-    // 2. Fetch User & Tenant Data
-    const [{ data: staffProfile }, { data: tenant }] = await Promise.all([
-        supabaseAdmin.from('profiles').select('id, full_name, role, tenant_id').eq('id', userId).single(),
-        supabase.from('tenants').select('id, name, current_session').eq('slug', domain).single()
-    ])
+    // 2. Fetch Tenant Data first
+    const { data: tenant, error: tenantErr } = await supabase
+        .from('tenants')
+        .select('id, name, current_session')
+        .eq('slug', domain)
+        .single()
 
-    if (!staffProfile || !tenant) return { success: false, error: "Staff or School not found" }
+    if (!tenant || tenantErr) {
+        console.error(`[resendStaffInvite] Tenant not found for domain ${domain}:`, tenantErr)
+        return { success: false, error: "School context not found" }
+    }
+
+    // 3. Fetch Staff Profile for THIS tenant
+    const { data: staffProfile, error: profileErr } = await supabaseAdmin
+        .from('profiles')
+        .select('id, full_name, role, tenant_id')
+        .eq('id', userId)
+        .eq('tenant_id', tenant.id)
+        .single()
+
+    if (!staffProfile || profileErr) {
+        console.error(`[resendStaffInvite] Profile not found for user ${userId} in tenant ${tenant.id}:`, profileErr)
+        return { success: false, error: "Staff profile not found in this school" }
+    }
     
     // Fetch Email from Auth
     const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId)
