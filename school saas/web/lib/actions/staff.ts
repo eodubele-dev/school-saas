@@ -233,15 +233,25 @@ export async function updateStaffStatus(userId: string, status: 'active' | 'inac
 
         if (error) {
             console.error("[updateStaffStatus] Database Error:", error);
-            return { success: false, error: error.message }
+            return { success: false, error: `Database Error: ${error.message || 'Unknown error'}` }
         }
         
-        console.log(`[updateStaffStatus] Successfully updated ${userId}`);
-        revalidatePath('/[domain]/dashboard/admin/staff', 'page')
+        console.log(`[updateStaffStatus] Successfully updated ${userId} to ${status}`);
+        
+        // Use a more specific revalidatePath if domain is provided
+        if (domain) {
+            revalidatePath(`/${domain}/dashboard/admin/staff`)
+        } else {
+            revalidatePath('/[domain]/dashboard/admin/staff', 'page')
+        }
+
         return { success: true }
     } catch (error: any) {
         console.error("[updateStaffStatus] Fatal Error:", error);
-        return { success: false, error: error?.message || "Internal Server Error during deactivation" }
+        return { 
+            success: false, 
+            error: error?.message || "Internal Server Error during deactivation" 
+        }
     }
 }
 
