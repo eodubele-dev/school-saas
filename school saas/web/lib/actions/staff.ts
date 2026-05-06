@@ -470,15 +470,18 @@ export async function resendStaffInvite(userId: string, domain: string) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
-    // 2. Fetch Tenant Data first
-    const { data: tenant, error: tenantErr } = await supabase
+    // 2. Fetch Tenant Data first (Using Admin Client to bypass any RLS issues)
+    // Strip trailing domains just in case the full hostname was passed
+    const cleanDomain = domain.replace('.eduflow.ng', '').replace('.localhost', '').replace(':3000', '');
+    
+    const { data: tenant, error: tenantErr } = await supabaseAdmin
         .from('tenants')
         .select('id, name, current_session')
-        .eq('slug', domain)
+        .eq('slug', cleanDomain)
         .single()
 
     if (!tenant || tenantErr) {
-        console.error(`[resendStaffInvite] Tenant not found for domain ${domain}:`, tenantErr)
+        console.error(`[resendStaffInvite] Tenant lookup failed. Original Domain: ${domain}, Clean Domain: ${cleanDomain}, Error:`, tenantErr);
         return { success: false, error: "School context not found" }
     }
 
