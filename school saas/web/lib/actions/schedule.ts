@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 
 export async function getNextClass() {
     const supabase = createClient()
@@ -28,7 +29,8 @@ export async function getNextClass() {
 
     if (!profile) return null
 
-    let query = supabase
+    const supabaseAdmin = createAdminClient()
+    let query = supabaseAdmin
         .from('timetables')
         .select(`
             id,
@@ -97,7 +99,8 @@ export async function createTimetableSlot(data: {
     const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
     if (!profile) throw new Error("Profile not found")
 
-    const { error } = await supabase.from('timetables').insert({
+    const supabaseAdmin = createAdminClient()
+    const { error } = await supabaseAdmin.from('timetables').insert({
         ...data,
         tenant_id: profile.tenant_id
     })
@@ -107,8 +110,8 @@ export async function createTimetableSlot(data: {
 }
 
 export async function deleteTimetableSlot(id: string) {
-    const supabase = createClient()
-    const { error } = await supabase.from('timetables').delete().eq('id', id)
+    const supabaseAdmin = createAdminClient()
+    const { error } = await supabaseAdmin.from('timetables').delete().eq('id', id)
     if (error) throw new Error(error.message)
     return { success: true }
 }
@@ -121,7 +124,8 @@ export async function getFullTimetable() {
     const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
     if (!profile) return []
 
-    const { data } = await supabase
+    const supabaseAdmin = createAdminClient()
+    const { data, error } = await supabaseAdmin
         .from('timetables')
         .select(`
             id,
@@ -134,6 +138,11 @@ export async function getFullTimetable() {
         `)
         .eq('tenant_id', profile.tenant_id)
         .order('start_time', { ascending: true })
+
+    if (error) {
+        console.error("[getFullTimetable] Error:", error)
+        return []
+    }
 
     return data || []
 }
