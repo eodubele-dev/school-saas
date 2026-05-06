@@ -135,24 +135,25 @@ export async function generateAIQuestions(params: {
 
         Strict Pedagogical Requirements:
         1. Use the official Nigerian Secondary School Curriculum (NERDC) standards.
-        2. Questions must be clear, unambiguous, and test deep understanding, not just rote memorization.
-        3. Each question must have exactly 4 options (A, B, C, D).
-        4. Distractors (wrong options) must be plausible and based on common student misconceptions.
-        5. Provide a detailed, professional "explanation" for the correct answer.
-        6. Format the output as a strict JSON array.
-        7. NO generic questions like "What is X?". Use real-world scenarios or complex problem-solving where appropriate.
+        2. Questions must be clear, unambiguous, and test deep understanding.
+        3. DO NOT include introductory labels like "Question 1", "Past Question", or metadata descriptions in the "question_text" field. The "question_text" must contain ONLY the actual question.
+        4. Each question must have exactly 4 options (A, B, C, D).
+        5. Distractors (wrong options) must be plausible and based on common student misconceptions.
+        6. Provide a detailed, professional "explanation" for the correct answer.
+        7. Format the output as a strict JSON array.
+        8. NO generic questions like "What is X?". Use real-world scenarios or complex problem-solving where appropriate.
 
         Output Schema:
         [
           {
-            "question_text": "string",
-            "options": ["string", "string", "string", "string"],
-            "correct_option": number (0-3),
-            "explanation": "string"
+            "question_text": "Solve for x: 2x + 5 = 15",
+            "options": ["5", "10", "15", "20"],
+            "correct_option": 0,
+            "explanation": "Subtract 5 from both sides (2x = 10), then divide by 2 (x = 5)."
           }
         ]
         
-        Return ONLY the JSON array. Do not include markdown formatting or extra text.
+        Return ONLY the JSON array. Do not include any text outside the array.
     `
 
     try {
