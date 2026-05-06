@@ -263,23 +263,35 @@ export async function assignTeacherToSubject(data: {
 }
 
 export async function createClassLevel(data: { name: string, section: string }) {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { success: false, error: "Unauthorized" }
+    try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return { success: false, error: "Unauthorized" }
 
-    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
-    if (profile?.role !== 'admin' && profile?.role !== 'super-admin' && profile?.role !== 'owner') return { success: false, error: "Admin access required" }
+        const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+        if (!profile) return { success: false, error: "Profile not found" }
+        
+        if (profile?.role !== 'admin' && profile?.role !== 'super-admin' && profile?.role !== 'owner') {
+            return { success: false, error: "Admin access required" }
+        }
 
-    const supabaseAdmin = createAdminClient()
-    const { data: newLevel, error } = await supabaseAdmin
-        .from('class_levels')
-        .insert({ ...data, tenant_id: profile.tenant_id })
-        .select()
-        .single()
+        const supabaseAdmin = createAdminClient()
+        const { data: newLevel, error } = await supabaseAdmin
+            .from('class_levels')
+            .insert({ ...data, tenant_id: profile.tenant_id })
+            .select()
+            .single()
 
-    if (error) return { success: false, error: error.message }
+        if (error) {
+            console.error(`[createClassLevel] DB Error:`, error)
+            return { success: false, error: error.message }
+        }
 
-    return { success: true, data: newLevel }
+        return { success: true, data: newLevel }
+    } catch (err: any) {
+        console.error(`[createClassLevel] Fatal Error:`, err)
+        return { success: false, error: err.message || "Failed to create class level" }
+    }
 }
 
 export async function deleteClassLevel(id: string) {

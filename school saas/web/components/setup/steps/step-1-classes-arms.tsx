@@ -102,20 +102,25 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
     const addLevel = async () => {
         if (!newLevelName) return
         setSaving(true)
+        try {
+            const res = await createClassLevel({ name: newLevelName, section: newLevelSection })
 
-        const res = await createClassLevel({ name: newLevelName, section: newLevelSection })
-
-        if (res.success && res.data) {
-            setLevels([...levels, res.data])
-            toast.success("Institutional Level Created", {
-                description: `${newLevelName} has been added to the registry.`
-            })
-            setIsAddLevelOpen(false)
-            setNewLevelName("")
-        } else {
-            toast.error(res.error || "Failed to add level")
+            if (res.success && res.data) {
+                setLevels([...levels, res.data])
+                toast.success("Institutional Level Created", {
+                    description: `${newLevelName} has been added to the registry.`
+                })
+                setIsAddLevelOpen(false)
+                setNewLevelName("")
+            } else {
+                toast.error(res.error || "Failed to add level")
+            }
+        } catch (error: any) {
+            console.error(error)
+            toast.error(error.message || "An unexpected error occurred")
+        } finally {
+            setSaving(false)
         }
-        setSaving(false)
     }
 
     const editLevel = async () => {
@@ -167,26 +172,32 @@ export function ClassesArmsStep({ onNext }: { onNext: () => void }) {
         if (!newArmName || !activeLevelId) return
         setSaving(true)
 
-        const level = levels.find(l => l.id === activeLevelId)
-        const constructedName = `${level?.name} ${newArmName}`
+        try {
+            const level = levels.find(l => l.id === activeLevelId)
+            const constructedName = `${level?.name} ${newArmName}`
 
-        const res = await createClass({
-            name: constructedName,
-            grade_level: level?.name || "",
-            class_level_id: activeLevelId
-        })
-
-        if (res.success && res.data) {
-            setArms([...arms, res.data])
-            toast.success("Class Arm Created", {
-                description: `${constructedName} is now active.`
+            const res = await createClass({
+                name: constructedName,
+                grade_level: level?.name || "",
+                class_level_id: activeLevelId
             })
-            setIsAddArmOpen(false)
-            setNewArmName("")
-        } else {
-            toast.error(res.error || "Failed to add arm")
+
+            if (res.success && res.data) {
+                setArms([...arms, res.data])
+                toast.success("Class Arm Created", {
+                    description: `${constructedName} is now active.`
+                })
+                setIsAddArmOpen(false)
+                setNewArmName("")
+            } else {
+                toast.error(res.error || "Failed to add arm")
+            }
+        } catch (error: any) {
+            console.error(error)
+            toast.error(error.message || "An unexpected error occurred")
+        } finally {
+            setSaving(false)
         }
-        setSaving(false)
     }
 
     const editArm = async () => {
