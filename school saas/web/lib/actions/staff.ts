@@ -106,15 +106,21 @@ export async function getStaffList(domain: string, page = 1, query = "") {
     }
 
     // 4. Enrich with emails from auth.users (since email column is missing in profiles)
-    const { data: { users: authUsers }, error: authError } = await supabaseAdmin.auth.admin.listUsers()
-
-    const enrichedData = (profiles || []).map(p => {
-        const authUser = authUsers?.find(u => u.id === p.id)
+    // Avoid listUsers() due to GoTrue pagination/database bugs; fetch individually (max 10 per page)
+    const enrichedData = await Promise.all((profiles || []).map(async (p) => {
+        let userEmail = p.email || ""; // Fallback if email column ever gets added
+        if (!userEmail) {
+            const { data: userResponse, error: userError } = await supabaseAdmin.auth.admin.getUserById(p.id);
+            if (!userError && userResponse?.user) {
+                userEmail = userResponse.user.email || "";
+            }
+        }
         return {
             ...p,
-            email: authUser?.email || p.email || "" // Fallback to p.email if it ever gets added
-        }
-    })
+            email: userEmail
+        };
+    }));
+
 
     return {
         success: true,
