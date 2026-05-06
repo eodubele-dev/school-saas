@@ -173,7 +173,7 @@ export default async function middleware(req: NextRequest) {
 
   const { data: tenant, error: tenantErr } = await supabase
     .from('tenants')
-    .select('id, name, slug, logo_url, theme_config')
+    .select('id, name, slug, logo_url, theme_config, created_at')
     .eq('slug', currentHost.toLowerCase())
     .single()
 
@@ -291,7 +291,16 @@ export default async function middleware(req: NextRequest) {
     }
 
     // d. Subscription Tier Guard (The "Tier-Gate")
-    const currentTierRank = TIER_MAP[userTier] ?? 1
+    let currentTierRank = TIER_MAP[userTier] ?? 1
+
+    // Trial Expiration Logic for Pilot Tier (120 days)
+    if (userTier === 'pilot' && tenant?.created_at) {
+      const createdDate = new Date(tenant.created_at)
+      const daysSinceCreation = (Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24)
+      if (daysSinceCreation > 120) {
+        currentTierRank = 0 // Expired Pilot loses all premium access
+      }
+    }
 
     const zone = PROTECTED_ZONES.find(z => path.startsWith(z.prefix))
     if (zone && currentTierRank < TIER_MAP[zone.min]) {

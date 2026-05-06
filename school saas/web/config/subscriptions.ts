@@ -1,7 +1,8 @@
-export type SubscriptionTier = 'pilot' | 'starter' | 'professional' | 'platinum'
+export type SubscriptionTier = 'pilot' | 'starter' | 'professional' | 'platinum' | 'expired'
 
 export const TIER_RANK: Record<SubscriptionTier, number> = {
-    'pilot': 0,
+    'expired': 0,
+    'pilot': 3, // Granted Platinum access during 120-day trial
     'starter': 1,
     'professional': 2,
     'platinum': 3
@@ -9,7 +10,8 @@ export const TIER_RANK: Record<SubscriptionTier, number> = {
 
 export const SUBSCRIPTION_LIMITS = {
     STUDENT_CAPACITY: {
-        'pilot': 100,
+        'expired': 100,
+        'pilot': Infinity, // Unlimited during trial
         'starter': 300,
         'professional': Infinity,
         'platinum': Infinity
@@ -17,6 +19,7 @@ export const SUBSCRIPTION_LIMITS = {
 }
 
 export const SUBSCRIPTION_PRICING: Record<SubscriptionTier, number> = {
+    'expired': 0,
     'pilot': 0,
     'starter': 20000,
     'professional': 50000,

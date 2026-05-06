@@ -52,7 +52,7 @@ export async function Sidebar({ className, domain }: { className?: string, domai
 
     // Parallelize Tenant and Auth Fetches to avoid waterfalls
     const [tenantRes, authRes] = await Promise.all([
-        supabase.from('tenants').select('name, logo_url, theme_config, motto, subscription_tier').eq('slug', slug).single(),
+        supabase.from('tenants').select('name, logo_url, theme_config, motto, subscription_tier, created_at').eq('slug', slug).single(),
         supabase.auth.getUser()
     ])
 
@@ -69,6 +69,15 @@ export async function Sidebar({ className, domain }: { className?: string, domai
         tenantLogo = tenant.logo_url
         // @ts-ignore
         tenantTier = tenant.subscription_tier || "starter"
+        
+        // Check for 120-day Trial Expiration
+        if (tenantTier === 'pilot' && tenant.created_at) {
+            const daysSinceCreation = (Date.now() - new Date(tenant.created_at).getTime()) / (1000 * 60 * 60 * 24)
+            if (daysSinceCreation > 120) {
+                tenantTier = 'expired'
+            }
+        }
+
         if (tenant.motto) tenantMotto = tenant.motto
         if (tenant.theme_config && typeof tenant.theme_config === 'object') {
             // @ts-ignore
