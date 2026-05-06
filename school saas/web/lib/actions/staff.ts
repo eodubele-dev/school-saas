@@ -307,7 +307,7 @@ export async function createStaff(formData: any, domain?: string) {
     } else {
         // Create User (Standard Auth)
         isNewUser = true
-        tempPassword = Math.random().toString(36).slice(-8) + "!" // 8 chars + !
+        tempPassword = formData.password || (Math.random().toString(36).slice(-8) + "!") // Use manual password if provided
 
         const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
             email: formData.email,
