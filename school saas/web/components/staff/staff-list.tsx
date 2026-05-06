@@ -115,16 +115,22 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
         if (!selectedUser) return
         setLoading(true)
 
-        const res = await updateStaffStatus(selectedUser.id, 'inactive', domain)
+        try {
+            const res = await updateStaffStatus(selectedUser.id, 'inactive', domain)
 
-        if (res.success) {
-            toast.success("Account deactivated successfully")
-            setOptimisticStaff(prev => prev.map(u => u.id === selectedUser.id ? { ...u, status: 'inactive' } : u))
-            setIsDeactivateModalOpen(false)
-        } else {
-            toast.error(res.error || "Failed to deactivate account")
+            if (res.success) {
+                toast.success("Account deactivated successfully")
+                setOptimisticStaff(prev => prev.map(u => u.id === selectedUser.id ? { ...u, status: 'inactive' } : u))
+                setIsDeactivateModalOpen(false)
+            } else {
+                toast.error(res.error || "Failed to deactivate account")
+            }
+        } catch (err: any) {
+            console.error("[handleDeactivate Error]:", err)
+            toast.error("An unexpected error occurred. Please try again.")
+        } finally {
+            setLoading(false)
         }
-        setLoading(false)
     }
 
     const currentPage = Number(searchParams.get('page')) || 1

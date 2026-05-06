@@ -182,49 +182,67 @@ export async function updateStaffRole(userId: string, newRole: string, domain?: 
 }
 
 export async function updateStaffStatus(userId: string, status: 'active' | 'inactive', domain?: string) {
-    const supabase = createClient()
-    
-    // 1. Auth Check
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { success: false, error: "Unauthorized" }
-
-    // 2. Resolve Tenant ID
-    const { data: tenant } = await supabase.from('tenants').select('id').eq('slug', domain).single()
-    const tenantId = tenant?.id
-    if (!tenantId) return { success: false, error: "School not found" }
-
-    // 3. Admin Check for THIS tenant
-    const { data: adminProfile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .eq('tenant_id', tenantId)
-        .single()
-
-    const isAdmin = adminProfile?.role === 'admin' || adminProfile?.role === 'super-admin' || adminProfile?.role === 'owner'
-    if (!adminProfile || !isAdmin) return { success: false, error: "Only admins can deactivate accounts" }
-
-    // 4. Perform Update (Requires Admin Client to bypass RLS)
-    let supabaseAdmin;
     try {
-        supabaseAdmin = createAdminClient()
-    } catch (e) {
-        return { success: false, error: "Missing Service Role Key" }
-    }
+        console.log(`[updateStaffStatus] Starting deactivation for ${userId} in domain ${domain}`);
+        const supabase = createClient()
+        
+        // 1. Auth Check
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+            console.warn("[updateStaffStatus] Unauthorized attempt");
+            return { success: false, error: "Unauthorized" }
+        }
 
-    const { error } = await supabaseAdmin
-        .from('profiles')
-        .update({ status })
-        .eq('id', userId)
-        .eq('tenant_id', tenantId)
+        // 2. Resolve Tenant ID
+        const { data: tenant } = await supabase.from('tenants').select('id').eq('slug', domain).single()
+        const tenantId = tenant?.id
+        if (!tenantId) {
+            console.error("[updateStaffStatus] School not found for domain:", domain);
+            return { success: false, error: "School not found" }
+        }
 
-    if (error) {
-        console.error("[updateStaffStatus] DB Error:", error)
-        return { success: false, error: error.message }
+        // 3. Admin Check for THIS tenant
+        const { data: adminProfile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .eq('tenant_id', tenantId)
+            .single()
+
+        const isAdmin = adminProfile?.role === 'admin' || adminProfile?.role === 'super-admin' || adminProfile?.role === 'owner'
+        if (!adminProfile || !isAdmin) {
+            console.warn(`[updateStaffStatus] User ${user.id} is not an admin for tenant ${tenantId}`);
+            return { success: false, error: "Only admins can deactivate accounts" }
+        }
+
+        // 4. Perform Update (Requires Admin Client to bypass RLS)
+        let supabaseAdmin;
+        try {
+            supabaseAdmin = createAdminClient()
+        } catch (e) {
+            console.error("[updateStaffStatus] Failed to create admin client:", e);
+            return { success: false, error: "Missing Service Role Key" }
+        }
+
+        console.log(`[updateStaffStatus] Updating profile ${userId} status to ${status}`);
+        const { error } = await supabaseAdmin
+            .from('profiles')
+            .update({ status })
+            .eq('id', userId)
+            .eq('tenant_id', tenantId)
+
+        if (error) {
+            console.error("[updateStaffStatus] Database Error:", error);
+            return { success: false, error: error.message }
+        }
+        
+        console.log(`[updateStaffStatus] Successfully updated ${userId}`);
+        revalidatePath('/[domain]/dashboard/admin/staff', 'page')
+        return { success: true }
+    } catch (error: any) {
+        console.error("[updateStaffStatus] Fatal Error:", error);
+        return { success: false, error: error?.message || "Internal Server Error during deactivation" }
     }
-    
-    revalidatePath('/[domain]/dashboard/admin/staff', 'page')
-    return { success: true }
 }
 
 export async function createStaff(formData: any, domain?: string) {
