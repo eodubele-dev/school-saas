@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { isWithinRadius } from '@/lib/utils/geolocation'
 import { revalidatePath } from 'next/cache'
 import { logActivity } from '@/lib/actions/audit'
@@ -258,17 +259,17 @@ export async function getClockInStatus(date?: string): Promise<{
     }
     error?: string
 }> {
-    const supabase = createClient()
+    const supabaseAdmin = createAdminClient()
 
     try {
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: { user } } = await createClient().auth.getUser()
         if (!user) {
             return { success: false, error: 'Not authenticated' }
         }
 
         const today = date || new Date().toISOString().split('T')[0]
 
-        const { data, error } = await supabase
+        const { data, error } = await supabaseAdmin
             .from('staff_attendance')
             .select('check_in_time, check_out_time, distance_meters, location_verified')
             .eq('staff_id', user.id)
@@ -327,15 +328,15 @@ export async function getStaffAttendanceHistory(
     }>
     error?: string
 }> {
-    const supabase = createClient()
+    const supabaseAdmin = createAdminClient()
 
     try {
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: { user } } = await createClient().auth.getUser()
         if (!user) {
             return { success: false, error: 'Not authenticated' }
         }
 
-        const { data, error } = await supabase
+        const { data, error } = await supabaseAdmin
             .from('staff_attendance')
             .select('date, status, check_in_time, check_out_time, distance_meters, location_verified')
             .eq('staff_id', user.id)

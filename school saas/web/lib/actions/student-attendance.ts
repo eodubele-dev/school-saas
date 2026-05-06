@@ -291,11 +291,11 @@ export async function getClassAttendance(
     classId: string,
     date: string
 ): Promise<{ success: boolean; data?: any[]; error?: string }> {
-    const supabase = createClient()
+    const supabaseAdmin = createAdminClient()
 
     try {
         // 1. Get Register ID for this class and date
-        const { data: register } = await supabase
+        const { data: register } = await supabaseAdmin
             .from('attendance_registers')
             .select('id')
             .eq('class_id', classId)
@@ -307,7 +307,7 @@ export async function getClassAttendance(
         }
 
         // 2. Get Attendance Records using Register ID
-        const { data, error } = await supabase
+        const { data, error } = await supabaseAdmin
             .from('student_attendance')
             .select(`
                 id,
