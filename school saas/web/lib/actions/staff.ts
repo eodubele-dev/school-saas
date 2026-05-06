@@ -258,7 +258,7 @@ export async function createStaff(formData: any, tenantId: string) {
     // Get Tenant Branding & Slug
     const { data: tenant } = await supabaseAdmin
         .from('tenants')
-        .select('name, slug')
+        .select('name, slug, sms_balance')
         .eq('id', tenantId)
         .single()
 
@@ -379,17 +379,10 @@ export async function createStaff(formData: any, tenantId: string) {
     }
 
     // 5. Send Credentials via SMS (with Wallet Deduction)
-    const { data: tenant } = await supabaseAdmin
-        .from('tenants')
-        .select('name, sms_balance')
-        .eq('id', tenantId)
-        .single()
-        
     let currentBalance = Number(tenant?.sms_balance) || 0
     const SMS_COST = SMS_CONFIG.UNIT_COST
-    const schoolName = tenant?.name || "the school"
     const appName = process.env.NEXT_PUBLIC_APP_NAME || SITE_CONFIG.shortName
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `https://${process.env.NEXT_PUBLIC_COOKIE_DOMAIN || 'app.site'}`
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `https://${domain}.eduflow.ng`
 
     let loginMessage = ""
     if (isNewUser) {
@@ -630,4 +623,51 @@ export async function updateStaffProfile(userId: string, data: {
 
     revalidatePath('/[domain]/dashboard/admin/staff', 'page')
     return { success: true }
+}
+
+export async function resetStaffPassword(userId: string, tenantId: string) {
+    try {
+        console.log(`[resetStaffPassword] Resetting password for user ${userId} in tenant ${tenantId}`);
+        const supabase = createClient()
+        const supabaseAdmin = createAdminClient()
+
+        // 1. Auth & Admin Check
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return { success: false, error: "Unauthorized" }
+
+        const { data: adminProfile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .eq('tenant_id', tenantId)
+            .single()
+
+        const isAdmin = adminProfile?.role === 'admin' || adminProfile?.role === 'super-admin' || adminProfile?.role === 'owner'
+        if (!adminProfile || !isAdmin) {
+            return { success: false, error: "Only admins can reset passwords" }
+        }
+
+        // 2. Generate New Password
+        const newPassword = Math.random().toString(36).slice(-8) + "!" // 8 chars + !
+
+        // 3. Update Auth Password
+        const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+            password: newPassword
+        })
+
+        if (updateError) {
+            console.error("[resetStaffPassword] Auth Update Error:", updateError.message);
+            return { success: false, error: updateError.message }
+        }
+
+        console.log(`[resetStaffPassword] Password successfully reset for ${userId}`);
+
+        return { 
+            success: true, 
+            password: newPassword 
+        }
+    } catch (error: any) {
+        console.error("[resetStaffPassword] Fatal Error:", error);
+        return { success: false, error: error?.message || "Internal Server Error during password reset" }
+    }
 }

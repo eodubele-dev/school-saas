@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
-import { Search, MoreVertical, ShieldAlert, UserCog, Mail, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, MoreVertical, ShieldAlert, UserCog, Mail, ChevronLeft, ChevronRight, Shield, Plus, Check } from "lucide-react"
 import { toast } from "sonner"
 import { RoleBadge } from "@/components/staff/role-badge"
-import { updateStaffRole, updateStaffStatus, resendStaffInvite } from "@/lib/actions/staff"
+import { updateStaffRole, updateStaffStatus, resendStaffInvite, resetStaffPassword } from "@/lib/actions/staff"
 import {
     Table,
     TableBody,
@@ -58,6 +58,7 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
     const [searchQuery, setSearchQuery] = useState(searchParams.get('query') || "")
     const [selectedUser, setSelectedUser] = useState<any>(null)
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
+    const [resetData, setResetData] = useState<{ name: string, password: string } | null>(null)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false)
     const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false)
@@ -244,20 +245,22 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                                                 <StaffIDCard user={user} tenant={tenant} />
 
                                                 <DropdownMenuItem onClick={async () => {
-                                                    console.log("[StaffList] Resending invite for user:", user.id, "Tenant ID:", tenant.id);
-                                                    toast.promise(resendStaffInvite(user.id, tenant.id), {
-                                                        loading: 'Resending credentials...',
+                                                    const confirmed = window.confirm(`Are you sure you want to reset the password for ${user.full_name}? This will invalidate their current password.`)
+                                                    if (!confirmed) return
+
+                                                    toast.promise(resetStaffPassword(user.id, tenant.id), {
+                                                        loading: 'Resetting password...',
                                                         success: (res) => {
-                                                            if (!res || res.success === false) throw new Error(res?.error || "Failed to send credentials")
-                                                            if (res.emailSuccess && res.smsSuccess) return `Credentials resent via Email & SMS`
-                                                            if (res.emailSuccess) return `Sent via Email (SMS failed/balance low)`
-                                                            if (res.smsSuccess) return `Sent via SMS (Email failed)`
-                                                            throw new Error(res.error || "Failed to send")
+                                                            if (res.success) {
+                                                                setResetData({ name: user.full_name, password: res.password! })
+                                                                return `Password reset successfully!`
+                                                            }
+                                                            throw new Error(res.error || "Failed to reset")
                                                         },
-                                                        error: (err) => err.message || 'Failed to resend invite'
+                                                        error: (err) => err.message || 'Failed to reset password'
                                                     })
-                                                }} className="hover:bg-secondary/50 cursor-pointer">
-                                                    <Mail className="mr-2 h-4 w-4" /> Resend Invite
+                                                }} className="hover:bg-amber-500/10 text-amber-500 cursor-pointer">
+                                                    <Shield className="mr-2 h-4 w-4" /> Reset & Reveal Password
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-white/10" />
                                                 {user.status === 'inactive' ? (
@@ -440,6 +443,42 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                             {loading ? "Deactivating..." : "Yes, Deactivate Account"}
                         </Button>
                     </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Reset Password Result Modal */}
+            <Dialog open={!!resetData} onOpenChange={(open) => !open && setResetData(null)}>
+                <DialogContent className="bg-slate-900 border-border text-white text-center sm:max-w-[400px]">
+                    <DialogHeader>
+                        <DialogTitle>Password Reset Successful</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-6 space-y-4">
+                        <div className="flex justify-center">
+                            <div className="h-12 w-12 bg-amber-500/20 rounded-full flex items-center justify-center">
+                                <Shield className="h-6 w-6 text-amber-500" />
+                            </div>
+                        </div>
+                        <p className="text-sm text-slate-400">
+                            New password for <span className="text-white font-bold">{resetData?.name}</span>:
+                        </p>
+                        <div className="flex items-center gap-2 bg-black/40 p-4 rounded-lg border border-white/10">
+                            <code className="flex-1 text-xl font-mono text-amber-400 tracking-wider">
+                                {resetData?.password}
+                            </code>
+                            <Button size="icon" variant="ghost" onClick={() => {
+                                navigator.clipboard.writeText(resetData?.password || "")
+                                toast.success("Password copied!")
+                            }}>
+                                <Check className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <p className="text-[10px] text-slate-500">
+                            Please copy this password and send it to the staff member. This is the only time it will be shown.
+                        </p>
+                    </div>
+                    <Button onClick={() => setResetData(null)} className="w-full bg-slate-800 hover:bg-slate-700">
+                        Close
+                    </Button>
                 </DialogContent>
             </Dialog>
         </div >
