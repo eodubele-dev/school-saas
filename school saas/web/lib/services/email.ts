@@ -2,7 +2,7 @@
 import { Resend } from 'resend';
 import { WelcomePlatinumEmail } from '@/components/emails/welcome-platinum';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Client will be initialized inside the function to prevent top-level crashes
 
 export async function sendWelcomeEmail(
     to: string, 
@@ -14,6 +14,13 @@ export async function sendWelcomeEmail(
     console.log(`[Email Service] Attempting to send Welcome Email to ${to}`);
 
     try {
+        if (!process.env.RESEND_API_KEY) {
+            console.error('[Email Service] RESEND_API_KEY is missing in environment variables!');
+            return { success: false, error: "System configuration error: Missing Email API Key" };
+        }
+        
+        const resend = new Resend(process.env.RESEND_API_KEY);
+
         const emailHtml = WelcomePlatinumEmail({
             schoolName,
             subdomain,
