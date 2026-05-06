@@ -47,11 +47,20 @@ export function StaffInviteModal({ domain }: { domain: string }) {
             const res = await createStaff(formData, domain)
 
             if (res.success) {
-                toast.success(`Staff member created successfully!`)
-                toast.info(`Temporary credentials sent to ${formData.email}`)
+                toast.success(`Staff profile created successfully!`)
+                
+                // Detailed Delivery Feedback
+                if (res.smsStatus === 'sent' && res.emailStatus === 'sent') {
+                    toast.info("Welcome credentials sent via SMS and Email.")
+                } else {
+                    if (res.smsStatus === 'failed') toast.error(`SMS Failed: ${res.smsError}`, { duration: 6000 })
+                    if (res.emailStatus === 'failed') toast.error(`Email Failed: ${res.emailError}`, { duration: 6000 })
+                    if (res.smsStatus === 'sent') toast.info(`SMS sent successfully.`)
+                    if (res.emailStatus === 'sent') toast.info(`Email sent successfully.`)
+                }
+
                 if (res.tempPassword) {
-                    // For demo purposes, we might show it or just say it's sent
-                    console.log("Temp Password:", res.tempPassword)
+                    console.log("Generated Password:", res.tempPassword)
                 }
                 setOpen(false)
                 // Reset form

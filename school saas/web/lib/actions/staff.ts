@@ -396,11 +396,14 @@ export async function createStaff(formData: any, domain?: string) {
     }
 
     let smsStatus = "skipped"
+    let smsError = null
     if (currentBalance >= SMS_COST) {
+        console.log(`[createStaff] Dispatching SMS to ${formData.phone} via Termii...`)
         const smsRes = await sendSMS(formData.phone, loginMessage)
         
         if (smsRes.success) {
             smsStatus = "sent"
+            console.log(`[createStaff] SMS Sent successfully`)
             // Deduct balance
             await supabaseAdmin
                 .from('tenants')
@@ -423,15 +426,28 @@ export async function createStaff(formData: any, domain?: string) {
                 })
         } else {
             smsStatus = "failed"
+            smsError = smsRes.error
             console.error("Staff SMS Failed:", smsRes.error)
         }
     } else {
+        smsError = `Insufficient Balance (${currentBalance} units)`
         console.warn(`[SMS_SKIPPED] Insufficient SMS balance to send credentials to ${formData.phone}`)
     }
 
     // 6. Send Welcome Email
+    let emailStatus = "skipped"
+    let emailError = null
     if (domain) {
-        await sendWelcomeEmail(formData.email, schoolName, domain, tempPassword)
+        console.log(`[createStaff] Dispatching Welcome Email to ${formData.email} via Resend...`)
+        const emailRes = await sendWelcomeEmail(formData.email, schoolName, domain, tempPassword)
+        if (emailRes.success) {
+            emailStatus = "sent"
+            console.log(`[createStaff] Email Sent successfully`)
+        } else {
+            emailStatus = "failed"
+            emailError = emailRes.error
+            console.error("Staff Email Failed:", emailRes.error)
+        }
     }
 
 
@@ -440,7 +456,9 @@ export async function createStaff(formData: any, domain?: string) {
         success: true, 
         tempPassword,
         smsStatus,
-        emailStatus: domain ? "attempted" : "skipped"
+        smsError,
+        emailStatus,
+        emailError
     }
 }
 
