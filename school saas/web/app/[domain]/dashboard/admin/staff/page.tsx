@@ -54,7 +54,7 @@ export default async function StaffPage({ params, searchParams }: { params: { do
         // Fetch Branding using tenant_id
         const { data: tenant, error: tenantError } = await supabase
             .from('tenants')
-            .select('name, logo_url, theme_config')
+            .select('id, name, logo_url, theme_config')
             .eq('id', tenantId as any)
             .single()
 

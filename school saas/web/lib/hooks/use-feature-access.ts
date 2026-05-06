@@ -1,9 +1,5 @@
 "use client"
 
-import { useSession } from "next-auth/react" // Note: Assuming standard session or custom supabase session
-// Since this is a Supabase app, we might be using a custom store or supabase-js
-// Let's use a pattern that works with the existing user metadata in JWT.
-
 import { createClient } from "@/lib/supabase/client"
 import { useEffect, useState } from "react"
 import { SubscriptionTier, TIER_RANK } from "@/config/subscriptions"

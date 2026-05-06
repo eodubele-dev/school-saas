@@ -525,9 +525,10 @@ export async function resendStaffInvite(userId: string, tenantId: string) {
         const emailRes = await sendWelcomeEmail(email, schoolName, domain)
         
         // 5. Dispatch SMS (If balance allows)
-        let smsRes = { success: false, error: "Insufficient balance" }
+        let smsRes: { success: boolean; error?: string } = { success: false, error: "Insufficient balance" }
         const { data: tenantWallet } = await supabaseAdmin.from('tenants').select('sms_balance').eq('id', tenant.id).single()
-        if (Number(tenantWallet?.sms_balance) >= SMS_CONFIG.UNIT_COST) {
+        
+        if (tenantWallet && Number(tenantWallet.sms_balance) >= SMS_CONFIG.UNIT_COST) {
             const phone = lastMsg?.recipient_phone // Get phone from log if possible
             if (phone) {
                 smsRes = await sendSMS(phone, resendMessage)
