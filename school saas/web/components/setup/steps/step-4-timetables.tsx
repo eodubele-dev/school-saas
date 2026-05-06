@@ -14,6 +14,9 @@ import { getSubjects } from "@/lib/actions/academic"
 import { getTeachersForAssignment } from "@/lib/actions/staff"
 import { cn } from "@/lib/utils"
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ScrollArea } from "@/components/ui/scroll-area"
+
 export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
     const [slots, setSlots] = useState<any[]>([])
     const [classes, setClasses] = useState<any[]>([])
@@ -21,6 +24,7 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
     const [teachers, setTeachers] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const [activeTab, setActiveTab] = useState("Monday")
 
     // Form State
     const [day, setDay] = useState("Monday")
@@ -29,6 +33,8 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
     const [subjectId, setSubjectId] = useState("")
     const [classId, setClassId] = useState("")
     const [teacherId, setTeacherId] = useState("")
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
     useEffect(() => {
         fetchData()
@@ -74,6 +80,10 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
             })
 
             toast.success("Timetable Slot Added")
+            
+            // Auto-switch tab to the day we just added to
+            setActiveTab(day)
+            
             // Refresh data
             const updated = await getFullTimetable()
             setSlots(updated)
@@ -97,8 +107,6 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
         }
     }
 
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
     if (loading) return <div className="p-8 text-center text-muted-foreground animate-pulse">Initializing Timetable Engine...</div>
 
     return (
@@ -106,7 +114,11 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-xl font-bold text-foreground">Timetable Manager Hub</h2>
-                    <p className="text-muted-foreground">Construct your school's daily schedule. Link subjects and teachers to specific class arms.</p>
+                    <p className="text-muted-foreground text-sm">Construct your school's daily schedule. Link subjects and teachers to specific class arms.</p>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                    <BookOpen className="h-4 w-4 text-[var(--school-accent)]" />
+                    <span className="text-xs font-bold text-slate-300">{slots.length} Slots Provisioned</span>
                 </div>
             </div>
 
@@ -200,70 +212,86 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
                     </CardContent>
                 </Card>
 
-                {/* Right: List of Slots */}
-                <div className="xl:col-span-2 space-y-6">
-                    {days.map(d => {
-                        const daySlots = slots.filter(s => s.day_of_week === d)
-                        if (daySlots.length === 0) return null
+                {/* Right: List of Slots with Pagination/Tabs */}
+                <div className="xl:col-span-2">
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                        <TabsList className="w-full bg-slate-950 border border-border/50 p-1 mb-6 h-12">
+                            {days.map(d => (
+                                <TabsTrigger 
+                                    key={d} 
+                                    value={d}
+                                    className="flex-1 text-[10px] uppercase font-black tracking-widest data-[state=active]:bg-card data-[state=active]:text-[var(--school-accent)] transition-all"
+                                >
+                                    {d.slice(0, 3)}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
 
-                        return (
-                            <div key={d} className="space-y-3">
-                                <h4 className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <Calendar className="h-3 w-3" />
-                                    {d} Timeline
-                                </h4>
-                                <div className="grid gap-3">
-                                    {daySlots.map(slot => (
-                                        <div
-                                            key={slot.id}
-                                            className="group flex items-center justify-between p-4 bg-card text-card-foreground/40 border border-border/50 rounded-xl hover:bg-card text-card-foreground/60 hover:border-border transition-all"
-                                        >
-                                            <div className="flex items-center gap-6">
-                                                <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-950 border border-border/50 min-w-[100px]">
-                                                    <div className="flex items-center gap-1.5 text-[10px] font-mono text-cyan-400">
-                                                        <Clock className="h-2.5 w-2.5" />
-                                                        {slot.start_time.slice(0, 5)}
-                                                    </div>
-                                                    <div className="text-[10px] font-mono text-slate-600">to</div>
-                                                    <div className="text-[10px] font-mono text-muted-foreground">
-                                                        {slot.end_time.slice(0, 5)}
-                                                    </div>
-                                                </div>
+                        <ScrollArea className="h-[600px] pr-4 rounded-xl">
+                            {days.map(d => (
+                                <TabsContent key={d} value={d} className="mt-0 space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h4 className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
+                                            <Calendar className="h-3 w-3 text-[var(--school-accent)]" />
+                                            {d} Timeline
+                                        </h4>
+                                        <span className="text-[10px] text-slate-600 italic">
+                                            {slots.filter(s => s.day_of_week === d).length} slots scheduled
+                                        </span>
+                                    </div>
 
-                                                <div className="space-y-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-bold text-foreground uppercase tracking-tight">{slot.subject?.name}</span>
-                                                        <span className="text-[10px] bg-secondary/50 border border-border px-2 py-0.5 rounded text-muted-foreground font-bold">{slot.class?.name}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                                        <User className="h-3 w-3" />
-                                                        {slot.teacher?.full_name}
-                                                    </div>
-                                                </div>
+                                    <div className="grid gap-3">
+                                        {slots.filter(s => s.day_of_week === d).length === 0 ? (
+                                            <div className="p-20 text-center border-2 border-dashed border-border/50 rounded-2xl bg-white/5">
+                                                <BookOpen className="h-8 w-8 text-slate-800 mx-auto mb-4" />
+                                                <p className="text-sm text-muted-foreground">No slots provisioned for {d}.</p>
                                             </div>
+                                        ) : (
+                                            slots.filter(s => s.day_of_week === d).map(slot => (
+                                                <div
+                                                    key={slot.id}
+                                                    className="group flex items-center justify-between p-4 bg-card text-card-foreground border border-border/50 rounded-xl hover:border-[var(--school-accent)]/30 transition-all shadow-sm"
+                                                >
+                                                    <div className="flex items-center gap-6">
+                                                        <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-950 border border-border/50 min-w-[100px]">
+                                                            <div className="flex items-center gap-1.5 text-[10px] font-mono text-cyan-400">
+                                                                <Clock className="h-2.5 w-2.5" />
+                                                                {slot.start_time?.slice(0, 5)}
+                                                            </div>
+                                                            <div className="text-[10px] font-mono text-slate-600">to</div>
+                                                            <div className="text-[10px] font-mono text-muted-foreground">
+                                                                {slot.end_time?.slice(0, 5)}
+                                                            </div>
+                                                        </div>
 
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => handleDeleteSlot(slot.id)}
-                                                className="opacity-0 group-hover:opacity-100 text-red-500 hover:bg-red-500/10 transition-all"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )
-                    })}
+                                                        <div className="space-y-1">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm font-bold text-foreground uppercase tracking-tight">{slot.subject?.name}</span>
+                                                                <span className="text-[10px] bg-secondary/50 border border-border px-2 py-0.5 rounded text-muted-foreground font-bold">{slot.class?.name}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                                                <User className="h-3 w-3" />
+                                                                {slot.teacher?.full_name}
+                                                            </div>
+                                                        </div>
+                                                    </div>
 
-                    {slots.length === 0 && (
-                        <div className="p-20 text-center border-2 border-dashed border-border/50 rounded-2xl">
-                            <BookOpen className="h-10 w-10 text-slate-800 mx-auto mb-4" />
-                            <p className="text-muted-foreground font-medium">Timetable is currently empty.</p>
-                            <p className="text-xs text-slate-600 mt-1">Begin by provisioning slots using the control panel on the left.</p>
-                        </div>
-                    )}
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => handleDeleteSlot(slot.id)}
+                                                        className="opacity-0 group-hover:opacity-100 text-red-500 hover:bg-red-500/10 transition-all"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </TabsContent>
+                            ))}
+                        </ScrollArea>
+                    </Tabs>
                 </div>
             </div>
 
