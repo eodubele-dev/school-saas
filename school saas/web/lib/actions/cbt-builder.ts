@@ -161,15 +161,29 @@ export async function generateAIQuestions(params: {
         const response = await result.response
         const rawText = response.text()
 
-        // Robust JSON extraction
-        const jsonMatch = rawText.match(/\[[\s\S]*\]/)
-        if (!jsonMatch) {
+        // Robust JSON extraction and cleaning
+        // 1. Remove markdown code blocks if present
+        let cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim()
+        
+        // 2. Find the array bounds [ ... ]
+        const start = cleanJson.indexOf('[')
+        const end = cleanJson.lastIndexOf(']')
+        
+        if (start === -1 || end === -1) {
             console.error('AI Response did not contain a JSON array:', rawText)
             return []
         }
+        
+        cleanJson = cleanJson.substring(start, end + 1)
 
-        const cleanJson = jsonMatch[0]
-        return JSON.parse(cleanJson)
+        try {
+            return JSON.parse(cleanJson)
+        } catch (parseError) {
+            console.error('JSON Parse Error. Attempting secondary cleaning...', parseError)
+            // Secondary cleaning: remove common trailing commas or weird characters
+            const sanitized = cleanJson.replace(/,\s*]/g, ']').replace(/,\s*}/g, '}')
+            return JSON.parse(sanitized)
+        }
     } catch (error) {
         console.error('AI Generation Error:', error)
         return []
