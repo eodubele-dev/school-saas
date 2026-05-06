@@ -13,7 +13,7 @@ export async function sendSMS(to: string, message: string) {
     }
 
     // Format Number: Ensure it starts with 234, remove leading 0
-    let formattedTo = to.trim()
+    let formattedTo = to.trim().replace(/^\+/, '')
     if (formattedTo.startsWith('0')) {
         formattedTo = '234' + formattedTo.substring(1)
     }
