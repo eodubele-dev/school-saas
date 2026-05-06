@@ -339,13 +339,12 @@ export async function getTeacherStats() {
             supabase.from('lesson_plans').select('*').gte('date', today).order('date', { ascending: true }).limit(5)
         ])
 
-        // Mock assignments count for now
         return {
             classes: classesResult.data || [],
             upcomingLessons: lessonsResult.data || [],
-            assignmentsToGrade: 12,
-            upcomingExams: 2,
-            averageAttendance: 95
+            assignmentsToGrade: 0,
+            upcomingExams: 0,
+            averageAttendance: 0
         }
 
     } catch (error) {

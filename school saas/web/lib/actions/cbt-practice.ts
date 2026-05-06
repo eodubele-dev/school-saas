@@ -3,6 +3,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+export interface PastQuestion {
+    id: string
+    question_text: string
+    options: string[]
+    correct_option: number
+    explanation?: string
+}
+
 /**
  * Get unique subjects available in past questions
  */

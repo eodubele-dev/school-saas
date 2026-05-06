@@ -40,8 +40,8 @@ export async function getTodaysSession() {
             date: today,
             status: 'open',
             // In a real app, we would calculate system_cash_total here by summing up 'transactions' where type='cash' and date=today
-            system_cash_total: 154200.00, // Mock Value for Demo: ₦154,200 collected in system
-            system_bank_total: 450000.00, // Mock Value
+            system_cash_total: 0,
+            system_bank_total: 0,
         })
         .select()
         .single()

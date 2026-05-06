@@ -64,9 +64,6 @@ export async function getExecutiveStats(domain: string): Promise<{ success: bool
         }
     })
 
-    // Simulate some "Today" data if empty for the "God View" effect
-    if (todayCollected === 0) todayCollected = totalCollected * 0.05
-
     // 2. Attendance Stats
     const { count: staffTotal } = await supabase
         .from('profiles')
@@ -156,8 +153,6 @@ export async function getExecutiveStats(domain: string): Promise<{ success: bool
 }
 
 export async function nudgeDebtors() {
-    // Simulate sending SMS
-    // In prod: fetch students with balance > 50000 -> send Termii API call
-    await new Promise(resolve => setTimeout(resolve, 1500)) // Fake delay
-    return { success: true, count: 12 } // "12 Parents nudged"
+    // In prod: fetch students with balance > 0 -> send Termii API call
+    return { success: true, count: 0 } // No real SMS sent yet
 }

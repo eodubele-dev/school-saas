@@ -151,17 +151,8 @@ export async function bookPTASlot(studentId: string, timestamp: string) {
 }
 
 export async function getPTASlots(teacherId: string) {
-    // Mock slots for demonstration
-    const baseDate = new Date();
-    baseDate.setHours(9, 0, 0, 0);
-
-    return [
-        { id: '1', start_time: new Date(baseDate.setHours(9, 0)).toISOString(), is_available: true },
-        { id: '2', start_time: new Date(baseDate.setHours(9, 30)).toISOString(), is_available: false },
-        { id: '3', start_time: new Date(baseDate.setHours(10, 0)).toISOString(), is_available: true },
-        { id: '4', start_time: new Date(baseDate.setHours(10, 30)).toISOString(), is_available: true },
-        { id: '5', start_time: new Date(baseDate.setHours(11, 0)).toISOString(), is_available: false },
-    ];
+    // In prod: fetch actual slots
+    return [];
 }
 
 // 📚 LEARNING ACTIONS

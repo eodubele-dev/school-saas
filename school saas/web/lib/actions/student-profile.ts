@@ -58,39 +58,16 @@ export async function getStudentProfileData() {
         .eq('student_id', student.id)
         .order('occurred_at', { ascending: false })
 
-    // Mock Data if empty (for demo experience)
-    const mockedAchievements = achievements?.length ? achievements : [
-        { id: '1', title: 'Punctuality King', icon_key: 'clock', category: 'behavior', awarded_at: '2025-01-15', comment: 'Always first to assembly!' },
-        { id: '2', title: 'Math Wizard', icon_key: 'math', category: 'academic', awarded_at: '2024-12-10', comment: 'Scored 100% in Algebra.' },
-        { id: '3', title: 'Cleanest Uniform', icon_key: 'sparkle', category: 'behavior', awarded_at: '2024-11-20', comment: 'Impeccable dressing.' },
-    ]
-
-    const mockedBehavior = behavior || {
-        punctuality: 5,
-        neatness: 4,
-        politeness: 5,
-        cooperation: 4,
-        leadership: 3,
-        attentiveness: 5,
-        overall_remark: "Demonstrates exceptional leadership qualities. Always neat and punctual. A true role model for the class."
-    }
-
-    const mockedIncidents = incidents?.length ? incidents : [
-        { id: '1', type: 'positive', title: 'Helped a junior student', occurred_at: '2025-01-20' },
-        { id: '2', type: 'disciplinary', title: 'Late submission of assignment', occurred_at: '2025-01-10' },
-        { id: '3', type: 'positive', title: 'Class Captain Recommendation', occurred_at: '2024-12-05' },
-    ]
-
     return {
         success: true,
         student: {
             ...student,
-            metadata: student.metadata || { admission_number: 'SCH/2023/001', house: 'Red House (Dragon)', clubs: ['Jet Club', 'Chess'] },
+            metadata: student.metadata || {},
             avatar_url: student.passport_photo_url || student.profile?.avatar_url
         },
         tenant: tenant,
-        achievements: mockedAchievements,
-        behavior: mockedBehavior,
-        incidents: mockedIncidents
+        achievements: achievements || [],
+        behavior: behavior || null,
+        incidents: incidents || []
     }
 }

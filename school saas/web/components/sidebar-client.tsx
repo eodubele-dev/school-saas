@@ -310,7 +310,7 @@ export function SidebarClient({
     }
 
     // Determine if tier is premium
-    const currentTierRank = TIER_RANK[tier] || 1
+    const currentTierRank = TIER_RANK[tier as keyof typeof TIER_RANK] || 1
     const isPremium = currentTierRank >= TIER_RANK['professional']
     const isPlatinum = tier === 'platinum'
 
@@ -447,7 +447,7 @@ export function SidebarClient({
                                                 : normalizedPath.startsWith(normalizedHref))
 
                                             const requiredTier = item.requiredTier
-                                            const isLockedByTier = requiredTier && TIER_RANK[tier] < TIER_RANK[requiredTier]
+                                            const isLockedByTier = requiredTier && (TIER_RANK[tier as keyof typeof TIER_RANK] || 0) < (TIER_RANK[requiredTier as keyof typeof TIER_RANK] || 0)
                                             const isDisabled = item.disabled || isLockedByTier
                                             const isPremiumFeature = item.badge === 'Premium' || (requiredTier && TIER_RANK[requiredTier] >= TIER_RANK['professional'])
 

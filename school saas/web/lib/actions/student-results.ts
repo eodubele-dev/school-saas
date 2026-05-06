@@ -40,7 +40,7 @@ export async function checkFeeStatus(term: string, session: string) {
 
     if (!invoice) {
         // Fallback for demo if no billing data seeded
-        return { success: true, isPaid: false, balance: 50000 } // Mock outstanding
+        return { success: true, isPaid: false, balance: 0 }
     }
 
     const isPaid = invoice.status === 'paid' || (Number(invoice.amount) - Number(invoice.amount_paid) <= 0)

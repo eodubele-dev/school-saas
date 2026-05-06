@@ -42,10 +42,7 @@ export async function getBursarStats(): Promise<FinancialStats> {
         totalExpected,
         totalReceived,
         totalOutstanding,
-        paymentMethods: [
-            { method: 'Paystack (Online)', amount: totalReceived * 0.65 },
-            { method: 'Cash / Transfer', amount: totalReceived * 0.35 }
-        ]
+        paymentMethods: []
     }
 }
 
@@ -65,7 +62,7 @@ export async function getClassRevenueStats(): Promise<ClassRevenue[]> {
 
     const stats: Record<string, number> = {}
 
-    data?.forEach((record: { amount_paid?: number; student?: { class?: { name?: string } } }) => {
+    data?.forEach((record: any) => {
         const className = record.student?.class?.name || 'Unassigned'
         const paid = Number(record.amount_paid) || 0
         if (!stats[className]) stats[className] = 0
@@ -189,7 +186,7 @@ export async function getBursaryAuditTrail(month: string, year: number) {
             deviationType: dispute?.reason || "Manual Override",
             distance: dispute?.distance_detected || dev.metadata?.original_distance || 0,
             authorizer: (dispute?.resolved_by_profile as any)?.full_name || "Admin Principal",
-            proofId: `IMG_EVID_${dev.metadata?.dispute_id?.slice(0, 4).toUpperCase() || 'MOCK'}`
+            proofId: dev.metadata?.dispute_id ? `IMG_EVID_${dev.metadata?.dispute_id.slice(0, 4).toUpperCase()}` : null
         }
     })
 

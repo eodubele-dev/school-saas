@@ -150,7 +150,7 @@ export function MockExam({ questions, durationMinutes }: MockExamProps) {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 gap-2">
-                                    {q.options.map((opt, optIdx) => (
+                                    {q.options.map((opt: string, optIdx: number) => (
                                         <div key={optIdx} className={`p-3 rounded-md border text-sm flex items-center justify-between
                                             ${optIdx === q.correct_option ? 'bg-green-100 border-green-200' : ''}
                                             ${optIdx === selected && optIdx !== q.correct_option ? 'bg-red-100 border-red-200' : ''}
@@ -229,7 +229,7 @@ export function MockExam({ questions, durationMinutes }: MockExamProps) {
                     </h3>
 
                     <div className="space-y-3">
-                        {currentQ.options.map((option, idx) => (
+                        {currentQ.options.map((option: string, idx: number) => (
                             <div
                                 key={idx}
                                 onClick={() => handleSelect(idx)}
