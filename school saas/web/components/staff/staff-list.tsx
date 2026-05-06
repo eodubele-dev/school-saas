@@ -60,6 +60,7 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false)
+    const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false)
     const [newRole, setNewRole] = useState("")
     const [loading, setLoading] = useState(false)
 
@@ -108,6 +109,22 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
         const params = new URLSearchParams(searchParams)
         params.set('page', newPage.toString())
         router.push(`${pathname}?${params.toString()}`)
+    }
+
+    const handleDeactivate = async () => {
+        if (!selectedUser) return
+        setLoading(true)
+
+        const res = await updateStaffStatus(selectedUser.id, 'inactive', domain)
+
+        if (res.success) {
+            toast.success("Account deactivated successfully")
+            setOptimisticStaff(prev => prev.map(u => u.id === selectedUser.id ? { ...u, status: 'inactive' } : u))
+            setIsDeactivateModalOpen(false)
+        } else {
+            toast.error(res.error || "Failed to deactivate account")
+        }
+        setLoading(false)
     }
 
     const currentPage = Number(searchParams.get('page')) || 1
@@ -231,13 +248,8 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-white/10" />
                                                 <DropdownMenuItem onClick={() => {
-                                                    if (confirm("Are you sure you want to deactivate this account? They will lose access immediately.")) {
-                                                        toast.promise(updateStaffStatus(user.id, 'inactive'), {
-                                                            loading: 'Deactivating account...',
-                                                            success: 'Account deactivated successfully',
-                                                            error: 'Failed to deactivate account'
-                                                        })
-                                                    }
+                                                    setSelectedUser(user)
+                                                    setIsDeactivateModalOpen(true)
                                                 }} className="text-red-500 hover:bg-red-500/10 cursor-pointer">
                                                     Deactivate Account
                                                 </DropdownMenuItem>
@@ -360,6 +372,48 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
             />
+
+            {/* Deactivate Account Modal */}
+            <Dialog open={isDeactivateModalOpen} onOpenChange={setIsDeactivateModalOpen}>
+                <DialogContent className="bg-slate-950 border-red-500/30 text-foreground sm:max-w-md shadow-2xl shadow-red-900/20">
+                    <DialogHeader>
+                        <div className="mx-auto w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mb-4 border border-red-500/20">
+                            <ShieldAlert className="h-6 w-6 text-red-500" />
+                        </div>
+                        <DialogTitle className="text-center text-xl text-white">Deactivate Staff Account</DialogTitle>
+                        <DialogDescription className="text-center text-slate-400 mt-2">
+                            Are you absolutely sure you want to deactivate <span className="text-white font-medium">{selectedUser?.full_name}</span>?
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="py-4 space-y-4">
+                        <div className="rounded-lg bg-red-500/5 border border-red-500/10 p-4">
+                            <ul className="text-sm text-red-400/80 space-y-2 list-disc list-inside">
+                                <li>They will lose access to the system immediately.</li>
+                                <li>Their active sessions will be terminated.</li>
+                                <li>Their historical data (results, attendance) will be preserved.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button 
+                            variant="ghost" 
+                            onClick={() => setIsDeactivateModalOpen(false)} 
+                            className="text-slate-400 hover:text-white hover:bg-slate-800"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleDeactivate}
+                            disabled={loading}
+                            className="bg-red-600 text-white hover:bg-red-700 font-medium"
+                        >
+                            {loading ? "Deactivating..." : "Yes, Deactivate Account"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div >
     )
 }
