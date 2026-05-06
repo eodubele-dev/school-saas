@@ -6,6 +6,7 @@ import { getStaffList } from "@/lib/actions/staff"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { unstable_noStore as noStore } from 'next/cache'
+import { createAdminClient } from "@/lib/supabase/admin"
 
 export default async function StaffPage({ params, searchParams }: { params: { domain: string }, searchParams: { page?: string, query?: string } }) {
     noStore()
@@ -88,6 +89,12 @@ export default async function StaffPage({ params, searchParams }: { params: { do
             </div>
         )
     } catch (err: any) {
+        // CRITICAL: Next.js redirect() throws an error that must be re-thrown 
+        // to be handled by the framework. If we catch it, the redirect fails.
+        if (err?.message === 'NEXT_REDIRECT' || err?.digest?.includes('NEXT_REDIRECT')) {
+            throw err;
+        }
+
         console.error("[StaffPage Fatal Error]:", err)
         return (
             <div className="p-12 text-center h-full flex flex-col items-center justify-center bg-slate-950">

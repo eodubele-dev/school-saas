@@ -75,7 +75,13 @@ export async function getStaffList(domain: string, page = 1, query = "") {
     const from = (page - 1) * ITEMS_PER_PAGE
     const to = from + ITEMS_PER_PAGE - 1
 
-    const supabaseAdmin = createAdminClient()
+    let supabaseAdmin;
+    try {
+        supabaseAdmin = createAdminClient()
+    } catch (adminErr) {
+        console.error("[getStaffList] Failed to initialize admin client:", adminErr)
+        return { success: false, error: "System configuration error: Missing Service Role Key" }
+    }
 
     let dbQuery = supabaseAdmin
         .from('profiles')
