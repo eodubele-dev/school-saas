@@ -635,14 +635,21 @@ export async function resetStaffPassword(userId: string, tenantId: string) {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return { success: false, error: "Unauthorized" }
 
-        const { data: adminProfile } = await supabase
+        // Use Admin client for role check to avoid RLS lookup issues in server actions
+        const { data: adminProfile, error: roleErr } = await supabaseAdmin
             .from('profiles')
             .select('role')
             .eq('id', user.id)
             .eq('tenant_id', tenantId)
             .single()
 
+        if (roleErr) {
+            console.error("[resetStaffPassword] Role Check Error:", roleErr.message);
+        }
+
         const isAdmin = adminProfile?.role === 'admin' || adminProfile?.role === 'super-admin' || adminProfile?.role === 'owner'
+        console.log(`[resetStaffPassword] Request by ${user.id}, Role: ${adminProfile?.role}, IsAdmin: ${isAdmin}`);
+
         if (!adminProfile || !isAdmin) {
             return { success: false, error: "Only admins can reset passwords" }
         }

@@ -59,6 +59,7 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
     const [selectedUser, setSelectedUser] = useState<any>(null)
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
     const [resetData, setResetData] = useState<{ name: string, password: string } | null>(null)
+    const [confirmReset, setConfirmReset] = useState<any | null>(null)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false)
     const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false)
@@ -244,22 +245,7 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
 
                                                 <StaffIDCard user={user} tenant={tenant} />
 
-                                                <DropdownMenuItem onClick={async () => {
-                                                    const confirmed = window.confirm(`Are you sure you want to reset the password for ${user.full_name}? This will invalidate their current password.`)
-                                                    if (!confirmed) return
-
-                                                    toast.promise(resetStaffPassword(user.id, tenant.id), {
-                                                        loading: 'Resetting password...',
-                                                        success: (res) => {
-                                                            if (res.success) {
-                                                                setResetData({ name: user.full_name, password: res.password! })
-                                                                return `Password reset successfully!`
-                                                            }
-                                                            throw new Error(res.error || "Failed to reset")
-                                                        },
-                                                        error: (err) => err.message || 'Failed to reset password'
-                                                    })
-                                                }} className="hover:bg-amber-500/10 text-amber-500 cursor-pointer">
+                                                <DropdownMenuItem onClick={() => setConfirmReset(user)} className="hover:bg-amber-500/10 text-amber-500 cursor-pointer">
                                                     <Shield className="mr-2 h-4 w-4" /> Reset & Reveal Password
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-white/10" />
@@ -441,6 +427,48 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                             className="bg-red-600 text-white hover:bg-red-700 font-medium"
                         >
                             {loading ? "Deactivating..." : "Yes, Deactivate Account"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Modern Onscreen Confirmation Dialog for Reset */}
+            <Dialog open={!!confirmReset} onOpenChange={(open) => !open && setConfirmReset(null)}>
+                <DialogContent className="bg-slate-900 border-border text-white sm:max-w-[450px]">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <ShieldAlert className="h-5 w-5 text-amber-500" />
+                            Security Confirmation
+                        </DialogTitle>
+                        <DialogDescription className="text-slate-400 pt-2 text-base">
+                            Are you sure you want to reset the password for <span className="text-white font-bold">{confirmReset?.full_name}</span>? 
+                            <br /><br />
+                            This will immediately <span className="text-amber-500 font-semibold">invalidate their current password</span> and generate a new one for you to share.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 sm:gap-0 mt-4">
+                        <Button variant="ghost" onClick={() => setConfirmReset(null)} className="text-slate-400 hover:text-white hover:bg-slate-800">
+                            Cancel
+                        </Button>
+                        <Button 
+                            className="bg-amber-600 hover:bg-amber-700 text-white"
+                            onClick={async () => {
+                                const user = confirmReset;
+                                setConfirmReset(null);
+                                toast.promise(resetStaffPassword(user.id, tenant.id), {
+                                    loading: 'Resetting password...',
+                                    success: (res) => {
+                                        if (res.success) {
+                                            setResetData({ name: user.full_name, password: res.password! })
+                                            return `Password reset successfully!`
+                                        }
+                                        throw new Error(res.error || "Failed to reset")
+                                    },
+                                    error: (err) => err.message || 'Failed to reset password'
+                                })
+                            }}
+                        >
+                            Yes, Reset Password
                         </Button>
                     </DialogFooter>
                 </DialogContent>
