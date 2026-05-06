@@ -183,18 +183,46 @@ export async function updateStaffRole(userId: string, newRole: string, domain?: 
 
 export async function updateStaffStatus(userId: string, status: 'active' | 'inactive', domain?: string) {
     const supabase = createClient()
-    // Admin check assumed similar to above (omitted for brevity)
-    // Resolve Tenant ID
+    
+    // 1. Auth Check
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    // 2. Resolve Tenant ID
     const { data: tenant } = await supabase.from('tenants').select('id').eq('slug', domain).single()
     const tenantId = tenant?.id
+    if (!tenantId) return { success: false, error: "School not found" }
 
-    const { error } = await supabase
+    // 3. Admin Check for THIS tenant
+    const { data: adminProfile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .eq('tenant_id', tenantId)
+        .single()
+
+    const isAdmin = adminProfile?.role === 'admin' || adminProfile?.role === 'super-admin' || adminProfile?.role === 'owner'
+    if (!adminProfile || !isAdmin) return { success: false, error: "Only admins can deactivate accounts" }
+
+    // 4. Perform Update (Requires Admin Client to bypass RLS)
+    let supabaseAdmin;
+    try {
+        supabaseAdmin = createAdminClient()
+    } catch (e) {
+        return { success: false, error: "Missing Service Role Key" }
+    }
+
+    const { error } = await supabaseAdmin
         .from('profiles')
         .update({ status })
         .eq('id', userId)
         .eq('tenant_id', tenantId)
 
-    if (error) return { success: false, error: error.message }
+    if (error) {
+        console.error("[updateStaffStatus] DB Error:", error)
+        return { success: false, error: error.message }
+    }
+    
     revalidatePath('/[domain]/dashboard/admin/staff', 'page')
     return { success: true }
 }
