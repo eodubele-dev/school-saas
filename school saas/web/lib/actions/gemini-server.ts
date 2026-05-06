@@ -59,6 +59,9 @@ export async function generateStudentRemark(scores: StudentScores): Promise<stri
         return response.text()
     } catch (error) {
         console.error("Gemini Generation Error:", error)
-        return "An excellent performance this term. ${scores.name} has shown diligence in ${scores.bestSubject} but needs more focus in ${scores.worstSubject}. We expect even better results next term."
+        if (scores.average >= 80) {
+            return `An outstanding performance this term. ${scores.name} has shown remarkable diligence, particularly in ${scores.bestSubject}. We encourage the maintenance of this excellent standard in the coming term.`
+        }
+        return `A good performance this term. ${scores.name} has shown diligence in ${scores.bestSubject} but should dedicate more focus to ${scores.worstSubject} for improved results next term.`
     }
 }

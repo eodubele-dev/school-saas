@@ -180,8 +180,8 @@ export async function generateRemarkAI(studentName: string, scores: { ca1: numbe
         const { total, ca1, ca2, exam } = scores
 
         const prompt = `
-            Act as a Senior Principal of a prestigious school.
             Generate a formal, constructive report card remark for ${studentName}.
+            Tone: Formal but warm. Highlight strengths. For top-performing students (A grade), focus on commendation. For others, respectfully address areas for improvement and encourage future effort. Do not use emoji.
             
             Context:
             - CA 1: ${ca1}/20
@@ -195,7 +195,8 @@ export async function generateRemarkAI(studentName: string, scores: { ca1: numbe
             3. Average scores (40-60) should encourage improvement in specific areas.
             4. Failing scores (<40) should be firm but supportive, suggesting a meeting or extra focus.
             5. Keep it to 2-3 concise sentences. No slang.
-            6. Do not use generic templates. Make it feel personalized to the score balance.
+            6. For high scores (A grade), focus on commendation and maintaining standards. Do not suggest they need "better" results if they are already at the top.
+            7. Do not use generic templates. Make it feel personalized to the score balance.
         `
 
         const result = await model.generateContent(prompt)
@@ -207,9 +208,15 @@ export async function generateRemarkAI(studentName: string, scores: { ca1: numbe
         console.error("AI Remark Error:", error)
         // Fallback to basic logic if AI fails
         const { total } = scores
-        let performance = total >= 80 ? "outstanding" : total >= 60 ? "good" : total >= 40 ? "average" : "challenging"
-        const fallback = `${studentName} had a ${performance} term. Continued effort is encouraged for better results.`
-        return { success: true, remark: fallback }
+        if (total >= 80) {
+            return { success: true, remark: `${studentName} had an outstanding term. Keep up the excellent work and maintain this high standard!` }
+        } else if (total >= 60) {
+            return { success: true, remark: `${studentName} had a good term. Continued effort will lead to even better results.` }
+        } else if (total >= 40) {
+            return { success: true, remark: `${studentName} had an average term. More focus is needed in specific areas to improve the overall grade.` }
+        } else {
+            return { success: true, remark: `${studentName} had a challenging term. Significant effort and extra support are required for better results.` }
+        }
     }
 }
 

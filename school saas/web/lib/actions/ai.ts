@@ -36,7 +36,7 @@ export async function generateStudentRemark(performance: StudentPerformance): Pr
             Needs Improvement In: ${performance.worstSubject}
             Attendance: ${performance.attendance}%
 
-            Tone: Formal but warm. Highlight strengths, respectfully address areas for improvement, and encourage future effort. Do not use emoji.
+            Tone: Formal but warm. Highlight strengths. For top-performing students (A grade), focus on commendation and maintaining excellence. For others, respectfully address areas for improvement and encourage future effort. Do not use emoji.
         `
 
         const result = await model.generateContent(prompt)
@@ -46,6 +46,9 @@ export async function generateStudentRemark(performance: StudentPerformance): Pr
         return text.trim()
     } catch (error) {
         console.error("AI Generation Error:", error)
-        return "Excellent effort this term. Keep up the hard work and focus on areas that need improvement."
+        if (performance.average >= 80) {
+            return "An outstanding performance this term. Your dedication and hard work are clearly reflected in these results. Keep up the excellent standard!"
+        }
+        return "A good effort this term. Keep up the hard work and continue to focus on areas that need improvement for even better results."
     }
 }
