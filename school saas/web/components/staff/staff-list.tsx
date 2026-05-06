@@ -248,6 +248,7 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                                                     toast.promise(resendStaffInvite(user.id, domain), {
                                                         loading: 'Resending credentials...',
                                                         success: (res) => {
+                                                            if (!res || res.success === false) throw new Error(res?.error || "Failed to send credentials")
                                                             if (res.emailSuccess && res.smsSuccess) return `Credentials resent via Email & SMS`
                                                             if (res.emailSuccess) return `Sent via Email (SMS failed/balance low)`
                                                             if (res.smsSuccess) return `Sent via SMS (Email failed)`

@@ -463,88 +463,94 @@ export async function createStaff(formData: any, domain?: string) {
 }
 
 export async function resendStaffInvite(userId: string, domain: string) {
-    const supabase = createClient()
-    const supabaseAdmin = createAdminClient()
+    try {
+        console.log(`[resendStaffInvite] Started. User: ${userId}, Domain: ${domain}`);
+        const supabase = createClient()
+        const supabaseAdmin = createAdminClient()
 
-    // 1. Auth Check
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { success: false, error: "Unauthorized" }
+        // 1. Auth Check
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return { success: false, error: "Unauthorized" }
 
-    // 2. Fetch Tenant Data first (Using Admin Client to bypass any RLS issues)
-    // Strip trailing domains just in case the full hostname was passed
-    const cleanDomain = domain.replace('.eduflow.ng', '').replace('.localhost', '').replace(':3000', '');
-    
-    const { data: tenant, error: tenantErr } = await supabaseAdmin
-        .from('tenants')
-        .select('id, name, current_session')
-        .eq('slug', cleanDomain)
-        .single()
+        // 2. Fetch Tenant Data first (Using Admin Client to bypass any RLS issues)
+        // Strip trailing domains just in case the full hostname was passed
+        const cleanDomain = domain.replace('.eduflow.ng', '').replace('.localhost', '').replace(':3000', '');
+        
+        const { data: tenant, error: tenantErr } = await supabaseAdmin
+            .from('tenants')
+            .select('id, name, current_session')
+            .eq('slug', cleanDomain)
+            .single()
 
-    if (!tenant || tenantErr) {
-        console.error(`[resendStaffInvite] Tenant lookup failed. Original Domain: ${domain}, Clean Domain: ${cleanDomain}, Error:`, tenantErr);
-        return { success: false, error: "School context not found" }
-    }
+        if (!tenant || tenantErr) {
+            console.error(`[resendStaffInvite] Tenant lookup failed. Original Domain: ${domain}, Clean Domain: ${cleanDomain}, Error:`, tenantErr);
+            return { success: false, error: "School context not found" }
+        }
 
-    // 3. Fetch Staff Profile for THIS tenant
-    const { data: staffProfile, error: profileErr } = await supabaseAdmin
-        .from('profiles')
-        .select('id, full_name, role, tenant_id')
-        .eq('id', userId)
-        .eq('tenant_id', tenant.id)
-        .single()
+        // 3. Fetch Staff Profile for THIS tenant
+        const { data: staffProfile, error: profileErr } = await supabaseAdmin
+            .from('profiles')
+            .select('id, full_name, role, tenant_id')
+            .eq('id', userId)
+            .eq('tenant_id', tenant.id)
+            .single()
 
-    if (!staffProfile || profileErr) {
-        console.error(`[resendStaffInvite] Profile not found for user ${userId} in tenant ${tenant.id}:`, profileErr)
-        return { success: false, error: "Staff profile not found in this school" }
-    }
-    
-    // Fetch Email from Auth
-    const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId)
-    const email = authUser?.user?.email
-    if (!email) return { success: false, error: "Email address not found for this staff member" }
+        if (!staffProfile || profileErr) {
+            console.error(`[resendStaffInvite] Profile not found for user ${userId} in tenant ${tenant.id}:`, profileErr)
+            return { success: false, error: "Staff profile not found in this school" }
+        }
+        
+        // Fetch Email from Auth
+        const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId)
+        const email = authUser?.user?.email
+        if (!email) return { success: false, error: "Email address not found for this staff member" }
 
-    // 3. Find the last "Welcome" message in logs to get the credentials if possible
-    const { data: lastMsg } = await supabaseAdmin
-        .from('message_logs')
-        .select('message_content, recipient_phone')
-        .eq('tenant_id', tenant.id)
-        .eq('recipient_name', staffProfile.full_name) // Best effort match
-        .ilike('message_content', '%Welcome%')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
+        // 3. Find the last "Welcome" message in logs to get the credentials if possible
+        const { data: lastMsg } = await supabaseAdmin
+            .from('message_logs')
+            .select('message_content, recipient_phone')
+            .eq('tenant_id', tenant.id)
+            .eq('recipient_name', staffProfile.full_name) // Best effort match
+            .ilike('message_content', '%Welcome%')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
 
-    const schoolName = tenant.name
-    const appName = process.env.NEXT_PUBLIC_APP_NAME || SITE_CONFIG.shortName
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `https://${domain}.eduflow.ng`
+        const schoolName = tenant.name
+        const appName = process.env.NEXT_PUBLIC_APP_NAME || SITE_CONFIG.shortName
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `https://${domain}.eduflow.ng`
 
-    let resendMessage = lastMsg?.message_content
-    if (!resendMessage) {
-        // Fallback to a generic login link if no log found
-        resendMessage = `Welcome back to the ${schoolName} Team! Access your ${appName} dashboard at: ${siteUrl}/login. Use your existing credentials.`
-    }
+        let resendMessage = lastMsg?.message_content
+        if (!resendMessage) {
+            // Fallback to a generic login link if no log found
+            resendMessage = `Welcome back to the ${schoolName} Team! Access your ${appName} dashboard at: ${siteUrl}/login. Use your existing credentials.`
+        }
 
-    // 4. Dispatch Email
-    const emailRes = await sendWelcomeEmail(email, schoolName, domain)
-    
-    // 5. Dispatch SMS (If balance allows)
-    let smsRes = { success: false, error: "Insufficient balance" }
-    const { data: tenantWallet } = await supabaseAdmin.from('tenants').select('sms_balance').eq('id', tenant.id).single()
-    if (Number(tenantWallet?.sms_balance) >= SMS_CONFIG.UNIT_COST) {
-        const phone = lastMsg?.recipient_phone // Get phone from log if possible
-        if (phone) {
-            smsRes = await sendSMS(phone, resendMessage)
-            if (smsRes.success) {
-                await supabaseAdmin.from('tenants').update({ sms_balance: Number(tenantWallet.sms_balance) - SMS_CONFIG.UNIT_COST }).eq('id', tenant.id)
+        // 4. Dispatch Email
+        const emailRes = await sendWelcomeEmail(email, schoolName, domain)
+        
+        // 5. Dispatch SMS (If balance allows)
+        let smsRes = { success: false, error: "Insufficient balance" }
+        const { data: tenantWallet } = await supabaseAdmin.from('tenants').select('sms_balance').eq('id', tenant.id).single()
+        if (Number(tenantWallet?.sms_balance) >= SMS_CONFIG.UNIT_COST) {
+            const phone = lastMsg?.recipient_phone // Get phone from log if possible
+            if (phone) {
+                smsRes = await sendSMS(phone, resendMessage)
+                if (smsRes.success) {
+                    await supabaseAdmin.from('tenants').update({ sms_balance: Number(tenantWallet.sms_balance) - SMS_CONFIG.UNIT_COST }).eq('id', tenant.id)
+                }
             }
         }
-    }
 
-    return { 
-        success: true, 
-        emailSuccess: emailRes.success,
-        smsSuccess: smsRes.success,
-        error: !emailRes.success && !smsRes.success ? "Both Email and SMS failed" : null
+        return { 
+            success: true, 
+            emailSuccess: emailRes.success,
+            smsSuccess: smsRes.success,
+            error: !emailRes.success && !smsRes.success ? "Both Email and SMS failed" : null
+        }
+    } catch (error: any) {
+        console.error("[resendStaffInvite] Fatal Error:", error);
+        return { success: false, error: error?.message || "Internal Server Error" }
     }
 }
 export async function updateStaffProfile(userId: string, data: {
