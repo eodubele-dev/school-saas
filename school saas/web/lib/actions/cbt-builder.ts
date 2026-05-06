@@ -95,7 +95,19 @@ export async function searchExamBank(filters: {
 
         if (error) {
             console.error('Error searching bank:', error)
-            return []
+        }
+
+        // --- AI FALLBACK: If bank is empty, generate authentic-style past questions ---
+        if (!data || data.length === 0) {
+            console.log(`Exam Bank empty for ${filters.examType} ${filters.subject}. Triggering AI Emulation...`)
+            const aiQuestions = await generateAIQuestions({
+                subject: filters.subject,
+                topic: filters.topic || "General " + filters.subject,
+                count: 10,
+                difficulty: "Hard",
+                examContext: `${filters.examType} Past Questions (${filters.year || 'Recent'})`
+            })
+            return aiQuestions
         }
 
         return (data || []) as BankQuestion[]
@@ -113,16 +125,22 @@ export async function generateAIQuestions(params: {
     topic: string
     count: number
     difficulty: string
+    examContext?: string
 }) {
     const prompt = `
-        Act as an expert Nigerian curriculum assessment specialist.
-        Generate ${params.count} multiple-choice questions for the subject "${params.subject}" on the topic "${params.topic}".
+        Act as a Senior Examiner for the West African Examinations Council (WAEC) and JAMB.
+        Generate ${params.count} high-quality, production-ready multiple-choice questions for the subject "${params.subject}" on the topic "${params.topic}".
+        ${params.examContext ? `Context: This is for ${params.examContext}.` : ''}
         Difficulty Level: ${params.difficulty}
 
-        Requirements:
-        1. Each question must have exactly 4 options (A, B, C, D).
-        2. Provide a clear "explanation" for the correct answer.
-        3. Format the output as a strict JSON array.
+        Strict Pedagogical Requirements:
+        1. Use the official Nigerian Secondary School Curriculum (NERDC) standards.
+        2. Questions must be clear, unambiguous, and test deep understanding, not just rote memorization.
+        3. Each question must have exactly 4 options (A, B, C, D).
+        4. Distractors (wrong options) must be plausible and based on common student misconceptions.
+        5. Provide a detailed, professional "explanation" for the correct answer.
+        6. Format the output as a strict JSON array.
+        7. NO generic questions like "What is X?". Use real-world scenarios or complex problem-solving where appropriate.
 
         Output Schema:
         [
@@ -134,7 +152,7 @@ export async function generateAIQuestions(params: {
           }
         ]
         
-        Return ONLY the JSON.
+        Return ONLY the JSON array. Do not include markdown formatting or extra text.
     `
 
     try {

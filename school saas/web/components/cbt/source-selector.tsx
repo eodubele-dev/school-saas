@@ -22,6 +22,7 @@ export function SourceSelector({ onAddQuestions }: SourceSelectorProps) {
     // AI State
     const [aiTopic, setAiTopic] = useState("")
     const [aiCount, setAiCount] = useState("5")
+    const [aiDifficulty, setAiDifficulty] = useState("Medium")
 
     // Bank State
     const [bankType, setBankType] = useState("JAMB")
@@ -37,7 +38,7 @@ export function SourceSelector({ onAddQuestions }: SourceSelectorProps) {
                 subject: "Mixed",
                 topic: aiTopic,
                 count: parseInt(aiCount),
-                difficulty: "Medium"
+                difficulty: aiDifficulty
             })
 
             if (qs.length === 0) {
@@ -148,6 +149,19 @@ export function SourceSelector({ onAddQuestions }: SourceSelectorProps) {
                                     <SelectItem value="5">5 Questions</SelectItem>
                                     <SelectItem value="10">10 Questions</SelectItem>
                                     <SelectItem value="20">20 Questions</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Difficulty Level</Label>
+                            <Select value={aiDifficulty} onValueChange={setAiDifficulty}>
+                                <SelectTrigger className="bg-slate-950/50 border-border">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-card text-card-foreground border-border text-foreground">
+                                    <SelectItem value="Easy">Easy (Foundational)</SelectItem>
+                                    <SelectItem value="Medium">Medium (Standard)</SelectItem>
+                                    <SelectItem value="Hard">Hard (Scholarship/Exam)</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
