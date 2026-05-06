@@ -26,7 +26,7 @@ import { SignaturePad } from "@/components/ui/signature-pad"
 
 import { createStaff } from "@/lib/actions/staff"
 
-export function StaffInviteModal({ domain }: { domain: string }) {
+export function StaffInviteModal({ domain, tenantId }: { domain: string, tenantId: string }) {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
@@ -46,7 +46,7 @@ export function StaffInviteModal({ domain }: { domain: string }) {
         setLoading(true)
 
         try {
-            const res = await createStaff(formData, domain)
+            const res = await createStaff(formData, tenantId)
 
             if (res.success) {
                 toast.success(`Staff profile created successfully!`)

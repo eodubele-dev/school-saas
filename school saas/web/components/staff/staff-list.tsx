@@ -244,8 +244,8 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
                                                 <StaffIDCard user={user} tenant={tenant} />
 
                                                 <DropdownMenuItem onClick={async () => {
-                                                    console.log("[StaffList] Resending invite for user:", user.id, "Domain:", domain);
-                                                    toast.promise(resendStaffInvite(user.id, domain), {
+                                                    console.log("[StaffList] Resending invite for user:", user.id, "Tenant ID:", tenant.id);
+                                                    toast.promise(resendStaffInvite(user.id, tenant.id), {
                                                         loading: 'Resending credentials...',
                                                         success: (res) => {
                                                             if (!res || res.success === false) throw new Error(res?.error || "Failed to send credentials")

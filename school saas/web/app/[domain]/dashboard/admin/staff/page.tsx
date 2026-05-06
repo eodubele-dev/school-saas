@@ -69,7 +69,7 @@ export default async function StaffPage({ params, searchParams }: { params: { do
                         <h1 className="text-2xl font-bold text-white tracking-tight">Staff Management</h1>
                         <p className="text-slate-400">Manage teachers, bursars, and administrative access.</p>
                     </div>
-                    <StaffInviteModal domain={params.domain} />
+                    <StaffInviteModal domain={params.domain} tenantId={tenantId} />
                 </div>
 
                 {success ? (

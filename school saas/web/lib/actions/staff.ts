@@ -245,7 +245,7 @@ export async function updateStaffStatus(userId: string, status: 'active' | 'inac
     }
 }
 
-export async function createStaff(formData: any, domain?: string) {
+export async function createStaff(formData: any, tenantId: string) {
     const supabase = createClient()
     const supabaseAdmin = createAdminClient()
 
@@ -253,15 +253,18 @@ export async function createStaff(formData: any, domain?: string) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
-    // Get Tenant ID via Domain
-    const { data: school } = await supabase
+    if (!tenantId) return { success: false, error: "School context missing" }
+
+    // Get Tenant Branding & Slug
+    const { data: tenant } = await supabaseAdmin
         .from('tenants')
-        .select('id')
-        .eq('slug', domain)
+        .select('name, slug')
+        .eq('id', tenantId)
         .single()
 
-    if (!school?.id) return { success: false, error: "School not found" }
-    const tenantId = school.id
+    if (!tenant) return { success: false, error: "School profile not found" }
+    const domain = tenant.slug
+    const schoolName = tenant.name
 
     // Check if user is authorized for THIS tenant
     const { data: adminProfile } = await supabase
@@ -462,9 +465,9 @@ export async function createStaff(formData: any, domain?: string) {
     }
 }
 
-export async function resendStaffInvite(userId: string, domain: string) {
+export async function resendStaffInvite(userId: string, tenantId: string) {
     try {
-        console.log(`[resendStaffInvite] Started. User: ${userId}, Domain: ${domain}`);
+        console.log(`[resendStaffInvite] Started. User: ${userId}, Tenant: ${tenantId}`);
         const supabase = createClient()
         const supabaseAdmin = createAdminClient()
 
@@ -472,20 +475,19 @@ export async function resendStaffInvite(userId: string, domain: string) {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return { success: false, error: "Unauthorized" }
 
-        // 2. Fetch Tenant Data first (Using Admin Client to bypass any RLS issues)
-        // Strip trailing domains just in case the full hostname was passed
-        const cleanDomain = domain.replace('.eduflow.ng', '').replace('.localhost', '').replace(':3000', '');
-        
+        // 2. Fetch Tenant Data directly by ID
         const { data: tenant, error: tenantErr } = await supabaseAdmin
             .from('tenants')
-            .select('id, name, current_session')
-            .eq('slug', cleanDomain)
+            .select('id, name, slug, current_session')
+            .eq('id', tenantId)
             .single()
 
         if (!tenant || tenantErr) {
-            console.error(`[resendStaffInvite] Tenant lookup failed. Original Domain: ${domain}, Clean Domain: ${cleanDomain}, Error:`, tenantErr);
+            console.error(`[resendStaffInvite] Tenant not found for ID ${tenantId}:`, tenantErr);
             return { success: false, error: "School context not found" }
         }
+
+        const domain = tenant.slug; // Use the slug from DB for site URLs
 
         // 3. Fetch Staff Profile for THIS tenant
         const { data: staffProfile, error: profileErr } = await supabaseAdmin
