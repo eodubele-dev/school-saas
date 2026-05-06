@@ -243,11 +243,16 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
 
                                                 <StaffIDCard user={user} tenant={tenant} />
 
-                                                <DropdownMenuItem onClick={() => {
-                                                    toast.promise(new Promise(resolve => setTimeout(resolve, 1000)), {
-                                                        loading: 'Resending invite...',
-                                                        success: `Invite resent to ${user.email}`,
-                                                        error: 'Failed to resend invite'
+                                                <DropdownMenuItem onClick={async () => {
+                                                    toast.promise(resendStaffInvite(user.id, domain), {
+                                                        loading: 'Resending credentials...',
+                                                        success: (res) => {
+                                                            if (res.emailSuccess && res.smsSuccess) return `Credentials resent via Email & SMS`
+                                                            if (res.emailSuccess) return `Sent via Email (SMS failed/balance low)`
+                                                            if (res.smsSuccess) return `Sent via SMS (Email failed)`
+                                                            throw new Error(res.error || "Failed to send")
+                                                        },
+                                                        error: (err) => err.message || 'Failed to resend invite'
                                                     })
                                                 }} className="hover:bg-secondary/50 cursor-pointer">
                                                     <Mail className="mr-2 h-4 w-4" /> Resend Invite

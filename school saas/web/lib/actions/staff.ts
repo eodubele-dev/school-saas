@@ -436,7 +436,78 @@ export async function createStaff(formData: any, domain?: string) {
 
 
     revalidatePath('/[domain]/dashboard/admin/staff', 'page')
-    return { success: true, tempPassword }
+    return { 
+        success: true, 
+        tempPassword,
+        smsStatus,
+        emailStatus: domain ? "attempted" : "skipped"
+    }
+}
+
+export async function resendStaffInvite(userId: string, domain: string) {
+    const supabase = createClient()
+    const supabaseAdmin = createAdminClient()
+
+    // 1. Auth Check
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    // 2. Fetch User & Tenant Data
+    const [{ data: staffProfile }, { data: tenant }] = await Promise.all([
+        supabaseAdmin.from('profiles').select('id, full_name, role, tenant_id').eq('id', userId).single(),
+        supabase.from('tenants').select('id, name, current_session').eq('slug', domain).single()
+    ])
+
+    if (!staffProfile || !tenant) return { success: false, error: "Staff or School not found" }
+    
+    // Fetch Email from Auth
+    const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId)
+    const email = authUser?.user?.email
+    if (!email) return { success: false, error: "Email address not found for this staff member" }
+
+    // 3. Find the last "Welcome" message in logs to get the credentials if possible
+    const { data: lastMsg } = await supabaseAdmin
+        .from('message_logs')
+        .select('message_content, recipient_phone')
+        .eq('tenant_id', tenant.id)
+        .eq('recipient_name', staffProfile.full_name) // Best effort match
+        .ilike('message_content', '%Welcome%')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+    const schoolName = tenant.name
+    const appName = process.env.NEXT_PUBLIC_APP_NAME || SITE_CONFIG.shortName
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `https://${domain}.eduflow.ng`
+
+    let resendMessage = lastMsg?.message_content
+    if (!resendMessage) {
+        // Fallback to a generic login link if no log found
+        resendMessage = `Welcome back to the ${schoolName} Team! Access your ${appName} dashboard at: ${siteUrl}/login. Use your existing credentials.`
+    }
+
+    // 4. Dispatch Email
+    const emailRes = await sendWelcomeEmail(email, schoolName, domain)
+    
+    // 5. Dispatch SMS (If balance allows)
+    let smsRes = { success: false, error: "Insufficient balance" }
+    const { data: tenantWallet } = await supabaseAdmin.from('tenants').select('sms_balance').eq('id', tenant.id).single()
+    if (Number(tenantWallet?.sms_balance) >= SMS_CONFIG.UNIT_COST) {
+        const phone = lastMsg?.recipient_phone // Get phone from log if possible
+        if (phone) {
+            smsRes = await sendSMS(phone, resendMessage)
+            if (smsRes.success) {
+                await supabaseAdmin.from('tenants').update({ sms_balance: Number(tenantWallet.sms_balance) - SMS_CONFIG.UNIT_COST }).eq('id', tenant.id)
+            }
+        }
+    }
+
+    return { 
+        success: true, 
+        emailSuccess: emailRes.success,
+        smsSuccess: smsRes.success,
+        error: !emailRes.success && !smsRes.success ? "Both Email and SMS failed" : null
+    }
 }
 export async function updateStaffProfile(userId: string, data: {
     firstName: string,
