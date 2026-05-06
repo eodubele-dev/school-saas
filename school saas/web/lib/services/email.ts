@@ -1,9 +1,8 @@
 
-// import { Resend } from 'resend';
+import { Resend } from 'resend';
 import { WelcomePlatinumEmail } from '@/components/emails/welcome-platinum';
-// import { render } from '@react-email/render';
 
-// const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendWelcomeEmail(
     to: string, 
@@ -15,29 +14,37 @@ export async function sendWelcomeEmail(
     console.log(`[Email Service] Attempting to send Welcome Email to ${to}`);
 
     try {
-        // SIMULATION FOR DEMO:
-        console.log("---------------------------------------------------");
-        console.log(`📧 EMAIL SENT: Welcome to the Future of ${schoolName}`);
-        console.log(`To: ${to}`);
-        console.log(`Subject: Your Command Center is Ready`);
-        
-        if (password) {
-            console.log(`PARENT CREDENTIALS:`);
-            console.log(`Email/Phone: ${to}`);
-            console.log(`Password: ${password}`);
+        const emailHtml = WelcomePlatinumEmail({
+            schoolName,
+            subdomain,
+            parentEmail: to,
+            parentPassword: password,
+            studentName: studentDetails?.name,
+            studentEmail: studentDetails?.email,
+            studentPassword: studentDetails?.password
+        });
+
+        // Since it's a test environment without a verified domain, use Resend's default test address
+        // Note: Resend's test address 'onboarding@resend.dev' can only send TO the email address you signed up with.
+        // Once you verify a domain, change this to 'noreply@yourdomain.com'
+        const fromAddress = 'onboarding@resend.dev';
+
+        const { data, error } = await resend.emails.send({
+            from: `"${schoolName} (System)" <${fromAddress}>`,
+            to: [to],
+            subject: `Your ${schoolName} Command Center is Ready`,
+            react: emailHtml
+        });
+
+        if (error) {
+            console.error('[Email Service] Resend API Error:', error);
+            return { success: false, error: error.message };
         }
 
-        if (studentDetails) {
-            console.log(`STUDENT CREDENTIALS (${studentDetails.name}):`);
-            console.log(`Login ID: ${studentDetails.email}`);
-            console.log(`Password: ${studentDetails.password}`);
-        }
-        console.log(`Link: https://${subdomain}.${process.env.NEXT_PUBLIC_COOKIE_DOMAIN || 'app.site'}`);
-        console.log("---------------------------------------------------");
-
-        return { success: true };
-    } catch (error) {
+        console.log(`[Email Service] Successfully sent email via Resend to ${to}. ID: ${data?.id}`);
+        return { success: true, id: data?.id };
+    } catch (error: any) {
         console.error('[Email Service] Failed to send email:', error);
-        return { success: false, error };
+        return { success: false, error: error?.message || "Unknown error" };
     }
 }
