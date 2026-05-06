@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { sendAbsentNotification } from './attendance'
 
@@ -12,23 +13,21 @@ export interface StudentAttendanceDTO {
     remarks?: string
 }
 
-/**
- * Get the class assigned to the current teacher
- */
 export async function getAssignedClass() {
-    const supabase = createClient()
+    const supabaseAdmin = createAdminClient()
     try {
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: { user } } = await createClient().auth.getUser()
         if (!user) return { success: false, error: 'Not authenticated' }
 
         // 1. Check Form Teacher (Priority)
-        const { data: formClass } = await supabase
+        const { data: formClass, error: formError } = await supabaseAdmin
             .from('classes')
             .select('id, name')
             .eq('form_teacher_id', user.id)
             .limit(1)
             .maybeSingle()
 
+        if (formError) console.error('Form teacher lookup error:', formError)
         if (formClass) {
             return {
                 success: true,
@@ -37,13 +36,14 @@ export async function getAssignedClass() {
         }
 
         // 2. Check Subject Assignments
-        const { data: subjectAssign } = await supabase
+        const { data: subjectAssign, error: subError } = await supabaseAdmin
             .from('subject_assignments')
             .select('class_id, classes(name)')
             .eq('teacher_id', user.id)
             .limit(1)
             .maybeSingle()
 
+        if (subError) console.error('Subject assignment lookup error:', subError)
         if (subjectAssign && subjectAssign.classes) {
             return {
                 success: true,
@@ -55,7 +55,7 @@ export async function getAssignedClass() {
         }
 
         // 3. Check Allocations (Legacy)
-        const { data: allocation, error } = await supabase
+        const { data: allocation, error } = await supabaseAdmin
             .from('teacher_allocations')
             .select('class_id, classes(name)')
             .eq('teacher_id', user.id)
@@ -82,9 +82,9 @@ export async function getAssignedClass() {
  * Get students in a specific class
  */
 export async function getClassStudents(classId: string) {
-    const supabase = createClient()
+    const supabaseAdmin = createAdminClient()
     try {
-        const { data: students, error } = await supabase
+        const { data: students, error } = await supabaseAdmin
             .from('students')
             .select('id, full_name, admission_number, photo_url')
             .eq('class_id', classId)
