@@ -27,7 +27,6 @@ export async function getAssignedClass() {
             .limit(1)
             .maybeSingle()
 
-        if (formError) console.error('Form teacher lookup error:', formError)
         if (formClass) {
             return {
                 success: true,
@@ -35,47 +34,50 @@ export async function getAssignedClass() {
             }
         }
 
-        // 2. Check Subject Assignments
+        // 2. Check Subject Assignments (Current Term)
         const { data: subjectAssign, error: subError } = await supabaseAdmin
             .from('subject_assignments')
-            .select('class_id, classes(name)')
+            .select('class_id, classes(id, name)')
             .eq('teacher_id', user.id)
             .limit(1)
             .maybeSingle()
 
-        if (subError) console.error('Subject assignment lookup error:', subError)
         if (subjectAssign && subjectAssign.classes) {
+            const cls = subjectAssign.classes as any
             return {
                 success: true,
                 data: {
                     id: subjectAssign.class_id,
-                    name: (subjectAssign.classes as any).name
+                    name: Array.isArray(cls) ? cls[0]?.name : cls?.name
                 }
             }
         }
 
-        // 3. Check Allocations (Legacy)
+        // 3. Fallback: Check any class where teacher might be assigned in teacher_allocations
         const { data: allocation, error } = await supabaseAdmin
             .from('teacher_allocations')
-            .select('class_id, classes(name)')
+            .select('class_id, classes(id, name)')
             .eq('teacher_id', user.id)
             .limit(1)
             .maybeSingle()
 
-        if (error) throw error
-        if (!allocation) return { success: false, error: 'No class assigned' }
-
-        return {
-            success: true,
-            data: {
-                id: allocation.class_id,
-                name: (allocation.classes as any)?.name || 'Unknown Class'
+        if (allocation && allocation.classes) {
+            const cls = allocation.classes as any
+            return {
+                success: true,
+                data: {
+                    id: allocation.class_id,
+                    name: Array.isArray(cls) ? cls[0]?.name : cls?.name
+                }
             }
         }
+
+        return { success: false, error: 'No class assigned' }
     } catch (error) {
         console.error('getAssignedClass error:', error)
         return { success: false, error: 'Failed to fetch assigned class' }
     }
+}
 }
 
 /**
@@ -86,22 +88,28 @@ export async function getClassStudents(classId: string) {
     try {
         const { data: students, error } = await supabaseAdmin
             .from('students')
-            .select('id, full_name, admission_number, photo_url')
+            .select('id, full_name, admission_number, photo_url, status')
             .eq('class_id', classId)
+            // Remove strict 'active' filter during setup to ensure all imported students appear
             .order('full_name')
 
         if (error) throw error
 
+        if (!students || students.length === 0) {
+            console.warn(`No students found for class ${classId}`);
+            return { success: true, data: [] }
+        }
+
         // Map to match expected DTO
         const mappedStudents = students.map((s: any) => {
-            const names = s.full_name?.split(' ') || ['Unknown']
+            const names = (s.full_name || 'Student Name').split(' ')
             return {
                 id: s.id,
-                first_name: names[0],
-                last_name: names.slice(1).join(' ') || '',
+                first_name: names[0] || 'Unknown',
+                last_name: names.slice(1).join(' ') || 'Student',
                 admission_number: s.admission_number || 'N/A',
                 photo_url: s.photo_url,
-                full_name: s.full_name
+                full_name: s.full_name || 'Unknown Student'
             }
         })
 
