@@ -3,23 +3,35 @@ import { SITE_CONFIG } from "@/lib/constants/site-config"
 
 export async function sendSMS(to: string, message: string) {
     const apiKey = process.env.TERMII_API_KEY
-    const senderId = process.env.TERMII_SENDER_ID || SITE_CONFIG.shortName
+    const senderId = process.env.TERMII_SENDER_ID || "EduFlow"
+    const channel = process.env.TERMII_CHANNEL || "dnd" // Default to DND for approved IDs
     const baseUrl = process.env.TERMII_BASE_URL || 'https://v3.api.termii.com'
+    const isProd = process.env.NODE_ENV === 'production'
 
     if (!apiKey) {
-        console.warn('⚠️ TERMII_API_KEY not set. SMS simulated.')
+        if (isProd) {
+            console.error('❌ CRITICAL: TERMII_API_KEY is missing in production. SMS delivery aborted.')
+            return { success: false, error: 'SMS service not configured on server' }
+        }
+        console.warn('⚠️ TERMII_API_KEY not set. SMS simulated in dev.')
         console.log(`[SMS SIMULATION] To: ${to} | Msg: ${message}`)
         return { success: true, simulated: true }
     }
 
-    // Format Number: Ensure it starts with 234, remove leading 0
-    let formattedTo = to.trim().replace(/^\+/, '')
-    if (formattedTo.startsWith('0')) {
-        formattedTo = '234' + formattedTo.substring(1)
+    // Robust Number Normalization for Nigeria (234)
+    let clean = to.trim().replace(/[^0-9]/g, '') // Remove all non-digits
+    
+    let formattedTo = clean
+    if (clean.startsWith('0') && clean.length === 11) {
+        formattedTo = '234' + clean.substring(1)
+    } else if (clean.length === 10) {
+        formattedTo = '234' + clean
+    } else if (clean.startsWith('234') && clean.length === 13) {
+        formattedTo = clean
     }
 
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 5000)
+    const timeout = setTimeout(() => controller.abort(), 10000) // 10s for reliability
 
     try {
         const payload = {
@@ -28,7 +40,7 @@ export async function sendSMS(to: string, message: string) {
             sms: message,
             type: "plain",
             api_key: apiKey,
-            channel: "dnd" // Switched to DND channel to bypass telco blocks
+            channel: channel 
         }
 
         const url = process.env.TERMII_API_URL || `${baseUrl}/api/sms/send`
