@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 export interface PastQuestion {
@@ -9,6 +10,26 @@ export interface PastQuestion {
     options: string[]
     correct_option: number
     explanation?: string
+}
+
+/**
+ * Fetch past questions for a specific subject and exam type
+ */
+export async function getPastQuestions(subject: string, examType: string) {
+    const supabaseAdmin = createAdminClient()
+    const { data, error } = await supabaseAdmin
+        .from('past_questions')
+        .select('*')
+        .eq('subject', subject)
+        .eq('exam_type', examType)
+        .limit(50)
+
+    if (error) {
+        console.error('getPastQuestions error:', error)
+        return []
+    }
+
+    return (data || []) as PastQuestion[]
 }
 
 /**

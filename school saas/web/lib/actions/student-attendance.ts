@@ -78,7 +78,6 @@ export async function getAssignedClass() {
         return { success: false, error: 'Failed to fetch assigned class' }
     }
 }
-}
 
 /**
  * Get students in a specific class
