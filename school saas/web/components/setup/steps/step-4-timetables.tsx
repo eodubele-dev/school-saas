@@ -256,22 +256,22 @@ export function TimetableManagerStep({ onPrev }: { onPrev: () => void }) {
                                                         <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-950 border border-border/50 min-w-[100px]">
                                                             <div className="flex items-center gap-1.5 text-[10px] font-mono text-cyan-400">
                                                                 <Clock className="h-2.5 w-2.5" />
-                                                                {slot.start_time?.slice(0, 5)}
+                                                                {slot.start_time ? slot.start_time.slice(0, 5) : "--:--"}
                                                             </div>
                                                             <div className="text-[10px] font-mono text-slate-600">to</div>
                                                             <div className="text-[10px] font-mono text-muted-foreground">
-                                                                {slot.end_time?.slice(0, 5)}
+                                                                {slot.end_time ? slot.end_time.slice(0, 5) : "--:--"}
                                                             </div>
                                                         </div>
 
                                                         <div className="space-y-1">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="text-sm font-bold text-foreground uppercase tracking-tight">{slot.subject?.name}</span>
-                                                                <span className="text-[10px] bg-secondary/50 border border-border px-2 py-0.5 rounded text-muted-foreground font-bold">{slot.class?.name}</span>
+                                                                <span className="text-sm font-bold text-foreground uppercase tracking-tight">{slot.subject?.name || "Deleted Subject"}</span>
+                                                                <span className="text-[10px] bg-secondary/50 border border-border px-2 py-0.5 rounded text-muted-foreground font-bold">{slot.class?.name || "Unknown Class"}</span>
                                                             </div>
                                                             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                                                 <User className="h-3 w-3" />
-                                                                {slot.teacher?.full_name}
+                                                                {slot.teacher?.full_name || "Unassigned Instructor"}
                                                             </div>
                                                         </div>
                                                     </div>
