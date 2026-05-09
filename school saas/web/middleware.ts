@@ -303,7 +303,9 @@ export default async function middleware(req: NextRequest) {
     }
 
     const zone = PROTECTED_ZONES.find(z => path.startsWith(z.prefix))
-    if (zone && currentTierRank < TIER_MAP[zone.min]) {
+    // Admins, Owners, and Super-Admins bypass the tier gate entirely — they always have full access
+    const isBypassRole = userRole === 'admin' || userRole === 'owner' || userRole === 'super-admin'
+    if (zone && !isBypassRole && currentTierRank < TIER_MAP[zone.min]) {
       console.warn(`TIER VIOLATION: ${user.email} (${userTier}) attempted ${path} (Required: ${zone.min})`)
       return NextResponse.rewrite(new URL('/403?reason=upgrade', req.url))
     }
