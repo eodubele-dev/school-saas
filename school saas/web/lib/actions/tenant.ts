@@ -50,6 +50,44 @@ export async function uploadTenantLogo(formData: FormData) {
     return { success: true, url: publicUrl }
 }
 
+export async function uploadSignature(formData: FormData) {
+    const base64 = formData.get('base64') as string
+    const tenantId = formData.get('tenantId') as string
+
+    if (!base64 || !tenantId) return { success: false, error: "Missing data" }
+
+    const supabase = createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const serviceRoleClient = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        { auth: { persistSession: false } }
+    )
+
+    // Convert base64 data URL to buffer
+    const base64Data = base64.replace(/^data:image\/\w+;base64,/, '')
+    const buffer = Buffer.from(base64Data, 'base64')
+    const filePath = `${tenantId}/principal-signature.png`
+
+    const { error: uploadError } = await serviceRoleClient.storage
+        .from('school-assets')
+        .upload(filePath, buffer, { contentType: 'image/png', upsert: true })
+
+    if (uploadError) {
+        console.error('[uploadSignature] Error:', uploadError)
+        return { success: false, error: uploadError.message }
+    }
+
+    const { data: { publicUrl } } = serviceRoleClient.storage
+        .from('school-assets')
+        .getPublicUrl(filePath)
+
+    // Cache-bust so browser always loads the latest signature
+    return { success: true, url: `${publicUrl}?t=${Date.now()}` }
+}
+
 export async function updateTenantBranding(tenantId: string, data: {
     name?: string
     motto?: string

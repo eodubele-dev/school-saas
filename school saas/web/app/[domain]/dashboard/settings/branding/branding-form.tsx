@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { Upload, X, Loader2, Palette, Star } from "lucide-react"
-import { updateTenantBranding, uploadTenantLogo } from "@/lib/actions/tenant"
+import { updateTenantBranding, uploadTenantLogo, uploadSignature } from "@/lib/actions/tenant"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { TopBarPreview } from "./top-bar-preview"
@@ -38,21 +38,33 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
     const [secondary, setSecondary] = useState(defaultSecondary)
     const [accent, setAccent] = useState(defaultAccent)
     const [uploading, setUploading] = useState(false)
+    const [uploadingSignature, setUploadingSignature] = useState(false)
 
-    // Update signature and propagate to parent for live preview
-    const handleSignatureChange = (dataUrl: string | null) => {
-        setSignature(dataUrl)
-        onUpdate({
-            theme_config: {
-                primary,
-                secondary,
-                accent,
-                settings: {
-                    ...tenant?.theme_config?.settings,
-                    principal_signature: dataUrl
-                }
-            }
-        })
+    // Upload signature image to Supabase Storage and store the URL
+    const handleSignatureChange = async (dataUrl: string | null) => {
+        if (!dataUrl) {
+            setSignature(null)
+            onUpdate({ theme_config: { primary, secondary, accent, settings: { ...tenant?.theme_config?.settings, principal_signature: null } } })
+            return
+        }
+
+        setUploadingSignature(true)
+        try {
+            const formData = new FormData()
+            formData.append('base64', dataUrl)
+            formData.append('tenantId', tenant.id)
+            const result = await uploadSignature(formData)
+
+            if (!result.success || !result.url) throw new Error(result.error || 'Upload failed')
+
+            setSignature(result.url)
+            onUpdate({ theme_config: { primary, secondary, accent, settings: { ...tenant?.theme_config?.settings, principal_signature: result.url } } })
+            toast.success('Signature uploaded successfully')
+        } catch (e: any) {
+            toast.error(`Signature upload failed: ${e.message}`)
+        } finally {
+            setUploadingSignature(false)
+        }
     }
 
     // Helper to upload Logo to Supabase Storage via Server Action (RLS Bypass)
@@ -272,12 +284,20 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                 <div className="space-y-4 pt-6 border-t border-white/5">
                     <div className="flex justify-between items-center">
                         <Label className="text-slate-400">Principal's Digital Signature</Label>
-                        <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider px-2 py-1 bg-amber-500/10 rounded">Used on Results & Admission Letters</span>
+                        <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider px-2 py-1 bg-amber-500/10 rounded">Used on Results &amp; Admission Letters</span>
                     </div>
-                    <SignaturePad
-                        value={signature}
-                        onChange={handleSignatureChange}
-                    />
+                    <div className="relative">
+                        {uploadingSignature && (
+                            <div className="absolute inset-0 z-20 bg-slate-950/70 rounded-xl flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
+                                <Loader2 className="h-6 w-6 text-blue-400 animate-spin" />
+                                <p className="text-xs text-slate-300 font-medium">Uploading signature...</p>
+                            </div>
+                        )}
+                        <SignaturePad
+                            value={signature}
+                            onChange={handleSignatureChange}
+                        />
+                    </div>
                 </div>
 
                 <div className="space-y-6 border-t border-white/5 pt-6">
