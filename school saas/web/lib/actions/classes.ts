@@ -88,43 +88,58 @@ export async function getTeacherClasses() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, data: [] }
 
-    // 1. Fetch classes where user is Form Teacher
-    const { data: formClasses } = await supabase
+    const supabaseAdmin = createAdminClient()
+
+    // 1. Fetch classes where user is Form Teacher (via classes table)
+    const { data: formClasses } = await supabaseAdmin
         .from('classes')
-        .select('id, name, grade_level, students(count)')
+        .select('id, name, grade_level')
         .eq('form_teacher_id', user.id)
 
-    // 2. Fetch classes where user is Subject Teacher
-    const { data: subjectAssignments } = await supabase
+    // 2. Fetch classes via subject_assignments
+    const { data: subjectAssignments } = await supabaseAdmin
         .from('subject_assignments')
         .select(`
             subject,
             classes(
                 id, 
                 name, 
-                grade_level, 
-                students(count)
+                grade_level
             )
         `)
         .eq('teacher_id', user.id)
 
-    // Combine and Format
+    // 3. Fetch classes via teacher_allocations (primary assignment table)
+    const { data: allocations } = await supabaseAdmin
+        .from('teacher_allocations')
+        .select(`
+            subject,
+            is_form_teacher,
+            classes(
+                id,
+                name,
+                grade_level
+            )
+        `)
+        .eq('teacher_id', user.id)
+
+    // Combine and deduplicate
     const classesMap = new Map<string, TeacherClass>()
 
     if (formClasses) {
-        formClasses.forEach((c: any) => {
+        for (const c of formClasses as any[]) {
             classesMap.set(c.id, {
                 id: c.id,
                 name: c.name,
                 grade_level: c.grade_level,
                 role: 'form_teacher',
-                student_count: (c.students as any[])?.[0]?.count || 0
+                student_count: 0
             })
-        })
+        }
     }
 
     if (subjectAssignments) {
-        subjectAssignments.forEach((sa: any) => {
+        for (const sa of subjectAssignments as any[]) {
             const c = sa.classes
             if (c && !classesMap.has(c.id)) {
                 classesMap.set(c.id, {
@@ -133,10 +148,45 @@ export async function getTeacherClasses() {
                     grade_level: c.grade_level,
                     role: 'subject_teacher',
                     subject: sa.subject,
-                    student_count: (c.students as any[])?.[0]?.count || 0
+                    student_count: 0
                 })
             }
-        })
+        }
+    }
+
+    if (allocations) {
+        for (const alloc of allocations as any[]) {
+            const c = alloc.classes
+            if (c && !classesMap.has(c.id)) {
+                classesMap.set(c.id, {
+                    id: c.id,
+                    name: c.name,
+                    grade_level: c.grade_level,
+                    role: alloc.is_form_teacher ? 'form_teacher' : 'subject_teacher',
+                    subject: alloc.subject,
+                    student_count: 0
+                })
+            }
+        }
+    }
+
+    // Fetch actual student counts for all found classes in one query
+    const classIds = Array.from(classesMap.keys())
+    if (classIds.length > 0) {
+        const { data: studentCounts } = await supabaseAdmin
+            .from('students')
+            .select('class_id')
+            .in('class_id', classIds)
+
+        if (studentCounts) {
+            const countMap = studentCounts.reduce((acc: Record<string, number>, s: any) => {
+                acc[s.class_id] = (acc[s.class_id] || 0) + 1
+                return acc
+            }, {})
+            classesMap.forEach((cls, id) => {
+                cls.student_count = countMap[id] || 0
+            })
+        }
     }
 
     return { success: true, data: Array.from(classesMap.values()) }

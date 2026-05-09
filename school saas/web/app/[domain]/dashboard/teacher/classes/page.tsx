@@ -19,12 +19,12 @@ export default function MyClassesPage() {
         async function loadClasses() {
             try {
                 const res = await getTeacherClasses()
-                if (res.success && res.data) {
+                if (res.success && res.data && res.data.length > 0) {
                     setClasses(res.data)
-                    // Auto-select first class if available for better UX
-                    if (res.data.length > 0) {
-                        handleClassSelect(res.data[0].id)
-                    }
+                    // Auto-load the roster for the first class
+                    await loadRoster(res.data[0].id)
+                } else {
+                    setClasses([])
                 }
             } catch (e) {
                 toast.error("Failed to load classes")
@@ -35,29 +35,29 @@ export default function MyClassesPage() {
         loadClasses()
     }, [])
 
-    // 2. Fetch Roster when Class ID changes
-    const handleClassSelect = async (classId: string) => {
-        if (classId === selectedClassId) return // Already selected
-
+    // Core roster loader — used by both auto-select and manual click
+    const loadRoster = async (classId: string) => {
         setSelectedClassId(classId)
         setLoadingRoster(true)
-
-        // Context Injection (Simulation)
-        // In a real app with global state (Zustand/Context), we would dispatch here:
-        // setGlobalActiveContext({ type: 'class', id: classId })
-
         try {
             const res = await getClassRoster(classId)
             if (res.success && res.data) {
                 setRoster(res.data)
             } else {
                 setRoster([])
+                console.warn('[Roster] No students returned for class:', classId)
             }
         } catch (e) {
             toast.error("Failed to load student list")
+            setRoster([])
         } finally {
             setLoadingRoster(false)
         }
+    }
+
+    // 2. Manual class selection — always re-fetches even if same class
+    const handleClassSelect = async (classId: string) => {
+        await loadRoster(classId)
     }
 
     const selectedClass = classes.find(c => c.id === selectedClassId)
