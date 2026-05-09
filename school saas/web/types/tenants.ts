@@ -11,6 +11,10 @@ export interface Tenant {
         primary: string
         secondary: string
         accent: string
+        settings?: {
+            principal_signature?: string | null
+            [key: string]: any
+        }
     }
     settings?: Record<string, any>
     created_at: string
