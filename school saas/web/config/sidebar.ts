@@ -27,7 +27,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             icon: LayoutDashboard,
             items: [
                 { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
-                { icon: Crown, label: "Executive View", href: "/dashboard/admin/executive/mobile", requiredTier: 'professional' },
+                { icon: Crown, label: "Executive View", href: "/dashboard/admin/executive/mobile" },
                 { icon: CalendarDays, label: "School Calendar", href: "/dashboard/admin/calendar", badge: "New" },
             ]
         },
@@ -46,8 +46,8 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             icon: GraduationCap,
             items: [
                 { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup/academic" },
-                { icon: BookOpen, label: "Curriculum Planning", href: "/dashboard/admin/curriculum", badge: "New", requiredTier: 'platinum' },
-                { icon: GraduationCap, label: "Result Processor", href: "/dashboard/admin/results/generate", requiredTier: 'starter' },
+                { icon: BookOpen, label: "Curriculum Planning", href: "/dashboard/admin/curriculum", badge: "New" },
+                { icon: GraduationCap, label: "Result Processor", href: "/dashboard/admin/results/generate" },
                 { icon: ShieldCheck, label: "Approvals Hub", href: "/dashboard/admin/approvals" },
             ]
         },
@@ -55,10 +55,10 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             category: "Financial Suite",
             icon: Landmark,
             items: [
-                { icon: NairaIcon, label: "Bursar Hub", href: "/dashboard/bursar", requiredTier: 'professional' },
-                { icon: CreditCard, label: "Revenue & Collections", href: "/dashboard/bursar/finance/collections", requiredTier: 'professional' },
-                { icon: NairaIcon, label: "Financial Config", href: "/dashboard/admin/finance/config", requiredTier: 'starter' },
-                { icon: Package, label: "Inventory Hub", href: "/dashboard/admin/inventory", requiredTier: 'professional' },
+                { icon: NairaIcon, label: "Bursar Hub", href: "/dashboard/bursar" },
+                { icon: CreditCard, label: "Revenue & Collections", href: "/dashboard/bursar/finance/collections" },
+                { icon: NairaIcon, label: "Financial Config", href: "/dashboard/admin/finance/config" },
+                { icon: Package, label: "Inventory Hub", href: "/dashboard/admin/inventory" },
                 { icon: ShieldCheck, label: "Debt Network", href: "/dashboard/bursar/debt-network", badge: "Live" },
             ]
         },
@@ -66,29 +66,30 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             category: "Campus Logistics",
             icon: Truck,
             items: [
-                { icon: Bus, label: "Transport Hub", href: "/dashboard/logistics", requiredTier: 'professional' },
-                { icon: Bed, label: "Hostel Management", href: "/dashboard/admin/hostels", requiredTier: 'professional' },
+                { icon: Bus, label: "Transport Hub", href: "/dashboard/logistics" },
+                { icon: Bed, label: "Hostel Management", href: "/dashboard/admin/hostels" },
             ]
         },
         {
             category: "Security & Health",
             icon: Shield,
             items: [
-                { icon: Activity, label: "System Security", href: "/dashboard/admin/security/audit", requiredTier: 'professional' },
-                { icon: ShieldCheck, label: "Gate Control", href: "/dashboard/admin/security/gate", badge: "Live", requiredTier: 'platinum' },
-                { icon: Activity, label: "Health & Infirmary", href: "/dashboard/admin/health", badge: "New", requiredTier: 'platinum' },
+                { icon: Activity, label: "System Security", href: "/dashboard/admin/security/audit" },
+                { icon: ShieldCheck, label: "Gate Control", href: "/dashboard/admin/security/gate", badge: "Live" },
+                { icon: Activity, label: "Health & Infirmary", href: "/dashboard/admin/health", badge: "New" },
             ]
         },
         {
             category: "System",
             items: [
-                { icon: MessageSquare, label: "Communication Hub", href: "/dashboard/messages", requiredTier: 'professional' },
-                { icon: MessageSquare, label: "Voice & Feedback", href: "/dashboard/admin/voice", badge: "New", requiredTier: 'platinum' },
+                { icon: MessageSquare, label: "Communication Hub", href: "/dashboard/messages" },
+                { icon: MessageSquare, label: "Voice & Feedback", href: "/dashboard/admin/voice", badge: "New" },
                 { icon: Settings, label: "School Settings", href: "/dashboard/settings" },
-                { icon: MessageSquare, label: "SMS Notifications", href: "/dashboard/settings/notifications", requiredTier: 'professional' },
+                { icon: MessageSquare, label: "SMS Notifications", href: "/dashboard/settings/notifications" },
             ]
         }
     ],
+
     owner: [ // Owner sees Admin View but with Global Switcher enabled
         {
             category: "Global Operations",
