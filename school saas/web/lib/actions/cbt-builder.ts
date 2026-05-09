@@ -136,12 +136,9 @@ export async function generateAIQuestions(params: {
         Strict Pedagogical Requirements:
         1. Use the official Nigerian Secondary School Curriculum (NERDC) standards.
         2. Questions must be clear, unambiguous, and test deep understanding.
-        3. DO NOT include introductory labels like "Question 1", "Past Question", or metadata descriptions in the "question_text" field. The "question_text" must contain ONLY the actual question.
-        4. Each question must have exactly 4 options (A, B, C, D).
-        5. Distractors (wrong options) must be plausible and based on common student misconceptions.
-        6. Provide a detailed, professional "explanation" for the correct answer.
-        7. Format the output as a strict JSON array.
-        8. NO generic questions like "What is X?". Use real-world scenarios or complex problem-solving where appropriate.
+        8. NO introductory text, NO metadata, and NO descriptions like "Question 1" or "This is a past question". The "question_text" must start DIRECTLY with the question content.
+        9. DO NOT mention "authentic", "Nigerian curriculum", or "Past Question" inside the JSON fields.
+        10. If the subject is Mathematics, use real numeric problems. If English, use real comprehension or grammar excerpts.
 
         Output Schema:
         [
@@ -177,12 +174,31 @@ export async function generateAIQuestions(params: {
         cleanJson = cleanJson.substring(start, end + 1)
 
         try {
-            return JSON.parse(cleanJson)
+            const parsed = JSON.parse(cleanJson)
+            
+            // 3. Validation: Filter out generic "filler" questions
+            return (parsed as any[]).filter(q => {
+                const text = q.question_text?.toLowerCase() || ""
+                const isGeneric = 
+                    text.includes("authentic exam-standard") || 
+                    text.includes("past question #") ||
+                    text.length < 15
+                return !isGeneric
+            })
         } catch (parseError) {
             console.error('JSON Parse Error. Attempting secondary cleaning...', parseError)
             // Secondary cleaning: remove common trailing commas or weird characters
             const sanitized = cleanJson.replace(/,\s*]/g, ']').replace(/,\s*}/g, '}')
-            return JSON.parse(sanitized)
+            const parsed = JSON.parse(sanitized)
+            
+            return (parsed as any[]).filter(q => {
+                const text = q.question_text?.toLowerCase() || ""
+                const isGeneric = 
+                    text.includes("authentic exam-standard") || 
+                    text.includes("past question #") ||
+                    text.length < 10
+                return !isGeneric
+            })
         }
     } catch (error) {
         console.error('AI Generation Error:', error)
