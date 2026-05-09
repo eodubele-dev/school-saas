@@ -44,7 +44,9 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
         setSignature(dataUrl)
         onUpdate({
             theme_config: {
-                ...tenant?.theme_config,
+                primary,
+                secondary,
+                accent,
                 settings: {
                     ...tenant?.theme_config?.settings,
                     principal_signature: dataUrl
