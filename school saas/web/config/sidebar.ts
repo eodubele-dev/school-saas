@@ -180,7 +180,7 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             items: [
                 { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
                 { icon: Users, label: "My Classes", href: "/dashboard/teacher/classes" },
-                { icon: BookOpen, label: "Curriculum Planning", href: "/dashboard/admin/curriculum", badge: "New" },
+                { icon: BookOpen, label: "Curriculum Planning", href: "/dashboard/teacher/curriculum", badge: "New" },
                 { icon: BookOpenCheck, label: "Assessment Hub", href: "/dashboard/teacher/assessments" },
                 { icon: Sparkles, label: "Behavior & Awards", href: "/dashboard/teacher/behavior" },
                 { icon: ClipboardCheck, label: "Attendance", href: "/dashboard/attendance" },
