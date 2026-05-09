@@ -39,6 +39,20 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
     const [accent, setAccent] = useState(defaultAccent)
     const [uploading, setUploading] = useState(false)
 
+    // Update signature and propagate to parent for live preview
+    const handleSignatureChange = (dataUrl: string | null) => {
+        setSignature(dataUrl)
+        onUpdate({
+            theme_config: {
+                ...tenant?.theme_config,
+                settings: {
+                    ...tenant?.theme_config?.settings,
+                    principal_signature: dataUrl
+                }
+            }
+        })
+    }
+
     // Helper to upload Logo to Supabase Storage via Server Action (RLS Bypass)
     const uploadLogoToStorage = async (file: File): Promise<string | null> => {
         // Enforce 5MB limit on the client side to prevent generic fetch errors
@@ -260,7 +274,7 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                     </div>
                     <SignaturePad
                         value={signature}
-                        onChange={setSignature}
+                        onChange={handleSignatureChange}
                     />
                 </div>
 

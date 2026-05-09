@@ -80,12 +80,9 @@ export async function updateTenantBranding(tenantId: string, data: {
     if (data.motto) updates.motto = data.motto
     if (data.address) updates.address = data.address
 
-    // Merge settings into theme_config to avoid missing column issues
-    if (data.theme_config || data.settings) {
-        updates.theme_config = {
-            ...(data.theme_config || {}),
-            settings: data.settings
-        }
+    // theme_config is the single source of truth — settings is nested inside it
+    if (data.theme_config) {
+        updates.theme_config = data.theme_config
     }
 
     if (data.logo_path !== undefined) updates.logo_url = data.logo_path // Accept null explicitly
