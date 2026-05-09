@@ -146,8 +146,8 @@ export async function getTeacherClasses() {
  * Get Student Roster for a specific class
  */
 export async function getClassRoster(classId: string) {
-    const supabase = createClient()
-    const { data: students } = await supabase
+    const supabaseAdmin = createAdminClient()
+    const { data: students, error } = await supabaseAdmin
         .from('students')
         .select(`
             *,
@@ -158,6 +158,11 @@ export async function getClassRoster(classId: string) {
         `)
         .eq('class_id', classId)
         .order('full_name')
+
+    if (error) {
+        console.error('getClassRoster Error:', error)
+        return { success: false, data: [] }
+    }
 
     if (!students) return { success: false, data: [] }
 
