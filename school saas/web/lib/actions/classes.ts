@@ -197,27 +197,47 @@ export async function getTeacherClasses() {
  */
 export async function getClassRoster(classId: string) {
     const supabaseAdmin = createAdminClient()
+
+    // Step 1: Fetch students — NO risky joins, just raw student data
     const { data: students, error } = await supabaseAdmin
         .from('students')
-        .select(`
-            *,
-            parent:profiles!parent_id(
-                full_name,
-                phone_number
-            )
-        `)
+        .select('*')
         .eq('class_id', classId)
         .order('full_name')
 
     if (error) {
-        console.error('getClassRoster Error:', error)
+        console.error('[getClassRoster] Student fetch error:', error)
         return { success: false, data: [] }
     }
 
-    if (!students) return { success: false, data: [] }
+    if (!students || students.length === 0) {
+        console.warn('[getClassRoster] No students found for class_id:', classId)
+        return { success: true, data: [] }
+    }
 
-    const roster: StudentRosterItem[] = students.map(s => {
-        const parent = (s as any).parent
+    // Step 2: Collect parent IDs and fetch profile data separately (safe, no FK dependency)
+    const parentIds = students
+        .map((s: any) => s.parent_id)
+        .filter(Boolean) as string[]
+
+    const parentMap: Record<string, { full_name: string; phone_number?: string }> = {}
+
+    if (parentIds.length > 0) {
+        const { data: parents } = await supabaseAdmin
+            .from('profiles')
+            .select('id, full_name, phone_number')
+            .in('id', parentIds)
+
+        if (parents) {
+            for (const p of parents as any[]) {
+                parentMap[p.id] = { full_name: p.full_name, phone_number: p.phone_number }
+            }
+        }
+    }
+
+    // Step 3: Map to roster format
+    const roster: StudentRosterItem[] = (students as any[]).map(s => {
+        const parent = s.parent_id ? parentMap[s.parent_id] : null
         return {
             id: s.id,
             full_name: s.full_name,
@@ -232,6 +252,7 @@ export async function getClassRoster(classId: string) {
         }
     })
 
+    console.log(`[getClassRoster] Loaded ${roster.length} students for class ${classId}`)
     return { success: true, data: roster }
 }
 
