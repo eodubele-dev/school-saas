@@ -27,7 +27,13 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
     const [motto, setMotto] = useState(tenant?.motto || "")
     const [address, setAddress] = useState(tenant?.address || "")
     const [logo, setLogo] = useState<string | null>(tenant?.logo_url || null)
-    const [signature, setSignature] = useState<string | null>(tenant?.theme_config?.settings?.principal_signature || null)
+    
+    // Robust initialization: check multiple paths for the signature
+    const initialSignature = tenant?.theme_config?.settings?.principal_signature || 
+                             tenant?.settings?.principal_signature || 
+                             null
+                             
+    const [signature, setSignature] = useState<string | null>(initialSignature)
 
     // Default colors
     const defaultPrimary = tenant?.theme_config?.primary || "#2563eb"
@@ -100,7 +106,6 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                 motto,
                 address,
                 theme_config: {
-                    ...tenant?.theme_config,
                     primary,
                     secondary,
                     accent,
@@ -109,7 +114,7 @@ export function BrandingForm({ tenant, onUpdate }: BrandingFormProps) {
                         principal_signature: signature
                     }
                 },
-                logo_path: logo // Allow null to be passed to delete the logo
+                logo_path: logo
             })
 
             if (!result.success) throw new Error(result.error)

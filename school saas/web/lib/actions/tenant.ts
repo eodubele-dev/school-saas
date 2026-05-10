@@ -121,6 +121,12 @@ export async function updateTenantBranding(tenantId: string, data: {
     // theme_config is the single source of truth — settings is nested inside it
     if (data.theme_config) {
         updates.theme_config = data.theme_config
+        // Also sync to top-level settings column for legacy compatibility
+        // @ts-ignore
+        if (data.theme_config.settings) {
+            // @ts-ignore
+            updates.settings = data.theme_config.settings
+        }
     }
 
     if (data.logo_path !== undefined) updates.logo_url = data.logo_path // Accept null explicitly

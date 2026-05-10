@@ -16,6 +16,15 @@ export function SignaturePad({ value, onChange }: SignaturePadProps) {
     const [mode, setMode] = useState<'preview' | 'drawing'>(value ? 'preview' : 'drawing')
     const lastPos = useRef<{ x: number; y: number } | null>(null)
 
+    // Sync mode with value prop
+    useEffect(() => {
+        if (value && mode === 'drawing') {
+            setMode('preview')
+        } else if (!value && mode === 'preview') {
+            setMode('drawing')
+        }
+    }, [value, mode])
+
     const initCanvas = useCallback(() => {
         const canvas = canvasRef.current
         if (!canvas) return
