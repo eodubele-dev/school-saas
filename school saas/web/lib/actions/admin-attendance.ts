@@ -140,16 +140,35 @@ export async function getPendingLeaveRequests() {
     try {
         const { data: requests, error } = await supabase
             .from('staff_leave_requests')
-            .select(`
-                *,
-                staff:profiles!staff_leave_requests_staff_id_fkey(full_name, avatar_url, role)
-            `)
+            .select('*')
             .eq('status', 'pending')
             .order('created_at', { ascending: false })
 
         if (error) throw error
 
-        return { success: true, data: requests }
+        let enrichedRequests = requests || [];
+
+        if (enrichedRequests.length > 0) {
+            const staffIds = Array.from(new Set(enrichedRequests.map(r => r.staff_id).filter(Boolean)));
+            if (staffIds.length > 0) {
+                const { data: profiles } = await supabase
+                    .from('profiles')
+                    .select('id, full_name, avatar_url, role')
+                    .in('id', staffIds);
+
+                const profileMap = new Map();
+                if (profiles) {
+                    profiles.forEach(p => profileMap.set(p.id, p));
+                }
+
+                enrichedRequests = enrichedRequests.map(r => ({
+                    ...r,
+                    staff: profileMap.get(r.staff_id) || null
+                }));
+            }
+        }
+
+        return { success: true, data: enrichedRequests }
 
     } catch (error) {
         console.error("Error fetching leave requests:", error)
