@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getRefreshedAttendanceStats, getTeacherClasses } from "@/lib/actions/attendance"
+import { getRefreshedAttendanceStats } from "@/lib/actions/attendance"
+import { getTeacherClasses } from "@/lib/actions/classes"
 import { createClient } from "@/lib/supabase/client"
 
 export function AttendancePip({ classId: propClassId }: { classId?: string }) {
@@ -16,10 +17,12 @@ export function AttendancePip({ classId: propClassId }: { classId?: string }) {
         }
 
         const init = async () => {
-            // 1. Get Teacher's Class (Fallback if no prop)
-            const { success, data } = await getTeacherClasses()
-            if (success && data && data.length > 0) {
-                setClassId(data[0].id)
+            // 1. Get Teacher's Class (Using the optimized version with deduplication)
+            const res = await getTeacherClasses()
+            if (res.success && res.data && res.data.length > 0) {
+                // Priority: Use the first class that has students, otherwise use the first one available
+                const primaryClass = res.data.find(c => c.student_count > 0) || res.data[0]
+                setClassId(primaryClass.id)
             } else {
                 setLoading(false)
             }

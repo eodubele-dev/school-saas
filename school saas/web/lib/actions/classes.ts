@@ -123,7 +123,7 @@ export async function getTeacherClasses() {
         `)
         .eq('teacher_id', user.id)
 
-    // Combine and deduplicate
+    // Combine and deduplicate by ID first
     const classesMap = new Map<string, TeacherClass>()
 
     if (formClasses) {
@@ -141,13 +141,14 @@ export async function getTeacherClasses() {
     if (subjectAssignments) {
         for (const sa of subjectAssignments as any[]) {
             const c = sa.classes
-            if (c && !classesMap.has(c.id)) {
+            if (c) {
+                const existing = classesMap.get(c.id)
                 classesMap.set(c.id, {
                     id: c.id,
                     name: c.name,
                     grade_level: c.grade_level,
-                    role: 'subject_teacher',
-                    subject: sa.subject,
+                    role: existing?.role === 'form_teacher' ? 'form_teacher' : 'subject_teacher',
+                    subject: sa.subject || existing?.subject,
                     student_count: 0
                 })
             }
@@ -157,20 +158,21 @@ export async function getTeacherClasses() {
     if (allocations) {
         for (const alloc of allocations as any[]) {
             const c = alloc.classes
-            if (c && !classesMap.has(c.id)) {
+            if (c) {
+                const existing = classesMap.get(c.id)
                 classesMap.set(c.id, {
                     id: c.id,
                     name: c.name,
                     grade_level: c.grade_level,
-                    role: alloc.is_form_teacher ? 'form_teacher' : 'subject_teacher',
-                    subject: alloc.subject,
+                    role: (alloc.is_form_teacher || existing?.role === 'form_teacher') ? 'form_teacher' : 'subject_teacher',
+                    subject: alloc.subject || existing?.subject,
                     student_count: 0
                 })
             }
         }
     }
 
-    // Fetch actual student counts for all found classes in one query
+    // Fetch actual student counts
     const classIds = Array.from(classesMap.keys())
     if (classIds.length > 0) {
         const { data: studentCounts } = await supabaseAdmin
@@ -189,7 +191,31 @@ export async function getTeacherClasses() {
         }
     }
 
-    return { success: true, data: Array.from(classesMap.values()) }
+    // --- SMART DEDUPLICATION BY NAME/GRADE ---
+    // If a teacher has two classes with the same name (e.g. legacy/duplicate rows), 
+    // keep the one with more students or the one where they are a form teacher.
+    const uniqueByName = new Map<string, TeacherClass>()
+    classesMap.forEach((cls) => {
+        const grade = (cls.grade_level || '').toLowerCase()
+        const name = (cls.name || '').toLowerCase()
+        const key = `${grade}-${name}`
+        const existing = uniqueByName.get(key)
+        
+        if (!existing) {
+            uniqueByName.set(key, cls)
+        } else {
+            // Priority 1: Keep the one with actual students
+            // Priority 2: Keep the one where they are a form teacher
+            const existingScore = (existing.student_count > 0 ? 10 : 0) + (existing.role === 'form_teacher' ? 5 : 0)
+            const currentScore = (cls.student_count > 0 ? 10 : 0) + (cls.role === 'form_teacher' ? 5 : 0)
+            
+            if (currentScore > existingScore) {
+                uniqueByName.set(key, cls)
+            }
+        }
+    })
+
+    return { success: true, data: Array.from(uniqueByName.values()) }
 }
 
 /**
