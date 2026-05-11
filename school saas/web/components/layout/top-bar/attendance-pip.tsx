@@ -78,7 +78,7 @@ export function AttendancePip({ classId: propClassId }: { classId?: string }) {
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-card text-card-foreground/50 rounded-lg border border-border">
             <div className="w-2 h-2 rounded-full bg-amber-500/50" />
             <span className="text-[10px] font-mono text-muted-foreground whitespace-nowrap">
-                NO ENROLLMENT
+                NO STUDENTS
             </span>
         </div>
     )
