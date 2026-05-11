@@ -10,6 +10,7 @@ import { headers } from "next/headers"
 
 export async function upsertFeeCategory(data: any) {
     const supabase = createClient()
+    const adminClient = createAdminClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
@@ -17,7 +18,7 @@ export async function upsertFeeCategory(data: any) {
     if (!profile?.tenant_id) return { success: false, error: "Tenant context missing" }
     if (!['admin', 'bursar', 'super-admin', 'owner'].includes(profile?.role)) return { success: false, error: "Permission denied" }
 
-    const { error } = await supabase
+    const { error } = await adminClient
         .from('fee_categories')
         .upsert({ ...data, tenant_id: profile.tenant_id })
 
@@ -38,7 +39,14 @@ export async function upsertFeeCategory(data: any) {
 
 export async function deleteFeeCategory(id: string) {
     const supabase = createClient()
-    const { error } = await supabase.from('fee_categories').delete().eq('id', id)
+    const adminClient = createAdminClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id, role').eq('id', user.id).single()
+    if (!profile?.tenant_id || !['admin', 'bursar', 'super-admin', 'owner'].includes(profile?.role)) return { success: false, error: "Permission denied" }
+
+    const { error } = await adminClient.from('fee_categories').delete().eq('id', id).eq('tenant_id', profile.tenant_id)
     if (error) return { success: false, error: error.message }
     return { success: true }
 }
@@ -47,6 +55,7 @@ export async function deleteFeeCategory(id: string) {
 
 export async function updateFeeSchedule(updates: any[]) {
     const supabase = createClient()
+    const adminClient = createAdminClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
@@ -56,7 +65,7 @@ export async function updateFeeSchedule(updates: any[]) {
 
     const data = updates.map(u => ({ ...u, tenant_id: profile.tenant_id }))
 
-    const { error } = await supabase
+    const { error } = await adminClient
         .from('fee_schedule')
         .upsert(data, { onConflict: 'class_id, category_id' })
 
