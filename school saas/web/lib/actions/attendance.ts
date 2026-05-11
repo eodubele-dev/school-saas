@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { sendSMS } from '@/lib/services/termii'
 import { revalidatePath } from 'next/cache'
 import { SMS_CONFIG } from '@/lib/constants/communication'
@@ -468,7 +469,7 @@ export async function getClassStudents(classId: string): Promise<{ success: bool
  * Get real-time attendance stats for the pip
  */
 export async function getRefreshedAttendanceStats(classId: string, date: string) {
-    const supabase = createClient()
+    const supabase = createAdminClient()
 
     try {
         // 1. Get Total Students
