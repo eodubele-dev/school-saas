@@ -55,50 +55,82 @@ export async function getHostelsWithStats() {
         const { tenantId } = await getAuthContext()
         const supabase = createClient()
 
-        const { data: buildings, error } = await supabase
+        // 1. Fetch Buildings
+        const { data: buildings, error: bErr } = await supabase
             .from('hostel_buildings')
-            .select(`
-                *,
-                rooms:hostel_rooms(
-                    id, name, capacity,
-                    bunks:hostel_bunks(
-                        id, label, type, is_serviceable,
-                        allocations:hostel_allocations(
-                            id, status,
-                            student:students(id, full_name, passport_url)
-                        )
-                    )
-                )
-            `)
+            .select('*')
             .eq('tenant_id', tenantId)
+        
+        if (bErr) throw bErr
+        if (!buildings || buildings.length === 0) return { success: true, data: [] }
 
-        if (error) throw error
+        const buildingIds = buildings.map(b => b.id)
 
-        // Transform to flat structure for visualizer
-        const transformed = (buildings || []).map(b => ({
-            ...b,
-            rooms: b.rooms.map((r: any) => ({
-                ...r,
-                bunks: r.bunks.map((bk: any) => {
-                    const activeAlloc = bk.allocations?.find((a: any) => a.status === 'active')
+        // 2. Fetch Rooms (using hostel_id as per actual schema)
+        const { data: rooms, error: rErr } = await supabase
+            .from('hostel_rooms')
+            .select('*')
+            .in('hostel_id', buildingIds)
+        
+        if (rErr) throw rErr
+
+        const roomIds = (rooms || []).map(r => r.id)
+
+        // 3. Fetch Bunks
+        const { data: bunks, error: bkErr } = await supabase
+            .from('hostel_bunks')
+            .select('*')
+            .in('room_id', roomIds)
+        
+        if (bkErr) throw bkErr
+
+        const bunkIds = (bunks || []).map(bk => bk.id)
+
+        // 4. Fetch Allocations
+        const { data: allocations, error: aErr } = await supabase
+            .from('hostel_allocations')
+            .select(`
+                id, bunk_id, status,
+                student:students(id, full_name, passport_url)
+            `)
+            .in('bunk_id', bunkIds)
+            .eq('status', 'active')
+            .eq('tenant_id', tenantId)
+        
+        if (aErr) throw aErr
+
+        // 5. Assemble data tree manually to bypass schema relationship issues
+        const transformed = buildings.map(b => {
+            const bRooms = (rooms || []).filter(r => r.hostel_id === b.id).map(r => {
+                const rBunks = (bunks || []).filter(bk => bk.room_id === r.id).map(bk => {
+                    const activeAlloc = (allocations || []).find(a => a.bunk_id === bk.id)
                     return {
                         id: bk.id,
                         label: bk.label,
                         type: bk.type,
                         is_serviceable: bk.is_serviceable,
                         student: activeAlloc?.student ? {
-                            id: activeAlloc.student.id,
-                            name: activeAlloc.student.full_name,
-                            passport_url: activeAlloc.student.passport_url,
-                            class: 'Assigned' // We can expand this later
+                            id: (activeAlloc.student as any).id,
+                            name: (activeAlloc.student as any).full_name,
+                            passport_url: (activeAlloc.student as any).passport_url,
+                            class: 'Assigned'
                         } : null
                     }
                 })
-            }))
-        }))
+                return {
+                    ...r,
+                    bunks: rBunks
+                }
+            })
+            return {
+                ...b,
+                rooms: bRooms
+            }
+        })
 
         return { success: true, data: transformed }
     } catch (e: any) {
+        console.error("getHostelsWithStats error:", e)
         return { success: false, error: e.message }
     }
 }
@@ -134,7 +166,7 @@ export async function createRoom(data: { buildingId: string, name: string, capac
         const { data: room, error: roomErr } = await supabase
             .from('hostel_rooms')
             .insert({
-                building_id: data.buildingId,
+                hostel_id: data.buildingId,
                 name: data.name,
                 capacity: data.capacity,
                 floor: data.floor || 0

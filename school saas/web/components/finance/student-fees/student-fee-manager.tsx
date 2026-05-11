@@ -256,7 +256,7 @@ export function StudentFeeManager({ domain, classes }: { domain: string, classes
             <Dialog open={!!selectedStudent} onOpenChange={(open) => !open && setSelectedStudent(null)}>
                 <DialogContent className="bg-slate-950 border-border max-w-2xl">
                     <DialogHeader>
-                        <DialogTitle className="text-xl text-foreground">Billing Configuration Configuration</DialogTitle>
+                        <DialogTitle className="text-xl text-foreground">Billing Configuration</DialogTitle>
                         <DialogDescription className="text-muted-foreground flex items-center gap-2 pt-2 pb-4">
                             <span className="font-bold text-slate-200">{selectedStudent?.full_name}</span>
                             <span className="text-slate-600">•</span>
