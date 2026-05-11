@@ -47,22 +47,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark" style={{ colorScheme: 'dark' }}>
       <head>
+        <meta name="color-scheme" content="dark" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
                 try {
-                  // 1. Theme Detection
-                  let isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  const store = localStorage.getItem('preferences-storage');
-                  if (store) {
-                    const parsed = JSON.parse(store);
-                    const theme = parsed?.state?.theme;
-                    if (theme === 'dark') isDark = true;
-                    if (theme === 'light') isDark = false;
-                  }
-                  if (isDark) document.documentElement.classList.add('dark');
+                  // 1. Force Premium Dark Theme
+                  document.documentElement.classList.add('dark');
 
                   // 2. Tauri Environment Detection (Flash Protection + Smart Bypass)
                   if (window.__TAURI_INTERNALS__ || window.__TAURI__) {
