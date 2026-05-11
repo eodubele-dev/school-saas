@@ -20,7 +20,7 @@ export async function upsertFeeCategory(data: any) {
 
     const { error } = await adminClient
         .from('fee_categories')
-        .upsert({ ...data, tenant_id: profile.tenant_id })
+        .upsert({ ...data, tenant_id: profile.tenant_id }, { onConflict: 'tenant_id, name' })
 
     if (error) return { success: false, error: error.message }
 
