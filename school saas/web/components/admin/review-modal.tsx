@@ -235,6 +235,57 @@ export function ReviewModal({ item, isOpen, onClose, domain }: ReviewModalProps)
                                     <p><b>Note:</b> Approving this request marks the record as "Verified". Administrators should manually apply the changes to the student profile after approval if not automated via API.</p>
                                 </div>
                             </div>
+                        ) : item.type === 'term_result' ? (
+                            <div className="flex flex-col h-full space-y-6 py-4">
+                                <div className="border-b border-slate-100 pb-6 flex items-start justify-between">
+                                    <div>
+                                        <div className="bg-purple-50 text-purple-700 border-purple-200 uppercase tracking-widest text-[10px] font-bold px-3 py-1 rounded border mb-3 inline-block">
+                                            End of Term Evaluation
+                                        </div>
+                                        <h2 className="text-3xl font-black text-slate-800 tracking-tight">
+                                            {item.title.replace('End of Term Eval: ', '')}
+                                        </h2>
+                                        <div className="flex gap-4 mt-2 text-sm text-slate-500 font-medium">
+                                            <span>Class: {item.details?.class_name}</span>
+                                            <span className="text-slate-300">•</span>
+                                            <span>Term: {item.details?.term}</span>
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                                        <Stamp className="h-8 w-8 text-slate-300 mx-auto mb-1" />
+                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Principal Review</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6 flex-1">
+                                    <div className="bg-purple-50/30 border border-purple-100 rounded-2xl p-6 relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 p-4 opacity-5">
+                                            <AlertCircle className="h-12 w-12 text-purple-500" />
+                                        </div>
+                                        <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+                                            <AlertCircle className="h-4 w-4 text-purple-500" />
+                                            Class Teacher Remark
+                                        </h3>
+                                        <div className="text-slate-700 text-lg leading-relaxed font-medium italic relative z-10">
+                                            "{item.details?.teacher_remark || 'No remark provided.'}"
+                                        </div>
+                                    </div>
+
+                                    {item.details?.affective_domain && Object.keys(item.details.affective_domain).length > 0 && (
+                                        <div className="bg-slate-50 border border-slate-100 rounded-xl p-6">
+                                            <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wider mb-4">Affective Domain Assessment</h3>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                                                {Object.entries(item.details.affective_domain).map(([key, value]) => (
+                                                    <div key={key} className="flex justify-between items-center border-b border-slate-200 pb-2">
+                                                        <span className="capitalize text-slate-500 font-medium">{key.replace(/_/g, ' ')}</span>
+                                                        <span className="font-bold text-slate-700 bg-white px-2 py-0.5 rounded shadow-sm border border-slate-100">{String(value)}/5</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                                 <AlertCircle className="h-16 w-16 text-slate-300" />
