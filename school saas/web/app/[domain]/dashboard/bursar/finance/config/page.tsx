@@ -28,11 +28,14 @@ export default async function BursarFinancialConfigPage({ params }: { params: { 
     // Fetch Data
     if (!profile?.tenant_id) return <div className="p-8 text-center text-red-500">Error: No Tenant Found</div>
 
+    const { createAdminClient } = await import("@/lib/supabase/admin")
+    const adminClient = createAdminClient()
+
     const [categoriesRes, classesRes, scheduleRes, sessionRes, rulesRes] = await Promise.all([
-        supabase.from('fee_categories').select('*').eq('tenant_id', profile.tenant_id).order('created_at'),
-        supabase.from('classes').select('id, name').eq('tenant_id', profile.tenant_id).order('name'),
-        supabase.from('fee_schedule').select('*').eq('tenant_id', profile.tenant_id),
-        supabase.from('academic_sessions').select('*').eq('tenant_id', profile.tenant_id).eq('is_active', true).single(),
+        adminClient.from('fee_categories').select('*').eq('tenant_id', profile.tenant_id).order('created_at'),
+        adminClient.from('classes').select('id, name').eq('tenant_id', profile.tenant_id).order('name'),
+        adminClient.from('fee_schedule').select('*').eq('tenant_id', profile.tenant_id),
+        adminClient.from('academic_sessions').select('*').eq('tenant_id', profile.tenant_id).eq('is_active', true).single(),
         getDiscountRules()
     ])
 
