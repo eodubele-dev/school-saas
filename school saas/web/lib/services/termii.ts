@@ -4,7 +4,7 @@ import { SITE_CONFIG } from "@/lib/constants/site-config"
 export async function sendSMS(to: string, message: string) {
     const apiKey = process.env.TERMII_API_KEY
     const senderId = process.env.TERMII_SENDER_ID || "EduFlow"
-    const channel = process.env.TERMII_CHANNEL || "dnd" // Default to DND for approved IDs
+    const channel = process.env.TERMII_CHANNEL || "generic" // Default to generic based on Termii dashboard routing
     const baseUrl = process.env.TERMII_BASE_URL || 'https://v3.api.termii.com'
     const isProd = process.env.NODE_ENV === 'production'
 
