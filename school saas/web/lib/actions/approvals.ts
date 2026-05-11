@@ -373,9 +373,10 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
         details: { previous_status: 'pending' }
     })
 
-    revalidatePath('/dashboard/admin/approvals')
+    revalidatePath(`/${domain}/dashboard/admin/approvals`)
+    revalidatePath('/[domain]/dashboard/admin/approvals', 'page')
     revalidatePath(`/${domain}/dashboard/teacher/attendance`)
-    revalidatePath('/dashboard/attendance')
+    revalidatePath('/[domain]/dashboard/attendance', 'page')
     return { success: true }
 }
 
@@ -459,9 +460,10 @@ export async function rejectItem(domain: string, id: string, type: 'lesson_plan'
         details: { reason }
     })
 
-    revalidatePath('/dashboard/admin/approvals')
+    revalidatePath(`/${domain}/dashboard/admin/approvals`)
+    revalidatePath('/[domain]/dashboard/admin/approvals', 'page')
     revalidatePath(`/${domain}/dashboard/teacher/attendance`)
-    revalidatePath('/dashboard/attendance')
+    revalidatePath('/[domain]/dashboard/attendance', 'page')
     return { success: true }
 }
 
