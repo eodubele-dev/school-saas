@@ -290,13 +290,20 @@ export async function createStaff(formData: any, tenantId: string) {
     }
 
     // 2. Check if user already exists in Auth (Using RPC for stability)
-    const { data: existingUserId, error: searchError } = await supabaseAdmin.rpc('get_user_id_by_email', { 
+    let { data: existingUserId, error: searchError } = await supabaseAdmin.rpc('get_user_id_by_email', { 
         user_email: formData.email 
     })
 
     if (searchError) {
         console.error("RPC Error finding user:", searchError)
-        // Fallback to createUser if RPC fails or isn't installed yet
+        // Fallback to listUsers if RPC fails or isn't installed yet
+        const { data: usersData, error: listError } = await supabaseAdmin.auth.admin.listUsers()
+        if (!listError && usersData?.users) {
+            const foundUser = usersData.users.find(u => u.email === formData.email)
+            if (foundUser) {
+                existingUserId = foundUser.id
+            }
+        }
     }
 
     let staffId: string
@@ -364,6 +371,7 @@ export async function createStaff(formData: any, tenantId: string) {
                     full_name: `${formData.firstName} ${formData.lastName}`
                 })
                 .eq('id', staffId)
+                .eq('tenant_id', tenantId)
         } else {
             console.error("Profile Creation Error:", profileError)
             return { success: false, error: "Failed to create staff profile: " + profileError.message }
