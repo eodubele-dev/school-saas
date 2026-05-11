@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 export interface PendingItem {
@@ -268,13 +269,14 @@ export async function getPendingApprovals() {
  */
 export async function approveItem(domain: string, id: string, type: 'lesson_plan' | 'gradebook' | 'attendance_dispute' | 'term_result', comment?: string) {
     const supabase = createClient()
+    const adminClient = createAdminClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: 'Unauthorized' }
 
     const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
 
     if (type === 'lesson_plan') {
-        const { error } = await supabase
+        const { error } = await adminClient
             .from('lesson_plans')
             .update({
                 approval_status: 'approved',
@@ -289,7 +291,7 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
         // PERMIT: Update approval status for all grades in this "batch"
         const [classId, subjectId, term, session] = id.split('|')
 
-        const { error } = await supabase
+        const { error } = await adminClient
             .from('student_grades')
             .update({
                 approval_status: 'approved',
@@ -304,14 +306,14 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
 
         if (error) return { success: false, error: error.message }
     } else if (type === ('incident_log' as any)) {
-        const { error } = await supabase
+        const { error } = await adminClient
             .from('incident_logs')
             .update({ status: 'approved' })
             .eq('id', id)
         if (error) return { success: false, error: error.message }
     } else if (type === 'attendance_dispute') {
         // 1. Mark Dispute as Approved
-        const { data: dispute, error: dError } = await supabase
+        const { data: dispute, error: dError } = await adminClient
             .from('staff_attendance_disputes')
             .update({
                 status: 'approved',
@@ -325,7 +327,7 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
         if (dError) return { success: false, error: dError.message }
 
         // 2. Perform Manual Override Clock-In
-        const { error: aError } = await supabase
+        const { error: aError } = await adminClient
             .from('staff_attendance')
             .insert({
                 tenant_id: profile?.tenant_id,
@@ -343,7 +345,7 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
 
         if (aError) return { success: false, error: aError.message }
     } else if (type === 'term_result') {
-        const { error } = await supabase
+        const { error } = await adminClient
             .from('term_results')
             .update({
                 status: 'published',
@@ -353,7 +355,7 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
             .eq('id', id)
         if (error) return { success: false, error: error.message }
     } else if (type === 'profile_update' as any) {
-        const { error } = await supabase
+        const { error } = await adminClient
             .from('profile_update_requests')
             .update({
                 status: 'approved',
@@ -364,7 +366,7 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
     }
 
     // Audit Log
-    await supabase.from('audit_logs').insert({
+    await adminClient.from('audit_logs').insert({
         tenant_id: profile?.tenant_id,
         action: 'approve',
         entity_type: type,
@@ -385,12 +387,13 @@ export async function approveItem(domain: string, id: string, type: 'lesson_plan
  */
 export async function rejectItem(domain: string, id: string, type: 'lesson_plan' | 'gradebook' | 'attendance_dispute' | 'term_result', reason: string) {
     const supabase = createClient()
+    const adminClient = createAdminClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: 'Unauthorized' }
     const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
 
     if (type === 'lesson_plan') {
-        const { error } = await supabase
+        const { error } = await adminClient
             .from('lesson_plans')
             .update({
                 approval_status: 'rejected',
@@ -404,7 +407,7 @@ export async function rejectItem(domain: string, id: string, type: 'lesson_plan'
     } else if (type === 'gradebook') {
         const [classId, subjectId, term, session] = id.split('|')
 
-        const { error } = await supabase
+        const { error } = await adminClient
             .from('student_grades')
             .update({
                 approval_status: 'rejected',
@@ -420,7 +423,7 @@ export async function rejectItem(domain: string, id: string, type: 'lesson_plan'
 
         if (error) return { success: false, error: error.message }
     } else if (type === 'attendance_dispute') {
-        const { error } = await supabase
+        const { error } = await adminClient
             .from('staff_attendance_disputes')
             .update({
                 status: 'declined',
@@ -430,7 +433,7 @@ export async function rejectItem(domain: string, id: string, type: 'lesson_plan'
             .eq('id', id)
         if (error) return { success: false, error: error.message }
     } else if (type === 'term_result') {
-        const { error } = await supabase
+        const { error } = await adminClient
             .from('term_results')
             .update({
                 status: 'draft',
@@ -440,7 +443,7 @@ export async function rejectItem(domain: string, id: string, type: 'lesson_plan'
             .eq('id', id)
         if (error) return { success: false, error: error.message }
     } else if (type === 'profile_update' as any) {
-        const { error } = await supabase
+        const { error } = await adminClient
             .from('profile_update_requests')
             .update({
                 status: 'rejected',
@@ -451,7 +454,7 @@ export async function rejectItem(domain: string, id: string, type: 'lesson_plan'
     }
 
     // Audit Log
-    await supabase.from('audit_logs').insert({
+    await adminClient.from('audit_logs').insert({
         tenant_id: profile?.tenant_id,
         action: 'reject',
         entity_type: type,
