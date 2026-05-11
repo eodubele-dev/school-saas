@@ -390,9 +390,9 @@ export function ChatInterface() {
                                 </Avatar>
                                 <div>
                                     <h3 className="font-bold text-foreground">{activeThread.partner?.full_name}</h3>
-                                    <p className="text-xs text-emerald-400 flex items-center gap-1">
-                                        <span className="block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                        Active
+                                    <p className="text-xs text-blue-400/80 capitalize flex items-center gap-1">
+                                        <MessageSquare className="h-3 w-3" />
+                                        {activeThread.partner?.role || 'User'}
                                     </p>
                                 </div>
                             </div>
