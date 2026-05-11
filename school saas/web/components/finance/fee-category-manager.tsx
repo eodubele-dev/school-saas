@@ -35,7 +35,7 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
 
     const onSubmit = async (data: any) => {
         setLoading(true)
-        const res = await upsertFeeCategory({ ...data, is_mandatory: data.is_mandatory || false }) // Handle switch output
+        const res = await upsertFeeCategory({ ...data, is_mandatory: data.is_mandatory || false }, domain) // Handle switch output
         if (res.success) {
             toast.success("Fee category saved")
             reset()
@@ -48,7 +48,7 @@ export function FeeCategoryManager({ categories, domain }: { categories: any[], 
 
     const handleDelete = async (id: string) => {
         // Confirmation handled by UI Dialog
-        const res = await deleteFeeCategory(id)
+        const res = await deleteFeeCategory(id, domain)
         if (res.success) {
             toast.success("Category deleted")
             router.refresh()

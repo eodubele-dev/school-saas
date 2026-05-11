@@ -8,7 +8,7 @@ import { headers } from "next/headers"
 
 // --- Fee Categories ---
 
-export async function upsertFeeCategory(data: any) {
+export async function upsertFeeCategory(data: any, domain?: string) {
     const supabase = createClient()
     const adminClient = createAdminClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -34,13 +34,16 @@ export async function upsertFeeCategory(data: any) {
         data
     )
 
-    revalidatePath('/[domain]/dashboard/admin/finance/config', 'page')
-    revalidatePath('/[domain]/dashboard/bursar/finance/config', 'page')
+    if (domain) {
+        revalidatePath(`/${domain}/dashboard/admin/finance/config`)
+        revalidatePath(`/${domain}/dashboard/bursar/finance/config`)
+    }
+    revalidatePath('/', 'layout')
 
     return { success: true }
 }
 
-export async function deleteFeeCategory(id: string) {
+export async function deleteFeeCategory(id: string, domain?: string) {
     const supabase = createClient()
     const adminClient = createAdminClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -52,15 +55,18 @@ export async function deleteFeeCategory(id: string) {
     const { error } = await adminClient.from('fee_categories').delete().eq('id', id).eq('tenant_id', profile.tenant_id)
     if (error) return { success: false, error: error.message }
 
-    revalidatePath('/[domain]/dashboard/admin/finance/config', 'page')
-    revalidatePath('/[domain]/dashboard/bursar/finance/config', 'page')
+    if (domain) {
+        revalidatePath(`/${domain}/dashboard/admin/finance/config`)
+        revalidatePath(`/${domain}/dashboard/bursar/finance/config`)
+    }
+    revalidatePath('/', 'layout')
 
     return { success: true }
 }
 
 // --- Fee Schedule (Matrix) ---
 
-export async function updateFeeSchedule(updates: any[]) {
+export async function updateFeeSchedule(updates: any[], domain?: string) {
     const supabase = createClient()
     const adminClient = createAdminClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -78,8 +84,11 @@ export async function updateFeeSchedule(updates: any[]) {
 
     if (error) return { success: false, error: error.message }
 
-    revalidatePath('/[domain]/dashboard/admin/finance/config', 'page')
-    revalidatePath('/[domain]/dashboard/bursar/finance/config', 'page')
+    if (domain) {
+        revalidatePath(`/${domain}/dashboard/admin/finance/config`)
+        revalidatePath(`/${domain}/dashboard/bursar/finance/config`)
+    }
+    revalidatePath('/', 'layout')
 
     return { success: true }
 }

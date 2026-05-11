@@ -95,7 +95,7 @@ export function SmartFeeMatrix({ classes, categories, schedule, domain }: { clas
             })
         }
 
-        const res = await updateFeeSchedule(updates)
+        const res = await updateFeeSchedule(updates, domain)
         if (res.success) {
             toast.success("Fee schedule updated")
             router.refresh()
