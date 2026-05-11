@@ -690,6 +690,7 @@ export async function getSMSWalletBalance() {
 
 export async function getStudentFeeOverrides(classId?: string) {
     const supabase = createClient()
+    const adminClient = createAdminClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
@@ -697,7 +698,7 @@ export async function getStudentFeeOverrides(classId?: string) {
     if (!profile) return { success: false, error: "Profile not found" }
 
     // Fetch students
-    let studentQuery = supabase
+    let studentQuery = adminClient
         .from('students')
         .select(`
             id,
@@ -739,7 +740,7 @@ export async function getStudentFeeOverrides(classId?: string) {
     })
 
     // Fetch active categories
-    const { data: categories } = await supabase
+    const { data: categories } = await adminClient
         .from('fee_categories')
         .select('id, name, is_mandatory')
         .eq('tenant_id', profile.tenant_id)
@@ -749,6 +750,7 @@ export async function getStudentFeeOverrides(classId?: string) {
 
 export async function toggleFeeOverride(studentId: string, categoryId: string, type: 'addon' | 'exemption', isActive: boolean) {
     const supabase = createClient()
+    const adminClient = createAdminClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
@@ -758,14 +760,14 @@ export async function toggleFeeOverride(studentId: string, categoryId: string, t
     const tableName = type === 'addon' ? 'student_fee_addons' : 'student_fee_exemptions'
 
     if (isActive) {
-        const { error } = await supabase.from(tableName).upsert({
+        const { error } = await adminClient.from(tableName).upsert({
             tenant_id: profile.tenant_id,
             student_id: studentId,
             category_id: categoryId
         })
         if (error) return { success: false, error: error.message }
     } else {
-        const { error } = await supabase.from(tableName)
+        const { error } = await adminClient.from(tableName)
             .delete()
             .eq('student_id', studentId)
             .eq('category_id', categoryId)
