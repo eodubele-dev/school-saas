@@ -175,12 +175,12 @@ export function ChatInterface() {
     }
 
     const filteredRecipients = recipients.filter(r => 
-        r.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        r.role?.toLowerCase().includes(searchQuery.toLowerCase())
+        (r.full_name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+        (r.role?.toLowerCase() || "").includes(searchQuery.toLowerCase())
     )
 
     const filteredThreads = threads.filter(t => 
-        t.partner?.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
+        (t.partner?.full_name?.toLowerCase() || "").includes(searchQuery.toLowerCase())
     )
 
     const handleNewChat = async () => {
