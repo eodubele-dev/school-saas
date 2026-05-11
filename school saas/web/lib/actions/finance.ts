@@ -34,6 +34,9 @@ export async function upsertFeeCategory(data: any) {
         data
     )
 
+    revalidatePath('/[domain]/dashboard/admin/finance/config', 'page')
+    revalidatePath('/[domain]/dashboard/bursar/finance/config', 'page')
+
     return { success: true }
 }
 
@@ -48,6 +51,10 @@ export async function deleteFeeCategory(id: string) {
 
     const { error } = await adminClient.from('fee_categories').delete().eq('id', id).eq('tenant_id', profile.tenant_id)
     if (error) return { success: false, error: error.message }
+
+    revalidatePath('/[domain]/dashboard/admin/finance/config', 'page')
+    revalidatePath('/[domain]/dashboard/bursar/finance/config', 'page')
+
     return { success: true }
 }
 
@@ -70,6 +77,10 @@ export async function updateFeeSchedule(updates: any[]) {
         .upsert(data, { onConflict: 'class_id, category_id' })
 
     if (error) return { success: false, error: error.message }
+
+    revalidatePath('/[domain]/dashboard/admin/finance/config', 'page')
+    revalidatePath('/[domain]/dashboard/bursar/finance/config', 'page')
+
     return { success: true }
 }
 
