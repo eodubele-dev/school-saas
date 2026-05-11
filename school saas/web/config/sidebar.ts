@@ -46,7 +46,6 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             icon: GraduationCap,
             items: [
                 { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup/academic" },
-                { icon: BookOpen, label: "Curriculum Planning", href: "/dashboard/admin/curriculum", badge: "New" },
                 { icon: GraduationCap, label: "Result Processor", href: "/dashboard/admin/results/generate" },
                 { icon: ShieldCheck, label: "Approvals Hub", href: "/dashboard/admin/approvals" },
             ]
@@ -114,7 +113,6 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             icon: GraduationCap,
             items: [
                 { icon: BookOpen, label: "Academic Setup", href: "/dashboard/admin/setup/academic" },
-                { icon: BookOpen, label: "Curriculum Planning", href: "/dashboard/admin/curriculum", badge: "New" },
                 { icon: GraduationCap, label: "Result Processor", href: "/dashboard/admin/results/generate" },
                 { icon: ShieldCheck, label: "Approvals Hub", href: "/dashboard/admin/approvals" },
             ]
@@ -273,7 +271,6 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
             category: "Academic Oversight",
             icon: GraduationCap,
             items: [
-                { icon: BookOpen, label: "Curriculum Planning", href: "/dashboard/admin/curriculum" },
                 { icon: GraduationCap, label: "Result Processor", href: "/dashboard/admin/results/generate" },
             ]
         },

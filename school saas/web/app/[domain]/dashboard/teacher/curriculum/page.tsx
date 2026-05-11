@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { getAdminCurriculumData } from "@/lib/actions/curriculum"
+import { getCurriculumData } from "@/lib/actions/curriculum"
 import { CurriculumManagerClient } from "@/components/admin/curriculum/curriculum-manager"
 import { BookOpen } from "lucide-react"
 
@@ -12,8 +12,8 @@ export default async function TeacherCurriculumPage() {
         redirect('/')
     }
 
-    // Fetch curriculum data (students + milestones) for this teacher's school
-    const { students, milestones } = await getAdminCurriculumData()
+    // Fetch curriculum data (students + milestones) for this teacher
+    const { students, milestones } = await getCurriculumData()
 
     return (
         <div className="p-8 space-y-8 max-w-[1400px] mx-auto relative flex-1 animate-in fade-in duration-500">
