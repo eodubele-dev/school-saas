@@ -281,7 +281,8 @@ export function StaffInviteModal({ domain, tenantId }: { domain: string, tenantI
                                     <span className="text-xs text-muted-foreground font-normal">(Required for reports/vouchers)</span>
                                 </Label>
                                 <SignaturePad
-                                    onEnd={(dataUrl) => setFormData(prev => ({ ...prev, signature: dataUrl }))}
+                                    value={formData.signature}
+                                    onChange={(dataUrl) => setFormData(prev => ({ ...prev, signature: dataUrl }))}
                                 />
                                 {!formData.signature && (
                                     <p className="text-xs text-amber-500/80">Please draw your signature above.</p>
