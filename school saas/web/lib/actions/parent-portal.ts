@@ -167,8 +167,7 @@ export async function getStudentAttendanceAudit(studentId: string, page = 1, pag
             *,
             register:attendance_registers(date),
             clock_in_time,
-            clock_out_time,
-            clocked_out:clocked_out_by(full_name)
+            clock_out_time
         `, { count: 'exact' })
         .eq('student_id', studentId)
         .order('created_at', { ascending: false })
@@ -179,9 +178,27 @@ export async function getStudentAttendanceAudit(studentId: string, page = 1, pag
         return { success: false, error: 'Failed to fetch logs' }
     }
 
+    // 2.5 Fetch clocked_out_by profiles manually to avoid schema cache issues with missing foreign keys
+    const profileIds = [...new Set((logs || []).map(l => l.clocked_out_by).filter(Boolean))] as string[];
+    let profileMap: Record<string, string> = {};
+    if (profileIds.length > 0) {
+        const { data: profiles } = await supabase.from('profiles').select('id, full_name').in('id', profileIds);
+        if (profiles) {
+            profileMap = profiles.reduce((acc: any, p: any) => {
+                acc[p.id] = p.full_name;
+                return acc;
+            }, {});
+        }
+    }
+
+    const enhancedLogs = (logs || []).map((log: any) => ({
+        ...log,
+        clocked_out: log.clocked_out_by && profileMap[log.clocked_out_by] ? { full_name: profileMap[log.clocked_out_by] } : null
+    }));
+
     // Sort by date (descending) since we couldn't order by joined column easily
     // Though range might already be somewhat ordered by created_at which is close to date
-    const sortedLogs = (logs || []).sort((a: any, b: any) => {
+    const sortedLogs = enhancedLogs.sort((a: any, b: any) => {
         const dateA = new Date(a.register?.date || 0).getTime()
         const dateB = new Date(b.register?.date || 0).getTime()
         return dateB - dateA
