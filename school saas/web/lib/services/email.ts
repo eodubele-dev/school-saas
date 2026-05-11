@@ -31,10 +31,8 @@ export async function sendWelcomeEmail(
             studentPassword: studentDetails?.password
         });
 
-        // Since it's a test environment without a verified domain, use Resend's default test address
-        // Note: Resend's test address 'onboarding@resend.dev' can only send TO the email address you signed up with.
-        // Once you verify a domain, change this to 'noreply@yourdomain.com'
-        const fromAddress = 'onboarding@resend.dev';
+        // Using the verified production domain 'eduflow.ng'
+        const fromAddress = 'noreply@eduflow.ng';
 
         const { data, error } = await resend.emails.send({
             from: `"${schoolName} (System)" <${fromAddress}>`,
