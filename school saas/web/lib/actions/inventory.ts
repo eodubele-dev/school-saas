@@ -246,10 +246,16 @@ export async function createInventoryItem(data: any) {
 
     if (!profile?.tenant_id) return { success: false, error: "Tenant not found" }
 
-    const { error } = await supabase.from('inventory_items').insert({
+    const insertData = {
         ...data,
         tenant_id: profile.tenant_id
-    })
+    }
+
+    if (insertData.category_id === "") insertData.category_id = null
+    if (insertData.vendor_id === "") insertData.vendor_id = null
+    if (insertData.location_id === "") insertData.location_id = null
+
+    const { error } = await supabase.from('inventory_items').insert(insertData)
 
     if (error) return { success: false, error: error.message }
 
