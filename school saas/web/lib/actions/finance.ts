@@ -764,13 +764,14 @@ export async function toggleFeeOverride(studentId: string, categoryId: string, t
             tenant_id: profile.tenant_id,
             student_id: studentId,
             category_id: categoryId
-        })
+        }, { onConflict: 'student_id, category_id' })
         if (error) return { success: false, error: error.message }
     } else {
         const { error } = await adminClient.from(tableName)
             .delete()
             .eq('student_id', studentId)
             .eq('category_id', categoryId)
+            .eq('tenant_id', profile.tenant_id)
         if (error) return { success: false, error: error.message }
     }
 
