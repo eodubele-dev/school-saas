@@ -56,6 +56,8 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
     }, [initialData])
 
     const [searchQuery, setSearchQuery] = useState(searchParams.get('query') || "")
+    const [roleFilter, setRoleFilter] = useState(searchParams.get('role') || "all")
+    const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || "all")
     const [selectedUser, setSelectedUser] = useState<any>(null)
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
     const [resetData, setResetData] = useState<{ name: string, password: string } | null>(null)
@@ -66,28 +68,33 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
     const [newRole, setNewRole] = useState("")
     const [loading, setLoading] = useState(false)
 
-    // Debounce Search
+    // Debounce Search & Filters
     useEffect(() => {
         const timer = setTimeout(() => {
             const params = new URLSearchParams(searchParams)
-            if (searchQuery) {
-                params.set('query', searchQuery)
-            } else {
-                params.delete('query')
-            }
-            params.set('page', '1') // Reset to page 1 on search
+            
+            if (searchQuery) params.set('query', searchQuery)
+            else params.delete('query')
+            
+            if (roleFilter !== 'all') params.set('role', roleFilter)
+            else params.delete('role')
+            
+            if (statusFilter !== 'all') params.set('status', statusFilter)
+            else params.delete('status')
+            
+            params.set('page', '1') // Reset to page 1 on search/filter change
             router.replace(`${pathname}?${params.toString()}`)
         }, 300)
 
         return () => clearTimeout(timer)
-    }, [searchQuery, router, pathname, searchParams]) // Caution: adding searchParams to dependency might cause loop if not careful. 
-    // Better to use a ref or just rely on router.replace being stable? 
-    // Actually, `searchParams` changes on URL update.
-    // If we type, `searchQuery` changes -> timer starts.
-    // Timer fires -> `router.replace` -> URL updates -> `searchParams` updates.
-    // `searchQuery` matches URL? No loop.
-    // But if URL updates from outside? We should sync input?
-    // Let's keep it simple: Input drives URL. Use `defaultValue` or sync only once?
+    }, [searchQuery, roleFilter, statusFilter, router, pathname])
+
+    // Sync state with URL when it changes from outside (e.g. back button)
+    useEffect(() => {
+        setSearchQuery(searchParams.get('query') || "")
+        setRoleFilter(searchParams.get('role') || "all")
+        setStatusFilter(searchParams.get('status') || "all")
+    }, [searchParams])
 
     // Changing specific user role locally
     const handleRoleUpdate = async () => {
@@ -139,15 +146,61 @@ export function StaffList({ initialData, domain, classes, tenant, totalPages = 1
 
     return (
         <div className="space-y-4">
-            {/* Search Bar */}
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                    placeholder="Search staff by name or email..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-card text-card-foreground/50 border-border"
-                />
+            {/* Search & Filter Bar */}
+            <div className="flex flex-col md:flex-row gap-4 items-center">
+                <div className="relative flex-1 w-full">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Search staff by name or email..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 bg-slate-900 border-slate-800 text-slate-200 focus:ring-slate-700"
+                    />
+                </div>
+                
+                <div className="flex gap-2 w-full md:w-auto">
+                    <Select value={roleFilter} onValueChange={setRoleFilter}>
+                        <SelectTrigger className="w-[140px] bg-slate-900 border-slate-800 text-slate-300">
+                            <SelectValue placeholder="All Roles" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-800 text-slate-200">
+                            <SelectItem value="all">All Roles</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="owner">Proprietor</SelectItem>
+                            <SelectItem value="teacher">Teacher</SelectItem>
+                            <SelectItem value="bursar">Bursar</SelectItem>
+                            <SelectItem value="registrar">Registrar</SelectItem>
+                            <SelectItem value="staff">Other Staff</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-[140px] bg-slate-900 border-slate-800 text-slate-300">
+                            <SelectValue placeholder="All Status" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-800 text-slate-200">
+                            <SelectItem value="all">All Status</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    {(searchQuery || roleFilter !== 'all' || statusFilter !== 'all') && (
+                        <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => {
+                                setSearchQuery("")
+                                setRoleFilter("all")
+                                setStatusFilter("all")
+                            }}
+                            className="text-slate-500 hover:text-white"
+                            title="Clear Filters"
+                        >
+                            <Plus className="h-4 w-4 rotate-45" />
+                        </Button>
+                    )}
+                </div>
             </div>
 
             {/* Staff Table */}

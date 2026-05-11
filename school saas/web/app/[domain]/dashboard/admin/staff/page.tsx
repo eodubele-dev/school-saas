@@ -8,7 +8,19 @@ import { Plus } from "lucide-react"
 import { unstable_noStore as noStore } from 'next/cache'
 import { createAdminClient } from "@/lib/supabase/admin"
 
-export default async function StaffPage({ params, searchParams }: { params: { domain: string }, searchParams: { page?: string, query?: string } }) {
+export default async function StaffPage({ 
+    params, 
+    searchParams 
+}: { 
+    params: { domain: string }, 
+    searchParams: { 
+        page?: string, 
+        query?: string,
+        role?: string,
+        department?: string,
+        status?: string
+    } 
+}) {
     noStore()
     try {
         const supabase = createClient()
@@ -40,9 +52,14 @@ export default async function StaffPage({ params, searchParams }: { params: { do
 
         const page = Number(searchParams.page) || 1
         const query = searchParams.query || ""
+        const filters = {
+            role: searchParams.role,
+            department: searchParams.department,
+            status: searchParams.status
+        }
 
         // Fetch Staff
-        const { success, data: staff, count, error: staffError } = await getStaffList(params.domain, page, query)
+        const { success, data: staff, count, totalPages, error: staffError } = await getStaffList(params.domain, page, query, filters)
 
         // Fetch Classes for mapping
         const { data: classes } = await supabase
@@ -78,7 +95,7 @@ export default async function StaffPage({ params, searchParams }: { params: { do
                         domain={params.domain}
                         classes={classes || []}
                         tenant={tenant}
-                        totalPages={Math.ceil((count || 0) / 10)}
+                        totalPages={totalPages}
                     />
                 ) : (
                     <div className="p-8 text-center text-red-400 bg-red-500/10 rounded-lg border border-red-500/20">

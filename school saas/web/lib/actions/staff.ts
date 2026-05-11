@@ -53,7 +53,16 @@ export async function getTeachersForAssignment(domain?: string) {
     return { success: true, data }
 }
 
-export async function getStaffList(domain: string, page = 1, query = "") {
+export async function getStaffList(
+    domain: string, 
+    page = 1, 
+    query = "", 
+    filters?: { 
+        role?: string, 
+        department?: string, 
+        status?: string 
+    }
+) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
@@ -96,12 +105,23 @@ export async function getStaffList(domain: string, page = 1, query = "") {
             )
         `, { count: 'exact' })
         .eq('tenant_id', tenantId)
-        .in('role', ['admin', 'teacher', 'bursar', 'registrar', 'support_staff', 'owner'])
+        .in('role', ['admin', 'teacher', 'bursar', 'registrar', 'support_staff', 'owner', 'staff'])
         .order('created_at', { ascending: false })
         .range(from, to)
 
     if (query) {
-        dbQuery = dbQuery.or(`full_name.ilike.%${query}%`)
+        dbQuery = dbQuery.or(`full_name.ilike.%${query}%,email.ilike.%${query}%`)
+    }
+
+    // Apply specific filters
+    if (filters?.role && filters.role !== 'all') {
+        dbQuery = dbQuery.eq('role', filters.role)
+    }
+    if (filters?.department && filters.department !== 'all') {
+        dbQuery = dbQuery.eq('department', filters.department)
+    }
+    if (filters?.status && filters.status !== 'all') {
+        dbQuery = dbQuery.eq('status', filters.status)
     }
 
     const { data: profiles, count, error } = await dbQuery
@@ -111,10 +131,9 @@ export async function getStaffList(domain: string, page = 1, query = "") {
         return { success: false, error: error.message }
     }
 
-    // 4. Enrich with emails from auth.users (since email column is missing in profiles)
-    // Avoid listUsers() due to GoTrue pagination/database bugs; fetch individually (max 10 per page)
+    // Enrich with emails from auth.users (since email column is missing in profiles)
     const enrichedData = await Promise.all((profiles || []).map(async (p) => {
-        let userEmail = p.email || ""; // Fallback if email column ever gets added
+        let userEmail = p.email || ""; 
         if (!userEmail) {
             const { data: userResponse, error: userError } = await supabaseAdmin.auth.admin.getUserById(p.id);
             if (!userError && userResponse?.user) {
@@ -126,7 +145,6 @@ export async function getStaffList(domain: string, page = 1, query = "") {
             email: userEmail
         };
     }));
-
 
     return {
         success: true,
