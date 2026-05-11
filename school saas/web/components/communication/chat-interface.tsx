@@ -21,6 +21,7 @@ export function ChatInterface() {
     const [activeThreadId, setActiveThreadId] = useState<string | null>(null)
     const [messages, setMessages] = useState<any[]>([])
     const [newMessage, setNewMessage] = useState("")
+    const [searchQuery, setSearchQuery] = useState("")
     const [showRecipients, setShowRecipients] = useState(false)
     const [recipients, setRecipients] = useState<any[]>([])
     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
@@ -173,9 +174,19 @@ export function ChatInterface() {
         setLoadingMessages(false)
     }
 
+    const filteredRecipients = recipients.filter(r => 
+        r.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.role?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
+    const filteredThreads = threads.filter(t => 
+        t.partner?.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
     const handleNewChat = async () => {
         setLoadingRecipients(true)
         setShowRecipients(true)
+        setSearchQuery("") // Clear search when opening new chat
         try {
             const res = await getChatRecipients()
             if (res.success && res.data) {
@@ -200,6 +211,7 @@ export function ChatInterface() {
                 await loadThreads()
                 setActiveThreadId(res.channelId)
                 setShowRecipients(false)
+                setSearchQuery("")
                 toast.success("Chat initiated")
             } else {
                 toast.error(res.error || "Could not start chat")
@@ -252,67 +264,83 @@ export function ChatInterface() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-border/50 rounded-xl bg-card text-card-foreground overflow-hidden h-[600px] shadow-2xl">
             {/* Thread List */}
-            <div className="col-span-1 border-r border-border/50 flex flex-col bg-card text-card-foreground/50">
+            <div className="col-span-1 border-r border-border/50 flex flex-col bg-card text-card-foreground/50 min-h-0">
                 <div className="p-4 border-b border-border/50 flex items-center gap-2">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="Search chats..."
+                            placeholder={showRecipients ? "Search parents..." : "Search chats..."}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             className="bg-slate-950 border-border pl-9 text-sm"
                         />
                     </div>
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        className="text-muted-foreground hover:text-foreground hover:bg-white/10"
-                        onClick={loadThreads}
-                        title="Refresh chats"
-                    >
-                        <Loader2 className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                    </Button>
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        className="bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
-                        onClick={handleNewChat}
-                    >
-                        {loadingRecipients ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-5 w-5" />}
-                    </Button>
+                    {!showRecipients ? (
+                        <>
+                            <Button
+                                size="icon"
+                                variant="ghost"
+                                className="text-muted-foreground hover:text-foreground hover:bg-white/10"
+                                onClick={loadThreads}
+                                title="Refresh chats"
+                            >
+                                <Loader2 className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                            </Button>
+                            <Button
+                                size="icon"
+                                variant="ghost"
+                                className="bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
+                                onClick={handleNewChat}
+                            >
+                                {loadingRecipients ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-5 w-5" />}
+                            </Button>
+                        </>
+                    ) : (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                            onClick={() => {
+                                setShowRecipients(false)
+                                setSearchQuery("")
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                    )}
                 </div>
                 <ScrollArea className="flex-1 min-h-0">
                     <div className="flex flex-col">
                         {showRecipients ? (
                             <>
-                                <div className="p-2 px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-white/[0.02] flex items-center justify-between">
-                                    New Conversation
+                                <div className="p-2 px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-white/[0.02] flex items-center justify-between sticky top-0 z-10 backdrop-blur-md">
+                                    New Conversation ({filteredRecipients.length})
                                 </div>
-                                {recipients.map(recipient => (
-                                    <button
-                                        key={recipient.id}
-                                        onClick={() => initiateChat(recipient.id)}
-                                        className="flex items-center gap-3 p-4 text-left transition-colors border-b border-border/50 hover:bg-secondary/50"
-                                    >
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src={recipient.avatar_url} />
-                                            <AvatarFallback>{recipient.full_name?.[0] || 'U'}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-slate-200 truncate">{recipient.full_name}</p>
-                                            <p className="text-[10px] text-blue-400">{recipient.role}</p>
-                                        </div>
-                                    </button>
-                                ))}
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="m-2 text-xs text-muted-foreground hover:text-foreground hover:bg-white/10"
-                                    onClick={() => setShowRecipients(false)}
-                                >
-                                    Cancel
-                                </Button>
+                                {filteredRecipients.length > 0 ? (
+                                    filteredRecipients.map(recipient => (
+                                        <button
+                                            key={recipient.id}
+                                            onClick={() => initiateChat(recipient.id)}
+                                            className="flex items-center gap-3 p-4 text-left transition-colors border-b border-border/50 hover:bg-secondary/50"
+                                        >
+                                            <Avatar className="h-8 w-8">
+                                                <AvatarImage src={recipient.avatar_url} />
+                                                <AvatarFallback>{recipient.full_name?.[0] || 'U'}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium text-slate-200 truncate">{recipient.full_name}</p>
+                                                <p className="text-[10px] text-blue-400 capitalize">{recipient.role}</p>
+                                            </div>
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div className="p-8 text-center text-sm text-muted-foreground italic">
+                                        No matching parents found
+                                    </div>
+                                )}
                             </>
                         ) : (
-                            threads.map(thread => (
+                            filteredThreads.map(thread => (
                                 <button
                                     key={thread.id}
                                     onClick={() => {
