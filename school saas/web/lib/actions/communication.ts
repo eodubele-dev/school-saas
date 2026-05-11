@@ -302,13 +302,14 @@ export async function getChatThreads() {
 
     if (!user) return { success: false, error: "Unauthorized" }
 
+    // Step 1: Fetch raw threads and messages (Manual join for profiles to bypass schema cache errors)
     const { data: threads, error } = await supabase
         .from('chat_channels')
         .select(`
             id,
             last_message_at,
-            parent:profiles!parent_id(id, full_name, avatar_url),
-            staff:profiles!staff_id(id, full_name, avatar_url),
+            parent_id,
+            staff_id,
             messages:chat_messages(content, is_read, sender_id, created_at)
         `)
         .or(`staff_id.eq.${user.id},parent_id.eq.${user.id}`)
@@ -319,12 +320,30 @@ export async function getChatThreads() {
         return { success: false, error: `Failed to load chats: ${error.message}` }
     }
 
-    // Process to get last message preview
-    const processed = (threads || []).map(t => {
-        const staff = Array.isArray(t.staff) ? t.staff[0] : t.staff
-        const parent = Array.isArray(t.parent) ? t.parent[0] : t.parent
+    // Step 2: Collect all participant IDs and fetch profiles in bulk
+    const participantIds = new Set<string>()
+    threads?.forEach(t => {
+        if (t.parent_id) participantIds.add(t.parent_id)
+        if (t.staff_id) participantIds.add(t.staff_id)
+    })
 
-        const isStaff = (staff as any)?.id === user.id
+    const profileMap = new Map<string, { id: string, full_name: string, avatar_url: string }>()
+    
+    if (participantIds.size > 0) {
+        const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, full_name, avatar_url')
+            .in('id', Array.from(participantIds))
+        
+        profiles?.forEach(p => profileMap.set(p.id, p))
+    }
+
+    // Step 3: Process to get last message preview and partner info
+    const processed = (threads || []).map(t => {
+        const staff = profileMap.get(t.staff_id)
+        const parent = profileMap.get(t.parent_id)
+
+        const isStaff = t.staff_id === user.id
         const partner = isStaff ? parent : staff
 
         // Ensure we get the actual latest message from the joined array
