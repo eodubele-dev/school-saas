@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { MapPin, Save, Loader2, Navigation } from "lucide-react"
+import { MapPin, Save, Loader2, Navigation, X } from "lucide-react"
 import { toast } from "sonner"
 import { updateGeofenceSettings, getGeofenceSettings } from "@/lib/actions/school-settings"
 

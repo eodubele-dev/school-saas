@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MapPin, Clock, CheckCircle2, AlertTriangle, Loader2, ShieldCheck } from "lucide-react"
@@ -40,12 +40,7 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     const [verificationPin, setVerificationPin] = useState('')
     const [showPinDialog, setShowPinDialog] = useState(false)
 
-    useEffect(() => {
-        loadStatus()
-        initGeofencing()
-    }, [isOnline]) // Reload status when coming back online
-
-    const initGeofencing = async () => {
+    const initGeofencing = useCallback(async () => {
         // Try to load from local cache first for offline support
         const cachedCoords = localStorage.getItem('school-geofence-cache')
         if (cachedCoords) {
@@ -87,9 +82,9 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
 
             return () => navigator.geolocation.clearWatch(watchId)
         }
-    }
+    }, [schoolLocation])
 
-    const loadStatus = async () => {
+    const loadStatus = useCallback(async () => {
         const res = await getClockInStatus(getLocalToday())
         if (res.success && res.data) {
             // Check if late (after 8:00 AM)
@@ -107,7 +102,12 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                 isLate
             })
         }
-    }
+    }, [])
+
+    useEffect(() => {
+        loadStatus()
+        initGeofencing()
+    }, [isOnline, loadStatus, initGeofencing])
 
     const handleClockIn = async (overridePin?: string) => {
         setLoading(true)
