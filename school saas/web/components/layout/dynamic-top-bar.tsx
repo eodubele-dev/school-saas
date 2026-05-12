@@ -266,7 +266,7 @@ export function DynamicTopBar({
                 </div>
 
                 {/* ZONE 2: SCOPED SEARCH (FLEX GROW) */}
-                <div className="flex-1 max-w-2xl flex items-center gap-4">
+                <div className="hidden md:flex flex-1 max-w-2xl items-center gap-4">
                     <OmniSearch role={role} />
                     {activeSession && (
                         <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/50 border border-border text-xs font-medium text-slate-300 whitespace-nowrap">
@@ -277,10 +277,11 @@ export function DynamicTopBar({
                 </div>
 
                 {/* ZONE 3: DYNAMIC UTILITIES & PROFILE */}
-                <div className="flex items-center gap-3 md:gap-4 shrink-0">
-
-                    {/* Role Specific Actions */}
-                    {renderRoleUtilities()}
+                <div className="flex items-center gap-2 md:gap-4 shrink-0 ml-auto lg:ml-0">
+                    {/* Role Specific Actions - Desktop Only */}
+                    <div className="hidden md:flex items-center gap-3">
+                        {renderRoleUtilities()}
+                    </div>
 
                     {/* Divider */}
                     <div className="h-6 w-px bg-white/10 hidden sm:block" />

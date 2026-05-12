@@ -5,6 +5,7 @@ import { GlobalUpdateBanner } from "@/components/layout/global-update-banner"
 import { getKioskPin } from "@/lib/actions/kiosk"
 import { KioskInitializer } from "@/components/providers/kiosk-initializer"
 import { createClient } from "@/lib/supabase/server"
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
 
 export const dynamic = 'force-dynamic'
 
@@ -45,7 +46,7 @@ export default async function DashboardLayout({
         }
 
         return (
-            <div className="flex flex-col h-screen w-full bg-slate-950 text-slate-100 font-sans selection:bg-blue-500/30">
+            <div className="flex flex-col h-screen w-full bg-slate-950 text-slate-100 font-sans selection:bg-blue-500/30 overflow-hidden">
                 {/* Security Hydration */}
                 <KioskInitializer masterPin={masterPin} />
 
@@ -53,16 +54,25 @@ export default async function DashboardLayout({
                 <GlobalUpdateBanner domain={params.domain} />
 
                 {/* Multi-School Empire Navigation (For Proprietors) */}
-                <EmpireTabBar />
+                <div className="hidden md:block">
+                    <EmpireTabBar />
+                </div>
                 
-                <div className="flex flex-1 overflow-hidden">
-                    <Sidebar domain={params?.domain} className="hidden md:flex border-r border-slate-800" />
+                <div className="flex flex-1 overflow-hidden relative">
+                    <Sidebar domain={params?.domain} className="hidden lg:flex border-r border-slate-800" />
+                    
                     <div className="flex flex-1 flex-col overflow-hidden">
                         <Navbar domain={params?.domain} />
-                        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-slate-950">
-                            {children}
+                        
+                        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-slate-950 pb-24 md:pb-6">
+                            <div className="max-w-7xl mx-auto space-y-6">
+                                {children}
+                            </div>
                         </main>
                     </div>
+
+                    {/* 📱 Mobile-Native Navigation Layer */}
+                    <MobileBottomNav role={role} />
                 </div>
             </div>
         )
