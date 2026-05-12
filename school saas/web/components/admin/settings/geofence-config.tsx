@@ -17,8 +17,9 @@ export function GeofenceConfig() {
     const [coords, setCoords] = useState({
         lat: '',
         lng: '',
-        radius: '800', // Default to 800m for better indoor reliability
-        trustedIPs: [] as string[]
+        radius: '800', 
+        trustedIPs: [] as string[],
+        attendancePin: ''
     })
     const [newIP, setNewIP] = useState('')
 
@@ -31,7 +32,8 @@ export function GeofenceConfig() {
                         lat: res.data.geofence_lat?.toString() || '',
                         lng: res.data.geofence_lng?.toString() || '',
                         radius: res.data.geofence_radius_meters?.toString() || '800',
-                        trustedIPs: (res.data.settings as any)?.trusted_ips || []
+                        trustedIPs: (res.data.settings as any)?.trusted_ips || [],
+                        attendancePin: (res.data.settings as any)?.attendance_pin || ''
                     })
                 }
             } finally {
@@ -96,10 +98,10 @@ export function GeofenceConfig() {
                 return
             }
 
-            const res = await updateGeofenceSettings(lat, lng, rad, coords.trustedIPs)
+            const res = await updateGeofenceSettings(lat, lng, rad, coords.trustedIPs, coords.attendancePin)
             if (res.success) {
                 toast.success("Security Config Updated", {
-                    description: "Geofence and Trusted IPs are now active."
+                    description: "Geofence, IPs, and Access PIN are now active."
                 })
             } else {
                 toast.error(res.error)
@@ -189,42 +191,60 @@ export function GeofenceConfig() {
                     </div>
                 </div>
 
-                {/* Trusted IPs Section */}
-                <div className="pt-8 border-t border-white/5 space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                {/* Hybrid Fallbacks (IPs & PIN) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-white/5">
+                    {/* Trusted IPs */}
+                    <div className="space-y-6">
                         <div>
                             <h4 className="text-white font-bold flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                                 Trusted Network IPs
                             </h4>
-                            <p className="text-xs text-slate-500">Allow clock-in from specific office WiFi networks (bypasses GPS for desktops).</p>
+                            <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-1">For official school networks</p>
                         </div>
                         <div className="flex gap-2">
                             <Input
                                 value={newIP}
                                 onChange={(e) => setNewIP(e.target.value)}
                                 placeholder="Public IP (e.g. 192.168.1.1)"
-                                className="bg-slate-950 border-white/10 text-white text-xs w-48 h-10"
+                                className="bg-slate-950 border-white/10 text-white text-xs h-10"
                             />
                             <Button onClick={addIP} variant="secondary" size="sm" className="bg-blue-600/10 text-blue-400 hover:bg-blue-600/20 font-bold border border-blue-600/20">
-                                Add IP
+                                Add
                             </Button>
                         </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                        {coords.trustedIPs.length === 0 ? (
-                            <div className="text-[10px] text-slate-600 uppercase font-bold italic py-2">No trusted IPs configured. Attendance will rely solely on GPS.</div>
-                        ) : (
-                            coords.trustedIPs.map(ip => (
-                                <div key={ip} className="flex items-center gap-2 bg-slate-900 border border-white/10 px-3 py-1.5 rounded-full text-xs text-slate-300 group">
+                        <div className="flex flex-wrap gap-2 min-h-[40px]">
+                            {coords.trustedIPs.map(ip => (
+                                <div key={ip} className="flex items-center gap-2 bg-slate-900 border border-white/10 px-3 py-1.5 rounded-full text-[10px] text-slate-300 group">
                                     <span className="font-mono">{ip}</span>
                                     <button onClick={() => removeIP(ip)} className="text-slate-600 hover:text-red-400 transition-colors">
                                         <X className="h-3 w-3" />
                                     </button>
                                 </div>
-                            ))
-                        )}
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Attendance PIN */}
+                    <div className="space-y-6">
+                        <div>
+                            <h4 className="text-white font-bold flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                                Attendance Security PIN
+                            </h4>
+                            <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-1">Fallback for mobile data & desktops</p>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-slate-400 text-[10px] uppercase tracking-wider">Access Code (4-6 Digits)</Label>
+                            <Input
+                                value={coords.attendancePin}
+                                onChange={(e) => setCoords({ ...coords, attendancePin: e.target.value })}
+                                placeholder="e.g. 1234"
+                                maxLength={6}
+                                className="bg-slate-950 border-white/10 text-white font-bold tracking-[0.5em] h-12 focus:border-amber-500/50 text-center"
+                            />
+                            <p className="text-[10px] text-slate-600 italic">Staff will enter this code if GPS fails.</p>
+                        </div>
                     </div>
                 </div>
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { MapPin, Clock, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react"
+import { MapPin, Clock, CheckCircle2, AlertTriangle, Loader2, ShieldCheck } from "lucide-react"
 import { toast } from "sonner"
 import { clockInStaff, clockOutStaff, getClockInStatus, getSchoolCoordinates } from "@/lib/actions/staff-clock-in"
 import { GeofenceFailureAlert } from "./geofence-failure-alert"
@@ -37,6 +37,8 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     const [failedDistance, setFailedDistance] = useState(0)
     const [failedAttemptId, setFailedAttemptId] = useState('')
     const [schoolLocation, setSchoolLocation] = useState<{ latitude: number, longitude: number, radius_meters: number } | null>(null)
+    const [verificationPin, setVerificationPin] = useState('')
+    const [showPinDialog, setShowPinDialog] = useState(false)
 
     useEffect(() => {
         loadStatus()
@@ -107,18 +109,20 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
         }
     }
 
-    const handleClockIn = async () => {
+    const handleClockIn = async (overridePin?: string) => {
         setLoading(true)
         try {
             // Helper to perform the actual server-side clock in
             const performClockIn = async (lat: number, lng: number) => {
                 if (isOnline) {
-                    const res = await clockInStaff(lat, lng, getLocalToday())
+                    const res = await clockInStaff(lat, lng, getLocalToday(), overridePin)
 
                     if (res.success) {
                         toast.success("Verification Successful", {
-                            description: res.distance === 0 ? "Verified via School Network." : "Verified via GPS Geofence."
+                            description: overridePin ? "Verified via Security PIN." : (res.distance === 0 ? "Verified via School Network." : "Verified via GPS Geofence.")
                         })
+                        setShowPinDialog(false)
+                        setVerificationPin('')
                         loadStatus()
                         if (onClockIn) onClockIn()
                     } else {
@@ -145,10 +149,16 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                 setLoading(false)
             }
 
-            // If geolocation is not available or denied, try IP-only clock in
-            if (!("geolocation" in navigator)) {
-                // Try with 0,0 - server will check IP bypass
+            // If a PIN is provided, skip GPS and try it
+            if (overridePin) {
                 await performClockIn(0, 0)
+                return
+            }
+
+            // If geolocation is not available, jump to PIN
+            if (!("geolocation" in navigator)) {
+                setShowPinDialog(true)
+                setLoading(false)
                 return
             }
 
@@ -157,9 +167,9 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                     await performClockIn(position.coords.latitude, position.coords.longitude)
                 },
                 async (err) => {
-                    // Fallback: If GPS is denied/failed, try IP verification (0,0 coords)
-                    console.warn("GPS failed, attempting Network Verification fallback...")
-                    await performClockIn(0, 0)
+                    // Fallback: If GPS is denied/failed, show PIN entry
+                    setShowPinDialog(true)
+                    setLoading(false)
                 },
                 { enableHighAccuracy: true, timeout: 5000 }
             )
@@ -194,40 +204,49 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     }
 
     return (
-        <Card className="p-6 bg-card text-card-foreground border-border/50 relative overflow-hidden group">
+        <Card className="p-6 bg-[#0a0a0a] text-card-foreground border-white/5 relative overflow-hidden group shadow-2xl">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
             <div className="relative flex flex-col items-center justify-center text-center gap-4">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium uppercase tracking-widest">
-                    <MapPin className="h-4 w-4" />
-                    Smart Attendance
+                <div className="flex items-center gap-2 text-slate-500 text-[10px] font-black uppercase tracking-[0.3em]">
+                    <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                    Secure Attendance Portal
                 </div>
 
                 {!status.clockedIn ? (
-                    <Button
-                        size="lg"
-                        className={`h-32 w-32 rounded-full border-4 transition-all duration-300 flex flex-col gap-1 active:scale-95 shadow-[0_0_40px_-10px_rgba(37,99,235,0.5)]
-                            ${isWithinRange === false
-                                ? 'border-red-500/40 bg-red-600 hover:bg-red-500 animate-pulse shadow-red-500/40'
-                                : 'border-blue-500/20 bg-blue-600 hover:bg-blue-500 hover:scale-105'
-                            }
-                        `}
-                        onClick={handleClockIn}
-                        disabled={loading}
-                    >
-                        {loading ? <Loader2 className="h-8 w-8 animate-spin" /> : <Clock className="h-8 w-8" />}
-                        <span className="font-bold text-lg">CLOCK IN</span>
-                    </Button>
+                    <div className="relative">
+                        <Button
+                            size="lg"
+                            className={`h-36 w-36 rounded-full border-4 transition-all duration-500 flex flex-col gap-1 active:scale-95 shadow-[0_0_50px_-10px_rgba(37,99,235,0.3)]
+                                ${isWithinRange === false
+                                    ? 'border-red-500/40 bg-red-600 hover:bg-red-500 animate-pulse'
+                                    : 'border-blue-500/20 bg-blue-600 hover:bg-blue-500 hover:scale-105'
+                                }
+                            `}
+                            onClick={() => handleClockIn()}
+                            disabled={loading}
+                        >
+                            {loading ? <Loader2 className="h-10 w-10 animate-spin" /> : <Clock className="h-10 w-10" />}
+                            <span className="font-black text-xl tracking-tighter">CLOCK IN</span>
+                        </Button>
+                        
+                        {isWithinRange === false && (
+                            <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold px-2 py-1 rounded-full animate-bounce">
+                                OUT OF BOUNDS
+                            </div>
+                        )}
+                    </div>
                 ) : (
-                    <div className="space-y-4">
-                        <div className="h-32 w-32 rounded-full border-4 border-emerald-500/20 bg-emerald-500/10 flex flex-col items-center justify-center mx-auto animate-in zoom-in duration-300">
-                            <CheckCircle2 className="h-10 w-10 text-emerald-500 mb-1" />
-                            <span className="text-2xl font-bold text-foreground">{status.clockInTime?.slice(0, 5)}</span>
-                            <span className="text-[10px] uppercase text-emerald-400 font-bold tracking-widest">Clocked In</span>
+                    <div className="space-y-6 w-full">
+                        <div className="h-36 w-36 rounded-full border-4 border-emerald-500/20 bg-emerald-500/5 flex flex-col items-center justify-center mx-auto animate-in zoom-in duration-500 relative">
+                            <div className="absolute inset-0 rounded-full border-t-2 border-emerald-500/40 animate-spin duration-[3000ms]" />
+                            <CheckCircle2 className="h-12 w-12 text-emerald-500 mb-1" />
+                            <span className="text-3xl font-black text-white tracking-tighter">{status.clockInTime?.slice(0, 5)}</span>
+                            <span className="text-[10px] uppercase text-emerald-400 font-black tracking-widest">Active Duty</span>
                         </div>
 
                         {status.isLate && (
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full text-amber-500 text-xs font-bold">
+                            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-amber-500 text-[10px] font-black uppercase tracking-wider">
                                 <AlertTriangle className="h-3 w-3" />
                                 Marked Late
                             </div>
@@ -235,36 +254,93 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
 
                         <Button
                             variant="outline"
-                            className="w-full border-border hover:bg-secondary/50 text-muted-foreground hover:text-foreground"
+                            className="w-full border-white/5 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white font-bold h-12 rounded-xl transition-all"
                             onClick={handleClockOut}
                             disabled={loading}
                         >
-                            Clock Out
+                            Clock Out for Today
                         </Button>
                     </div>
                 )}
 
-                <p className={`text-xs max-w-[200px] font-medium transition-colors ${isWithinRange === false ? 'text-red-400 animate-pulse' : 'text-muted-foreground'}`}>
-                    {status.clockedIn
-                        ? "You are currently active. Don't forget to clock out."
-                        : isWithinRange === false
-                            ? "CRITICAL: OUT OF BOUNDS DETECTED. You must be within school premises."
-                            : `Ensure you are within the school premises (${schoolLocation?.radius_meters || 500}m radius).`
-                    }
-                </p>
+                <div className="space-y-1">
+                    <p className={`text-[10px] max-w-[220px] font-bold uppercase tracking-wider transition-colors ${isWithinRange === false ? 'text-red-400 animate-pulse' : 'text-slate-500'}`}>
+                        {status.clockedIn
+                            ? "Institutional presence confirmed. Identity logged."
+                            : isWithinRange === false
+                                ? "Critical: Geofence violation detected."
+                                : `Boundary: ${schoolLocation?.radius_meters || 800}m Security Radius.`
+                        }
+                    </p>
+                    {!status.clockedIn && (
+                        <button 
+                            onClick={() => setShowPinDialog(true)}
+                            className="text-[9px] text-blue-500 hover:text-blue-400 underline font-bold uppercase tracking-tighter"
+                        >
+                            Use Manual Security Code
+                        </button>
+                    )}
+                </div>
             </div>
+
+            {/* PIN Entry Dialog */}
+            {showPinDialog && (
+                <div className="absolute inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 animate-in fade-in duration-300">
+                    <div className="w-full max-w-[240px] space-y-6">
+                        <div className="text-center space-y-2">
+                            <div className="h-12 w-12 bg-blue-600/20 rounded-xl flex items-center justify-center mx-auto border border-blue-500/20">
+                                <ShieldCheck className="h-6 w-6 text-blue-400" />
+                            </div>
+                            <h3 className="text-white font-black text-lg tracking-tight">Manual Verification</h3>
+                            <p className="text-[10px] text-slate-500 uppercase font-bold">Enter the daily school access code</p>
+                        </div>
+
+                        <div className="space-y-4">
+                            <input
+                                type="password"
+                                value={verificationPin}
+                                onChange={(e) => setVerificationPin(e.target.value)}
+                                placeholder="----"
+                                maxLength={6}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl h-14 text-center text-2xl font-black text-white tracking-[0.5em] focus:border-blue-500/50 outline-none transition-all"
+                                autoFocus
+                            />
+                            
+                            <div className="flex gap-2">
+                                <Button 
+                                    variant="ghost" 
+                                    className="flex-1 text-slate-500 hover:text-white font-bold"
+                                    onClick={() => {
+                                        setShowPinDialog(false)
+                                        setVerificationPin('')
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button 
+                                    className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-black shadow-lg shadow-blue-600/20"
+                                    onClick={() => handleClockIn(verificationPin)}
+                                    disabled={loading || verificationPin.length < 4}
+                                >
+                                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify"}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {showFailureAlert && (
                 <GeofenceFailureAlert
                     distance={failedDistance}
-                    requiredRadius={schoolLocation?.radius_meters || 500}
+                    requiredRadius={schoolLocation?.radius_meters || 800}
                     onRetry={() => {
                         setShowFailureAlert(false)
                         handleClockIn()
                     }}
                     onDispute={() => {
                         setShowFailureAlert(false)
-                        setShowDisputeView(true)
+                        setShowPinDialog(true)
                     }}
                 />
             )}
@@ -277,7 +353,7 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                         setShowDisputeView(false)
                         loadStatus()
                     }}
-                    onCancel={() => setShowDisputeView(false)}
+                    onCancel={() => setShowPinDialog(false)}
                 />
             )}
         </Card>

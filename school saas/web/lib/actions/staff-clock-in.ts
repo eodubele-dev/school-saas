@@ -133,8 +133,7 @@ export async function clockInStaff(
                 latitude,
                 longitude,
                 distance_meters: distance,
-                location_verified: true,
-                verification_method: isFromPin ? 'pin' : (isFromTrustedIP ? 'network' : 'gps')
+                location_verified: true
             }, {
                 onConflict: 'staff_id,date'
             })

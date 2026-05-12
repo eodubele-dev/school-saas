@@ -7,7 +7,8 @@ export async function updateGeofenceSettings(
     latitude: number,
     longitude: number,
     radius: number,
-    trustedIPs?: string[]
+    trustedIPs?: string[],
+    attendancePin?: string
 ) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -38,7 +39,8 @@ export async function updateGeofenceSettings(
                 geofence_radius_meters: radius,
                 settings: {
                     ...currentSettings,
-                    trusted_ips: trustedIPs
+                    trusted_ips: trustedIPs,
+                    attendance_pin: attendancePin
                 }
             })
             .eq('id', profile.tenant_id)
