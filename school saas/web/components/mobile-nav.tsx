@@ -22,8 +22,8 @@ export function MobileNav({ children }: { children: ReactNode }) {
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden text-muted-foreground hover:text-foreground transition-colors">
-                    <Menu className="h-6 w-6" />
+                <Button variant="ghost" size="icon" className="lg:hidden h-12 w-12 text-slate-400 hover:text-white hover:bg-white/5 transition-all active:scale-90">
+                    <Menu className="h-8 w-8" />
                 </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-72 bg-slate-950 border-border/50">
