@@ -7,11 +7,20 @@ import {
     SheetContent,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import { ReactNode } from "react"
+import { useState, useEffect, ReactNode } from "react"
+import { usePathname } from "next/navigation"
 
 export function MobileNav({ children }: { children: ReactNode }) {
+    const [open, setOpen] = useState(false)
+    const pathname = usePathname()
+
+    // Automatically close sidebar when navigation occurs
+    useEffect(() => {
+        setOpen(false)
+    }, [pathname])
+
     return (
-        <Sheet>
+        <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="md:hidden text-muted-foreground hover:text-foreground transition-colors">
                     <Menu className="h-6 w-6" />
