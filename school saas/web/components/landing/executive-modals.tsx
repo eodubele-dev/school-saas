@@ -59,6 +59,14 @@ export function ExecutiveModals() {
                     <div className="absolute inset-0 bg-blue-900/10 pointer-events-none" />
 
                     <div className="p-6 relative z-10">
+                        {/* Manual Close Button to ensure reliability with p-0 layouts */}
+                        <button
+                            onClick={closeTenantPreview}
+                            className="absolute top-4 right-4 z-50 p-2 hover:bg-white/10 rounded-full text-muted-foreground transition-all active:scale-90"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+
                         <DialogHeader className="mb-4">
                             <DialogTitle className="text-xl font-bold flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
