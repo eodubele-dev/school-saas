@@ -72,7 +72,7 @@ export default async function DashboardLayout({
                     </div>
 
                     {/* 📱 Mobile-Native Navigation Layer */}
-                    <MobileBottomNav role={role} />
+                    <MobileBottomNav role={role} domain={params.domain} />
                 </div>
             </div>
         )
