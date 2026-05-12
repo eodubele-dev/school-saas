@@ -101,68 +101,74 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
                 </button>
             </div>
 
-            {/* 🏛️ Modern Premium Command Card */}
-            <div className="relative group overflow-hidden rounded-[2.5rem] border border-white/10 shadow-[0_30px_100px_-20px_rgba(37,99,235,0.3)] transition-all duration-500 hover:shadow-[0_40px_120px_-20px_rgba(37,99,235,0.4)]">
-                {/* 🎨 Background Mesh Layer */}
-                <div className="absolute inset-0 bg-[#0a0f1e]" />
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-indigo-900/40 to-slate-950" />
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px] -mr-48 -mt-48 animate-pulse pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[100px] -ml-24 -mb-24 pointer-events-none" />
+            {/* 🏛️ Unified Midnight Glass Command Card */}
+            <div className="relative group overflow-hidden rounded-[2.5rem] bg-[#0f172a]/80 border border-white/5 backdrop-blur-2xl shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] transition-all duration-500 hover:border-white/10">
+                {/* 🌈 Thick Top Accent Border */}
+                <div className="absolute top-0 left-0 right-0 h-2 bg-blue-600 shadow-[0_4px_20px_rgba(37,99,235,0.4)]" />
+                
+                {/* Ambient Glow */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-blue-500/10 transition-colors duration-700" />
 
                 <div className="relative z-10">
-                    <div className="p-8 md:p-12 flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div className="p-8 md:p-12 flex flex-col md:flex-row justify-between items-center gap-10">
                         {/* Class Identity */}
-                        <div className="flex-1 text-center md:text-left space-y-4">
+                        <div className="flex-1 text-center md:text-left space-y-6">
                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-bold text-blue-400 uppercase tracking-[0.2em] backdrop-blur-sm">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">
+                                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
                                     Active Session
                                 </span>
                                 {(startTime && endTime) && (
-                                    <span className="inline-flex items-center gap-2 text-slate-400 text-[10px] font-medium uppercase tracking-widest">
-                                        <Clock className="w-3.5 h-3.5" /> {startTime} — {endTime}
+                                    <span className="inline-flex items-center gap-2 text-muted-foreground text-[10px] font-bold uppercase tracking-widest bg-white/5 px-4 py-1.5 rounded-full">
+                                        <Clock className="w-3.5 h-3.5 text-blue-400" /> {startTime} — {endTime}
                                     </span>
                                 )}
                             </div>
 
-                            <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-white drop-shadow-2xl">
-                                {classData.name}
-                            </h2>
-
-                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 text-indigo-200/80 text-lg md:text-xl font-medium">
-                                <span>{classData.grade_level}</span>
-                                <span className="w-1 h-1 rounded-full bg-slate-700" />
-                                <span>{classData.subject || "No Subject"}</span>
-                                <span className="hidden md:inline w-1 h-1 rounded-full bg-slate-700" />
-                                <div className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-lg border border-white/5 backdrop-blur-sm">
-                                    <span className="text-slate-400 text-xs font-bold uppercase tracking-tight">Term:</span>
-                                    <span className="text-white text-xs font-black">{classData.term || "3rd"}</span>
+                            <div className="space-y-2">
+                                <h2 className="text-6xl md:text-8xl font-black tracking-tighter text-white">
+                                    {classData.name}
+                                </h2>
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 text-muted-foreground text-lg md:text-xl font-medium">
+                                    <span className="text-blue-200/80">{classData.grade_level}</span>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-800" />
+                                    <span className="text-white/90">{classData.subject || "No Subject"}</span>
+                                    <span className="hidden md:inline w-1.5 h-1.5 rounded-full bg-slate-800" />
+                                    <div className="flex items-center gap-2 bg-blue-500/10 px-4 py-1 rounded-xl border border-blue-500/20">
+                                        <span className="text-blue-400 text-[10px] font-black uppercase tracking-tight">Current Term:</span>
+                                        <span className="text-white text-xs font-black">{classData.term || "3rd"}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Attendance Vitals Hub */}
-                        <div className="flex gap-4 p-4 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl">
-                            <div className="flex flex-col items-center justify-center w-28 h-28 rounded-2xl bg-gradient-to-b from-emerald-500/20 to-transparent border-t border-emerald-500/30">
-                                <span className="text-4xl font-black text-emerald-400 tracking-tighter leading-none">{vitals.present}</span>
-                                <span className="text-[9px] text-emerald-300/60 uppercase font-black mt-2 tracking-[0.15em]">Present</span>
+                        {/* Attendance Quick Vitals */}
+                        <div className="flex gap-6">
+                            <div className="relative group/stat">
+                                <div className="absolute inset-0 bg-emerald-500/10 blur-2xl rounded-full opacity-0 group-hover/stat:opacity-100 transition-opacity" />
+                                <div className="relative flex flex-col items-center justify-center w-32 h-32 rounded-[2rem] bg-emerald-500/5 border border-emerald-500/20 backdrop-blur-sm transition-transform group-hover/stat:scale-105">
+                                    <span className="text-5xl font-black text-emerald-400 tracking-tighter">{vitals.present}</span>
+                                    <span className="text-[10px] text-emerald-300/40 uppercase font-black mt-2 tracking-[0.2em]">Present</span>
+                                </div>
                             </div>
-                            <div className="flex flex-col items-center justify-center w-28 h-28 rounded-2xl bg-gradient-to-b from-orange-500/20 to-transparent border-t border-orange-500/30">
-                                <span className="text-4xl font-black text-orange-400 tracking-tighter leading-none">{vitals.absent}</span>
-                                <span className="text-[9px] text-orange-300/60 uppercase font-black mt-2 tracking-[0.15em]">Absent</span>
+                            <div className="relative group/stat">
+                                <div className="absolute inset-0 bg-orange-500/10 blur-2xl rounded-full opacity-0 group-hover/stat:opacity-100 transition-opacity" />
+                                <div className="relative flex flex-col items-center justify-center w-32 h-32 rounded-[2rem] bg-orange-500/5 border border-orange-500/20 backdrop-blur-sm transition-transform group-hover/stat:scale-105">
+                                    <span className="text-5xl font-black text-orange-400 tracking-tighter">{vitals.absent}</span>
+                                    <span className="text-[10px] text-orange-300/40 uppercase font-black mt-2 tracking-[0.2em]">Absent</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* ⚡ Glass Action Bar */}
-                    <div className="bg-white/[0.03] border-t border-white/10 p-6 md:p-8 flex flex-wrap justify-center md:justify-start gap-4 backdrop-blur-md">
+                    {/* ⚡ Integrated Glass Action Bar */}
+                    <div className="px-8 pb-10 flex flex-wrap justify-center md:justify-start gap-4">
                         <button
                             onClick={handleStartClass}
-                            className="group relative flex items-center gap-3 bg-blue-600 px-10 py-4 rounded-2xl font-black text-white overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_15px_30px_-10px_rgba(37,99,235,0.6)]"
+                            className="group relative flex items-center gap-3 bg-blue-600 px-10 py-4 rounded-2xl font-black text-white overflow-hidden transition-all duration-300 hover:scale-105 hover:bg-blue-500 shadow-[0_15px_40px_-10px_rgba(37,99,235,0.5)] active:scale-95"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
                             <PlayCircle className="w-5 h-5 fill-white" />
-                            <span className="relative text-sm uppercase tracking-wider">Start Class</span>
+                            <span className="text-xs uppercase tracking-[0.1em]">Begin Session</span>
                         </button>
 
                         <button
@@ -170,10 +176,10 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
                                 toast.info("Resource Portal", { description: "Opening Lesson Plans..." })
                                 router.push('/dashboard/teacher/lesson-plans')
                             }}
-                            className="flex items-center gap-3 bg-white/5 border border-white/10 px-10 py-4 rounded-2xl font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-all duration-300 active:scale-95 group"
+                            className="flex items-center gap-3 bg-white/5 border border-white/10 px-10 py-4 rounded-2xl font-black text-slate-300 hover:bg-white/10 hover:text-white transition-all duration-300 active:scale-95 group"
                         >
                             <FileText className="w-5 h-5 text-slate-400 group-hover:text-blue-400 transition-colors" />
-                            <span className="text-sm uppercase tracking-wider">Lesson Plan</span>
+                            <span className="text-xs uppercase tracking-[0.1em]">Lesson Repository</span>
                         </button>
                     </div>
                 </div>
