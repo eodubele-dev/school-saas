@@ -84,25 +84,27 @@ export function SourceSelector({ onAddQuestions }: SourceSelectorProps) {
     }
 
     return (
-        <div className="bg-card text-card-foreground/80 backdrop-blur-xl border border-border/50 rounded-2xl p-6 h-full flex flex-col gap-6">
-            <div className="flex gap-2 bg-slate-950/50 p-1.5 rounded-xl border border-border/50">
-                {[
-                    { id: 'manual', icon: Plus, label: 'Manual' },
-                    { id: 'ai', icon: Sparkles, label: 'AI Gen' },
-                    { id: 'bank', icon: Database, label: 'Exam Bank' }
-                ].map((s) => (
-                    <button
-                        key={s.id}
-                        onClick={() => setSource(s.id as 'manual' | 'ai' | 'bank')}
-                        className={`flex-1 min-w-[70px] flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-lg text-xs font-bold transition-all ${source === s.id
-                            ? 'bg-blue-600 text-foreground shadow-lg shadow-blue-500/20'
-                            : 'text-muted-foreground hover:text-slate-300 hover:bg-secondary/50'
-                            }`}
-                    >
-                        <s.icon className={`h-3.5 w-3.5 ${source === s.id ? 'animate-pulse' : ''}`} />
-                        <span className="whitespace-nowrap">{s.label}</span>
-                    </button>
-                ))}
+        <div className="bg-[#0f172a] text-slate-300 border border-white/5 rounded-2xl p-4 md:p-6 h-full flex flex-col gap-6">
+            <div className="w-full overflow-x-auto scrollbar-hide -mx-2 px-2">
+                <div className="flex gap-2 bg-slate-950 p-1.5 rounded-xl border border-white/5 w-max min-w-full">
+                    {[
+                        { id: 'manual', icon: Plus, label: 'Manual' },
+                        { id: 'ai', icon: Sparkles, label: 'AI Gen' },
+                        { id: 'bank', icon: Database, label: 'Exam Bank' }
+                    ].map((s) => (
+                        <button
+                            key={s.id}
+                            onClick={() => setSource(s.id as 'manual' | 'ai' | 'bank')}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2 px-6 rounded-lg text-xs font-black transition-all ${source === s.id
+                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                                : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                                }`}
+                        >
+                            <s.icon className={`h-3.5 w-3.5 ${source === s.id ? 'animate-pulse' : ''}`} />
+                            <span className="whitespace-nowrap">{s.label}</span>
+                        </button>
+                    ))}
+                </div>
             </div>
 
             <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10">

@@ -143,101 +143,118 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
     }
 
     return (
-        <div className="flex flex-col h-[calc(100vh-140px)] gap-6 animate-in fade-in duration-700 bg-slate-950 text-foreground p-4 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden">
-            {/* Context Breadcrumb */}
-            <div className="px-4 -mb-4 flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                Targeting: <span className="text-blue-400">{className || "Current Class"}</span>
-                <span className="mx-1 opacity-20">|</span>
-                Subject: <span className="text-blue-400">{subjectName || "Current Subject"}</span>
-                <span className="ml-auto text-slate-600 italic">Work is saved to this specific context</span>
+    return (
+        <div className="flex flex-col lg:h-[calc(100vh-140px)] gap-4 md:gap-6 animate-in fade-in duration-700 bg-slate-950 text-foreground p-3 md:p-4 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden">
+            {/* Context Breadcrumb - Swipeable on mobile */}
+            <div className="w-full overflow-x-auto scrollbar-hide px-4 -mb-4 whitespace-nowrap">
+                <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest font-bold min-w-max pb-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shrink-0" />
+                    Targeting: <span className="text-blue-400">{className || "Current Class"}</span>
+                    <span className="mx-1 opacity-20">|</span>
+                    Subject: <span className="text-blue-400">{subjectName || "Current Subject"}</span>
+                    <span className="ml-4 text-slate-600 italic hidden sm:inline">Work is saved to this specific context</span>
+                </div>
             </div>
 
-            {/* Top Bar */}
-            <div className="flex items-center justify-between bg-card text-card-foreground/40 backdrop-blur-md p-4 rounded-2xl border border-border/50">
-                <div className="flex items-center gap-4 flex-1">
+            {/* Top Bar - Responsive Grid */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between bg-[#1e293b]/50 backdrop-blur-md p-4 rounded-2xl border border-white/5 gap-4">
+                <div className="flex items-center gap-3 flex-1">
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="text-muted-foreground hover:text-foreground"
+                        className="text-muted-foreground hover:text-white hover:bg-white/5 shrink-0"
                         onClick={() => onClose?.()}
                     >
                         <ChevronLeft className="h-5 w-5" />
                     </Button>
-                    <div className="space-y-0.5 max-w-md w-full">
+                    <div className="space-y-1 flex-1 min-w-0">
                         <Input
                             value={quizTitle}
                             onChange={(e) => setQuizTitle(e.target.value)}
-                            className="bg-transparent border-none text-xl font-serif font-bold text-foreground p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
-                            placeholder="Type Assessment Title..."
+                            className="bg-transparent border-none text-lg md:text-xl font-serif font-bold text-white p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 truncate"
+                            placeholder="Assessment Title..."
                         />
-                        <div className="flex items-center gap-3 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
-                            <span className="flex items-center gap-1">
-                                <Clock className="h-3 w-3 text-[hsl(var(--school-accent))]" />
+                        <div className="flex items-center gap-3 text-[10px] text-slate-400 uppercase tracking-widest font-black">
+                            <span className="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded border border-white/5">
+                                <Clock className="h-3 w-3 text-blue-400" />
                                 <Input
                                     type="number"
                                     value={duration}
                                     onChange={(e) => setDuration(parseInt(e.target.value))}
-                                    className="w-12 h-4 p-0 bg-transparent border-none text-[10px] font-bold focus-visible:ring-0"
+                                    className="w-8 h-4 p-0 bg-transparent border-none text-[10px] font-black focus-visible:ring-0"
                                 />
                                 Mins
                             </span>
-                            <span className="flex items-center gap-1 border-l border-border pl-3">
+                            <span className="flex items-center gap-1 border-l border-white/10 pl-3">
                                 <Shield className="h-3 w-3 text-emerald-400" /> {questions.length} Questions
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="hidden md:flex items-center gap-4 mr-6 px-6 border-r border-border/50">
+                <div className="flex items-center justify-between md:justify-end gap-2 md:gap-3 border-t md:border-t-0 border-white/5 pt-3 md:pt-0">
+                    <div className="flex items-center gap-3 md:mr-4 md:pr-4 md:border-r md:border-white/10">
                         <div className="flex items-center gap-2">
-                            <Label className="text-xs text-muted-foreground font-medium">Shuffle</Label>
+                            <Label className="text-[10px] text-slate-500 font-bold uppercase">Shuffle</Label>
                             <Switch
                                 checked={shuffle}
                                 onCheckedChange={setShuffle}
-                                className="bg-slate-700 data-[state=checked]:bg-blue-600 border-transparent data-[state=unchecked]:opacity-50"
+                                className="scale-75 md:scale-100 data-[state=checked]:bg-blue-600"
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <Label className="text-xs text-muted-foreground font-medium">Live</Label>
+                            <Label className="text-[10px] text-slate-500 font-bold uppercase">Live</Label>
                             <Switch
                                 checked={visibility === 'published'}
                                 onCheckedChange={(val) => setVisibility(val ? 'published' : 'draft')}
-                                className="bg-slate-700 data-[state=checked]:bg-emerald-500 border-transparent data-[state=unchecked]:opacity-50"
+                                className="scale-75 md:scale-100 data-[state=checked]:bg-emerald-500"
                             />
                         </div>
                     </div>
 
-                    <Button
-                        variant="outline"
-                        className="border-border bg-secondary/50 text-slate-300 gap-2 font-bold"
-                        onClick={() => handleSave(false)}
-                        disabled={isSaving}
-                    >
-                        {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                        Save Revision
-                    </Button>
-                    <Button
-                        className="bg-blue-600 hover:bg-blue-600 text-foreground gap-2 font-bold shadow-lg shadow-blue-500/20"
-                        onClick={() => handleSave(true)}
-                        disabled={isSaving}
-                    >
-                        <Rocket className="h-4 w-4" />
-                        Publish
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-white/10 bg-white/5 text-slate-300 gap-1.5 font-bold h-9 md:h-10 px-3 md:px-4"
+                            onClick={() => handleSave(false)}
+                            disabled={isSaving}
+                        >
+                            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                            <span className="hidden xs:inline">Save</span>
+                        </Button>
+                        <Button
+                            size="sm"
+                            className="bg-blue-600 hover:bg-blue-500 text-white gap-1.5 font-bold shadow-lg shadow-blue-500/20 h-9 md:h-10 px-3 md:px-4"
+                            onClick={() => handleSave(true)}
+                            disabled={isSaving}
+                        >
+                            <Rocket className="h-4 w-4" />
+                            <span>Publish</span>
+                        </Button>
+                    </div>
                 </div>
             </div>
 
-            {/* Main Content Area */}
-            <div className="flex-1 flex gap-4 md:gap-6 overflow-hidden min-h-0">
+            {/* Main Content Area - Stacked on mobile */}
+            <div className="flex-1 flex flex-col lg:flex-row gap-4 md:gap-6 overflow-hidden min-h-0">
                 {/* Left Sidebar: Source Selection */}
-                <div className="w-64 md:w-80 flex-shrink-0 h-full overflow-y-auto">
+                <div className="w-full lg:w-80 flex-shrink-0 h-[280px] lg:h-full overflow-y-auto bg-[#0a0a0a]/50 rounded-2xl border border-white/5 p-1">
                     <SourceSelector onAddQuestions={addQuestions} />
                 </div>
 
                 {/* Center: Canvas */}
-                <div className="flex-1 min-w-0 h-full overflow-hidden">
+                <div className="flex-1 min-w-0 h-full overflow-hidden bg-[#0a0a0a]/30 rounded-2xl border border-white/5">
+                    <QuizCanvas
+                        questions={questions}
+                        onRemove={removeQuestion}
+                        onUpdate={updateQuestion}
+                        onReorder={setQuestions}
+                    />
+                </div>
+            </div>
+        </div>
+    )
                     <QuizCanvas
                         questions={questions}
                         onRemove={removeQuestion}
