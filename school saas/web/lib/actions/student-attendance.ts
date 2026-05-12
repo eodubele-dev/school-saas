@@ -19,56 +19,55 @@ export async function getAssignedClass() {
         const { data: { user } } = await createClient().auth.getUser()
         if (!user) return { success: false, error: 'Not authenticated' }
 
+        let targetClassId: string | null = null
+
         // 1. Check Form Teacher (Priority)
-        const { data: formClass, error: formError } = await supabaseAdmin
+        const { data: formClass } = await supabaseAdmin
             .from('classes')
-            .select('id, name')
+            .select('id')
             .eq('form_teacher_id', user.id)
             .limit(1)
             .maybeSingle()
 
         if (formClass) {
-            return {
-                success: true,
-                data: { id: formClass.id, name: formClass.name }
-            }
+            targetClassId = formClass.id
         }
 
         // 2. Check Subject Assignments (Current Term)
-        const { data: subjectAssign, error: subError } = await supabaseAdmin
-            .from('subject_assignments')
-            .select('class_id, classes(id, name)')
-            .eq('teacher_id', user.id)
-            .limit(1)
-            .maybeSingle()
-
-        if (subjectAssign && subjectAssign.classes) {
-            const cls = subjectAssign.classes as any
-            return {
-                success: true,
-                data: {
-                    id: subjectAssign.class_id,
-                    name: Array.isArray(cls) ? cls[0]?.name : cls?.name
-                }
-            }
+        if (!targetClassId) {
+            const { data: subjectAssign } = await supabaseAdmin
+                .from('subject_assignments')
+                .select('class_id')
+                .eq('teacher_id', user.id)
+                .limit(1)
+                .maybeSingle()
+            if (subjectAssign) targetClassId = subjectAssign.class_id
         }
 
-        // 3. Fallback: Check any class where teacher might be assigned in teacher_allocations
-        const { data: allocation, error } = await supabaseAdmin
-            .from('teacher_allocations')
-            .select('class_id, classes(id, name)')
-            .eq('teacher_id', user.id)
-            .limit(1)
-            .maybeSingle()
+        // 3. Fallback: Check teacher_allocations
+        if (!targetClassId) {
+            const { data: allocation } = await supabaseAdmin
+                .from('teacher_allocations')
+                .select('class_id')
+                .eq('teacher_id', user.id)
+                .limit(1)
+                .maybeSingle()
+            if (allocation) targetClassId = allocation.class_id
+        }
 
-        if (allocation && allocation.classes) {
-            const cls = allocation.classes as any
+        if (!targetClassId) return { success: false, error: 'No class assigned' }
+
+        // Final Fetch: Get class name without complex joins
+        const { data: finalClass } = await supabaseAdmin
+            .from('classes')
+            .select('id, name')
+            .eq('id', targetClassId)
+            .single()
+
+        if (finalClass) {
             return {
                 success: true,
-                data: {
-                    id: allocation.class_id,
-                    name: Array.isArray(cls) ? cls[0]?.name : cls?.name
-                }
+                data: { id: finalClass.id, name: finalClass.name }
             }
         }
 
@@ -313,43 +312,64 @@ export async function getClassAttendance(
             return { success: true, data: [] }
         }
 
-        // 2. Get Attendance Records using Register ID
-        const { data, error } = await supabaseAdmin
+        // 2. Get Attendance Records
+        const { data: attendanceData, error: attError } = await supabaseAdmin
             .from('student_attendance')
-            .select(`
-                id,
-                student_id,
-                students!inner(full_name, parent_id, profiles(phone)),
-                register_id,
-                status,
-                remarks,
-                created_at,
-                sms_sent,
-                clock_out_time
-            `)
+            .select('*')
             .eq('register_id', register.id)
-            .order('students(full_name)')
 
-        if (error) {
-            console.error('Error fetching attendance:', error)
-            return { success: false, error: error.message }
+        if (attError) throw attError
+        if (!attendanceData || attendanceData.length === 0) return { success: true, data: [] }
+
+        // 3. Fetch Student Details in bulk (No joins)
+        const studentIds = attendanceData.map(r => r.student_id)
+        const { data: students, error: studentError } = await supabaseAdmin
+            .from('students')
+            .select('id, full_name, parent_id')
+            .in('id', studentIds)
+
+        if (studentError) throw studentError
+
+        // 4. Fetch Parent/Profile Details if needed (for phone)
+        const parentIds = students?.map(s => s.parent_id).filter(Boolean) as string[]
+        const parentMap: Record<string, string> = {}
+        if (parentIds.length > 0) {
+            const { data: profiles } = await supabaseAdmin
+                .from('profiles')
+                .select('id, phone')
+                .in('id', parentIds)
+            
+            profiles?.forEach(p => {
+                parentMap[p.id] = p.phone
+            })
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const records = (data || []).map((record: any) => ({
-            id: record.id,
-            student_id: record.student_id,
-            student_name: record.students?.full_name || 'Unknown',
-            class_id: classId, // mapped back from arg
-            date: date,        // mapped back from arg
-            status: record.status,
-            marked_by: null,   // Not fetching marked_by for list view optimization
-            marked_at: record.created_at,
-            notes: record.remarks, // Mapped from remarks to notes
-            sms_sent: record.sms_sent,
-            parent_phone: record.students?.profiles?.phone || null,
-            clock_out_time: record.clock_out_time
-        }))
+        const studentMap = students?.reduce((acc: any, s) => {
+            acc[s.id] = s
+            return acc
+        }, {})
+
+        // 5. Map results
+        const records = attendanceData.map(record => {
+            const student = studentMap[record.student_id]
+            return {
+                id: record.id,
+                student_id: record.student_id,
+                student_name: student?.full_name || 'Unknown',
+                class_id: classId,
+                date: date,
+                status: record.status,
+                marked_by: null,
+                marked_at: record.created_at,
+                notes: record.remarks,
+                sms_sent: record.sms_sent,
+                parent_phone: student?.parent_id ? parentMap[student.parent_id] : null,
+                clock_out_time: record.clock_out_time
+            }
+        })
+
+        // Sort by name
+        records.sort((a, b) => a.student_name.localeCompare(b.student_name))
 
         return { success: true, data: records }
 
@@ -447,45 +467,5 @@ export async function clockOutStudent(studentId: string, date: string, classId: 
     } catch (error) {
         console.error('clockOutStudent error:', error)
         return { success: false, error: 'Failed to clock out student' }
-    }
-}
-
-export async function getRefreshedAttendanceStats(classId: string, date: string) {
-    const supabase = createClient()
-
-    try {
-        // 1. Get Total Students
-        const { count: total, error: totalError } = await supabase
-            .from('students')
-            .select('*', { count: 'exact', head: true })
-            .eq('class_id', classId)
-
-        if (totalError) throw totalError
-
-        // 2. Get Register ID
-        const { data: register } = await supabase
-            .from('attendance_registers')
-            .select('id')
-            .eq('class_id', classId)
-            .eq('date', date)
-            .maybeSingle()
-
-        if (!register) {
-            return { success: true, total: total || 0, present: 0 }
-        }
-
-        // 3. Get Present Count for this Register
-        const { count: present, error: presentError } = await supabase
-            .from('student_attendance')
-            .select('*', { count: 'exact', head: true })
-            .eq('register_id', register.id)
-            .eq('status', 'present')
-
-        if (presentError) throw presentError
-
-        return { success: true, total: total || 0, present: present || 0 }
-    } catch (error) {
-        console.error('Error fetching refreshed stats:', error)
-        return { success: false, total: 0, present: 0 }
     }
 }

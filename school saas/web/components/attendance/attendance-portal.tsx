@@ -1,10 +1,17 @@
 "use client"
 
+import { useState } from "react"
 import { SmartClockIn } from "./smart-clock-in"
 import { PremiumStudentRegister } from "./premium-student-register"
 import { AttendanceHistory } from "./attendance-history"
 
 export function AttendancePortal() {
+    const [refreshKey, setRefreshKey] = useState(0)
+
+    const handleClockInSuccess = () => {
+        setRefreshKey(prev => prev + 1)
+    }
+
     return (
         <div className="p-4 md:p-6 space-y-6 max-w-5xl mx-auto animate-in fade-in duration-700 pb-24">
             <div className="flex flex-col md:flex-row gap-6">
@@ -15,7 +22,7 @@ export function AttendancePortal() {
                             <span className="bg-[hsl(var(--school-accent))] w-1 h-6 rounded-full block"></span>
                             Staff Clock-In
                         </h2>
-                        <SmartClockIn />
+                        <SmartClockIn onClockIn={handleClockInSuccess} />
                     </section>
 
                     <section>
@@ -23,7 +30,7 @@ export function AttendancePortal() {
                             <span className="bg-[hsl(var(--school-accent))] w-1 h-6 rounded-full block"></span>
                             Student Register
                         </h2>
-                        <PremiumStudentRegister />
+                        <PremiumStudentRegister key={refreshKey} />
                     </section>
                 </div>
 
