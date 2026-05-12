@@ -29,7 +29,6 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
     const supabase = createClient()
     const router = useRouter()
 
-    // Helper to format HH:mm:ss to HH:mm AM/PM
     const formatTime = (timeStr?: string) => {
         if (!timeStr) return null
         try {
@@ -47,9 +46,6 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
     const endTime = formatTime(classData.end_time)
 
     const handleStartClass = async () => {
-        // 🛡️ Forensic Audit Trigger
-        console.log("CLASS_START_LOGGED:", classData.name)
-
         try {
             const { error } = await supabase
                 .from('audit_logs')
@@ -59,129 +55,89 @@ export const TeacherHeader = ({ classData, vitals, teacherId, tenantId }: Teache
                     action: 'CLASS_START',
                     category: 'Academic',
                     entity_type: 'class',
-                    details: `CLASS_START: ${classData.name} // Teacher: ${teacherId}`,
+                    details: `CLASS_START: ${classData.name}`,
                     metadata: {
                         timestamp: new Date().toISOString(),
-                        className: classData.name,
-                        gradeLevel: classData.grade_level
+                        className: classData.name
                     }
                 })
 
             if (error) throw error
-
-            toast.success(`Class started: ${classData.name}`, {
-                description: "Forensic audit log generated."
-            })
-
-            // Navigate to Live Attendance View
+            toast.success(`Class started: ${classData.name}`)
             router.push('/dashboard/attendance')
         } catch (error) {
-            console.error("Failed to log class start:", error)
-            toast.error("Audit log failure", {
-                description: "Could not record class start event."
-            })
+            toast.error("Failed to record class start")
         }
     }
 
     return (
-        <div className="w-full bg-transparent p-0 text-foreground">
-            <div className="flex justify-between items-center mb-8">
+        <div className="w-full space-y-6">
+            {/* 🏷️ Minimalist Header Row */}
+            <div className="flex justify-between items-end pb-2 border-b border-white/5">
                 <div>
-                    <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Teacher Workspace</h1>
-                    <p className="text-muted-foreground mt-1">Manage your classes and lessons efficiently.</p>
+                    <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                        Teacher Workspace
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                    </h1>
+                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider opacity-60 mt-1">
+                        Academic Command Center
+                    </p>
                 </div>
                 <button
-                    onClick={() => {
-                        toast.info("Academic Setup", { description: "Opening Lesson Architect..." })
-                        router.push('/dashboard/teacher/lesson-plans')
-                    }}
-                    className="bg-blue-600 hover:bg-blue-500 text-foreground px-6 py-2.5 rounded-lg font-bold shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all active:scale-95 text-sm"
+                    onClick={() => router.push('/dashboard/teacher/lesson-plans')}
+                    className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-400 hover:text-blue-300 transition-colors px-4 py-2 rounded-lg bg-blue-500/5 border border-blue-500/10"
                 >
+                    <FileText className="w-3 h-3" />
                     Create Lesson
                 </button>
             </div>
 
-            {/* 🏛️ Unified Midnight Glass Command Card */}
-            <div className="relative group overflow-hidden rounded-[2.5rem] bg-[#0f172a]/80 border border-white/5 backdrop-blur-2xl shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] transition-all duration-500 hover:border-white/10">
-                {/* 🌈 Thick Top Accent Border */}
-                <div className="absolute top-0 left-0 right-0 h-2 bg-blue-600 shadow-[0_4px_20px_rgba(37,99,235,0.4)]" />
-                
-                {/* Ambient Glow */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-blue-500/10 transition-colors duration-700" />
-
-                <div className="relative z-10">
-                    <div className="p-8 md:p-12 flex flex-col md:flex-row justify-between items-center gap-10">
-                        {/* Class Identity */}
-                        <div className="flex-1 text-center md:text-left space-y-6">
-                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">
-                                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
-                                    Active Session
-                                </span>
-                                {(startTime && endTime) && (
-                                    <span className="inline-flex items-center gap-2 text-muted-foreground text-[10px] font-bold uppercase tracking-widest bg-white/5 px-4 py-1.5 rounded-full">
-                                        <Clock className="w-3.5 h-3.5 text-blue-400" /> {startTime} — {endTime}
-                                    </span>
-                                )}
-                            </div>
-
-                            <div className="space-y-2">
-                                <h2 className="text-6xl md:text-8xl font-black tracking-tighter text-white">
-                                    {classData.name}
-                                </h2>
-                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 text-muted-foreground text-lg md:text-xl font-medium">
-                                    <span className="text-blue-200/80">{classData.grade_level}</span>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-800" />
-                                    <span className="text-white/90">{classData.subject || "No Subject"}</span>
-                                    <span className="hidden md:inline w-1.5 h-1.5 rounded-full bg-slate-800" />
-                                    <div className="flex items-center gap-2 bg-blue-500/10 px-4 py-1 rounded-xl border border-blue-500/20">
-                                        <span className="text-blue-400 text-[10px] font-black uppercase tracking-tight">Current Term:</span>
-                                        <span className="text-white text-xs font-black">{classData.term || "3rd"}</span>
-                                    </div>
-                                </div>
-                            </div>
+            {/* 🏛️ Subtle Active Session Bar */}
+            <div className="bg-[#0f172a]/60 border border-white/5 backdrop-blur-xl rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:border-white/10 shadow-sm">
+                <div className="flex items-center gap-5">
+                    <div className="h-10 w-10 rounded-xl bg-slate-800/50 flex items-center justify-center text-slate-400 border border-white/5">
+                        <Clock className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                            <h2 className="text-lg font-bold text-slate-100">{classData.name}</h2>
+                            <span className="text-[10px] text-slate-500 font-mono">/ {classData.grade_level}</span>
                         </div>
+                        <div className="flex items-center gap-3 text-[10px] text-slate-500 font-medium uppercase tracking-tighter">
+                            <span>{classData.subject || "No Subject"}</span>
+                            <span className="w-1 h-1 rounded-full bg-slate-800" />
+                            <span>{classData.term || "3rd Term"}</span>
+                            {startTime && (
+                                <>
+                                    <span className="w-1 h-1 rounded-full bg-slate-800" />
+                                    <span className="text-slate-600">{startTime} — {endTime}</span>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
 
-                        {/* Attendance Quick Vitals */}
-                        <div className="flex gap-6">
-                            <div className="relative group/stat">
-                                <div className="absolute inset-0 bg-emerald-500/10 blur-2xl rounded-full opacity-0 group-hover/stat:opacity-100 transition-opacity" />
-                                <div className="relative flex flex-col items-center justify-center w-32 h-32 rounded-[2rem] bg-emerald-500/5 border border-emerald-500/20 backdrop-blur-sm transition-transform group-hover/stat:scale-105">
-                                    <span className="text-5xl font-black text-emerald-400 tracking-tighter">{vitals.present}</span>
-                                    <span className="text-[10px] text-emerald-300/40 uppercase font-black mt-2 tracking-[0.2em]">Present</span>
-                                </div>
-                            </div>
-                            <div className="relative group/stat">
-                                <div className="absolute inset-0 bg-orange-500/10 blur-2xl rounded-full opacity-0 group-hover/stat:opacity-100 transition-opacity" />
-                                <div className="relative flex flex-col items-center justify-center w-32 h-32 rounded-[2rem] bg-orange-500/5 border border-orange-500/20 backdrop-blur-sm transition-transform group-hover/stat:scale-105">
-                                    <span className="text-5xl font-black text-orange-400 tracking-tighter">{vitals.absent}</span>
-                                    <span className="text-[10px] text-orange-300/40 uppercase font-black mt-2 tracking-[0.2em]">Absent</span>
-                                </div>
-                            </div>
+                <div className="flex items-center gap-4 w-full md:w-auto">
+                    {/* Compact Attendance Vitals */}
+                    <div className="flex gap-1.5 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/5">
+                        <div className="text-center px-3">
+                            <p className="text-sm font-black text-emerald-400 leading-none">{vitals.present}</p>
+                            <p className="text-[8px] text-slate-600 uppercase font-bold mt-1">Present</p>
+                        </div>
+                        <div className="w-[1px] h-6 bg-white/5 self-center" />
+                        <div className="text-center px-3">
+                            <p className="text-sm font-black text-orange-400 leading-none">{vitals.absent}</p>
+                            <p className="text-[8px] text-slate-600 uppercase font-bold mt-1">Absent</p>
                         </div>
                     </div>
 
-                    {/* ⚡ Integrated Glass Action Bar */}
-                    <div className="px-8 pb-10 flex flex-wrap justify-center md:justify-start gap-4">
-                        <button
-                            onClick={handleStartClass}
-                            className="group relative flex items-center gap-3 bg-blue-600 px-10 py-4 rounded-2xl font-black text-white overflow-hidden transition-all duration-300 hover:scale-105 hover:bg-blue-500 shadow-[0_15px_40px_-10px_rgba(37,99,235,0.5)] active:scale-95"
-                        >
-                            <PlayCircle className="w-5 h-5 fill-white" />
-                            <span className="text-xs uppercase tracking-[0.1em]">Begin Session</span>
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                toast.info("Resource Portal", { description: "Opening Lesson Plans..." })
-                                router.push('/dashboard/teacher/lesson-plans')
-                            }}
-                            className="flex items-center gap-3 bg-white/5 border border-white/10 px-10 py-4 rounded-2xl font-black text-slate-300 hover:bg-white/10 hover:text-white transition-all duration-300 active:scale-95 group"
-                        >
-                            <FileText className="w-5 h-5 text-slate-400 group-hover:text-blue-400 transition-colors" />
-                            <span className="text-xs uppercase tracking-[0.1em]">Lesson Repository</span>
-                        </button>
-                    </div>
+                    <button
+                        onClick={handleStartClass}
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-lg shadow-blue-900/20"
+                    >
+                        <PlayCircle className="w-4 h-4 fill-white" />
+                        Start Session
+                    </button>
                 </div>
             </div>
         </div>
