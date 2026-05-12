@@ -186,7 +186,6 @@ export const SIDEBAR_LINKS: Record<UserRole, SidebarCategory[] | SidebarItem[]> 
                 { icon: FileText, label: "Lesson Plans", href: "/dashboard/teacher/lesson-plans" },
                 { icon: MessageSquare, label: "Communication Hub", href: "/dashboard/messages" },
                 { icon: CalendarDays, label: "Academic Calendar", href: "/dashboard/calendar" },
-                { icon: Smartphone, label: "Mobile App View", href: "/mobile/teacher" },
             ]
         }
     ],

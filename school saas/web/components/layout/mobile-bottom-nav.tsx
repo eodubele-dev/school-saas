@@ -25,7 +25,7 @@ export function MobileBottomNav({ role, domain }: MobileBottomNavProps) {
     ]
 
     return (
-        <div className="md:hidden fixed bottom-6 left-4 right-4 z-[100]">
+        <div className="md:hidden fixed bottom-6 left-4 right-4 z-40">
             <div className="bg-[#0f172a]/90 backdrop-blur-2xl border border-white/10 rounded-[2rem] px-8 py-3 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-between relative overflow-hidden">
                 {/* Glow Background */}
                 <div className="absolute inset-0 bg-blue-500/5 pointer-events-none" />

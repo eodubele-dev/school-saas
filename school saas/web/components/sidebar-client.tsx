@@ -384,7 +384,7 @@ export function SidebarClient({
                 />
 
                 {/* 🏛️ Navigation Hubs */}
-                <nav className="flex-1 overflow-y-auto px-4 pb-4 pt-4 space-y-2 scrollbar-thin scrollbar-thumb-slate-800 z-10">
+                <nav className="flex-1 overflow-y-auto px-4 pb-40 pt-4 space-y-2 scrollbar-thin scrollbar-thumb-slate-800 z-10">
                     {categories.map((cat, index) => {
                         const isSystem = cat.category === "System"
                         if (isSystem) return null
