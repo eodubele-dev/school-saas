@@ -264,11 +264,11 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                         </div>
 
                         {/* Input Box */}
-                        <Card className="w-full p-2 rounded-2xl shadow-2xl shadow-black/50 border-border bg-secondary/50 backdrop-blur-xl overflow-hidden">
-                            <div className="p-4 space-y-4">
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div className="space-y-1">
-                                        <Label className="text-xs font-medium text-muted-foreground">Target Class</Label>
+                        <Card className="w-full p-2 rounded-3xl shadow-2xl shadow-black/50 border-white/5 bg-[#0f172a]/80 backdrop-blur-2xl overflow-hidden">
+                            <div className="p-4 md:p-6 space-y-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Class</Label>
                                         <Select
                                             value={classId}
                                             onValueChange={(val) => {
@@ -280,45 +280,45 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                                                 }
                                             }}
                                         >
-                                            <SelectTrigger className="border-0 bg-card text-card-foreground/50 focus:ring-0 rounded-xl h-10 text-foreground">
+                                            <SelectTrigger className="border-0 bg-slate-900/50 text-slate-300 focus:ring-1 focus:ring-blue-500/50 rounded-2xl h-12">
                                                 <SelectValue placeholder="Select Class" />
                                             </SelectTrigger>
-                                            <SelectContent>
+                                            <SelectContent className="bg-slate-900 border-white/10 text-slate-300">
                                                 {teacherClasses.map(c => (
                                                     <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-xs font-medium text-muted-foreground">Subject</Label>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Subject</Label>
                                         <Input
                                             value={subject}
                                             onChange={(e) => setSubject(e.target.value)}
-                                            className="border-0 bg-card text-card-foreground/50 focus-visible:ring-0 rounded-xl h-10 text-foreground placeholder:text-muted-foreground"
+                                            className="border-0 bg-slate-900/50 text-slate-300 focus-visible:ring-1 focus-visible:ring-blue-500/50 rounded-2xl h-12 placeholder:text-slate-600"
                                             placeholder="Subject..."
                                         />
                                     </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-xs font-medium text-muted-foreground">Timeline</Label>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Timeline</Label>
                                         <Select value={week} onValueChange={setWeek}>
-                                            <SelectTrigger className="border-0 bg-card text-card-foreground/50 focus:ring-0 rounded-xl h-10 text-foreground">
+                                            <SelectTrigger className="border-0 bg-slate-900/50 text-slate-300 focus:ring-1 focus:ring-blue-500/50 rounded-2xl h-12">
                                                 <SelectValue />
                                             </SelectTrigger>
-                                            <SelectContent>
+                                            <SelectContent className="bg-slate-900 border-white/10 text-slate-300">
                                                 {Array.from({ length: 12 }).map((_, i) => (
                                                     <SelectItem key={i} value={`Week ${i + 1}`}>Week {i + 1}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-xs font-medium text-muted-foreground">Mode</Label>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mode</Label>
                                         <Select value={type} onValueChange={(val: any) => setType(val)}>
-                                            <SelectTrigger className="border-0 bg-card text-card-foreground/50 focus:ring-0 rounded-xl h-10 text-foreground">
+                                            <SelectTrigger className="border-0 bg-slate-900/50 text-slate-300 focus:ring-1 focus:ring-blue-500/50 rounded-2xl h-12">
                                                 <SelectValue />
                                             </SelectTrigger>
-                                            <SelectContent>
+                                            <SelectContent className="bg-slate-900 border-white/10 text-slate-300">
                                                 <SelectItem value="lesson_plan">Lesson Plan</SelectItem>
                                                 <SelectItem value="lesson_note">Lesson Note</SelectItem>
                                             </SelectContent>
@@ -326,39 +326,40 @@ export function LessonGenerator({ initialPlan, teacherClasses = [] }: LessonGene
                                     </div>
                                 </div>
 
-                                <div className="relative">
+                                <div className="relative group">
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity" />
                                     <Input
-                                        className="w-full text-lg p-4 h-16 rounded-xl border-border bg-card text-card-foreground/50 text-foreground focus-visible:ring-blue-500 pr-14 placeholder:text-muted-foreground"
-                                        placeholder="Enter a topic or description (e.g., 'Photosynthesis and its importance')"
+                                        className="relative w-full text-lg p-6 h-20 rounded-2xl border-white/5 bg-slate-900 text-white focus-visible:ring-2 focus-visible:ring-blue-500 pr-16 placeholder:text-slate-600 shadow-inner"
+                                        placeholder="What are we teaching today?"
                                         value={topic}
                                         onChange={(e) => setTopic(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
                                     />
                                     <Button
                                         size="icon"
-                                        className="absolute right-2 top-2 h-12 w-12 rounded-lg bg-blue-600 hover:bg-blue-700 text-foreground transition-all disabled:opacity-50"
+                                        className="absolute right-3 top-3 h-14 w-14 rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-all active:scale-95 shadow-xl shadow-blue-900/20 disabled:opacity-50 z-10"
                                         onClick={handleGenerate}
                                         disabled={loading || !topic}
                                     >
-                                        {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : <Zap className="h-6 w-6" />}
+                                        {loading ? <Loader2 className="h-6 w-6 animate-spin text-white" /> : <Zap className="h-6 w-6 text-white" />}
                                     </Button>
                                 </div>
                             </div>
-                            <div className="px-4 pb-2 text-[10px] text-muted-foreground flex justify-between">
-                                <span>Press Enter to generate</span>
-                                <span>Gemini 1.5 Flash</span>
+                            <div className="px-6 pb-4 text-[10px] font-bold uppercase tracking-widest text-slate-600 flex justify-between">
+                                <span>Press Enter to architect</span>
+                                <span className="text-blue-500/50">Gemini 1.5 Flash</span>
                             </div>
                         </Card>
 
-                        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                        <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
                             {['Motion in Physics', 'Quadratic Equations', 'History of Nigeria'].map((suggestion) => (
                                 <button
                                     key={suggestion}
-                                    className="p-4 rounded-xl bg-secondary/50 hover:bg-white/10 border border-border/50 text-left transition-colors group"
+                                    className="p-5 rounded-2xl bg-[#0f172a]/40 hover:bg-white/5 border border-white/5 text-left transition-all group active:scale-95"
                                     onClick={() => setTopic(suggestion)}
                                 >
-                                    <h3 className="font-medium text-slate-300 text-sm group-hover:text-blue-400">{suggestion}</h3>
-                                    <p className="text-xs text-muted-foreground mt-1">Generate a lesson...</p>
+                                    <h3 className="font-bold text-slate-200 text-xs group-hover:text-blue-400 uppercase tracking-wider">{suggestion}</h3>
+                                    <p className="text-[10px] text-slate-600 font-bold uppercase tracking-tighter mt-1">Generate Architect...</p>
                                 </button>
                             ))}
                         </div>

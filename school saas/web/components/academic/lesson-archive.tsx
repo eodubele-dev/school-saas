@@ -112,34 +112,45 @@ export function LessonArchive({ plans, onEdit }: LessonArchiveProps) {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center gap-2 bg-card text-card-foreground/50 p-1 rounded-lg border border-border/50 self-start w-fit">
-                <Button
-                    variant={filterType === 'all' ? "secondary" : "ghost"}
-                    size="sm"
-                    onClick={() => setFilterType('all')}
-                    className={filterType === 'all' ? "bg-indigo-600 text-foreground hover:bg-indigo-700" : "text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"}
-                >
-                    All ({plans.length})
-                </Button>
-                <Button
-                    variant={filterType === 'lesson_plan' ? "secondary" : "ghost"}
-                    size="sm"
-                    onClick={() => setFilterType('lesson_plan')}
-                    className={filterType === 'lesson_plan' ? "bg-indigo-600 text-foreground hover:bg-indigo-700" : "text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"}
-                >
-                    Plans ({plans.filter(p => p.type === 'lesson_plan' || !p.type).length})
-                </Button>
-                <Button
-                    variant={filterType === 'lesson_note' ? "secondary" : "ghost"}
-                    size="sm"
-                    onClick={() => setFilterType('lesson_note')}
-                    className={filterType === 'lesson_note' ? "bg-indigo-600 text-foreground hover:bg-indigo-700" : "text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"}
-                >
-                    Notes ({plans.filter(p => p.type === 'lesson_note').length})
-                </Button>
+            <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+                <div className="flex items-center gap-2 bg-[#0f172a] p-1 rounded-xl border border-white/5 w-max md:w-fit">
+                    <Button
+                        variant={filterType === 'all' ? "secondary" : "ghost"}
+                        size="sm"
+                        onClick={() => setFilterType('all')}
+                        className={filterType === 'all' 
+                            ? "bg-indigo-600 text-white hover:bg-indigo-500 rounded-lg px-6" 
+                            : "text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all rounded-lg px-6"
+                        }
+                    >
+                        All ({plans.length})
+                    </Button>
+                    <Button
+                        variant={filterType === 'lesson_plan' ? "secondary" : "ghost"}
+                        size="sm"
+                        onClick={() => setFilterType('lesson_plan')}
+                        className={filterType === 'lesson_plan' 
+                            ? "bg-indigo-600 text-white hover:bg-indigo-500 rounded-lg px-6" 
+                            : "text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all rounded-lg px-6"
+                        }
+                    >
+                        Plans ({plans.filter(p => p.type === 'lesson_plan' || !p.type).length})
+                    </Button>
+                    <Button
+                        variant={filterType === 'lesson_note' ? "secondary" : "ghost"}
+                        size="sm"
+                        onClick={() => setFilterType('lesson_note')}
+                        className={filterType === 'lesson_note' 
+                            ? "bg-indigo-600 text-white hover:bg-indigo-500 rounded-lg px-6" 
+                            : "text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all rounded-lg px-6"
+                        }
+                    >
+                        Notes ({plans.filter(p => p.type === 'lesson_note').length})
+                    </Button>
+                </div>
             </div>
 
-            <ScrollArea className="h-[calc(100vh-250px)] pr-4">
+            <ScrollArea className="flex-1 lg:h-[calc(100vh-250px)] pr-0 md:pr-4">
                 {filteredPlans.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center opacity-50">
                         <BookOpen className="h-10 w-10 mb-2" />

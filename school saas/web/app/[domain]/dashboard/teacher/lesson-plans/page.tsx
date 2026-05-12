@@ -157,38 +157,44 @@ export default async function LessonPlansPage({ params, searchParams }: { params
         const editPlan = editId ? archivedPlans?.find((p: any) => p.id === editId) : null
 
         return (
-            <div className="p-4 md:p-6 h-[calc(100vh-80px)] flex flex-col bg-slate-950">
+            <div className="min-h-screen lg:h-[calc(100vh-80px)] p-4 md:p-6 flex flex-col bg-slate-950 pb-32 lg:pb-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                            <BookOpen className="h-8 w-8 text-indigo-500" />
-                            Lesson Planning
-                        </h1>
-                        <p className="text-slate-400 ml-10 flex items-center gap-2 text-sm">
-                            <span className="text-white font-bold">{className}</span>
-                            <span className="text-slate-600">•</span>
-                            <span className="text-white font-bold">{subjectName}</span>
-                            <span className="text-slate-600">•</span>
-                            <span>{currentTerm}</span>
-                        </p>
+                    <div className="flex items-start gap-3">
+                        <div className="mt-1 bg-indigo-500/10 p-2 rounded-xl border border-indigo-500/20">
+                            <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-indigo-400" />
+                        </div>
+                        <div>
+                            <h1 className="text-xl md:text-2xl font-black text-white tracking-tight italic uppercase">
+                                Lesson <span className="text-indigo-500">Planning</span>
+                            </h1>
+                            <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                                <span className="text-white">{className}</span>
+                                <span className="opacity-30">•</span>
+                                <span className="text-white">{subjectName}</span>
+                                <span className="opacity-30">•</span>
+                                <span>{currentTerm}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <LessonTabs defaultTab="ai">
-                    <TabsList className="bg-slate-900 border border-white/10 w-full md:w-auto p-1 self-start mb-6">
-                        <TabsTrigger value="ai" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
-                            <Sparkles className="h-4 w-4 mr-2" /> AI Generator
-                        </TabsTrigger>
-                        <TabsTrigger value="archive" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
-                            <Archive className="h-4 w-4 mr-2" /> Archives & Approval
-                        </TabsTrigger>
-                        <TabsTrigger value="publish" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
-                            <FileText className="h-4 w-4 mr-2" /> Publisher
-                        </TabsTrigger>
-                        <TabsTrigger value="library" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
-                            <Table className="h-4 w-4 mr-2" /> Digital Locker ({publishedLessons?.length || 0})
-                        </TabsTrigger>
-                    </TabsList>
+                    <div className="w-full overflow-x-auto scrollbar-hide mb-6 -mx-4 px-4 md:mx-0 md:px-0">
+                        <TabsList className="bg-[#0f172a] border border-white/5 p-1 w-max min-w-full md:min-w-0 md:w-auto flex">
+                            <TabsTrigger value="ai" className="flex-1 md:flex-none data-[state=active]:bg-indigo-600 data-[state=active]:text-white whitespace-nowrap px-6">
+                                <Sparkles className="h-4 w-4 mr-2" /> AI Generator
+                            </TabsTrigger>
+                            <TabsTrigger value="archive" className="flex-1 md:flex-none data-[state=active]:bg-indigo-600 data-[state=active]:text-white whitespace-nowrap px-6">
+                                <Archive className="h-4 w-4 mr-2" /> Archives & Approval
+                            </TabsTrigger>
+                            <TabsTrigger value="publish" className="flex-1 md:flex-none data-[state=active]:bg-indigo-600 data-[state=active]:text-white whitespace-nowrap px-6">
+                                <FileText className="h-4 w-4 mr-2" /> Publisher
+                            </TabsTrigger>
+                            <TabsTrigger value="library" className="flex-1 md:flex-none data-[state=active]:bg-indigo-600 data-[state=active]:text-white whitespace-nowrap px-6">
+                                <Table className="h-4 w-4 mr-2" /> Digital Locker ({publishedLessons?.length || 0})
+                            </TabsTrigger>
+                        </TabsList>
+                    </div>
 
                     {/* Tab 1: AI Generator (Main Tool) */}
                     <TabsContent value="ai" className="flex-1 mt-0 h-full">
