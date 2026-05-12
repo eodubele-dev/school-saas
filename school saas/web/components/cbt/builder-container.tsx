@@ -143,7 +143,6 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
     }
 
     return (
-    return (
         <div className="flex flex-col lg:h-[calc(100vh-140px)] gap-4 md:gap-6 animate-in fade-in duration-700 bg-slate-950 text-foreground p-3 md:p-4 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden">
             {/* Context Breadcrumb - Swipeable on mobile */}
             <div className="w-full overflow-x-auto scrollbar-hide px-4 -mb-4 whitespace-nowrap">
@@ -245,16 +244,6 @@ export function BuilderContainer({ classId, subjectId, className, subjectName, i
 
                 {/* Center: Canvas */}
                 <div className="flex-1 min-w-0 h-full overflow-hidden bg-[#0a0a0a]/30 rounded-2xl border border-white/5">
-                    <QuizCanvas
-                        questions={questions}
-                        onRemove={removeQuestion}
-                        onUpdate={updateQuestion}
-                        onReorder={setQuestions}
-                    />
-                </div>
-            </div>
-        </div>
-    )
                     <QuizCanvas
                         questions={questions}
                         onRemove={removeQuestion}
