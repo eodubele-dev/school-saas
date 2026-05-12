@@ -26,7 +26,7 @@ export function MobileBottomNav({ role, domain }: MobileBottomNavProps) {
 
     return (
         <div className="md:hidden fixed bottom-6 left-4 right-4 z-40">
-            <div className="bg-[#0f172a]/90 backdrop-blur-2xl border border-white/10 rounded-[2rem] px-8 py-3 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-between relative overflow-hidden">
+            <div className="bg-[#0f172a]/90 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] py-3 shadow-[0_20px_50px_rgba(0,0,0,0.5)] grid grid-cols-3 items-center relative overflow-hidden">
                 {/* Glow Background */}
                 <div className="absolute inset-0 bg-blue-500/5 pointer-events-none" />
                 
@@ -36,36 +36,38 @@ export function MobileBottomNav({ role, domain }: MobileBottomNavProps) {
 
                     if (item.isAction) {
                         return (
-                            <button
-                                key={idx}
-                                className="relative -top-4 bg-blue-600 p-4 rounded-2xl shadow-[0_10px_20px_rgba(37,99,235,0.4)] border border-blue-400/30 active:scale-90 transition-all"
-                                onClick={() => {
-                                    if (role === 'TEACHER') router.push(`${basePath}/dashboard/attendance`)
-                                    else router.push(`${basePath}/dashboard`)
-                                }}
-                            >
-                                <Icon className="w-6 h-6 text-white" />
-                            </button>
+                            <div key={idx} className="flex justify-center">
+                                <button
+                                    className="relative -top-6 bg-blue-600 p-4 rounded-2xl shadow-[0_10px_20px_rgba(37,99,235,0.4)] border border-blue-400/30 active:scale-90 transition-all flex items-center justify-center group"
+                                    onClick={() => {
+                                        if (role === 'TEACHER') router.push(`${basePath}/dashboard/attendance`)
+                                        else router.push(`${basePath}/dashboard`)
+                                    }}
+                                >
+                                    <Icon className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
+                                </button>
+                            </div>
                         )
                     }
 
                     return (
-                        <button
-                            key={idx}
-                            onClick={() => router.push(item.href)}
-                            className={cn(
-                                "relative flex flex-col items-center gap-1 transition-all duration-300",
-                                isActive ? "text-blue-400" : "text-slate-500 hover:text-slate-300"
-                            )}
-                        >
-                            <Icon className={cn("w-6 h-6", isActive && "fill-blue-400/10")} />
-                            {isActive && (
-                                <motion.div
-                                    layoutId="nav-glow"
-                                    className="absolute -bottom-1 w-1 h-1 bg-blue-400 rounded-full shadow-[0_0_10px_#60a5fa]"
-                                />
-                            )}
-                        </button>
+                        <div key={idx} className="flex justify-center">
+                            <button
+                                onClick={() => router.push(item.href)}
+                                className={cn(
+                                    "relative flex flex-col items-center gap-1 transition-all duration-300 py-1",
+                                    isActive ? "text-blue-400" : "text-slate-500 hover:text-slate-300"
+                                )}
+                            >
+                                <Icon className={cn("w-6 h-6", isActive && "fill-blue-400/10")} />
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="nav-glow"
+                                        className="absolute -bottom-1 w-1 h-1 bg-blue-400 rounded-full shadow-[0_0_10px_#60a5fa]"
+                                    />
+                                )}
+                            </button>
+                        </div>
                     )
                 })}
             </div>
