@@ -110,17 +110,15 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     const handleClockIn = async () => {
         setLoading(true)
         try {
-            if (!("geolocation" in navigator)) {
-                toast.error("Geolocation is not supported by your browser")
-                return
-            }
-
-            navigator.geolocation.getCurrentPosition(async (position) => {
+            // Helper to perform the actual server-side clock in
+            const performClockIn = async (lat: number, lng: number) => {
                 if (isOnline) {
-                    const res = await clockInStaff(position.coords.latitude, position.coords.longitude, getLocalToday())
+                    const res = await clockInStaff(lat, lng, getLocalToday())
 
                     if (res.success) {
-                        toast.success("Clocked in successfully!")
+                        toast.success("Verification Successful", {
+                            description: res.distance === 0 ? "Verified via School Network." : "Verified via GPS Geofence."
+                        })
                         loadStatus()
                         if (onClockIn) onClockIn()
                     } else {
@@ -136,22 +134,38 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                     // Offline Queuing
                     queueAction({
                         type: 'CLOCK_IN',
-                        payload: { latitude: position.coords.latitude, longitude: position.coords.longitude, date: getLocalToday() }
+                        payload: { latitude: lat, longitude: lng, date: getLocalToday() }
                     })
                     setStatus({
                         clockedIn: true,
                         clockInTime: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-                        isLate: false // Assume on time for now, will be verified on sync
+                        isLate: false
                     })
                 }
                 setLoading(false)
-            }, () => {
-                toast.error("Location access denied. Please enable GPS.")
-                setLoading(false)
-            })
+            }
+
+            // If geolocation is not available or denied, try IP-only clock in
+            if (!("geolocation" in navigator)) {
+                // Try with 0,0 - server will check IP bypass
+                await performClockIn(0, 0)
+                return
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    await performClockIn(position.coords.latitude, position.coords.longitude)
+                },
+                async (err) => {
+                    // Fallback: If GPS is denied/failed, try IP verification (0,0 coords)
+                    console.warn("GPS failed, attempting Network Verification fallback...")
+                    await performClockIn(0, 0)
+                },
+                { enableHighAccuracy: true, timeout: 5000 }
+            )
 
         } catch (error) {
-            toast.error("An error occurred")
+            toast.error("Security handshake failed")
             setLoading(false)
         }
     }

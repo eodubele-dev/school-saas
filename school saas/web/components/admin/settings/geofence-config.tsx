@@ -17,8 +17,10 @@ export function GeofenceConfig() {
     const [coords, setCoords] = useState({
         lat: '',
         lng: '',
-        radius: '500'
+        radius: '800', // Default to 800m for better indoor reliability
+        trustedIPs: [] as string[]
     })
+    const [newIP, setNewIP] = useState('')
 
     useEffect(() => {
         async function loadSettings() {
@@ -28,7 +30,8 @@ export function GeofenceConfig() {
                     setCoords({
                         lat: res.data.geofence_lat?.toString() || '',
                         lng: res.data.geofence_lng?.toString() || '',
-                        radius: res.data.geofence_radius_meters?.toString() || '500'
+                        radius: res.data.geofence_radius_meters?.toString() || '800',
+                        trustedIPs: (res.data.settings as any)?.trusted_ips || []
                     })
                 }
             } finally {
@@ -45,6 +48,10 @@ export function GeofenceConfig() {
         }
 
         setLocationLoading(true)
+        toast.info("Acquiring high-accuracy coordinates...", {
+            description: "Please stand exactly at the school gate for the best result."
+        })
+
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 setCoords(prev => ({
@@ -52,15 +59,29 @@ export function GeofenceConfig() {
                     lat: position.coords.latitude.toFixed(6),
                     lng: position.coords.longitude.toFixed(6)
                 }))
-                toast.success("Location acquired!")
+                toast.success("School Gate Locked!", {
+                    description: `Accuracy: ${Math.round(position.coords.accuracy)}m. Coordinates acquired.`
+                })
                 setLocationLoading(false)
             },
             (error) => {
-                toast.error("Process denied or failed. Ensure GPS is on.")
+                toast.error("Calibration Failed", {
+                    description: "Ensure GPS is enabled and you have allowed location access."
+                })
                 setLocationLoading(false)
             },
-            { enableHighAccuracy: true }
+            { enableHighAccuracy: true, timeout: 15000 }
         )
+    }
+
+    const addIP = () => {
+        if (!newIP || coords.trustedIPs.includes(newIP)) return
+        setCoords(prev => ({ ...prev, trustedIPs: [...prev.trustedIPs, newIP] }))
+        setNewIP('')
+    }
+
+    const removeIP = (ip: string) => {
+        setCoords(prev => ({ ...prev, trustedIPs: prev.trustedIPs.filter(i => i !== ip) }))
     }
 
     const handleSave = async () => {
@@ -75,9 +96,11 @@ export function GeofenceConfig() {
                 return
             }
 
-            const res = await updateGeofenceSettings(lat, lng, rad)
+            const res = await updateGeofenceSettings(lat, lng, rad, coords.trustedIPs)
             if (res.success) {
-                toast.success(res.message)
+                toast.success("Security Config Updated", {
+                    description: "Geofence and Trusted IPs are now active."
+                })
             } else {
                 toast.error(res.error)
             }
@@ -88,76 +111,131 @@ export function GeofenceConfig() {
         }
     }
 
-    if (fetching) return <div className="p-8 text-center text-muted-foreground">Loading settings...</div>
+    if (fetching) return <div className="p-8 text-center text-muted-foreground animate-pulse">Initializing security protocols...</div>
 
     return (
-        <Card className="bg-card text-card-foreground/40 border-border/50 backdrop-blur-sm group hover:border-blue-500/30 transition-all">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Card className="bg-[#0f172a]/40 border-white/5 backdrop-blur-xl group hover:border-blue-500/30 transition-all md:col-span-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-white/5">
                 <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20">
-                        <MapPin className="h-6 w-6 text-blue-400" />
+                    <div className="h-14 w-14 bg-blue-600/10 rounded-2xl flex items-center justify-center border border-blue-600/20 shadow-[0_0_20px_rgba(37,99,235,0.1)]">
+                        <MapPin className="h-7 w-7 text-blue-500" />
                     </div>
                     <div>
-                        <CardTitle className="text-foreground text-lg">Geofence Configuration</CardTitle>
-                        <CardDescription className="text-muted-foreground">
-                            Set the designated area for staff Smart Attendance.
+                        <CardTitle className="text-white text-xl font-bold tracking-tight">Institutional Geofence</CardTitle>
+                        <CardDescription className="text-slate-400 font-medium">
+                            Configure physical boundaries and trusted networks for smart attendance.
                         </CardDescription>
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="space-y-6 pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label className="text-slate-300 text-xs uppercase tracking-wider">Latitude</Label>
-                        <Input
-                            value={coords.lat}
-                            onChange={(e) => setCoords({ ...coords, lat: e.target.value })}
-                            placeholder="e.g. 6.5244"
-                            className="bg-black/20 border-border text-foreground font-mono"
-                        />
+            <CardContent className="space-y-10 pt-8">
+                {/* Geofence Inputs */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label className="text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black">Latitude Center</Label>
+                                <Input
+                                    value={coords.lat}
+                                    onChange={(e) => setCoords({ ...coords, lat: e.target.value })}
+                                    placeholder="e.g. 6.5244"
+                                    className="bg-slate-950 border-white/10 text-white font-mono h-12 focus:border-blue-500/50"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black">Longitude Center</Label>
+                                <Input
+                                    value={coords.lng}
+                                    onChange={(e) => setCoords({ ...coords, lng: e.target.value })}
+                                    placeholder="e.g. 3.3792"
+                                    className="bg-slate-950 border-white/10 text-white font-mono h-12 focus:border-blue-500/50"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label className="text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black">Verification Radius (Meters)</Label>
+                            <div className="flex gap-4 items-center">
+                                <Input
+                                    type="number"
+                                    value={coords.radius}
+                                    onChange={(e) => setCoords({ ...coords, radius: e.target.value })}
+                                    placeholder="800"
+                                    className="bg-slate-950 border-white/10 text-white font-mono h-12 max-w-[120px] focus:border-blue-500/50"
+                                />
+                                <div className="text-xs text-slate-500 bg-white/5 px-4 py-2 rounded-lg border border-white/5">
+                                    Recommended: <strong className="text-blue-400">800m</strong> to account for indoor signal drift.
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label className="text-slate-300 text-xs uppercase tracking-wider">Longitude</Label>
-                        <Input
-                            value={coords.lng}
-                            onChange={(e) => setCoords({ ...coords, lng: e.target.value })}
-                            placeholder="e.g. 3.3792"
-                            className="bg-black/20 border-border text-foreground font-mono"
-                        />
+
+                    <div className="bg-blue-600/5 rounded-2xl border border-blue-500/10 p-6 flex flex-col justify-center gap-4 text-center">
+                        <div className="mx-auto h-12 w-12 rounded-full bg-blue-600/20 flex items-center justify-center">
+                            <Navigation className="h-6 w-6 text-blue-400" />
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-sm font-bold text-white">Live Recalibration</p>
+                            <p className="text-[10px] text-slate-500 uppercase font-black leading-tight">Stand at the school gate before clicking</p>
+                        </div>
+                        <Button
+                            onClick={handleUseMyLocation}
+                            disabled={locationLoading}
+                            className="w-full bg-white text-black hover:bg-slate-200 font-bold shadow-xl active:scale-95"
+                        >
+                            {locationLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Lock Gate Coordinates
+                        </Button>
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                    <Label className="text-slate-300 text-xs uppercase tracking-wider">Radius (Meters)</Label>
-                    <div className="flex gap-2 items-center">
-                        <Input
-                            type="number"
-                            value={coords.radius}
-                            onChange={(e) => setCoords({ ...coords, radius: e.target.value })}
-                            placeholder="500"
-                            className="bg-black/20 border-border text-foreground font-mono"
-                        />
-                        <span className="text-muted-foreground text-xs whitespace-nowrap">recommended: 100 - 500m</span>
+                {/* Trusted IPs Section */}
+                <div className="pt-8 border-t border-white/5 space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h4 className="text-white font-bold flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                Trusted Network IPs
+                            </h4>
+                            <p className="text-xs text-slate-500">Allow clock-in from specific office WiFi networks (bypasses GPS for desktops).</p>
+                        </div>
+                        <div className="flex gap-2">
+                            <Input
+                                value={newIP}
+                                onChange={(e) => setNewIP(e.target.value)}
+                                placeholder="Public IP (e.g. 192.168.1.1)"
+                                className="bg-slate-950 border-white/10 text-white text-xs w-48 h-10"
+                            />
+                            <Button onClick={addIP} variant="secondary" size="sm" className="bg-blue-600/10 text-blue-400 hover:bg-blue-600/20 font-bold border border-blue-600/20">
+                                Add IP
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                        {coords.trustedIPs.length === 0 ? (
+                            <div className="text-[10px] text-slate-600 uppercase font-bold italic py-2">No trusted IPs configured. Attendance will rely solely on GPS.</div>
+                        ) : (
+                            coords.trustedIPs.map(ip => (
+                                <div key={ip} className="flex items-center gap-2 bg-slate-900 border border-white/10 px-3 py-1.5 rounded-full text-xs text-slate-300 group">
+                                    <span className="font-mono">{ip}</span>
+                                    <button onClick={() => removeIP(ip)} className="text-slate-600 hover:text-red-400 transition-colors">
+                                        <X className="h-3 w-3" />
+                                    </button>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
 
-                <div className="flex gap-3 pt-2">
-                    <Button
-                        onClick={handleUseMyLocation}
-                        disabled={locationLoading}
-                        className="flex-1 bg-transparent border border-white/20 hover:bg-white/10 text-foreground font-medium shadow-none"
-                    >
-                        {locationLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Navigation className="mr-2 h-4 w-4" />}
-                        Use My Location
-                    </Button>
-
+                <div className="flex justify-end pt-4">
                     <Button
                         onClick={handleSave}
                         disabled={loading}
-                        className="flex-1 bg-blue-600 hover:bg-blue-500 text-foreground font-bold"
+                        className="bg-blue-600 hover:bg-blue-500 text-white font-black px-10 py-6 text-lg rounded-2xl shadow-2xl shadow-blue-600/20 active:scale-95 transition-all"
                     >
-                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                        Save Configuration
+                        {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Save className="mr-2 h-5 w-5" />}
+                        Commit Security Configuration
                     </Button>
                 </div>
             </CardContent>

@@ -6,7 +6,8 @@ import { revalidatePath } from "next/cache"
 export async function updateGeofenceSettings(
     latitude: number,
     longitude: number,
-    radius: number
+    radius: number,
+    trustedIPs?: string[]
 ) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -25,12 +26,20 @@ export async function updateGeofenceSettings(
     }
 
     try {
+        // Fetch current settings to preserve other keys
+        const { data: tenant } = await supabase.from('tenants').select('settings').eq('id', profile.tenant_id).single()
+        const currentSettings = tenant?.settings || {}
+
         const { error } = await supabase
             .from('tenants')
             .update({
                 geofence_lat: latitude,
                 geofence_lng: longitude,
-                geofence_radius_meters: radius
+                geofence_radius_meters: radius,
+                settings: {
+                    ...currentSettings,
+                    trusted_ips: trustedIPs
+                }
             })
             .eq('id', profile.tenant_id)
 
@@ -55,7 +64,7 @@ export async function getGeofenceSettings() {
 
     const { data: tenant } = await supabase
         .from('tenants')
-        .select('geofence_lat, geofence_lng, geofence_radius_meters')
+        .select('geofence_lat, geofence_lng, geofence_radius_meters, settings')
         .eq('id', profile.tenant_id)
         .single()
 

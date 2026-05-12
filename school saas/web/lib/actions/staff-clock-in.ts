@@ -19,6 +19,8 @@ interface SchoolLocation {
     latitude: number
     longitude: number
     radius_meters: number
+    trusted_ips?: string[]
+    attendance_pin?: string
 }
 
 /**
@@ -27,7 +29,8 @@ interface SchoolLocation {
 export async function clockInStaff(
     latitude: number,
     longitude: number,
-    date?: string
+    date?: string,
+    pin?: string
 ): Promise<ClockInResult> {
     const supabase = createClient()
 
@@ -53,14 +56,28 @@ export async function clockInStaff(
             return { success: false, error: 'Only teachers and admins can clock in' }
         }
 
-        // Get school location
+        // Get school location & Trusted IPs
         const schoolLocation = await getSchoolCoordinates(profile.tenant_id)
         if (!schoolLocation) {
             return { success: false, error: 'School location not configured' }
         }
 
-        // Verify location
-        const { verified, distance } = isWithinRadius(
+        // 1. TRUSTED NETWORK BYPASS (Check IP first)
+        // This solves the Desktop problem where GPS is missing
+        const { headers } = await import('next/headers')
+        const headerList = headers()
+        const ip = headerList.get('x-forwarded-for')?.split(',')[0] || 
+                   headerList.get('x-real-ip') || 
+                   'unknown'
+        
+        const isFromTrustedIP = schoolLocation.trusted_ips?.includes(ip)
+        
+        // 2. PIN-BASED BYPASS
+        // Allows manual verification for schools without dedicated network
+        const isFromPin = pin && schoolLocation.attendance_pin === pin
+
+        // Verify location ONLY if NOT on trusted network or using valid PIN
+        let { verified, distance } = isWithinRadius(
             latitude,
             longitude,
             schoolLocation.latitude,
@@ -68,16 +85,21 @@ export async function clockInStaff(
             schoolLocation.radius_meters
         )
 
+        if (isFromTrustedIP || isFromPin) {
+            verified = true
+            distance = 0 // On-site via Bypass
+        }
+
         if (!verified) {
             // Forensic Flagging of failed verification
             const logResponse = await logActivity(
                 'Security',
                 'FAILED_LOCATION_VERIFICATION',
-                `Institutional breach blocked. Staff attempted clock-in from ${Math.round(distance)}m away.`,
+                `Institutional breach blocked. Staff attempted clock-in from ${Math.round(distance)}m away. IP: ${ip}`,
                 'profiles',
                 user.id,
                 null,
-                { latitude, longitude, distance, radius: schoolLocation.radius_meters }
+                { latitude, longitude, distance, radius: schoolLocation.radius_meters, ip, attempted_pin: pin }
             )
 
             const auditLogId = logResponse && 'data' in logResponse && logResponse.data ? logResponse.data.id : undefined
@@ -87,7 +109,7 @@ export async function clockInStaff(
                 verified: false,
                 distance,
                 auditLogId,
-                error: `You are ${Math.round(distance)}m away from school. You must be within ${schoolLocation.radius_meters}m to clock in.`,
+                error: pin ? "Incorrect Security Pin. Access Denied." : `You are ${Math.round(distance)}m away from school. You must be within ${schoolLocation.radius_meters}m to clock in.`,
                 debug: {
                     expected: schoolLocation,
                     actual: { latitude, longitude }
@@ -111,7 +133,8 @@ export async function clockInStaff(
                 latitude,
                 longitude,
                 distance_meters: distance,
-                location_verified: true
+                location_verified: true,
+                verification_method: isFromPin ? 'pin' : (isFromTrustedIP ? 'network' : 'gps')
             }, {
                 onConflict: 'staff_id,date'
             })
@@ -224,7 +247,7 @@ export async function getSchoolCoordinates(
         // Correctly fetch from tenants table to match Admin Settings
         const { data, error } = await supabase
             .from('tenants')
-            .select('geofence_lat, geofence_lng, geofence_radius_meters')
+            .select('geofence_lat, geofence_lng, geofence_radius_meters, settings')
             .eq('id', tenantId)
             .single()
 
@@ -236,7 +259,9 @@ export async function getSchoolCoordinates(
         return {
             latitude: Number(data.geofence_lat),
             longitude: Number(data.geofence_lng),
-            radius_meters: data.geofence_radius_meters || 500
+            radius_meters: data.geofence_radius_meters || 500,
+            trusted_ips: (data.settings as any)?.trusted_ips || [],
+            attendance_pin: (data.settings as any)?.attendance_pin || null
         }
 
     } catch (error) {
