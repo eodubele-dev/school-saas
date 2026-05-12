@@ -6,7 +6,7 @@ frontend:
         - npm ci
     build:
       commands:
-        - env | grep -e SUPABASE_SERVICE_ROLE_KEY -e TERMII_ -e PAYSTACK_SECRET_KEY -e NEXT_PUBLIC_ > .env.production
+        - env | grep -e SUPABASE_SERVICE_ROLE_KEY -e TERMII_ -e PAYSTACK_SECRET_KEY -e GOOGLE_API_KEY -e NEXT_PUBLIC_ > .env.production
         - npm run build
         - cp .env.production .next/standalone/ || true
   artifacts:
