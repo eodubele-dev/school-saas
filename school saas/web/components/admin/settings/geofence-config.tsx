@@ -89,12 +89,33 @@ export function GeofenceConfig() {
     const handleSave = async () => {
         setLoading(true)
         try {
-            const lat = parseFloat(coords.lat)
-            const lng = parseFloat(coords.lng)
-            const rad = parseInt(coords.radius)
+            // Validate numbers if they are provided
+            const latStr = coords.lat.trim()
+            const lngStr = coords.lng.trim()
+            const radStr = coords.radius.trim()
 
-            if (isNaN(lat) || isNaN(lng) || isNaN(rad)) {
-                toast.error("Please enter valid numbers")
+            if (!latStr || !lngStr) {
+                toast.error("Location Required", {
+                    description: "Please click 'Lock Gate Coordinates' to acquire the school's position before saving."
+                })
+                setLoading(false)
+                return
+            }
+
+            const lat = parseFloat(latStr)
+            const lng = parseFloat(lngStr)
+            const rad = parseInt(radStr)
+
+            if (isNaN(lat)) return toast.error("Invalid Latitude value")
+            if (isNaN(lng)) return toast.error("Invalid Longitude value")
+            if (isNaN(rad)) return toast.error("Invalid Radius value")
+            
+            // Validate PIN if provided (optional but must be numeric if entered)
+            if (coords.attendancePin && !/^\d+$/.test(coords.attendancePin)) {
+                toast.error("Invalid PIN", {
+                    description: "The security code must contain only numbers (0-9)."
+                })
+                setLoading(false)
                 return
             }
 
