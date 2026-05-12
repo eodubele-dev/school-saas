@@ -19,59 +19,53 @@ export async function getAssignedClass() {
         const { data: { user } } = await createClient().auth.getUser()
         if (!user) return { success: false, error: 'Not authenticated' }
 
-        let targetClassId: string | null = null
+        const classIds = new Set<string>()
 
-        // 1. Check Form Teacher (Priority)
-        const { data: formClass } = await supabaseAdmin
-            .from('classes')
-            .select('id')
-            .eq('form_teacher_id', user.id)
-            .limit(1)
-            .maybeSingle()
+        // 1. Collect all possible assigned IDs from all sources
+        const [formClasses, subjectAssigns, allocations] = await Promise.all([
+            supabaseAdmin.from('classes').select('id').eq('form_teacher_id', user.id),
+            supabaseAdmin.from('subject_assignments').select('class_id').eq('teacher_id', user.id),
+            supabaseAdmin.from('teacher_allocations').select('class_id').eq('teacher_id', user.id)
+        ])
 
-        if (formClass) {
-            targetClassId = formClass.id
-        }
+        formClasses.data?.forEach(c => classIds.add(c.id))
+        subjectAssigns.data?.forEach(c => classIds.add(c.class_id))
+        allocations.data?.forEach(c => classIds.add(c.class_id))
 
-        // 2. Check Subject Assignments (Current Term)
-        if (!targetClassId) {
-            const { data: subjectAssign } = await supabaseAdmin
-                .from('subject_assignments')
-                .select('class_id')
-                .eq('teacher_id', user.id)
-                .limit(1)
-                .maybeSingle()
-            if (subjectAssign) targetClassId = subjectAssign.class_id
-        }
+        if (classIds.size === 0) return { success: false, error: 'No class assigned' }
 
-        // 3. Fallback: Check teacher_allocations
-        if (!targetClassId) {
-            const { data: allocation } = await supabaseAdmin
-                .from('teacher_allocations')
-                .select('class_id')
-                .eq('teacher_id', user.id)
-                .limit(1)
-                .maybeSingle()
-            if (allocation) targetClassId = allocation.class_id
-        }
-
-        if (!targetClassId) return { success: false, error: 'No class assigned' }
-
-        // Final Fetch: Get class name without complex joins
-        const { data: finalClass } = await supabaseAdmin
+        // 2. Fetch class names and student counts to pick the best one
+        const { data: classes } = await supabaseAdmin
             .from('classes')
             .select('id, name')
-            .eq('id', targetClassId)
-            .single()
+            .in('id', Array.from(classIds))
 
-        if (finalClass) {
-            return {
-                success: true,
-                data: { id: finalClass.id, name: finalClass.name }
-            }
+        if (!classes || classes.length === 0) return { success: false, error: 'No class assigned' }
+
+        // Fetch student counts for these classes to prioritize the active one
+        const { data: studentCounts } = await supabaseAdmin
+            .from('students')
+            .select('class_id')
+            .in('class_id', classes.map(c => c.id))
+
+        const countMap = studentCounts?.reduce((acc: Record<string, number>, s) => {
+            acc[s.class_id] = (acc[s.class_id] || 0) + 1
+            return acc
+        }, {}) || {}
+
+        // 3. Pick the class with the most students (prioritizing the real one over ghost ones)
+        const sorted = classes.map(c => ({
+            ...c,
+            count: countMap[c.id] || 0
+        })).sort((a, b) => b.count - a.count)
+
+        const bestClass = sorted[0]
+
+        return {
+            success: true,
+            data: { id: bestClass.id, name: bestClass.name }
         }
 
-        return { success: false, error: 'No class assigned' }
     } catch (error) {
         console.error('getAssignedClass error:', error)
         return { success: false, error: 'Failed to fetch assigned class' }
