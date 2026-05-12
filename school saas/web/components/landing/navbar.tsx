@@ -92,7 +92,7 @@ export function Navbar() {
                         onClick={openTenantPreview}
                         className="bg-blue-600 text-white font-bold rounded-full px-6 py-2.5 text-sm shadow-[0_10px_20px_rgba(37,99,235,0.2)] transition-all duration-300 hover:scale-[1.05] active:scale-95 border border-blue-500/50"
                     >
-                        Access Portal
+                        Get Started Free
                     </button>
                 </div>
 
@@ -134,7 +134,7 @@ export function Navbar() {
                         onClick={() => { setIsOpen(false); openTenantPreview(); }}
                         className="w-full bg-white text-black font-bold py-4 rounded-full shadow-lg transition-all duration-300 active:scale-95"
                     >
-                        Access Portal
+                        Get Started Free
                     </button>
                 </motion.div>
             )}

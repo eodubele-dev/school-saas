@@ -98,7 +98,7 @@ export function HeroFlowBuilder() {
                                 className="group relative px-8 py-4 bg-blue-600 text-white font-bold text-lg rounded-full overflow-hidden transition-all hover:scale-[1.02] active:scale-95 shadow-[0_20px_40px_rgba(37,99,235,0.4)] w-full sm:w-auto text-center border border-blue-500/50 z-10"
                             >
                                 <span className="relative z-10 flex items-center justify-center gap-2">
-                                    Access Portal (Web)
+                                    Launch Your School
                                     <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </span>
                             </button>
