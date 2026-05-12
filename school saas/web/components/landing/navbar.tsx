@@ -105,34 +105,41 @@ export function Navbar() {
             {/* Mobile Menu Dropdown */}
             {isOpen && (
                 <motion.div
-                    initial={{ opacity: 0, y: -10 }}
+                    initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="md:hidden bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-border p-4 absolute w-full top-20 left-0 flex flex-col gap-4 shadow-2xl"
+                    className="md:hidden bg-[#0a0a0a]/98 backdrop-blur-3xl border-b border-white/10 p-6 absolute w-full top-20 left-0 flex flex-col gap-6 shadow-2xl z-[60]"
                 >
-                    {['Home', 'Features', 'Pricing'].map((item) => (
+                    <div className="flex flex-col gap-2">
+                        {['Home', 'Features', 'Pricing'].map((item) => (
+                            <button 
+                                key={item} 
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    scrollToSection(item.toLowerCase());
+                                }} 
+                                className="text-left text-lg font-bold text-slate-400 hover:text-blue-400 p-3 hover:bg-white/5 rounded-xl transition-all"
+                            >
+                                {item}
+                            </button>
+                        ))}
                         <button 
-                            key={item} 
-                            onClick={() => {
-                                setIsOpen(false);
-                                scrollToSection(item.toLowerCase());
-                            }} 
-                            className="text-left text-sm font-medium text-slate-300 hover:text-foreground p-2 hover:bg-secondary/50 rounded"
+                            onClick={() => { setIsOpen(false); openSupport(); }} 
+                            className="text-left text-lg font-bold text-slate-400 hover:text-blue-400 p-3 hover:bg-white/5 rounded-xl transition-all"
                         >
-                            {item}
+                            Contact
                         </button>
-                    ))}
-                    <button 
-                        onClick={() => { setIsOpen(false); openSupport(); }} 
-                        className="text-left text-sm font-medium text-slate-300 hover:text-foreground p-2 hover:bg-secondary/50 rounded"
-                    >
-                        Contact
-                    </button>
-                    <div className="h-px bg-white/10 my-2" />
-                    <Link href="/docs" className="text-sm font-medium text-muted-foreground p-2">Documentation</Link>
-                    <Link href="/login" className="text-sm font-bold text-foreground p-2">Log in</Link>
+                    </div>
+
+                    <div className="h-px bg-white/5 my-2" />
+                    
+                    <div className="flex flex-col gap-4 px-2">
+                        <Link href="/docs" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 uppercase tracking-widest hover:text-white">Documentation</Link>
+                        <Link href="/login" onClick={() => setIsOpen(false)} className="text-lg font-black text-white hover:text-blue-400">Log in</Link>
+                    </div>
+
                     <button
                         onClick={() => { setIsOpen(false); openTenantPreview(); }}
-                        className="w-full bg-white text-black font-bold py-4 rounded-full shadow-lg transition-all duration-300 active:scale-95"
+                        className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-[0_20px_40px_rgba(37,99,235,0.3)] transition-all active:scale-95 text-lg"
                     >
                         Get Started Free
                     </button>

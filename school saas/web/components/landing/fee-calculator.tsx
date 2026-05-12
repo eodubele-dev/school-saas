@@ -58,17 +58,17 @@ export function FeeCalculator() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
 
                         {/* LEFT: The 'Glass-Control' Calculator */}
-                        <div className="p-10 md:p-16 flex flex-col justify-center space-y-12 border-b lg:border-b-0 lg:border-r border-border/50 relative">
+                        <div className="p-6 sm:p-10 md:p-16 flex flex-col justify-center space-y-12 border-b lg:border-b-0 lg:border-r border-border/50 relative">
                             {/* Input Section */}
                             <div className="flex flex-col gap-10">
-                                <div className="flex justify-between items-center text-foreground">
-                                    <span className="font-medium text-xl text-slate-300">Number of Students</span>
-                                    <span className="font-bold text-3xl font-mono text-cyan-400 bg-cyan-950/40 px-6 py-2 rounded-2xl border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.1)]">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-foreground">
+                                    <span className="font-bold text-lg text-slate-400 uppercase tracking-widest">Number of Students</span>
+                                    <span className="font-black text-3xl font-mono text-cyan-400 bg-cyan-950/40 px-6 py-2 rounded-2xl border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.1)]">
                                         {students === 2000 ? "2000+" : students}
                                     </span>
                                 </div>
 
-                                <div className="relative">
+                                <div className="relative px-2">
                                     <Slider
                                         defaultValue={[500]}
                                         max={2000}
@@ -90,23 +90,23 @@ export function FeeCalculator() {
                                     `}</style>
                                 </div>
 
-                                <div className="flex justify-between text-xs text-muted-foreground font-mono uppercase tracking-widest font-bold">
+                                <div className="flex justify-between text-[10px] text-muted-foreground font-mono uppercase tracking-widest font-bold">
                                     <span>Small School (50)</span>
                                     <span>Enterprise (2000+)</span>
                                 </div>
                             </div>
 
                             {/* Dynamic Revenue Display */}
-                            <div className="pt-10 border-t border-border/50 space-y-4">
+                            <div className="pt-10 border-t border-white/5 space-y-4">
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
                                         <ShieldCheck className="h-5 w-5 text-cyan-400" />
                                     </div>
-                                    <span className="text-sm font-bold text-cyan-400 uppercase tracking-widest">Potential Recovery</span>
+                                    <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest">Potential Recovery</span>
                                 </div>
 
-                                <div className="text-5xl md:text-7xl font-black text-foreground flex items-center drop-shadow-[0_0_30px_rgba(6,182,212,0.4)]">
-                                    <span className="text-3xl md:text-5xl mr-2 text-cyan-500/80 font-medium">₦</span>
+                                <div className="text-4xl sm:text-5xl md:text-7xl font-black text-white flex items-center drop-shadow-[0_0_30px_rgba(6,182,212,0.4)] tracking-tighter">
+                                    <span className="text-2xl sm:text-3xl md:text-5xl mr-2 text-cyan-500 font-medium">₦</span>
                                     {/* Digital Odometer */}
                                     <Counter value={recovered} />
                                 </div>
