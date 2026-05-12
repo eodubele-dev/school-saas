@@ -107,7 +107,7 @@ export function Navbar() {
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="md:hidden bg-[#0a0a0a]/98 backdrop-blur-3xl border-b border-white/10 p-6 absolute w-full top-20 left-0 flex flex-col gap-6 shadow-2xl z-[60]"
+                    className="md:hidden bg-[#050505] border-b border-white/10 p-6 absolute w-full top-20 left-0 flex flex-col gap-6 shadow-[0_30px_60px_rgba(0,0,0,0.8)] z-[60]"
                 >
                     <div className="flex flex-col gap-2">
                         {['Home', 'Features', 'Pricing'].map((item) => (
