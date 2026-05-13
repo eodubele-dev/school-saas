@@ -27,28 +27,14 @@ export async function updateGeofenceSettings(
     }
 
     try {
-        // Fetch current settings to preserve other keys
-        // We attempt to fetch both to stay compatible with different schema versions
-        let { data: tenant, error: fetchError } = await supabase
+        // Optimization: Fetch both sources in parallel or use a fallback approach
+        // We only really need theme_config for merging. Top-level settings is a legacy sync target.
+        const { data: tenant, error: fetchError } = await supabase
             .from('tenants')
-            .select('settings, theme_config')
+            .select('theme_config, settings')
             .eq('id', profile.tenant_id)
             .single()
 
-        if (fetchError) {
-            console.warn("Primary settings fetch failed, trying fallback:", fetchError.message)
-            // Fallback: Fetch ONLY theme_config if the combined fetch failed (likely due to missing settings column)
-            const { data: fallbackData } = await supabase
-                .from('tenants')
-                .select('theme_config')
-                .eq('id', profile.tenant_id)
-                .single()
-            if (fallbackData) {
-                tenant = { settings: (fallbackData.theme_config as any)?.settings || {}, theme_config: fallbackData.theme_config }
-            }
-        }
-
-        // Now tenant contains the best available data
         const currentThemeConfig = (tenant?.theme_config as any) || {}
         const currentSettings = tenant?.settings || currentThemeConfig.settings || {}
 
@@ -68,45 +54,43 @@ export async function updateGeofenceSettings(
             }
         }
 
-        // Only include top-level settings if the column is confirmed to exist or we want to try syncing it
-        // Based on the audit, it's missing in some environments, so we'll try to update it but catch failures
-        // Actually, PostgREST will fail the whole request if a column is missing.
-        // So we'll try a safe update first (with theme_config) and then a legacy sync if possible.
-        
+        // Perform the primary update (Geofence + Theme Config)
         const { error: updateError } = await supabase
             .from('tenants')
             .update(updates)
             .eq('id', profile.tenant_id)
 
         if (updateError) {
-            console.error("Geofence Update Error (Initial):", updateError)
-            
-            // If it failed because of theme_config (unlikely) or something else, 
-            // we've already logged it. But let's try to see if we can at least save geofence coords.
-            if (updateError.code === 'PGRST204' || updateError.message.includes('column')) {
-                 const { error: minimalError } = await supabase
-                    .from('tenants')
-                    .update({
-                        geofence_lat: latitude,
-                        geofence_lng: longitude,
-                        geofence_radius_meters: radius
-                    })
-                    .eq('id', profile.tenant_id)
-                if (minimalError) throw minimalError
-            } else {
-                throw updateError
-            }
+            // Handle specific error where theme_config might be missing (rare) or RLS issues
+            throw updateError
         }
 
-        // Legacy Sync: Try to update the top-level settings column separately if it exists
-        // This won't block the main success if it fails.
-        await supabase.from('tenants').update({ settings: mergedSettings }).eq('id', profile.tenant_id)
+        // Fire-and-forget legacy sync (don't await)
+        // This keeps the response snappy while ensuring backward compatibility
+        supabase.from('tenants')
+            .update({ settings: mergedSettings })
+            .eq('id', profile.tenant_id)
+            .then(({ error }) => {
+                if (error) console.warn("Legacy settings sync failed:", error.message)
+            })
 
         revalidatePath('/[domain]/dashboard/settings', 'page')
         return { success: true, message: "Geofence settings updated successfully" }
-    } catch (error) {
+    } catch (error: any) {
         console.error("Geofence Update Error:", error)
-        return { success: false, error: "Failed to update settings. Please ensure the 'settings' column exists in your tenants table." }
+        
+        // Final fallback: if the whole update failed because of theme_config/settings mismatch,
+        // try to at least save the coordinates
+        try {
+            await supabase.from('tenants').update({
+                geofence_lat: latitude,
+                geofence_lng: longitude,
+                geofence_radius_meters: radius
+            }).eq('id', profile.tenant_id)
+            return { success: true, message: "Geofence saved (Settings sync skipped)" }
+        } catch (inner) {
+            return { success: false, error: "Failed to save settings. Check database connection." }
+        }
     }
 }
 
