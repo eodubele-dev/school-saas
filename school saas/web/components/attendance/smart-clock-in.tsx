@@ -40,56 +40,6 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     const [verificationPin, setVerificationPin] = useState('')
     const [showPinDialog, setShowPinDialog] = useState(false)
 
-    const initGeofencing = useCallback(async () => {
-        // Try to load from local cache first for offline support
-        const cachedCoords = localStorage.getItem('school-geofence-cache')
-        if (cachedCoords && !schoolLocation) {
-            setSchoolLocation(JSON.parse(cachedCoords))
-        }
-
-        if (navigator.onLine) {
-            const supabase = createClient()
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
-
-            const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
-            if (profile) {
-                const coords = await getSchoolCoordinates(profile.tenant_id)
-                if (coords) {
-                    // Only update if data has actually changed to prevent render loops
-                    const currentString = JSON.stringify(schoolLocation)
-                    const newString = JSON.stringify(coords)
-                    
-                    if (currentString !== newString) {
-                        setSchoolLocation(coords)
-                        localStorage.setItem('school-geofence-cache', newString)
-                    }
-                }
-            }
-        }
-
-        // Monitoring proximity
-        if ("geolocation" in navigator) {
-            const watchId = navigator.geolocation.watchPosition((pos) => {
-                const activeLocation = schoolLocation || (cachedCoords ? JSON.parse(cachedCoords) : null)
-                if (activeLocation) {
-                    const { verified } = isWithinRadius(
-                        pos.coords.latitude,
-                        pos.coords.longitude,
-                        activeLocation.latitude,
-                        activeLocation.longitude,
-                        activeLocation.radius_meters
-                    )
-                    setIsWithinRange(verified)
-                }
-            }, () => {
-                setIsWithinRange(null)
-            }, { enableHighAccuracy: true })
-
-            return () => navigator.geolocation.clearWatch(watchId)
-        }
-    }, [schoolLocation])
-
     const loadStatus = useCallback(async () => {
         const res = await getClockInStatus(getLocalToday())
         if (res.success && res.data) {
@@ -110,10 +60,56 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
         }
     }, [])
 
+    const fetchSchoolCoords = useCallback(async () => {
+        // Try to load from local cache first
+        if (!schoolLocation) {
+            const cachedCoords = localStorage.getItem('school-geofence-cache')
+            if (cachedCoords) setSchoolLocation(JSON.parse(cachedCoords))
+        }
+
+        if (navigator.onLine) {
+            const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+
+            const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+            if (profile) {
+                const coords = await getSchoolCoordinates(profile.tenant_id)
+                if (coords) {
+                    const newString = JSON.stringify(coords)
+                    if (JSON.stringify(schoolLocation) !== newString) {
+                        setSchoolLocation(coords)
+                        localStorage.setItem('school-geofence-cache', newString)
+                    }
+                }
+            }
+        }
+    }, [schoolLocation])
+
     useEffect(() => {
         loadStatus()
-        initGeofencing()
-    }, [isOnline, loadStatus, initGeofencing])
+        fetchSchoolCoords()
+    }, [isOnline, loadStatus, fetchSchoolCoords])
+
+    // Separate effect for watching position to prevent leaks and loops
+    useEffect(() => {
+        if (!schoolLocation || !("geolocation" in navigator)) return
+
+        const watchId = navigator.geolocation.watchPosition((pos) => {
+            const { verified } = isWithinRadius(
+                pos.coords.latitude,
+                pos.coords.longitude,
+                schoolLocation.latitude,
+                schoolLocation.longitude,
+                schoolLocation.radius_meters
+            )
+            setIsWithinRange(verified)
+        }, () => {
+            setIsWithinRange(null)
+        }, { enableHighAccuracy: true })
+
+        return () => navigator.geolocation.clearWatch(watchId)
+    }, [schoolLocation])
 
     const handleClockIn = async (overridePin?: string) => {
         setLoading(true)
