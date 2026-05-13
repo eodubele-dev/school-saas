@@ -74,7 +74,9 @@ export async function clockInStaff(
         
         // 2. PIN-BASED BYPASS
         // Allows manual verification for schools without dedicated network
-        const isFromPin = pin && schoolLocation.attendance_pin === pin
+        // We use string comparison to avoid type mismatches (JSONB numbers vs string input)
+        const storedPin = schoolLocation.attendance_pin
+        const isFromPin = pin && storedPin && String(storedPin).trim() === String(pin).trim()
 
         // Verify location ONLY if NOT on trusted network or using valid PIN
         let { verified, distance } = isWithinRadius(
@@ -86,6 +88,7 @@ export async function clockInStaff(
         )
 
         if (isFromTrustedIP || isFromPin) {
+            console.log(`[ClockIn] Bypass active. IP Match: ${isFromTrustedIP}, PIN Match: ${isFromPin}`)
             verified = true
             distance = 0 // On-site via Bypass
         }
@@ -188,13 +191,13 @@ export async function clockInStaff(
             user.id
         ).catch(err => console.error("Audit log failed:", err))
 
-        // Non-blocking revalidation
-        Promise.resolve().then(() => revalidatePath('/[domain]/dashboard/attendance'))
+        // We skip revalidatePath here because the client-side loadStatus() 
+        // will fetch the fresh data immediately anyway.
         
         return { success: true, verified: true, distance }
-    } catch (error) {
-        console.error('Error in clockInStaff:', error)
-        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+    } catch (error: any) {
+        console.error('Error in clockInStaff:', error.message || error)
+        return { success: false, error: error.message || 'Verification system timeout' }
     }
 }
 
