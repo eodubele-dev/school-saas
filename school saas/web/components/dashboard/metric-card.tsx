@@ -47,7 +47,7 @@ export function MetricCard({ title, value, icon: Icon, description, trend, id, c
             </CardHeader>
             <CardContent>
                 <div className="flex flex-col gap-1">
-                    <div className="text-4xl font-black text-foreground tracking-tighter">
+                    <div className="text-3xl sm:text-4xl font-black text-foreground tracking-tighter">
                         {value}
                     </div>
                     {(description || trend) && (

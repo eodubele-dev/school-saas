@@ -95,7 +95,7 @@ export function TeacherDashboard({ tier = 'starter' }: { tier?: string }) {
                                         <p className="font-bold text-slate-100 group-hover/item:text-blue-400 transition-colors">{lesson.title}</p>
                                         <p className="text-sm text-muted-foreground font-medium">{lesson.subject} • {new Date(lesson.date).toLocaleDateString()}</p>
                                     </div>
-                                    <div className="opacity-0 group-hover/item:opacity-100 transition-opacity">
+                                    <div className="flex-none opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 transition-opacity">
                                         <button
                                             onClick={() => {
                                                 toast.info("Opening Lesson", { description: lesson.title })
@@ -103,7 +103,8 @@ export function TeacherDashboard({ tier = 'starter' }: { tier?: string }) {
                                             }}
                                             className="text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1.5 rounded-full hover:bg-blue-500/20 uppercase tracking-wider"
                                         >
-                                            Manage Lessons
+                                            <span className="hidden sm:inline">Manage Lessons</span>
+                                            <span className="sm:hidden">Manage</span>
                                         </button>
                                     </div>
                                 </div>
