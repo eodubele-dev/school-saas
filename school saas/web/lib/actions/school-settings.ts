@@ -29,11 +29,27 @@ export async function updateGeofenceSettings(
     try {
         // Optimization: Fetch both sources in parallel or use a fallback approach
         // We only really need theme_config for merging. Top-level settings is a legacy sync target.
-        const { data: tenant, error: fetchError } = await supabase
+        let { data: tenant, error: fetchError } = await supabase
             .from('tenants')
             .select('theme_config, settings')
             .eq('id', profile.tenant_id)
             .single()
+
+        // Safety Fallback: If the fetch failed (e.g. settings column missing),
+        // we must fetch ONLY theme_config to avoid overwriting existing branding data.
+        if (fetchError || !tenant) {
+            const { data: fallbackTenant } = await supabase
+                .from('tenants')
+                .select('theme_config')
+                .eq('id', profile.tenant_id)
+                .single()
+            
+            if (fallbackTenant) {
+                tenant = { theme_config: fallbackTenant.theme_config, settings: (fallbackTenant.theme_config as any)?.settings || {} }
+            } else {
+                throw new Error("Institutional profile not found")
+            }
+        }
 
         const currentThemeConfig = (tenant?.theme_config as any) || {}
         const currentSettings = tenant?.settings || currentThemeConfig.settings || {}
