@@ -133,12 +133,26 @@ export async function updateTenantBranding(tenantId: string, data: {
     console.log('[updateTenantBranding] Attempting update for:', tenantId)
     console.log('[updateTenantBranding] Updates:', updates)
 
-    // 3. Update Tenant (Try with Service Role to bypass RLS if standard fails)
+    // 3. Update Tenant
+    // We wrap the update in a try-catch or check the result to handle missing columns gracefully
     let { data: updateData, error } = await supabase
         .from('tenants')
         .update(updates)
         .eq('id', tenantId)
         .select()
+
+    // If it failed because of a missing 'settings' column, retry without it
+    if (error && (error.code === 'PGRST204' || error.message.includes('settings'))) {
+        console.warn("[updateTenantBranding] Top-level settings column missing. Retrying without it.")
+        delete updates.settings
+        const retry = await supabase
+            .from('tenants')
+            .update(updates)
+            .eq('id', tenantId)
+            .select()
+        updateData = retry.data
+        error = retry.error
+    }
 
     if (error || !updateData || updateData.length === 0) {
         console.warn("[updateTenantBranding] Standard update failed or matched 0 rows. Error:", error?.message, "Trying Service Role...")

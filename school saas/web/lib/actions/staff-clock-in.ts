@@ -246,21 +246,38 @@ export async function getSchoolCoordinates(
         // Correctly fetch from tenants table to match Admin Settings
         const { data, error } = await supabase
             .from('tenants')
-            .select('geofence_lat, geofence_lng, geofence_radius_meters, settings')
+            .select('geofence_lat, geofence_lng, geofence_radius_meters, settings, theme_config')
             .eq('id', tenantId)
             .single()
 
-        if (error || !data || !data.geofence_lat || !data.geofence_lng) {
-            console.error('School location not found in tenants config:', error)
-            return null
+        if (error || !data) {
+            // Fallback for missing settings column
+            const { data: fallbackData } = await supabase
+                .from('tenants')
+                .select('geofence_lat, geofence_lng, geofence_radius_meters, theme_config')
+                .eq('id', tenantId)
+                .single()
+            
+            if (!fallbackData || !fallbackData.geofence_lat || !fallbackData.geofence_lng) {
+                console.error('School location not found in tenants config:', error)
+                return null
+            }
+
+            return {
+                latitude: Number(fallbackData.geofence_lat),
+                longitude: Number(fallbackData.geofence_lng),
+                radius_meters: fallbackData.geofence_radius_meters || 500,
+                trusted_ips: (fallbackData.theme_config as any)?.settings?.trusted_ips || [],
+                attendance_pin: (fallbackData.theme_config as any)?.settings?.attendance_pin || null
+            }
         }
 
         return {
             latitude: Number(data.geofence_lat),
             longitude: Number(data.geofence_lng),
             radius_meters: data.geofence_radius_meters || 500,
-            trusted_ips: (data.settings as any)?.trusted_ips || [],
-            attendance_pin: (data.settings as any)?.attendance_pin || null
+            trusted_ips: (data.settings as any)?.trusted_ips || (data.theme_config as any)?.settings?.trusted_ips || [],
+            attendance_pin: (data.settings as any)?.attendance_pin || (data.theme_config as any)?.settings?.attendance_pin || null
         }
 
     } catch (error) {
