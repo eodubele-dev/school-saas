@@ -145,53 +145,53 @@ export async function clockInStaff(
 
 
         // 4. Auto-activate Class Register (if Form Teacher)
-        const { data: formClass } = await supabase
-            .from('classes')
-            .select('id')
-            .eq('form_teacher_id', user.id)
-            .maybeSingle()
-
         let registerId = null;
-
-        if (formClass) {
-            // Create/Get Register
-            const { data: register, error: regError } = await supabase
-                .from('attendance_registers')
-                .upsert({
-                    tenant_id: profile.tenant_id,
-                    class_id: formClass.id,
-                    date: today,
-                    marked_by: user.id,
-                    marked_at_latitude: latitude,
-                    marked_at_longitude: longitude,
-                    is_within_geofence: true
-                }, {
-                    onConflict: 'class_id, date'
-                })
+        if (profile.role === 'teacher') {
+            const { data: formClass } = await supabase
+                .from('classes')
                 .select('id')
-                .single()
+                .eq('form_teacher_id', user.id)
+                .maybeSingle()
 
-            if (register) {
-                registerId = register.id
-            } else if (regError) {
-                console.error("Auto-register creation failed:", regError)
+            if (formClass) {
+                // Create/Get Register
+                const { data: register, error: regError } = await supabase
+                    .from('attendance_registers')
+                    .upsert({
+                        tenant_id: profile.tenant_id,
+                        class_id: formClass.id,
+                        date: today,
+                        marked_by: user.id,
+                        marked_at_latitude: latitude,
+                        marked_at_longitude: longitude,
+                        is_within_geofence: true
+                    }, {
+                        onConflict: 'class_id, date'
+                    })
+                    .select('id')
+                    .single()
+
+                if (register) {
+                    registerId = register.id
+                } else if (regError) {
+                    console.error("Auto-register creation failed:", regError)
+                }
             }
         }
 
-        // Forensic Recording in Audit Log
-        const logResponse = await logActivity(
+        // Forensic Recording in Audit Log (Non-blocking)
+        logActivity(
             'System',
             'CLOCK_IN',
             `Staff clocked in successfully. Distance: ${Math.round(distance)}m. ${registerId ? 'Class Register Activated.' : ''}`,
             'profiles',
             user.id
-        )
+        ).catch(err => console.error("Audit log failed:", err))
 
-        const auditLogId = logResponse && 'data' in logResponse && logResponse.data ? logResponse.data.id : undefined
-
-        revalidatePath('/[domain]/dashboard/attendance')
-        return { success: true, verified: true, distance, auditLogId }
-
+        // Non-blocking revalidation
+        Promise.resolve().then(() => revalidatePath('/[domain]/dashboard/attendance'))
+        
+        return { success: true, verified: true, distance }
     } catch (error) {
         console.error('Error in clockInStaff:', error)
         return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }

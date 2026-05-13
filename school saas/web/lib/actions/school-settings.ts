@@ -90,8 +90,20 @@ export async function updateGeofenceSettings(
                 if (error) console.warn("Legacy settings sync failed:", error.message)
             })
 
-        revalidatePath('/[domain]/dashboard/settings', 'page')
-        return { success: true, message: "Geofence settings updated successfully" }
+        // Non-blocking revalidation
+        // We trigger it but don't await it to avoid blocking the UI response
+        const revalidatePromise = Promise.resolve().then(() => revalidatePath('/[domain]/dashboard/settings', 'page'))
+
+        return { 
+            success: true, 
+            message: "Geofence settings updated successfully",
+            data: {
+                geofence_lat: latitude,
+                geofence_lng: longitude,
+                geofence_radius_meters: radius,
+                settings: mergedSettings
+            }
+        }
     } catch (error: any) {
         console.error("Geofence Update Error:", error)
         

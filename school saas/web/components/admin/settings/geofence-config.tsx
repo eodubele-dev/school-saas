@@ -121,6 +121,17 @@ export function GeofenceConfig() {
 
             const res = await updateGeofenceSettings(lat, lng, rad, coords.trustedIPs, coords.attendancePin)
             if (res.success) {
+                // Optimistic UI Update: Update local state with returned data immediately
+                if (res.data) {
+                    setCoords({
+                        lat: res.data.geofence_lat.toString(),
+                        lng: res.data.geofence_lng.toString(),
+                        radius: res.data.geofence_radius_meters.toString(),
+                        trustedIPs: res.data.settings?.trusted_ips || [],
+                        attendancePin: res.data.settings?.attendance_pin || ''
+                    })
+                }
+
                 toast.success("Security Config Updated", {
                     description: "Geofence, IPs, and Access PIN are now active."
                 })
