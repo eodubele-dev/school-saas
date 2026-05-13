@@ -43,7 +43,7 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     const initGeofencing = useCallback(async () => {
         // Try to load from local cache first for offline support
         const cachedCoords = localStorage.getItem('school-geofence-cache')
-        if (cachedCoords) {
+        if (cachedCoords && !schoolLocation) {
             setSchoolLocation(JSON.parse(cachedCoords))
         }
 
@@ -56,8 +56,14 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
             if (profile) {
                 const coords = await getSchoolCoordinates(profile.tenant_id)
                 if (coords) {
-                    setSchoolLocation(coords)
-                    localStorage.setItem('school-geofence-cache', JSON.stringify(coords))
+                    // Only update if data has actually changed to prevent render loops
+                    const currentString = JSON.stringify(schoolLocation)
+                    const newString = JSON.stringify(coords)
+                    
+                    if (currentString !== newString) {
+                        setSchoolLocation(coords)
+                        localStorage.setItem('school-geofence-cache', newString)
+                    }
                 }
             }
         }
