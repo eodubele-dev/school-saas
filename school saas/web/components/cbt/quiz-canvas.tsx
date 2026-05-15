@@ -80,24 +80,26 @@ function QuestionCard({ question, index, onRemove, onUpdate }: {
         <div className="group bg-card text-card-foreground/60 border border-border/50 rounded-2xl p-6 transition-all hover:bg-card text-card-foreground/80 hover:border-blue-500/20 relative">
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-hover:bg-blue-600 rounded-l-2xl transition-all" />
 
-            <div className="flex items-start gap-4">
-                <div className="pt-1 cursor-grab active:cursor-grabbing text-slate-700">
+            <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                <div className="hidden sm:block pt-1 cursor-grab active:cursor-grabbing text-slate-700">
                     <GripVertical className="h-5 w-5" />
                 </div>
 
-                <div className="flex-1 space-y-6">
-                    <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-500 bg-blue-500/10 px-2 py-1 rounded">
+                <div className="flex-1 space-y-4 sm:space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-500 bg-blue-500/10 px-2 py-1 rounded self-start">
                             Question {index + 1}
                         </span>
-                        <div className="flex items-center gap-2">
-                            <Input
-                                type="number"
-                                className="w-16 h-8 bg-slate-950/50 border-border text-center text-xs"
-                                value={question.points}
-                                onChange={(e) => onUpdate(question.id, { points: parseInt(e.target.value) })}
-                            />
-                            <span className="text-[10px] text-slate-600 uppercase font-bold pr-2 border-r border-border/50">Marks</span>
+                        <div className="flex items-center gap-2 self-end sm:self-auto">
+                            <div className="flex items-center gap-1.5 bg-slate-950/50 px-2 py-1 rounded border border-border/50">
+                                <span className="text-[9px] text-slate-600 uppercase font-black">Marks</span>
+                                <Input
+                                    type="number"
+                                    className="w-10 sm:w-12 h-6 bg-transparent border-none text-center text-[10px] font-bold p-0 focus-visible:ring-0"
+                                    value={question.points}
+                                    onChange={(e) => onUpdate(question.id, { points: parseInt(e.target.value) })}
+                                />
+                            </div>
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -109,25 +111,25 @@ function QuestionCard({ question, index, onRemove, onUpdate }: {
                         </div>
                     </div>
 
-                    <div className="space-y-3">
-                        <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Question Text</Label>
+                    <div className="space-y-2 sm:space-y-3">
+                        <Label className="text-[9px] sm:text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Question Text</Label>
                         <Textarea
                             value={question.question_text}
                             onChange={(e) => onUpdate(question.id, { question_text: e.target.value })}
-                            className="bg-transparent border-border text-foreground font-medium resize-none min-h-[80px]"
+                            className="bg-transparent border-border text-foreground font-medium resize-none min-h-[60px] sm:min-h-[80px] text-sm sm:text-base"
                             placeholder="Enter your question here..."
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                         {['A', 'B', 'C', 'D'].map((label, i) => (
-                            <div key={i} className="space-y-2 relative group-opt">
-                                <Label className="text-[10px] uppercase font-bold text-slate-600">Option {label}</Label>
+                            <div key={i} className="space-y-1.5 sm:space-y-2 relative group-opt">
+                                <Label className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-600">Option {label}</Label>
                                 <div className="flex gap-2">
                                     <Input
                                         value={question.options[i]}
                                         onChange={(e) => updateOption(i, e.target.value)}
-                                        className={`bg-slate-950/30 border-border/50 text-sm transition-all focus:border-blue-500/50 ${question.correct_option === i ? 'ring-2 ring-emerald-500/50 border-emerald-500/50 bg-emerald-500/5' : ''
+                                        className={`bg-slate-950/30 border-border/50 text-xs sm:text-sm h-9 sm:h-10 transition-all focus:border-blue-500/50 ${question.correct_option === i ? 'ring-2 ring-emerald-500/50 border-emerald-500/50 bg-emerald-500/5' : ''
                                             }`}
                                     />
                                     <button

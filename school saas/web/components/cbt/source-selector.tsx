@@ -85,22 +85,22 @@ export function SourceSelector({ onAddQuestions }: SourceSelectorProps) {
 
     return (
         <div className="bg-[#0f172a] text-slate-300 border border-white/5 rounded-2xl p-4 md:p-6 h-full flex flex-col gap-6">
-            <div className="w-full overflow-x-auto scrollbar-hide -mx-2 px-2">
-                <div className="flex gap-2 bg-slate-950 p-1.5 rounded-xl border border-white/5 w-max min-w-full">
+            <div className="w-full overflow-x-auto scrollbar-hide -mx-2 px-2 scroll-smooth">
+                <div className="flex gap-2 bg-slate-950 p-1 rounded-xl border border-white/5 w-max min-w-full sm:w-full">
                     {[
                         { id: 'manual', icon: Plus, label: 'Manual' },
                         { id: 'ai', icon: Sparkles, label: 'AI Gen' },
-                        { id: 'bank', icon: Database, label: 'Exam Bank' }
+                        { id: 'bank', icon: Database, label: 'Bank' }
                     ].map((s) => (
                         <button
                             key={s.id}
                             onClick={() => setSource(s.id as 'manual' | 'ai' | 'bank')}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2 px-6 rounded-lg text-xs font-black transition-all ${source === s.id
+                            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 sm:px-6 rounded-lg text-[10px] sm:text-xs font-black transition-all ${source === s.id
                                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
                                 : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
                                 }`}
                         >
-                            <s.icon className={`h-3.5 w-3.5 ${source === s.id ? 'animate-pulse' : ''}`} />
+                            <s.icon className={`h-3.5 w-3.5 shrink-0 ${source === s.id ? 'animate-pulse' : ''}`} />
                             <span className="whitespace-nowrap">{s.label}</span>
                         </button>
                     ))}
