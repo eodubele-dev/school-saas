@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { formatDate } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Loader2, Send, Save, ChevronDown, Check, X, HelpCircle, WifiOff, Clock } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { toast } from "sonner"
+import { createClient } from "@/lib/supabase/client"
 import { useOfflineSync } from "@/components/providers/offline-sync-provider"
 import {
     DropdownMenu,
@@ -23,6 +24,7 @@ import { getClockInStatus } from "@/lib/actions/staff-clock-in"
 export function PremiumStudentRegister() {
     const { queueAction, isOnline } = useOfflineSync()
     const router = useRouter()
+    const params = useParams()
     const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
     const [classInfo, setClassInfo] = useState<{ id: string, name: string } | null>(null)
@@ -50,8 +52,25 @@ export function PremiumStudentRegister() {
     const loadData = async (isBackground = false) => {
         if (!isBackground) setLoading(true)
         try {
-            // 0. Check Clock-In Status first
-            const statusRes = await getClockInStatus(getLocalToday())
+            // 0. Resolve Tenant ID from domain slug
+            const domain = (params?.domain as string) || ''
+            if (!domain) return // Should not happen in dynamic route
+
+            const supabase = createClient()
+            const { data: tenant, error: tenantError } = await supabase
+                .from('tenants')
+                .select('id')
+                .eq('slug', domain)
+                .single()
+            
+            if (tenantError || !tenant) {
+                console.error("Tenant resolution failed:", tenantError)
+                if (!isBackground) setLoading(false)
+                return 
+            }
+            
+            // 1. Check Clock-In Status first (Tenant-aware)
+            const statusRes = await getClockInStatus(getLocalToday(), tenant.id)
             if (!statusRes.success || !statusRes.data?.clockedIn) {
                 setIsVerified(false)
                 if (!isBackground) setLoading(false)
@@ -59,8 +78,8 @@ export function PremiumStudentRegister() {
             }
             setIsVerified(true)
 
-            // 1. Get Assigned Class
-            const classRes = await getAssignedClass()
+            // 1. Get Assigned Class (Tenant-aware)
+            const classRes = await getAssignedClass(tenant?.id)
             if (!classRes.success || !classRes.data) {
                 // If no class, stop here (UI will show empty state)
                 if (!isBackground) setLoading(false)
@@ -110,7 +129,7 @@ export function PremiumStudentRegister() {
             }
         } catch (error) {
             if (navigator.onLine) {
-                toast.error("Failed to load class data")
+                toast.error(`Failed to load class data: ${error instanceof Error ? error.message : 'Unknown Error'}`)
             } else {
                 // Try to load from cache if offline
                 const cachedClass = localStorage.getItem('offline-class-info')

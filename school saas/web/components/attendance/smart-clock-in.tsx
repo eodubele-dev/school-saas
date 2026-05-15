@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
+import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MapPin, Clock, CheckCircle2, AlertTriangle, Loader2, ShieldCheck } from "lucide-react"
@@ -37,11 +38,16 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     const [failedDistance, setFailedDistance] = useState(0)
     const [failedAttemptId, setFailedAttemptId] = useState('')
     const [schoolLocation, setSchoolLocation] = useState<{ latitude: number, longitude: number, radius_meters: number } | null>(null)
+    const params = useParams()
+    const domain = params?.domain as string
+
+    const [tenantId, setTenantId] = useState<string | null>(null)
     const [verificationPin, setVerificationPin] = useState('')
     const [showPinDialog, setShowPinDialog] = useState(false)
 
-    const loadStatus = useCallback(async () => {
-        const res = await getClockInStatus(getLocalToday())
+    const loadStatus = useCallback(async (currentTenantId?: string) => {
+        const tId = currentTenantId || tenantId
+        const res = await getClockInStatus(getLocalToday(), tId || undefined)
         if (res.success && res.data) {
             // Check if late (after 8:00 AM)
             let isLate = false
@@ -58,12 +64,12 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                 isLate
             })
         }
-    }, [])
+    }, [tenantId])
 
     const fetchSchoolCoords = useCallback(async () => {
         // Try to load from local cache first
         if (!schoolLocation) {
-            const cachedCoords = localStorage.getItem('school-geofence-cache')
+            const cachedCoords = localStorage.getItem(`school-geofence-cache-${domain}`)
             if (cachedCoords) setSchoolLocation(JSON.parse(cachedCoords))
         }
 
@@ -72,19 +78,26 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
 
-            const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
-            if (profile) {
-                const coords = await getSchoolCoordinates(profile.tenant_id)
+            // Get tenant by domain slug first to be absolutely sure of the context
+            const { data: tenant } = await supabase.from('tenants').select('id').eq('slug', domain).single()
+            if (tenant) {
+                setTenantId(tenant.id)
+                
+                // Fetch coordinates
+                const coords = await getSchoolCoordinates(tenant.id)
                 if (coords) {
                     const newString = JSON.stringify(coords)
                     if (JSON.stringify(schoolLocation) !== newString) {
                         setSchoolLocation(coords)
-                        localStorage.setItem('school-geofence-cache', newString)
+                        localStorage.setItem(`school-geofence-cache-${domain}`, newString)
                     }
                 }
+                
+                // Also trigger status load with this tenant ID immediately
+                loadStatus(tenant.id)
             }
         }
-    }, [schoolLocation])
+    }, [schoolLocation, domain, loadStatus])
 
     useEffect(() => {
         loadStatus()
@@ -117,7 +130,7 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
             // Helper to perform the actual server-side clock in
             const performClockIn = async (lat: number, lng: number) => {
                 if (isOnline) {
-                    const res = await clockInStaff(lat, lng, getLocalToday(), overridePin)
+                    const res = await clockInStaff(lat, lng, getLocalToday(), overridePin, tenantId || undefined)
 
                     if (res.success) {
                         toast.success("Verification Successful", {

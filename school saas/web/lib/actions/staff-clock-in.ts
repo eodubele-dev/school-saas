@@ -30,7 +30,8 @@ export async function clockInStaff(
     latitude: number,
     longitude: number,
     date?: string,
-    pin?: string
+    pin?: string,
+    tenantId?: string
 ): Promise<ClockInResult> {
     const supabase = createClient()
 
@@ -40,15 +41,20 @@ export async function clockInStaff(
             return { success: false, error: 'Not authenticated' }
         }
 
-        // Get tenant ID
-        const { data: profile } = await supabase
+        // Get tenant ID (Filter by provided tenantId to support multi-school profiles)
+        const profileQuery = supabase
             .from('profiles')
             .select('tenant_id, role')
             .eq('id', user.id)
-            .single()
+        
+        if (tenantId) {
+            profileQuery.eq('tenant_id', tenantId)
+        }
+
+        const { data: profile } = await profileQuery.maybeSingle()
 
         if (!profile) {
-            return { success: false, error: 'Profile not found' }
+            return { success: false, error: 'Staff profile not found for this school context.' }
         }
 
         // Verify user is staff (teacher or admin)
@@ -133,12 +139,13 @@ export async function clockInStaff(
                 date: today,
                 status: 'present',
                 check_in_time: checkInTime,
+                check_out_time: null, // Clear any previous check out if re-clocking in
                 latitude,
                 longitude,
                 distance_meters: distance,
                 location_verified: true
             }, {
-                onConflict: 'staff_id,date'
+                onConflict: 'staff_id,date,tenant_id'
             })
 
         if (error) {
@@ -191,8 +198,9 @@ export async function clockInStaff(
             user.id
         ).catch(err => console.error("Audit log failed:", err))
 
-        // We skip revalidatePath here because the client-side loadStatus() 
-        // will fetch the fresh data immediately anyway.
+        // Force revalidation to clear Next.js caches
+        revalidatePath('/dashboard/attendance')
+        revalidatePath('/[domain]/dashboard/attendance', 'page')
         
         return { success: true, verified: true, distance }
     } catch (error: any) {
@@ -292,7 +300,7 @@ export async function getSchoolCoordinates(
 /**
  * Get staff clock-in status for today
  */
-export async function getClockInStatus(date?: string): Promise<{
+export async function getClockInStatus(date?: string, tenantId?: string): Promise<{
     success: boolean
     data?: {
         clockedIn: boolean
@@ -313,12 +321,17 @@ export async function getClockInStatus(date?: string): Promise<{
 
         const today = date || new Date().toISOString().split('T')[0]
 
-        const { data, error } = await supabaseAdmin
+        const query = supabaseAdmin
             .from('staff_attendance')
             .select('check_in_time, check_out_time, distance_meters, location_verified')
             .eq('staff_id', user.id)
             .eq('date', today)
-            .single()
+        
+        if (tenantId) {
+            query.eq('tenant_id', tenantId)
+        }
+
+        const { data, error } = await query.maybeSingle()
 
         if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
             console.error('Error fetching clock-in status:', error)

@@ -13,7 +13,7 @@ export interface StudentAttendanceDTO {
     remarks?: string
 }
 
-export async function getAssignedClass() {
+export async function getAssignedClass(tenantId?: string) {
     const supabaseAdmin = createAdminClient()
     try {
         const { data: { user } } = await createClient().auth.getUser()
@@ -22,10 +22,20 @@ export async function getAssignedClass() {
         const classIds = new Set<string>()
 
         // 1. Collect all possible assigned IDs from all sources
+        const formQuery = supabaseAdmin.from('classes').select('id').eq('form_teacher_id', user.id)
+        const subjectQuery = supabaseAdmin.from('subject_assignments').select('class_id').eq('teacher_id', user.id)
+        const allocationQuery = supabaseAdmin.from('teacher_allocations').select('class_id').eq('teacher_id', user.id)
+
+        if (tenantId) {
+            formQuery.eq('tenant_id', tenantId)
+            subjectQuery.eq('tenant_id', tenantId)
+            allocationQuery.eq('tenant_id', tenantId)
+        }
+
         const [formClasses, subjectAssigns, allocations] = await Promise.all([
-            supabaseAdmin.from('classes').select('id').eq('form_teacher_id', user.id),
-            supabaseAdmin.from('subject_assignments').select('class_id').eq('teacher_id', user.id),
-            supabaseAdmin.from('teacher_allocations').select('class_id').eq('teacher_id', user.id)
+            formQuery,
+            subjectQuery,
+            allocationQuery
         ])
 
         formClasses.data?.forEach(c => classIds.add(c.id))
