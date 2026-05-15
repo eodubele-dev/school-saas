@@ -31,7 +31,8 @@ export async function clockInStaff(
     longitude: number,
     date?: string,
     pin?: string,
-    tenantId?: string
+    tenantId?: string,
+    localTime?: string
 ): Promise<ClockInResult> {
     const supabase = createClient()
 
@@ -130,7 +131,7 @@ export async function clockInStaff(
         // 3. Record attendance with Forensic Metadata
         const today = date || new Date().toLocaleDateString('en-CA')
         const now = new Date()
-        const checkInTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`
+        const checkInTime = localTime || now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 
         const { error } = await supabase
             .from('staff_attendance')

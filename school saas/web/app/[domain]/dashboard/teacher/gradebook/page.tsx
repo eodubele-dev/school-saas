@@ -7,19 +7,25 @@ import { Button } from "@/components/ui/button"
 
 export default async function GradebookPage({ params, searchParams }: { params: { domain: string }, searchParams: { class_id?: string, subject_id?: string } }) {
     const { domain } = params
-    const term = "1st Term"
-    const session = "2023/2024"
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    // Security Audit: Check Clock-In Status & Admin Override
+    // 1. Fetch Profile & Tenant Context
     const [{ data: profile }, { data: tenant }] = await Promise.all([
         supabase.from('profiles').select('role, tenant_id').eq('id', user?.id).single(),
         supabase.from('tenants').select('id').eq('slug', domain).single()
     ])
 
+    // 2. Fetch Active Session & Security Status
+    const [sessionRes, clockStatus] = await Promise.all([
+        supabase.from('academic_sessions').select('session, term').eq('tenant_id', tenant?.id).eq('is_active', true).maybeSingle(),
+        getClockInStatus(undefined, tenant?.id)
+    ])
+
+    const currentSession = sessionRes.data?.session || "2024/2025"
+    const currentTerm = sessionRes.data?.term || "1st Term"
+
     const isAdmin = ['admin', 'owner', 'super-admin'].includes(profile?.role || '')
-    const clockStatus = await getClockInStatus(undefined, tenant?.id)
     const isAuthorized = isAdmin || (clockStatus.success && clockStatus.data?.clockedIn && clockStatus.data?.verified)
 
     if (!isAuthorized) {
@@ -98,7 +104,7 @@ export default async function GradebookPage({ params, searchParams }: { params: 
                     Interactive Gradebook
                 </h1>
                 <p className="text-slate-400 ml-3">
-                    {className} • {subjectName} • 1st Term 2023/2024
+                    {className} • {subjectName} • {currentTerm} {currentSession}
                 </p>
             </div>
 
@@ -119,8 +125,8 @@ export default async function GradebookPage({ params, searchParams }: { params: 
                 classId={classId}
                 subjectId={subjectId}
                 domain={domain}
-                term={term}
-                session={session}
+                term={currentTerm}
+                session={currentSession}
             />
         </div>
     )

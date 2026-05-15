@@ -20,6 +20,10 @@ const getLocalToday = () => {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
+const getLocalTime = () => {
+    return new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+}
+
 interface SmartClockInProps {
     onClockIn?: () => void
 }
@@ -132,7 +136,7 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
             // Helper to perform the actual server-side clock in
             const performClockIn = async (lat: number, lng: number) => {
                 if (isOnline) {
-                    const res = await clockInStaff(lat, lng, getLocalToday(), overridePin, tenantId || undefined)
+                    const res = await clockInStaff(lat, lng, getLocalToday(), overridePin, tenantId || undefined, getLocalTime())
 
                     if (res.success) {
                         toast.success("Verification Successful", {
