@@ -30,10 +30,15 @@ const getLocalToday = () => {
 
 interface ClockInStatus {
     clockedIn: boolean
-    clockInTime: string | null
+    clockInTime: string | null   // Legacy UTC HH:MM:SS
     clockOutTime: string | null
+    clockInAt: string | null     // Authoritative TIMESTAMPTZ ISO string
+    clockOutAt: string | null
     distance: number | null
     verified: boolean
+    verificationMethod?: string
+    spoofingRisk?: string
+    ipLocation?: string | null
 }
 
 interface HistoryRecord {
@@ -189,14 +194,14 @@ export function StaffClockIn() {
                             <h3 className="text-2xl font-bold">
                                 {status?.clockedIn ? "Clocked In" : "Not Clocked In"}
                             </h3>
-                            {status?.clockInTime && (
+                            {status?.clockInAt && (
                                 <p className="text-muted-foreground">
-                                    Arrived at {status.clockInTime}
+                                    Arrived at {new Date(status.clockInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </p>
                             )}
-                            {status?.clockOutTime && (
+                            {status?.clockOutAt && (
                                 <p className="text-muted-foreground">
-                                    Left at {status.clockOutTime}
+                                    Left at {new Date(status.clockOutAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </p>
                             )}
                         </div>
