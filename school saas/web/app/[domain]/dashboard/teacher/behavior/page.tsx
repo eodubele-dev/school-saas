@@ -23,10 +23,10 @@ export default async function BehaviorManagerPage() {
     const students = await getStudents()
 
     return (
-        <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto min-h-screen bg-slate-950">
-            <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Behavior & Awards Manager</h1>
-                <p className="text-slate-400">Recognize excellence, track incidents, and process end-of-term evaluations.</p>
+        <div className="p-3 sm:p-6 md:p-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto min-h-screen bg-slate-950">
+            <div className="space-y-1">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight">Behavior & Awards Manager</h1>
+                <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">Recognize excellence, track incidents, and process end-of-term evaluations.</p>
             </div>
 
             <BehaviorTabs students={students} />

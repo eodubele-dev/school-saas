@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { logIncident } from "@/lib/actions/behavior"
 import { toast } from "sonner"
-import { AlertTriangle, Flag, CheckCircle2 } from "lucide-react"
+import { AlertTriangle, Flag, CheckCircle2, Loader2 } from "lucide-react"
 
 export function IncidentForm({ students }: { students: any[] }) {
     const [studentId, setStudentId] = useState("")
@@ -44,21 +44,21 @@ export function IncidentForm({ students }: { students: any[] }) {
     }
 
     return (
-        <Card className="p-6 bg-card text-card-foreground border-border/50 max-w-2xl">
-            <div className="mb-6">
-                <h3 className="text-foreground font-bold text-lg flex items-center gap-2">
-                    <Flag className="h-5 w-5 text-amber-500" />
+        <Card className="p-4 sm:p-6 bg-card text-card-foreground border-border/50 max-w-2xl shadow-xl">
+            <div className="mb-6 space-y-1">
+                <h3 className="text-foreground font-bold text-base sm:text-lg flex items-center gap-2">
+                    <Flag className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
                     Incident & Remarks Log
                 </h3>
-                <p className="text-muted-foreground text-sm">Securely log disciplinary issues or noteworthy praise.</p>
+                <p className="text-muted-foreground text-[10px] sm:text-sm">Securely log disciplinary issues or noteworthy praise.</p>
             </div>
 
             <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-xs font-medium text-muted-foreground">Student</label>
+                        <label className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">Student</label>
                         <Select value={studentId} onValueChange={setStudentId}>
-                            <SelectTrigger className="bg-slate-950 border-border text-foreground">
+                            <SelectTrigger className="bg-slate-950 border-border text-foreground h-9 sm:h-10 text-xs sm:text-sm">
                                 <SelectValue placeholder="Select student" />
                             </SelectTrigger>
                             <SelectContent className="bg-card text-card-foreground text-foreground border-border">
@@ -70,9 +70,9 @@ export function IncidentForm({ students }: { students: any[] }) {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-medium text-muted-foreground">Log Type</label>
+                        <label className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">Log Type</label>
                         <Select value={type} onValueChange={(v: any) => setType(v)}>
-                            <SelectTrigger className="bg-slate-950 border-border text-foreground">
+                            <SelectTrigger className="bg-slate-950 border-border text-foreground h-9 sm:h-10 text-xs sm:text-sm">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent className="bg-card text-card-foreground text-foreground border-border">
@@ -88,9 +88,9 @@ export function IncidentForm({ students }: { students: any[] }) {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground">Title / Headline</label>
+                    <label className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">Title / Headline</label>
                     <input
-                        className="w-full h-10 rounded-md border border-border bg-slate-950 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[var(--school-accent)]/20"
+                        className="w-full h-9 sm:h-10 rounded-md border border-border bg-slate-950 px-3 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[var(--school-accent)]/20 transition-all"
                         placeholder="e.g., Late to Assembly"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
@@ -98,9 +98,9 @@ export function IncidentForm({ students }: { students: any[] }) {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground">Detailed Description</label>
+                    <label className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">Detailed Description</label>
                     <Textarea
-                        className="bg-slate-950 border-border text-foreground min-h-[100px]"
+                        className="bg-slate-950 border-border text-foreground min-h-[100px] text-xs sm:text-sm"
                         placeholder="Provide context and details..."
                         value={desc}
                         onChange={(e) => setDesc(e.target.value)}
@@ -110,9 +110,10 @@ export function IncidentForm({ students }: { students: any[] }) {
                 <Button
                     onClick={handleLog}
                     disabled={!studentId || !title || submitting}
-                    className={`w-full font-bold ${type === 'disciplinary' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-cyan-600 hover:bg-cyan-700'} text-foreground shadow-lg`}
+                    className={`w-full h-10 sm:h-12 font-bold text-xs sm:text-sm ${type === 'disciplinary' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-cyan-600 hover:bg-cyan-700'} text-foreground shadow-lg transition-all`}
                 >
-                    {submitting ? "Submitting for Approval..." : "Log Entry"}
+                    {submitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                    {submitting ? "Submitting..." : "Log Entry"}
                 </Button>
             </div>
         </Card>

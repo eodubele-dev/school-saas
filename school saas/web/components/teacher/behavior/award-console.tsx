@@ -85,15 +85,15 @@ export function AwardConsole({ students }: { students: any[] }) {
     }
 
     return (
-        <div className="space-y-8 font-sans">
-            <div className="flex md:flex-row flex-col justify-between items-start md:items-center gap-4">
-                <div className="space-y-1.5">
-                    <h3 className="text-white font-medium text-2xl tracking-tight">Instant Recognition</h3>
-                    <p className="text-[#888] text-sm">Elevate student morale with character-driven achievements.</p>
+        <div className="space-y-6 sm:space-y-8 font-sans">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="space-y-1">
+                    <h3 className="text-white font-medium text-xl sm:text-2xl tracking-tight">Instant Recognition</h3>
+                    <p className="text-slate-500 text-xs sm:text-sm">Elevate student morale with character-driven achievements.</p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
                 {students.map((student) => (
                     <motion.div
                         key={student.id}
@@ -101,19 +101,19 @@ export function AwardConsole({ students }: { students: any[] }) {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setSelectedStudent(student)}
                     >
-                        <Card className="p-5 bg-card text-card-foreground border-border/50 hover:border-[var(--school-accent)] cursor-pointer transition-colors hover:bg-secondary/50 rounded-2xl shadow-sm">
-                            <div className="flex flex-col items-center text-center gap-3">
+                        <Card className="p-3 sm:p-5 bg-card text-card-foreground border-border/50 hover:border-[var(--school-accent)] cursor-pointer transition-colors hover:bg-secondary/50 rounded-2xl shadow-sm">
+                            <div className="flex flex-col items-center text-center gap-2 sm:gap-3">
                                 <div className="relative">
-                                    <Avatar className="h-14 w-14 ring-1 ring-border bg-slate-950">
+                                    <Avatar className="h-10 w-10 sm:h-14 sm:w-14 ring-1 ring-border bg-slate-950">
                                         <AvatarImage src={student.photo_url} className="object-cover" />
-                                        <AvatarFallback className="bg-slate-900 text-sm font-medium text-muted-foreground">
+                                        <AvatarFallback className="bg-slate-900 text-xs sm:text-sm font-medium text-muted-foreground">
                                             {student.full_name.substring(0, 2).toUpperCase()}
                                         </AvatarFallback>
                                     </Avatar>
                                 </div>
-                                <div className="space-y-0.5">
-                                    <span className="text-sm font-medium text-foreground block truncate w-28">{student.full_name}</span>
-                                    <span className="text-[11px] text-muted-foreground uppercase tracking-wider">#{student.id.split('-')[0]}</span>
+                                <div className="space-y-0.5 min-w-0 w-full">
+                                    <span className="text-xs sm:text-sm font-medium text-foreground block truncate px-1">{student.full_name}</span>
+                                    <span className="text-[9px] sm:text-[11px] text-muted-foreground uppercase tracking-wider block">#{student.id.split('-')[0]}</span>
                                 </div>
                             </div>
                         </Card>
