@@ -260,51 +260,75 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                         )}
                     </div>
                 ) : (
-                    <div className="space-y-6 w-full">
-                        <div className="h-36 w-36 rounded-full border-4 border-emerald-500/20 bg-emerald-500/5 flex flex-col items-center justify-center mx-auto animate-in zoom-in duration-500 relative">
-                            <div className="absolute inset-0 rounded-full border-t-2 border-emerald-500/40 animate-spin duration-[3000ms]" />
-                            <CheckCircle2 className="h-12 w-12 text-emerald-500 mb-1" />
-                        <div className="flex flex-col items-center gap-1">
-                            {/* Display time in LOCAL timezone from authoritative UTC timestamp */}
-                            <span className="text-3xl font-black text-white tracking-tighter">
-                                {status.clockInAt
-                                    ? new Date(status.clockInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                                    : '--:--'}
-                            </span>
-                            <div className="flex items-center gap-2">
-                                <span className="text-[10px] uppercase text-emerald-400 font-black tracking-widest">Active Duty</span>
-                                <span className="h-1 w-1 rounded-full bg-emerald-500/50" />
-                                <span className="text-[9px] uppercase text-slate-500 font-bold">
-                                    {status.verificationMethod === 'pin' ? 'PIN Verified' : 
-                                     status.verificationMethod === 'trusted_ip' ? 'Network Verified' : 
-                                     'GPS Verified'}
+                    <div className="flex flex-col items-center gap-4 w-full">
+                        
+                        {/* ── Clock Face ── Only checkmark + time inside the ring */}
+                        <div className="relative flex-shrink-0">
+                            {/* Spinning border ring */}
+                            <div className="h-36 w-36 rounded-full border-4 border-emerald-500/20 bg-emerald-500/5 flex flex-col items-center justify-center animate-in zoom-in duration-500">
+                                <div className="absolute inset-0 rounded-full border-t-2 border-emerald-500/40 animate-spin" style={{ animationDuration: '3000ms' }} />
+                                <CheckCircle2 className="h-8 w-8 text-emerald-500 mb-1 flex-shrink-0" />
+                                <span className="text-2xl font-black text-white tracking-tighter leading-none">
+                                    {status.clockInAt
+                                        ? new Date(status.clockInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                        : '--:--'}
                                 </span>
                             </div>
                         </div>
+
+                        {/* ── Status Labels ── Stacked below the ring, never overlap */}
+                        <div className="flex flex-col items-center gap-2 text-center">
+                            {/* Primary status */}
+                            <span className="text-xs font-black uppercase tracking-[0.15em] text-emerald-400">
+                                Active Duty
+                            </span>
+
+                            {/* Verification method pill */}
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-800/60 border border-white/5 rounded-full">
+                                <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${
+                                    status.verificationMethod === 'pin'
+                                        ? 'bg-purple-400'
+                                        : status.verificationMethod === 'trusted_ip'
+                                        ? 'bg-blue-400'
+                                        : 'bg-emerald-400'
+                                }`} />
+                                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 whitespace-nowrap">
+                                    {status.verificationMethod === 'pin'
+                                        ? 'PIN Verified'
+                                        : status.verificationMethod === 'trusted_ip'
+                                        ? 'Network Verified'
+                                        : 'GPS Verified'}
+                                </span>
+                            </div>
                         </div>
 
-                        {/* Spoofing Risk Warning — visible to staff as deterrent */}
-                        {(status.spoofingRisk === 'high' || status.spoofingRisk === 'medium') && (
-                            <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
-                                status.spoofingRisk === 'high'
-                                    ? 'bg-red-500/10 border-red-500/20 text-red-400'
-                                    : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
-                            }`}>
-                                <AlertTriangle className="h-3 w-3" />
-                                Location Mismatch Detected
-                            </div>
-                        )}
+                        {/* ── Alert Badges ── Only shown when relevant */}
+                        <div className="flex flex-col items-center gap-2 w-full">
+                            {/* Spoofing Risk Warning */}
+                            {(status.spoofingRisk === 'high' || status.spoofingRisk === 'medium') && (
+                                <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                                    status.spoofingRisk === 'high'
+                                        ? 'bg-red-500/10 border-red-500/20 text-red-400'
+                                        : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                                }`}>
+                                    <AlertTriangle className="h-3 w-3 flex-shrink-0" />
+                                    Location Mismatch Detected
+                                </div>
+                            )}
 
-                        {status.isLate && (
-                            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-amber-500 text-[10px] font-black uppercase tracking-wider">
-                                <AlertTriangle className="h-3 w-3" />
-                                Marked Late
-                            </div>
-                        )}
+                            {/* Late badge */}
+                            {status.isLate && (
+                                <div className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-amber-500 text-[10px] font-black uppercase tracking-wider">
+                                    <AlertTriangle className="h-3 w-3 flex-shrink-0" />
+                                    Marked Late
+                                </div>
+                            )}
+                        </div>
 
+                        {/* ── Clock Out Button ── Full width, consistent on all screens */}
                         <Button
                             variant="outline"
-                            className="w-full border-white/5 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white font-bold h-12 rounded-xl transition-all"
+                            className="w-full border-white/5 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white font-bold h-12 rounded-xl transition-all mt-1"
                             onClick={handleClockOut}
                             disabled={loading}
                         >
