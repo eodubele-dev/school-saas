@@ -150,134 +150,136 @@ export function GradeEntryGrid({ initialGrades, classId, subjectId, userRole, do
     const isAdmin = normalizedRole === 'admin' || normalizedRole === 'owner' || normalizedRole === 'manager'
 
     return (
-        <div className="space-y-6" data-user-role={userRole} data-is-admin={isAdmin ? "true" : "false"}>
-            <AnalyticsHeader grades={grades} />
+        <div className="space-y-4 sm:space-y-6" data-user-role={userRole} data-is-admin={isAdmin ? "true" : "false"}>
+            <div className="hidden sm:block">
+                <AnalyticsHeader grades={grades} />
+            </div>
 
-            <div className="flex justify-between items-center bg-card text-card-foreground p-4 border border-border/50 rounded-t-lg">
-                <h3 className="text-lg font-bold text-foreground">Student Scores</h3>
-                <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-card text-card-foreground p-3 sm:p-4 border border-border/50 rounded-t-lg gap-3">
+                <h3 className="text-base sm:text-lg font-bold text-foreground">Student Scores</h3>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
                     {isLocked ? (
-                        <div className="flex items-center gap-2 text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-full border border-amber-500/20 shadow-[0_0_15px_rgba(251,191,36,0.1)]">
-                            <Lock className="h-4 w-4" />
-                            <span className="text-sm font-black uppercase tracking-widest">Locked for Approval</span>
+                        <div className="flex items-center gap-2 text-amber-400 bg-amber-500/10 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-amber-500/20 shadow-[0_0_15px_rgba(251,191,36,0.1)]">
+                            <Lock className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span className="text-[10px] sm:text-sm font-black uppercase tracking-widest">Locked</span>
                         </div>
                     ) : (
-                        <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20 animate-pulse-subtle">
+                        <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-emerald-500/20 animate-pulse-subtle">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            <span className="text-sm font-black uppercase tracking-widest">Active Entry / Draft</span>
+                            <span className="text-[10px] sm:text-sm font-black uppercase tracking-widest">Active</span>
                         </div>
                     )}
 
                     {isLocked && isAdmin ? (
-                        <Button onClick={handleUnlock} variant="outline" className="border-blue-500/20 text-blue-400 hover:bg-blue-500/10 hover:text-blue-400 transition-all duration-300 font-bold uppercase tracking-tighter">
-                            <Lock className="h-4 w-4 mr-2" /> Unlock Grades
+                        <Button onClick={handleUnlock} variant="outline" size="sm" className="flex-1 sm:flex-none border-blue-500/20 text-blue-400 hover:bg-blue-500/10 hover:text-blue-400 transition-all duration-300 font-bold uppercase tracking-tighter text-[10px] sm:text-xs">
+                            <Lock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Unlock
                         </Button>
                     ) : !isLocked && (
-                        <Button onClick={handleLock} variant="outline" className="border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300 font-bold uppercase tracking-tighter shadow-lg shadow-red-500/5">
-                            <Rocket className="h-4 w-4 mr-2" /> Submit for Approval
+                        <Button onClick={handleLock} variant="outline" size="sm" className="flex-1 sm:flex-none border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300 font-bold uppercase tracking-tighter shadow-lg shadow-red-500/5 text-[10px] sm:text-xs">
+                            <Rocket className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> Submit
                         </Button>
                     )}
                 </div>
             </div>
 
-            <div className="overflow-x-auto border border-border/50 rounded-b-lg bg-card text-card-foreground">
-                <table className="w-full text-sm text-left">
-                    <thead className="text-xs text-muted-foreground uppercase bg-slate-950">
+            <div className="overflow-x-auto border border-border/50 rounded-b-lg bg-card text-card-foreground scrollbar-thin scrollbar-thumb-slate-800">
+                <table className="w-full text-[10px] sm:text-sm text-left">
+                    <thead className="text-[9px] sm:text-xs text-muted-foreground uppercase bg-slate-950">
                         <tr>
-                            <th className="px-4 py-3 sticky left-0 bg-slate-950 z-10 w-48 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)]">Student Name</th>
-                            <th className="px-2 py-3 w-20 text-center">CA 1 (20)</th>
-                            <th className="px-2 py-3 w-20 text-center">CA 2 (20)</th>
-                            <th className="px-2 py-3 w-20 text-center">Exam (60)</th>
-                            <th className="px-2 py-3 w-20 text-center">Total</th>
-                            <th className="px-2 py-3 w-16 text-center">Grade</th>
-                            <th className="px-4 py-3 min-w-[300px]">Subject Remarks</th>
+                            <th className="px-3 sm:px-4 py-3 sticky left-0 bg-slate-950 z-20 w-32 sm:w-48 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)]">Student Name</th>
+                            <th className="px-1 sm:px-2 py-3 w-14 sm:w-20 text-center">CA 1</th>
+                            <th className="px-1 sm:px-2 py-3 w-14 sm:w-20 text-center">CA 2</th>
+                            <th className="px-1 sm:px-2 py-3 w-14 sm:w-20 text-center">Exam</th>
+                            <th className="px-1 sm:px-2 py-3 w-14 sm:w-20 text-center">Total</th>
+                            <th className="px-1 sm:px-2 py-3 w-10 sm:w-16 text-center">Grd</th>
+                            <th className="px-3 sm:px-4 py-3 min-w-[200px] sm:min-w-[300px]">Subject Remarks</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                         {grades.map((grade, index) => (
                             <tr key={grade.student_id} className={cn("hover:bg-white/[0.02] group", isLocked && "opacity-70 pointer-events-none")}>
-                                <td className="px-4 py-2 font-medium text-slate-200 sticky left-0 bg-card text-card-foreground group-hover:bg-slate-800/50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)] transition-colors">
-                                    {grade.student_name}
-                                    {savingId === grade.student_id && <Loader2 className="h-3 w-3 animate-spin inline-block ml-2 text-muted-foreground" />}
-                                </td>
+                                 <td className="px-3 sm:px-4 py-2 font-medium text-slate-200 sticky left-0 bg-card text-card-foreground group-hover:bg-slate-800/50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)] transition-colors z-10 truncate max-w-[120px] sm:max-w-none">
+                                     {grade.student_name}
+                                     {savingId === grade.student_id && <Loader2 className="h-2 w-2 sm:h-3 sm:w-3 animate-spin inline-block ml-1 sm:ml-2 text-muted-foreground" />}
+                                 </td>
 
-                                {/* Inputs with Validation Glow */}
-                                <td className="px-2 py-2">
-                                    <Input
-                                        type="number"
-                                        value={grade.ca1}
-                                        data-row-index={index}
-                                        data-field="ca1"
-                                        onKeyDown={(e) => handleKeyDown(e, index, 'ca1')}
-                                        onChange={(e) => handleChange(grade.student_id, 'ca1', e.target.value)}
-                                        className={cn(
-                                            "bg-transparent border-transparent hover:border-border focus:bg-slate-950 focus:border-[var(--school-accent)] text-center h-8",
-                                            grade.ca1 > 20 && "border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)] text-red-500"
-                                        )}
-                                    />
-                                </td>
-                                <td className="px-2 py-2">
-                                    <Input
-                                        type="number"
-                                        value={grade.ca2}
-                                        data-row-index={index}
-                                        data-field="ca2"
-                                        onKeyDown={(e) => handleKeyDown(e, index, 'ca2')}
-                                        onChange={(e) => handleChange(grade.student_id, 'ca2', e.target.value)}
-                                        className={cn(
-                                            "bg-transparent border-transparent hover:border-border focus:bg-slate-950 focus:border-[var(--school-accent)] text-center h-8",
-                                            grade.ca2 > 20 && "border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)] text-red-500"
-                                        )}
-                                    />
-                                </td>
-                                <td className="px-2 py-2">
-                                    <Input
-                                        type="number"
-                                        value={grade.exam}
-                                        data-row-index={index}
-                                        data-field="exam"
-                                        onKeyDown={(e) => handleKeyDown(e, index, 'exam')}
-                                        onChange={(e) => handleChange(grade.student_id, 'exam', e.target.value)}
-                                        className={cn(
-                                            "bg-transparent border-transparent hover:border-border focus:bg-slate-950 focus:border-[var(--school-accent)] text-center h-8",
-                                            grade.exam > 60 && "border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)] text-red-500"
-                                        )}
-                                    />
-                                </td>
+                                 {/* Inputs with Validation Glow */}
+                                 <td className="px-1 sm:px-2 py-2">
+                                     <Input
+                                         type="number"
+                                         value={grade.ca1}
+                                         data-row-index={index}
+                                         data-field="ca1"
+                                         onKeyDown={(e) => handleKeyDown(e, index, 'ca1')}
+                                         onChange={(e) => handleChange(grade.student_id, 'ca1', e.target.value)}
+                                         className={cn(
+                                             "bg-transparent border-transparent hover:border-border focus:bg-slate-950 focus:border-[var(--school-accent)] text-center h-7 sm:h-8 px-1 sm:px-2 text-[10px] sm:text-sm",
+                                             grade.ca1 > 20 && "border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)] text-red-500"
+                                         )}
+                                     />
+                                 </td>
+                                 <td className="px-1 sm:px-2 py-2">
+                                     <Input
+                                         type="number"
+                                         value={grade.ca2}
+                                         data-row-index={index}
+                                         data-field="ca2"
+                                         onKeyDown={(e) => handleKeyDown(e, index, 'ca2')}
+                                         onChange={(e) => handleChange(grade.student_id, 'ca2', e.target.value)}
+                                         className={cn(
+                                             "bg-transparent border-transparent hover:border-border focus:bg-slate-950 focus:border-[var(--school-accent)] text-center h-7 sm:h-8 px-1 sm:px-2 text-[10px] sm:text-sm",
+                                             grade.ca2 > 20 && "border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)] text-red-500"
+                                         )}
+                                     />
+                                 </td>
+                                 <td className="px-1 sm:px-2 py-2">
+                                     <Input
+                                         type="number"
+                                         value={grade.exam}
+                                         data-row-index={index}
+                                         data-field="exam"
+                                         onKeyDown={(e) => handleKeyDown(e, index, 'exam')}
+                                         onChange={(e) => handleChange(grade.student_id, 'exam', e.target.value)}
+                                         className={cn(
+                                             "bg-transparent border-transparent hover:border-border focus:bg-slate-950 focus:border-[var(--school-accent)] text-center h-7 sm:h-8 px-1 sm:px-2 text-[10px] sm:text-sm",
+                                             grade.exam > 60 && "border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)] text-red-500"
+                                         )}
+                                     />
+                                 </td>
 
-                                <td className="px-2 py-2 text-center font-bold text-slate-300">
-                                    {grade.total}
-                                </td>
-                                <td className={cn("px-2 py-2 text-center font-bold",
-                                    grade.grade === 'A' ? "text-emerald-400" :
-                                        grade.grade === 'F' ? "text-red-400" : "text-amber-400"
-                                )}>
-                                    {grade.grade}
-                                </td>
+                                 <td className="px-1 sm:px-2 py-2 text-center font-bold text-slate-300 text-[10px] sm:text-sm">
+                                     {grade.total}
+                                 </td>
+                                 <td className={cn("px-1 sm:px-2 py-2 text-center font-bold text-[10px] sm:text-sm",
+                                     grade.grade === 'A' ? "text-emerald-400" :
+                                         grade.grade === 'F' ? "text-red-400" : "text-amber-400"
+                                 )}>
+                                     {grade.grade}
+                                 </td>
 
-                                <td className="px-4 py-2 relative">
-                                    <div className="flex items-center gap-2">
-                                        <Input
-                                            value={grade.remarks}
-                                            data-row-index={index}
-                                            data-field="remarks"
-                                            onKeyDown={(e) => handleKeyDown(e, index, 'remarks')}
-                                            onChange={(e) => handleChange(grade.student_id, 'remarks', e.target.value)}
-                                            className="bg-transparent border-transparent hover:border-border focus:bg-slate-950 focus:border-[var(--school-accent)] h-8 text-xs flex-1"
-                                            placeholder="Enter remark..."
-                                        />
-                                        {!isLocked && (
-                                            <RemarkGenerator
-                                                studentName={grade.student_name}
-                                                scores={grade}
-                                                currentRemark={grade.remarks}
-                                                onUpdate={(rem) => handleChange(grade.student_id, 'remarks', rem)}
-                                            />
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
+                                 <td className="px-3 sm:px-4 py-2 relative">
+                                     <div className="flex items-center gap-1 sm:gap-2">
+                                         <Input
+                                             value={grade.remarks}
+                                             data-row-index={index}
+                                             data-field="remarks"
+                                             onKeyDown={(e) => handleKeyDown(e, index, 'remarks')}
+                                             onChange={(e) => handleChange(grade.student_id, 'remarks', e.target.value)}
+                                             className="bg-transparent border-transparent hover:border-border focus:bg-slate-950 focus:border-[var(--school-accent)] h-7 sm:h-8 text-[10px] sm:text-xs flex-1 px-2"
+                                             placeholder="..."
+                                         />
+                                         {!isLocked && (
+                                             <RemarkGenerator
+                                                 studentName={grade.student_name}
+                                                 scores={grade}
+                                                 currentRemark={grade.remarks}
+                                                 onUpdate={(rem) => handleChange(grade.student_id, 'remarks', rem)}
+                                             />
+                                         )}
+                                     </div>
+                                 </td>
+                             </tr>
+                         ))}
                     </tbody>
                 </table>
             </div>

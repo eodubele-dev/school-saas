@@ -72,14 +72,14 @@ export function AssignmentsManager({ classId, subjectId, assignments = [] }: Ass
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium text-foreground">Active Assignments</h3>
+        <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h3 className="text-base sm:text-lg font-medium text-foreground">Active Assignments</h3>
                 <CreateAssignmentModal
                     classId={classId}
                     subjectId={subjectId}
                     trigger={
-                        <Button className="bg-[var(--school-accent)] text-foreground">
+                        <Button className="w-full sm:w-auto bg-[var(--school-accent)] text-foreground font-bold">
                             <Plus className="h-4 w-4 mr-2" /> New Assignment
                         </Button>
                     }

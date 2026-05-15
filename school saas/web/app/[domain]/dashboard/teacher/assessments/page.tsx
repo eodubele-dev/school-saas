@@ -152,29 +152,35 @@ export default async function AssessmentHubPage({ params, searchParams }: { para
     ])
 
     return (
-        <div className="p-4 md:p-6 h-[calc(100vh-80px)] flex flex-col">
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <BookOpenCheck className="h-8 w-8 text-[var(--school-accent)]" />
+        <div className="p-3 sm:p-4 md:p-6 h-screen max-h-[calc(100vh-64px)] sm:max-h-[calc(100vh-80px)] flex flex-col">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-4 sm:mb-6 gap-4">
+                <div className="space-y-1">
+                    <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+                        <BookOpenCheck className="h-6 w-6 sm:h-8 sm:w-8 text-[var(--school-accent)]" />
                         Assessment Hub
                     </h1>
-                    <p className="text-slate-400 ml-10">
-                        {className} • {subjectName} • {currentTerm} • {currentSession}
-                    </p>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] sm:text-xs text-slate-400 pl-8 sm:pl-10 font-medium">
+                        <span className="truncate max-w-[150px] sm:max-w-none">{className}</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-800" />
+                        <span className="truncate max-w-[150px] sm:max-w-none">{subjectName}</span>
+                        <span className="hidden sm:inline w-1 h-1 rounded-full bg-slate-800" />
+                        <span className="hidden sm:inline">{currentTerm}</span>
+                        <span className="hidden sm:inline w-1 h-1 rounded-full bg-slate-800" />
+                        <span className="hidden sm:inline">{currentSession}</span>
+                    </div>
                 </div>
             </div>
 
-            <Tabs defaultValue={searchParams.tab || "gradebook"} className="flex-1 flex flex-col">
-                <TabsList className="bg-slate-900 border border-white/10 w-full md:w-auto p-1 self-start mb-6">
-                    <TabsTrigger value="gradebook" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">
-                        <Table className="h-4 w-4 mr-2" /> Gradebook
+            <Tabs defaultValue={searchParams.tab || "gradebook"} className="flex-1 flex flex-col min-h-0">
+                <TabsList className="bg-slate-900 border border-white/10 w-full sm:w-auto p-1 self-start mb-4 overflow-x-auto justify-start sm:justify-center">
+                    <TabsTrigger value="gradebook" className="flex-1 sm:flex-none data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white text-[10px] sm:text-sm px-2 sm:px-4">
+                        <Table className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Gradebook
                     </TabsTrigger>
-                    <TabsTrigger value="assignments" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">
-                        <FileText className="h-4 w-4 mr-2" /> Assignments
+                    <TabsTrigger value="assignments" className="flex-1 sm:flex-none data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white text-[10px] sm:text-sm px-2 sm:px-4">
+                        <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Assignments
                     </TabsTrigger>
-                    <TabsTrigger value="cbt" className="data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white">
-                        <BrainCircuit className="h-4 w-4 mr-2" /> CBT / Quizzes
+                    <TabsTrigger value="cbt" className="flex-1 sm:flex-none data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white text-[10px] sm:text-sm px-2 sm:px-4">
+                        <BrainCircuit className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> CBT / Quizzes
                     </TabsTrigger>
                 </TabsList>
 
