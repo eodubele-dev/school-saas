@@ -221,6 +221,14 @@
     background: #475569;
     /* Slate 600 */
   }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 /* 🛡️ Desktop Flash Protection: Instantly suppress landing page elements in Tauri environment */

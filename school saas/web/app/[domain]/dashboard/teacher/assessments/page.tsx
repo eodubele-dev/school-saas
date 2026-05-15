@@ -172,15 +172,15 @@ export default async function AssessmentHubPage({ params, searchParams }: { para
             </div>
 
             <Tabs defaultValue={searchParams.tab || "gradebook"} className="flex-1 flex flex-col min-h-0">
-                <TabsList className="bg-slate-900 border border-white/10 w-full sm:w-auto p-1 self-start mb-4 overflow-x-auto justify-start sm:justify-center">
-                    <TabsTrigger value="gradebook" className="flex-1 sm:flex-none data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white text-[10px] sm:text-sm px-2 sm:px-4">
-                        <Table className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Gradebook
+                <TabsList className="bg-slate-900 border border-white/10 w-full sm:w-auto p-1.5 self-start mb-6 flex overflow-x-auto scrollbar-hide items-center justify-start sm:justify-center gap-1">
+                    <TabsTrigger value="gradebook" className="shrink-0 data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white text-[10px] sm:text-sm px-4 sm:px-6 h-8 sm:h-10 rounded-lg transition-all duration-300">
+                        <Table className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" /> Gradebook
                     </TabsTrigger>
-                    <TabsTrigger value="assignments" className="flex-1 sm:flex-none data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white text-[10px] sm:text-sm px-2 sm:px-4">
-                        <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Assignments
+                    <TabsTrigger value="assignments" className="shrink-0 data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white text-[10px] sm:text-sm px-4 sm:px-6 h-8 sm:h-10 rounded-lg transition-all duration-300">
+                        <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" /> Assignments
                     </TabsTrigger>
-                    <TabsTrigger value="cbt" className="flex-1 sm:flex-none data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white text-[10px] sm:text-sm px-2 sm:px-4">
-                        <BrainCircuit className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> CBT / Quizzes
+                    <TabsTrigger value="cbt" className="shrink-0 data-[state=active]:bg-[var(--school-accent)] data-[state=active]:text-white text-[10px] sm:text-sm px-4 sm:px-6 h-8 sm:h-10 rounded-lg transition-all duration-300">
+                        <BrainCircuit className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" /> CBT / Quizzes
                     </TabsTrigger>
                 </TabsList>
 
