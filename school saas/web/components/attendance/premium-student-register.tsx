@@ -56,32 +56,20 @@ export function PremiumStudentRegister() {
             const domain = (params?.domain as string) || ''
             if (!domain) return // Should not happen in dynamic route
 
-            const supabase = createClient()
-            const { data: tenant, error: tenantError } = await supabase
-                .from('tenants')
-                .select('id')
-                .eq('slug', domain)
-                .single()
-            
-            if (tenantError || !tenant) {
-                console.error("Tenant resolution failed:", tenantError)
+            const supabase = createClient()            // 1. Resolve Tenant Context once
+            const { data: tenant } = await supabase.from('tenants').select('id').eq('slug', domain).single()
+            if (!tenant) {
                 if (!isBackground) setLoading(false)
                 return 
             }
-            
-            // 1. Get User Profile for Role Check
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', (await supabase.auth.getUser()).data.user?.id)
-                .single()
-            
-            const isAdmin = ['admin', 'owner', 'super-admin'].includes(profile?.role || '')
 
-            // 2. Check Clock-In Status (Tenant-aware)
-            const statusRes = await getClockInStatus(getLocalToday(), tenant.id)
+            // 2. Perform Parallel Security & Identity Verification
+            const [profileRes, statusRes] = await Promise.all([
+                supabase.from('profiles').select('role').eq('id', (await supabase.auth.getUser()).data.user?.id).single(),
+                getClockInStatus(getLocalToday(), tenant.id)
+            ])
             
-            // SECURITY: Unlocked if Admin OR (Clocked-In AND Verified)
+            const isAdmin = ['admin', 'owner', 'super-admin'].includes(profileRes.data?.role || '')
             const isAuthorized = isAdmin || (statusRes.success && statusRes.data?.clockedIn && statusRes.data?.verified)
 
             if (!isAuthorized) {

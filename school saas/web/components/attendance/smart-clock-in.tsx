@@ -100,9 +100,9 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     }, [schoolLocation, domain, loadStatus])
 
     useEffect(() => {
-        loadStatus()
+        if (tenantId) loadStatus()
         fetchSchoolCoords()
-    }, [isOnline, loadStatus, fetchSchoolCoords])
+    }, [isOnline, loadStatus, fetchSchoolCoords, tenantId])
 
     // Separate effect for watching position to prevent leaks and loops
     useEffect(() => {

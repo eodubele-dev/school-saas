@@ -319,17 +319,29 @@ export async function getClockInStatus(date?: string, tenantId?: string): Promis
             return { success: false, error: 'Not authenticated' }
         }
 
-        const today = date || new Date().toISOString().split('T')[0]
+        const today = date || new Date().toLocaleDateString('en-CA') // YYYY-MM-DD
+
+        // SECURITY: tenantId is MANDATORY for multi-school support.
+        // If missing, we return no record to prevent cross-tenant data leakage.
+        if (!tenantId) {
+            return {
+                success: true,
+                data: {
+                    clockedIn: false,
+                    clockInTime: null,
+                    clockOutTime: null,
+                    distance: null,
+                    verified: false
+                }
+            }
+        }
 
         const query = supabaseAdmin
             .from('staff_attendance')
             .select('check_in_time, check_out_time, distance_meters, location_verified')
             .eq('staff_id', user.id)
             .eq('date', today)
-        
-        if (tenantId) {
-            query.eq('tenant_id', tenantId)
-        }
+            .eq('tenant_id', tenantId)
 
         const { data, error } = await query.maybeSingle()
 

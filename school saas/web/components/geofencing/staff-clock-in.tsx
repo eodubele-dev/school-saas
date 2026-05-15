@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useParams } from "next/navigation"
 import { formatDate } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
 import { MapPin, Clock, Navigation, CheckCircle, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
 
@@ -50,17 +52,25 @@ export function StaffClockIn() {
     const [history, setHistory] = useState<HistoryRecord[]>([])
     const [locationError, setLocationError] = useState<string | null>(null)
 
+    const params = useParams()
+    const domain = params?.domain as string
+
     // Load initial status
     useEffect(() => {
         loadData()
-    }, [])
+    }, [domain])
 
     const loadData = async () => {
         setLoading(true)
         try {
+            const supabase = createClient()
+            const { data: tenant } = await supabase.from('tenants').select('id').eq('slug', domain).single()
+            
+            if (!tenant) throw new Error("Tenant not found")
+
             const [statusRes, historyRes] = await Promise.all([
-                getClockInStatus(getLocalToday()),
-                getStaffAttendanceHistory()
+                getClockInStatus(getLocalToday(), tenant.id),
+                getStaffAttendanceHistory(undefined, tenant.id)
             ])
 
             if (statusRes.success && statusRes.data) {
@@ -91,6 +101,10 @@ export function StaffClockIn() {
         setLocationError(null)
 
         try {
+            const supabase = createClient()
+            const { data: tenant } = await supabase.from('tenants').select('id').eq('slug', domain).single()
+            if (!tenant) throw new Error("School context not found")
+
             // 1. Get Location
             toast.info("Requesting location access...")
             const position = await getCurrentPosition()
@@ -98,7 +112,7 @@ export function StaffClockIn() {
 
             // 2. Submit Clock In
             toast.loading("Verifying location...", { id: "clock-in" })
-            const result = await clockInStaff(latitude, longitude, getLocalToday())
+            const result = await clockInStaff(latitude, longitude, getLocalToday(), undefined, tenant.id)
 
             if (result.success) {
                 toast.success("Successfully clocked in!", { id: "clock-in" })
@@ -107,16 +121,11 @@ export function StaffClockIn() {
                 toast.error(result.error || "Failed to clock in", { id: "clock-in" })
                 if (result.error?.includes("radius") || result.error?.includes("away")) {
                     setLocationError(result.error)
-                    if (result.debug) {
-                        console.log("Geofence Debug:", result.debug)
-                        setLocationError(`${result.error} (Debug: Expected ${result.debug.expected.latitude}, ${result.debug.expected.longitude} | You are at ${result.debug.actual.latitude}, ${result.debug.actual.longitude})`)
-                    }
                 }
             }
         } catch (error) {
             console.error(error)
             toast.error("Could not retrieve location. Please enable GPS.", { id: "clock-in" })
-            setLocationError("Location access denied or unavailable. Please enable GPS to clock in.")
         } finally {
             setActionLoading(false)
         }
@@ -125,7 +134,11 @@ export function StaffClockIn() {
     const handleClockOut = async () => {
         setActionLoading(true)
         try {
-            const result = await clockOutStaff(getLocalToday())
+            const supabase = createClient()
+            const { data: tenant } = await supabase.from('tenants').select('id').eq('slug', domain).single()
+            if (!tenant) throw new Error("School context not found")
+
+            const result = await clockOutStaff(0, 0, getLocalToday(), tenant.id)
             if (result.success) {
                 toast.success("Successfully clocked out!")
                 loadData()
