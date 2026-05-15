@@ -19,7 +19,8 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { getAssignedClass, getClassStudents, markStudentAttendance, sendAbsenceSMS, clockOutStudent, getClassAttendance, StudentAttendanceDTO } from "@/lib/actions/student-attendance"
-import { getClockInStatus } from "@/lib/actions/staff-clock-in"
+import { getClockInStatus, getSchoolCoordinates } from "@/lib/actions/staff-clock-in"
+import { isWithinRadius } from "@/lib/utils/geolocation"
 
 export function PremiumStudentRegister() {
     const { queueAction, isOnline } = useOfflineSync()
@@ -64,15 +65,44 @@ export function PremiumStudentRegister() {
             }
 
             // 2. Perform Parallel Security & Identity Verification
-            const [profileRes, statusRes] = await Promise.all([
+            const [profileRes, statusRes, coordsRes] = await Promise.all([
                 supabase.from('profiles').select('role').eq('id', (await supabase.auth.getUser()).data.user?.id).single(),
-                getClockInStatus(getLocalToday(), tenant.id)
+                getClockInStatus(getLocalToday(), tenant.id),
+                getSchoolCoordinates(tenant.id)
             ])
             
             const isAdmin = ['admin', 'owner', 'super-admin'].includes(profileRes.data?.role || '')
-            const isAuthorized = isAdmin || (statusRes.success && statusRes.data?.clockedIn && statusRes.data?.verified)
+            const status = statusRes.data
+            const coords = coordsRes
 
-            if (!isAuthorized) {
+            // Geofence check for active duty
+            let isLocallyVerified = false
+            if (isAdmin) {
+                isLocallyVerified = true
+            } else if (status?.clockedIn && status?.verified) {
+                // If they used a PIN, we allow it. Otherwise check GPS.
+                if (status.verificationMethod === 'pin' || status.verificationMethod === 'trusted_ip') {
+                    isLocallyVerified = true
+                } else if (coords && "geolocation" in navigator) {
+                    // Force a GPS check for the register
+                    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+                    }).catch(() => null)
+
+                    if (position) {
+                        const { distance, verified } = isWithinRadius(
+                            position.coords.latitude,
+                            position.coords.longitude,
+                            coords.latitude,
+                            coords.longitude,
+                            coords.radius_meters
+                        )
+                        isLocallyVerified = verified
+                    }
+                }
+            }
+
+            if (!isLocallyVerified) {
                 setIsVerified(false)
                 if (!isBackground) setLoading(false)
                 return

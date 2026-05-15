@@ -31,7 +31,8 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
         clockedIn: boolean
         clockInTime: string | null
         isLate: boolean
-    }>({ clockedIn: false, clockInTime: null, isLate: false })
+        verificationMethod: string | null
+    }>({ clockedIn: false, clockInTime: null, isLate: false, verificationMethod: null })
     const [isWithinRange, setIsWithinRange] = useState<boolean | null>(null)
     const [showFailureAlert, setShowFailureAlert] = useState(false)
     const [showDisputeView, setShowDisputeView] = useState(false)
@@ -61,7 +62,8 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
             setStatus({
                 clockedIn: res.data.clockedIn,
                 clockInTime: res.data.clockInTime,
-                isLate
+                isLate,
+                verificationMethod: res.data.verificationMethod || 'gps'
             })
         }
     }, [tenantId])
@@ -256,8 +258,18 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                         <div className="h-36 w-36 rounded-full border-4 border-emerald-500/20 bg-emerald-500/5 flex flex-col items-center justify-center mx-auto animate-in zoom-in duration-500 relative">
                             <div className="absolute inset-0 rounded-full border-t-2 border-emerald-500/40 animate-spin duration-[3000ms]" />
                             <CheckCircle2 className="h-12 w-12 text-emerald-500 mb-1" />
+                        <div className="flex flex-col items-center gap-1">
                             <span className="text-3xl font-black text-white tracking-tighter">{status.clockInTime?.slice(0, 5)}</span>
-                            <span className="text-[10px] uppercase text-emerald-400 font-black tracking-widest">Active Duty</span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[10px] uppercase text-emerald-400 font-black tracking-widest">Active Duty</span>
+                                <span className="h-1 w-1 rounded-full bg-emerald-500/50" />
+                                <span className="text-[9px] uppercase text-slate-500 font-bold">
+                                    {status.verificationMethod === 'pin' ? 'PIN Verified' : 
+                                     status.verificationMethod === 'trusted_ip' ? 'Network Verified' : 
+                                     'GPS Verified'}
+                                </span>
+                            </div>
+                        </div>
                         </div>
 
                         {status.isLate && (

@@ -376,7 +376,7 @@ export async function getClockInStatus(date?: string, tenantId?: string): Promis
 
         const query = supabaseAdmin
             .from('staff_attendance')
-            .select('check_in_time, check_out_time, distance_meters, location_verified')
+            .select('check_in_time, check_out_time, distance_meters, location_verified, verification_method')
             .eq('staff_id', user.id)
             .eq('date', today)
             .eq('tenant_id', tenantId)
@@ -408,7 +408,8 @@ export async function getClockInStatus(date?: string, tenantId?: string): Promis
                 clockInTime: data.check_in_time,
                 clockOutTime: data.check_out_time,
                 distance: data.distance_meters ? Number(data.distance_meters) : null,
-                verified: data.location_verified || false
+                verified: data.location_verified || false,
+                verificationMethod: data.verification_method || 'gps'
             }
         }
 
