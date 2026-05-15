@@ -346,6 +346,7 @@ export async function getClockInStatus(date?: string, tenantId?: string): Promis
         clockOutTime: string | null
         distance: number | null
         verified: boolean
+        verificationMethod?: string
     }
     error?: string
 }> {

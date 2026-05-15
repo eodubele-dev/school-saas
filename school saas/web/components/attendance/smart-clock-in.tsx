@@ -160,7 +160,8 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                     setStatus({
                         clockedIn: true,
                         clockInTime: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-                        isLate: false
+                        isLate: false,
+                        verificationMethod: overridePin ? 'pin' : 'gps'
                     })
                 }
                 setLoading(false)
