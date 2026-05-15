@@ -57,9 +57,10 @@ export async function clockInStaff(
             return { success: false, error: 'Staff profile not found for this school context.' }
         }
 
-        // Verify user is staff (teacher or admin)
-        if (!['teacher', 'admin'].includes(profile.role)) {
-            return { success: false, error: 'Only teachers and admins can clock in' }
+        // Verify user is institutional staff
+        const staffRoles = ['teacher', 'admin', 'principal', 'owner', 'bursar', 'librarian', 'registrar', 'staff']
+        if (!staffRoles.includes(profile.role)) {
+            return { success: false, error: `Role '${profile.role}' is not authorized for institutional clock-in.` }
         }
 
         // Get school location & Trusted IPs
@@ -68,23 +69,23 @@ export async function clockInStaff(
             return { success: false, error: 'School location not configured' }
         }
 
-        // 1. TRUSTED NETWORK BYPASS (Check IP first)
-        // This solves the Desktop problem where GPS is missing
+        // 1. Capture Forensic Metadata
         const { headers } = await import('next/headers')
         const headerList = headers()
         const ip = headerList.get('x-forwarded-for')?.split(',')[0] || 
                    headerList.get('x-real-ip') || 
                    'unknown'
+        const userAgent = headerList.get('user-agent') || 'unknown'
         
         const isFromTrustedIP = schoolLocation.trusted_ips?.includes(ip)
-        
-        // 2. PIN-BASED BYPASS
-        // Allows manual verification for schools without dedicated network
-        // We use string comparison to avoid type mismatches (JSONB numbers vs string input)
         const storedPin = schoolLocation.attendance_pin
         const isFromPin = pin && storedPin && String(storedPin).trim() === String(pin).trim()
 
-        // Verify location ONLY if NOT on trusted network or using valid PIN
+        let verificationMethod = 'gps'
+        if (isFromTrustedIP) verificationMethod = 'trusted_ip'
+        if (isFromPin) verificationMethod = 'pin'
+
+        // 2. Verify Location ONLY if NOT on trusted network or using valid PIN
         let { verified, distance } = isWithinRadius(
             latitude,
             longitude,
@@ -94,7 +95,7 @@ export async function clockInStaff(
         )
 
         if (isFromTrustedIP || isFromPin) {
-            console.log(`[ClockIn] Bypass active. IP Match: ${isFromTrustedIP}, PIN Match: ${isFromPin}`)
+            console.log(`[ClockIn] Bypass active. Method: ${verificationMethod}`)
             verified = true
             distance = 0 // On-site via Bypass
         }
@@ -108,7 +109,7 @@ export async function clockInStaff(
                 'profiles',
                 user.id,
                 null,
-                { latitude, longitude, distance, radius: schoolLocation.radius_meters, ip, attempted_pin: pin }
+                { latitude, longitude, distance, radius: schoolLocation.radius_meters, ip, userAgent, attempted_pin: pin }
             )
 
             const auditLogId = logResponse && 'data' in logResponse && logResponse.data ? logResponse.data.id : undefined
@@ -126,8 +127,8 @@ export async function clockInStaff(
             }
         }
 
-        // Record attendance
-        const today = date || new Date().toISOString().split('T')[0]
+        // 3. Record attendance with Forensic Metadata
+        const today = date || new Date().toLocaleDateString('en-CA')
         const now = new Date()
         const checkInTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`
 
@@ -139,11 +140,14 @@ export async function clockInStaff(
                 date: today,
                 status: 'present',
                 check_in_time: checkInTime,
-                check_out_time: null, // Clear any previous check out if re-clocking in
+                check_out_time: null, 
                 latitude,
                 longitude,
                 distance_meters: distance,
-                location_verified: true
+                location_verified: true,
+                check_in_ip: ip,
+                verification_method: verificationMethod,
+                device_info: userAgent
             }, {
                 onConflict: 'staff_id,date,tenant_id'
             })
@@ -230,10 +234,17 @@ export async function clockOutStaff(
         const now = new Date()
         const checkOutTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`
 
+        const { headers } = await import('next/headers')
+        const headerList = headers()
+        const ip = headerList.get('x-forwarded-for')?.split(',')[0] || 
+                   headerList.get('x-real-ip') || 
+                   'unknown'
+
         const query = supabase
             .from('staff_attendance')
             .update({ 
                 check_out_time: checkOutTime,
+                check_out_ip: ip,
                 // Optional: Store location at clock out
                 check_out_latitude: latitude > 0 ? latitude : null,
                 check_out_longitude: longitude > 0 ? longitude : null
@@ -252,7 +263,18 @@ export async function clockOutStaff(
             return { success: false, error: error.message }
         }
 
-        revalidatePath('/clock-in')
+        // Forensic Recording in Audit Log (Non-blocking)
+        logActivity(
+            'System',
+            'CLOCK_OUT',
+            `Staff clocked out successfully. Identity confirmed.`,
+            'profiles',
+            user.id
+        ).catch(err => console.error("Audit log failed:", err))
+
+        revalidatePath('/dashboard/attendance')
+        revalidatePath('/[domain]/dashboard/attendance', 'page')
+        
         return { success: true }
 
     } catch (error) {
