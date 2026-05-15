@@ -1,11 +1,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
 import { GradeEntryGrid } from "@/components/academic/grade-entry-grid"
 import { AssignmentsManager } from "@/components/academic/assignments-manager"
 import { CBTManager } from "@/components/cbt/cbt-manager"
 import { getClassGrades } from "@/lib/actions/gradebook"
 import { getAssignments } from "@/lib/actions/assignments"
 import { createClient } from "@/lib/supabase/server"
-import { BookOpenCheck, FileText, BrainCircuit, Table, AlertCircle } from "lucide-react"
+import { getClockInStatus } from "@/lib/actions/staff-clock-in"
+import { BookOpenCheck, FileText, BrainCircuit, Table, AlertCircle, Lock } from "lucide-react"
 
 export default async function AssessmentHubPage({ params, searchParams }: { params: { domain: string }, searchParams: { class_id?: string, subject_id?: string, tab?: string } }) {
     const supabase = createClient()
@@ -146,10 +148,43 @@ export default async function AssessmentHubPage({ params, searchParams }: { para
     }
 
     // 4. Fetch Grades & Assignments in Parallel
-    const [gradesRes, assignmentsRes] = await Promise.all([
+    const [gradesRes, assignmentsRes, clockStatus] = await Promise.all([
         getClassGrades(classId, subjectId, currentTerm, currentSession),
-        getAssignments(classId, subjectId)
+        getAssignments(classId, subjectId),
+        getClockInStatus(undefined, tenantId)
     ])
+
+    const isAdmin = ['admin', 'owner', 'super-admin'].includes(userRole)
+    const isClockedIn = isAdmin || (clockStatus.success && clockStatus.data?.clockedIn)
+
+    if (!isClockedIn) {
+        return (
+            <div className="h-full flex flex-col items-center justify-center p-10 text-center">
+                <div className="relative mb-8">
+                    <div className="absolute inset-0 bg-amber-500 opacity-20 blur-[60px] rounded-full animate-pulse" />
+                    <div className="relative bg-slate-900/50 border border-white/10 p-6 rounded-[2.5rem] backdrop-blur-3xl shadow-2xl">
+                        <Lock className="h-16 w-16 text-amber-500" />
+                    </div>
+                </div>
+
+                <h2 className="text-3xl font-black text-white tracking-tighter mb-4 uppercase italic">
+                    Assessment <span className="text-amber-500">Locked</span>
+                </h2>
+
+                <p className="max-w-md text-slate-400 text-lg font-medium leading-relaxed mb-10">
+                    You must be actively <strong>Clocked In</strong> at your school location to access the Assessment Hub.
+                </p>
+
+                <div className="flex gap-4">
+                    <a href={`/${params.domain}/dashboard/attendance`}>
+                        <Button className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-8 h-12 rounded-full">
+                            Go to Clock-In
+                        </Button>
+                    </a>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="p-3 sm:p-4 md:p-6 h-screen max-h-[calc(100vh-64px)] sm:max-h-[calc(100vh-80px)] flex flex-col">

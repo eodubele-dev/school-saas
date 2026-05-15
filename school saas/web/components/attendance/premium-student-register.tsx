@@ -69,9 +69,22 @@ export function PremiumStudentRegister() {
                 return 
             }
             
-            // 1. Check Clock-In Status first (Tenant-aware)
+            // 1. Get User Profile for Role Check
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', (await supabase.auth.getUser()).data.user?.id)
+                .single()
+            
+            const isAdmin = ['admin', 'owner', 'super-admin'].includes(profile?.role || '')
+
+            // 2. Check Clock-In Status (Tenant-aware)
             const statusRes = await getClockInStatus(getLocalToday(), tenant.id)
-            if (!statusRes.success || !statusRes.data?.clockedIn) {
+            
+            // SECURITY: Unlocked if Admin OR (Clocked-In AND Verified)
+            const isAuthorized = isAdmin || (statusRes.success && statusRes.data?.clockedIn && statusRes.data?.verified)
+
+            if (!isAuthorized) {
                 setIsVerified(false)
                 if (!isBackground) setLoading(false)
                 return
@@ -79,7 +92,7 @@ export function PremiumStudentRegister() {
             setIsVerified(true)
 
             // 1. Get Assigned Class (Tenant-aware)
-            const classRes = await getAssignedClass(tenant?.id)
+            const classRes = await getAssignedClass(tenant.id)
             if (!classRes.success || !classRes.data) {
                 // If no class, stop here (UI will show empty state)
                 if (!isBackground) setLoading(false)
