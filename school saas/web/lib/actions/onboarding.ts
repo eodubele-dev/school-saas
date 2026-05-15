@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
-import { SubscriptionTier, SUBSCRIPTION_LIMITS } from '@/config/subscriptions'
+import { SubscriptionTier, SUBSCRIPTION_LIMITS, SUBSCRIPTION_PRICING } from '@/config/subscriptions'
 import { sendSMS } from '@/lib/services/termii'
 import { SMS_CONFIG } from '@/lib/constants/communication'
 import { sendWelcomeEmail } from '@/lib/services/email'

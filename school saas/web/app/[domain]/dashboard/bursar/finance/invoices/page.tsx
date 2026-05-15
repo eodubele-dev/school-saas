@@ -101,8 +101,8 @@ export default async function BursarInvoicesPage({
 
                     <SimplePagination 
                         currentPage={page}
-                        totalPages={totalPages}
-                        totalCount={totalCount}
+                        totalPages={totalPages || 1}
+                        totalCount={totalCount || 0}
                         pageSize={15}
                     />
                 </CardContent>

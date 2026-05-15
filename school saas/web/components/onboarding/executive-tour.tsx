@@ -131,7 +131,7 @@ export function ExecutiveTour({ enabled = true }: { enabled?: boolean }) {
         }
     ]
 
-    const customStyles: Styles = {
+    const customStyles: any = {
         options: {
             arrowColor: '#0f172a', // slate-900
             backgroundColor: '#0f172a',

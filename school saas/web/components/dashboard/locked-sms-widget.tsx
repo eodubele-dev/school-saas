@@ -21,7 +21,6 @@ export function LockedSMSWidget({
         <SMSWalletTrigger>
             {(open) => (
                 <LockedWidget
-                    isLocked={true}
                     tier={tier}
                     requiredTier={requiredTier}
                     message={message}

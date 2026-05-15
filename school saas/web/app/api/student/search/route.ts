@@ -56,7 +56,7 @@ export async function GET(request: Request) {
         .limit(3)
 
     // Format results
-    const results = []
+    let results: any[] = []
 
     if (assignments && assignments.length > 0) {
         assignments.forEach(a => {

@@ -77,10 +77,10 @@ async function fixTenantLinkage() {
             continue
         }
 
-        if (profileData.tenant_id === targetTenant.id) {
+        if (profileData?.tenant_id === targetTenant.id) {
             console.log(`✅ ${email} is already linked to ${targetSlug}.`)
         } else {
-            console.log(`🔄 Moving ${email} from ${profileData.tenant_id} to ${targetSlug}...`)
+            console.log(`🔄 Moving ${email} from ${profileData?.tenant_id || 'UNKNOWN'} to ${targetSlug}...`)
             const { error: updateError } = await supabase
                 .from('profiles')
                 .update({ tenant_id: targetTenant.id })

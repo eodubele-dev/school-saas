@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { safeParseJSON } from '@/lib/utils'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 import { getDecryptedPaystackConfig } from './finance-settings'
 

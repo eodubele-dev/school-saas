@@ -29,7 +29,7 @@ export default function RevenueRecoveryPage() {
     const recoveryRate = 65 // Mock %
 
     const handleWhatsAppRemind = async (student: any) => {
-        const payLink = await generatePaystackLink(student.studentName, student.balance)
+        const payLink = await generatePaystackLink('student', student.balance, 'parent@school.com')
 
         const message = `Dear Parent of ${student.studentName}, your ward has an outstanding school fee balance of ₦${student.balance.toLocaleString()}. Please pay securely here: ${payLink} to avoid service disruption. Thank you.`
 

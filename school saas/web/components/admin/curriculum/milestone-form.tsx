@@ -43,7 +43,7 @@ export function MilestoneForm({ isOpen, onClose, studentId, initialData, onSucce
     const [isDeleting, setIsDeleting] = useState(false)
 
     const form = useForm<z.infer<typeof milestoneSchema>>({
-        resolver: zodResolver(milestoneSchema),
+        resolver: zodResolver(milestoneSchema) as any,
         defaultValues: {
             subject: initialData?.subject || "",
             topic: initialData?.topic || "",
@@ -119,29 +119,29 @@ export function MilestoneForm({ isOpen, onClose, studentId, initialData, onSucce
                 </DialogHeader>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                    <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4 py-4">
                         <div className="grid grid-cols-2 gap-4">
                             <FormField
-                                control={form.control}
+                                control={form.control as any}
                                 name="subject"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-slate-300 text-xs uppercase tracking-widest font-bold">Subject</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="e.g. Mathematics" className="bg-secondary/50 border-border focus-visible:ring-cyan-500 text-foreground" {...field} />
+                                            <Input placeholder="e.g. Mathematics" className="bg-secondary/50 border-border focus-visible:ring-cyan-500 text-foreground" {...field as any} />
                                         </FormControl>
                                         <FormMessage className="text-red-400 text-xs" />
                                     </FormItem>
                                 )}
                             />
                             <FormField
-                                control={form.control}
+                                control={form.control as any}
                                 name="grade_level"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-slate-300 text-xs uppercase tracking-widest font-bold">Grade Level</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="e.g. JSS 2" className="bg-secondary/50 border-border focus-visible:ring-cyan-500 text-foreground" {...field} />
+                                            <Input placeholder="e.g. JSS 2" className="bg-secondary/50 border-border focus-visible:ring-cyan-500 text-foreground" {...field as any} />
                                         </FormControl>
                                         <FormMessage className="text-red-400 text-xs" />
                                     </FormItem>
@@ -150,13 +150,13 @@ export function MilestoneForm({ isOpen, onClose, studentId, initialData, onSucce
                         </div>
 
                         <FormField
-                            control={form.control}
+                            control={form.control as any}
                             name="topic"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="text-slate-300 text-xs uppercase tracking-widest font-bold">Topic / Unit</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="e.g. Algebraic Expressions" className="bg-secondary/50 border-border focus-visible:ring-cyan-500 text-foreground" {...field} />
+                                        <Input placeholder="e.g. Algebraic Expressions" className="bg-secondary/50 border-border focus-visible:ring-cyan-500 text-foreground" {...field as any} />
                                     </FormControl>
                                     <FormMessage className="text-red-400 text-xs" />
                                 </FormItem>
@@ -165,20 +165,20 @@ export function MilestoneForm({ isOpen, onClose, studentId, initialData, onSucce
 
                         <div className="grid grid-cols-2 gap-4">
                             <FormField
-                                control={form.control}
+                                control={form.control as any}
                                 name="week_range"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-slate-300 text-xs uppercase tracking-widest font-bold">Week Range</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="e.g. Week 1-2" className="bg-secondary/50 border-border focus-visible:ring-cyan-500 text-foreground" {...field} />
+                                            <Input placeholder="e.g. Week 1-2" className="bg-secondary/50 border-border focus-visible:ring-cyan-500 text-foreground" {...field as any} />
                                         </FormControl>
                                         <FormMessage className="text-red-400 text-xs" />
                                     </FormItem>
                                 )}
                             />
                             <FormField
-                                control={form.control}
+                                control={form.control as any}
                                 name="status"
                                 render={({ field }) => (
                                     <FormItem>
@@ -203,7 +203,7 @@ export function MilestoneForm({ isOpen, onClose, studentId, initialData, onSucce
 
                         {statusValue === 'in-progress' && (
                             <FormField
-                                control={form.control}
+                                control={form.control as any}
                                 name="progress_percent"
                                 render={({ field }) => (
                                     <FormItem className="bg-cyan-500/10 p-4 rounded-xl border border-cyan-500/20">
@@ -218,8 +218,8 @@ export function MilestoneForm({ isOpen, onClose, studentId, initialData, onSucce
                                                 max="100"
                                                 step="5"
                                                 className="w-full accent-cyan-500"
-                                                value={field.value}
-                                                onChange={field.onChange}
+                                                value={(field as any).value}
+                                                onChange={(field as any).onChange}
                                             />
                                         </FormControl>
                                         <FormMessage className="text-red-400 text-xs" />

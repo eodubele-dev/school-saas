@@ -179,7 +179,7 @@ export async function getStudentAttendanceAudit(studentId: string, page = 1, pag
     }
 
     // 2.5 Fetch clocked_out_by profiles manually to avoid schema cache issues with missing foreign keys
-    const profileIds = [...new Set((logs || []).map(l => l.clocked_out_by).filter(Boolean))] as string[];
+    const profileIds = Array.from(new Set((logs || []).map(l => l.clocked_out_by).filter(Boolean))) as string[];
     let profileMap: Record<string, string> = {};
     if (profileIds.length > 0) {
         const { data: profiles } = await supabase.from('profiles').select('id, full_name').in('id', profileIds);

@@ -56,8 +56,7 @@ async function seedPastQuestions() {
             break
         }
     }
-    if (error) console.error("Error seeding questions:", error)
-    else console.log("Successfully seeded 3 past questions.")
+    console.log(`Successfully finished seeding attempt for ${questions.length} questions.`)
 }
 
 seedPastQuestions()

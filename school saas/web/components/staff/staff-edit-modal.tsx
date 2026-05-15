@@ -156,7 +156,8 @@ export function StaffEditModal({ user, isOpen, onClose }: StaffEditModalProps) {
                             <div className="space-y-2">
                                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Draw New Signature Below</p>
                                 <SignaturePad
-                                    onEnd={(dataUrl) => setFormData(prev => ({ ...prev, signature: dataUrl }))}
+                                    value={formData.signature}
+                                    onChange={(dataUrl: string | null) => setFormData(prev => ({ ...prev, signature: dataUrl }))}
                                 />
                             </div>
                         </div>

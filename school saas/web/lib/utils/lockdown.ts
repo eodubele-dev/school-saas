@@ -1,4 +1,4 @@
-import { getCurrentWindow } from "@tauri-apps/api/window"
+import { getCurrentWindow, availableMonitors } from "@tauri-apps/api/window"
 import { isDesktop } from "./desktop"
 
 /**
@@ -50,8 +50,7 @@ export async function checkSystemIntegrity() {
 
   try {
     // In Tauri v2, monitors are queried from the window instance
-    const appWindow = getCurrentWindow()
-    const monitors = await appWindow.availableMonitors()
+    const monitors = await availableMonitors()
     
     return {
       success: monitors.length === 1,

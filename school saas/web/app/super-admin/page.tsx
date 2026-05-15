@@ -46,6 +46,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
+    AlertDialogContent as AlertDialogContentRoot,
 } from "@/components/ui/alert-dialog"
 import { 
     AreaChart, 
@@ -110,7 +111,7 @@ export default function SuperAdminDashboard() {
         setLoadingChart(true)
         try {
             const res = await getRevenueStats(timeRange)
-            if (res.success) setRevenueData(res.data)
+            if (res.success) setRevenueData(res.data || [])
         } finally {
             setLoadingChart(false)
         }

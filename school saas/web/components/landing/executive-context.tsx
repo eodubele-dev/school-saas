@@ -26,6 +26,7 @@ interface ExecutiveConversionContextType {
     triggerVideoDemo: () => void
     resetVideoDemo: () => void
     scrollToSection: (sectionId: string, highlight?: boolean) => void
+    pathname: string
 }
 
 const ExecutiveConversionContext = createContext<ExecutiveConversionContextType | undefined>(undefined)
@@ -140,7 +141,8 @@ export function ExecutiveConversionProvider({ children }: { children: ReactNode 
                 closeSupport,
                 triggerVideoDemo,
                 resetVideoDemo,
-                scrollToSection
+                scrollToSection,
+                pathname
             }}
         >
             {children}

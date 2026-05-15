@@ -64,7 +64,7 @@ export default function OnboardingWizard() {
                 }))
                 
                 // Only skip to Step 2 if we are still on Step 1
-                if (step === 1 && !recoveredData.step) {
+                if (step === 1 && !(recoveredData as any).step) {
                     setStep(2)
                 }
             }
@@ -121,7 +121,7 @@ export default function OnboardingWizard() {
                 nerdcPresets: true
             }
 
-            const res = await createTenant(payload)
+            const res = await createTenant({ ...payload, logoUrl: data.logoUrl || undefined } as any)
             
             if (!res) {
                 throw new Error("No response from server. This may be due to a timeout or configuration error.")
@@ -135,7 +135,7 @@ export default function OnboardingWizard() {
                 }, 4000)
             } else {
                 toast.error("Setup Failed", {
-                    description: res.error || "Please try again."
+                    description: (res as any).error || "Please try again."
                 })
                 setIsSubmitting(false)
             }

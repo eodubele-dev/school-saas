@@ -3,13 +3,23 @@ import * as React from 'react';
 interface WelcomeEmailProps {
     schoolName: string;
     subdomain: string;
-    userEmail: string;
+    userEmail?: string;
+    parentEmail?: string;
+    parentPassword?: string;
+    studentName?: string;
+    studentEmail?: string;
+    studentPassword?: string;
 }
 
 export const WelcomePlatinumEmail: React.FC<WelcomeEmailProps> = ({
     schoolName,
     subdomain,
     userEmail,
+    parentEmail,
+    parentPassword,
+    studentName,
+    studentEmail,
+    studentPassword
 }) => (
     <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '600px', margin: '0 auto', color: '#1a1a1a' }}>
         {/* Header */}

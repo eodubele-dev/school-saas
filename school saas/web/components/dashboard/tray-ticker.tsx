@@ -40,11 +40,11 @@ export function TrayTicker() {
 
                 // 3. Initialize/Update Tray
                 if (!tray) {
-                    tray = await TrayIcon.new({
+                    tray = await (TrayIcon as any).new({
                         id: 'eduflow-tray',
                         menu,
                         menuOnLeftClick: false,
-                        action: (event) => {
+                        action: (event: any) => {
                             // On click, restore and focus the main window
                             if (event.type === 'Click' && event.button === 'Left') {
                                 getCurrentWindow().show()
@@ -54,7 +54,7 @@ export function TrayTicker() {
                     })
 
                     // Handle Menu Events
-                    menu.onMenuEvent(async (id) => {
+                    (menu as any).onMenuEvent(async (id: string) => {
                         if (id === 'show') {
                             const win = getCurrentWindow()
                             await win.show()

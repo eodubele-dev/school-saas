@@ -25,7 +25,8 @@ async function confirmUser() {
   console.log(`Checking for user with email: ${emailToConfirm}...`)
 
   // 1. Find the user
-  const { data: { user }, error: getError } = await supabase.auth.admin.getUserByEmail(emailToConfirm)
+  const { data: { users }, error: getError } = await supabase.auth.admin.listUsers()
+  const user = users.find(u => u.email === emailToConfirm)
 
   if (getError) {
     if (getError.message.includes('Database error')) {

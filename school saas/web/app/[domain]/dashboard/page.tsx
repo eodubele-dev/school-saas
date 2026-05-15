@@ -28,7 +28,7 @@ export default async function DashboardPage({
     const appMeta = user.app_metadata || {}
 
     // @ts-ignore - Supabase type joins
-    const tenantData = profile?.tenants
+    const tenantData: any = profile?.tenants
     
     // Role: URL Param (Debug) > DB > JWT
     let role = searchParams.role || profile?.role || appMeta.role
@@ -37,29 +37,21 @@ export default async function DashboardPage({
     let schoolName = tenantData?.name || appMeta.schoolName || headers().get('x-school-name')
     let logoUrl = tenantData?.logo_url || appMeta.logoUrl
     let primaryColor = tenantData?.theme_config?.primary || appMeta.primaryColor
-    let tier = tenantData?.theme_config?.subscription_tier || appMeta.subscriptionTier || 'starter'
-    let isPilot = tenantData?.theme_config?.is_active && (tenantData?.theme_config?.subscription_tier === 'pilot')
     let smsBalance = tenantData?.sms_balance || 0
 
-    // Redundant fallback block removed since we fetched DB above
-
-    if (!schoolName) {
-        // Fallback branding (or if middleware skipped it?)
-        schoolName = domain.charAt(0).toUpperCase() + domain.slice(1)
-    }
+    const tier = tenantData?.theme_config?.subscription_tier || appMeta.subscriptionTier || 'starter'
 
     return (
         <BentoDashboardLoader
             user={user}
             role={role || 'guest'}
             schoolName={schoolName || domain}
-            primaryColor={primaryColor || '#00F5FF'}
-            tier={tier}
-            isPilot={isPilot}
+            logoUrl={logoUrl}
+            primaryColor={primaryColor || "#06b6d4"}
             smsBalance={smsBalance}
             subdomain={domain}
             studentId={searchParams.studentId}
-            logoUrl={logoUrl}
+            tier={tier}
         />
     )
 }

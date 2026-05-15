@@ -117,6 +117,7 @@ export function SourceSelector({ onAddQuestions }: SourceSelectorProps) {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => onAddQuestions([{
+                                    id: `manual-${Date.now()}`,
                                     question_text: "New Question",
                                     options: ["", "", "", ""],
                                     correct_option: 0,

@@ -37,7 +37,7 @@ export function QuickMessage({ classId }: { classId?: string | null }) {
                 toast.success((res as any).message || "Message Sent Successfully")
                 setMsg("")
             } else {
-                toast.error(res.error || "Failed to broadcast message")
+                toast.error((res as any).error || "Failed to broadcast message")
             }
         } catch (e) {
             toast.error("Network Error: Could not send broadcast")

@@ -158,6 +158,7 @@ export async function getExpenseAnalytics() {
         if (!user) return { success: false }
 
         const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single()
+        if (!profile) return { success: false, error: "Profile not found" }
 
         const { data: expenses } = await supabase
             .from('expenses')

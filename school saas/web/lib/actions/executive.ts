@@ -120,8 +120,8 @@ export async function getExecutiveStats(domain: string): Promise<{ success: bool
         return {
             id: t.id,
             name: t.full_name,
-            gradebookStatus: (attendanceMarkedCount || 0) > 0 ? 'Caught Up' : 'Lagging',
-            lessonPlanStatus: (lessonPlansCount || 0) > 0 ? 'On Track' : 'Pending'
+            gradebookStatus: ((attendanceMarkedCount || 0) > 0 ? 'Caught Up' : 'Lagging') as 'Caught Up' | 'Lagging',
+            lessonPlanStatus: ((lessonPlansCount || 0) > 0 ? 'On Track' : 'Pending') as 'On Track' | 'Pending'
         }
     }))
 

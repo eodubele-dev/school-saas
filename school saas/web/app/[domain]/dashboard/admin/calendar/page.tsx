@@ -1,9 +1,11 @@
 import { CalendarDays, AlertTriangle } from "lucide-react"
-import { getAdminSchoolEvents } from "@/lib/actions/calendar"
+import { getSchoolEvents } from "@/lib/actions/calendar"
 import { EventManager } from "@/components/admin/calendar/event-manager"
 
 export default async function AdminCalendarPage() {
-    const { success, events } = await getAdminSchoolEvents()
+    const res: any = await getSchoolEvents()
+    const events = res?.events || []
+    const success = res?.success ?? true
 
     return (
         <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto min-h-screen">

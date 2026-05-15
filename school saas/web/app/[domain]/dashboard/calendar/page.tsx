@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import {
     CalendarDays,
-    clock,
+    Clock,
     MapPin,
     Trophy,
     BookOpen,

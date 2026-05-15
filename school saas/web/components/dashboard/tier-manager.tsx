@@ -29,8 +29,8 @@ export function TierManager({ currentTier, schoolName, subdomain }: TierManagerP
                     description: res.message
                 })
 
-                // If upgrading to platinum, show the celebration
-                if (res.isUpgrade && tier.toLowerCase() === 'platinum') {
+                // If successful and target tier is platinum, show the celebration
+                if (tier.toLowerCase() === 'platinum') {
                     setShowSuccess(true)
                     // Auto-hide the overlay after a duration and refresh
                     setTimeout(() => {

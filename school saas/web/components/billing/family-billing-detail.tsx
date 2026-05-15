@@ -52,7 +52,7 @@ export function FamilyBillingDetail({
     const [showFullHistory, setShowFullHistory] = useState(false);
 
     // Print Logic
-    const componentRef = React.useRef(null);
+    const componentRef = React.useRef<HTMLDivElement>(null);
     const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
 
     const handlePrint = useReactToPrint({
@@ -126,6 +126,7 @@ export function FamilyBillingDetail({
             // The ledger data should ideally carry the invoiceId.
             // Assuming the invoice exists since balance > 0.
             const result = await initiatePayment({
+                amount: student.balance,
                 email: familyLedger.parentEmail || 'parent@school.com', 
                 studentId: studentId,
                 invoiceId: student.invoiceId,
@@ -198,7 +199,6 @@ export function FamilyBillingDetail({
                 </div>
             </div>
 
-            {/* Success Landing Overlay */}
             {showSuccess && (
                 <PaymentSuccessLanding
                     transactionData={showSuccess}
@@ -207,7 +207,6 @@ export function FamilyBillingDetail({
                 />
             )}
 
-            {/* 🏁 Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
                 <div>
                     <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mb-2 leading-none">
@@ -256,9 +255,7 @@ export function FamilyBillingDetail({
                     </div>
                 </div>
 
-                {/* Dashboard Summary Widgets */}
                 <div className="animate-in fade-in slide-in-from-top-4 duration-500">
-                    {/* Filter Summary Header */}
                     {statusFilter !== 'all' && (
                         <div className="mb-6 flex items-center gap-2 px-6 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full w-fit animate-in zoom-in duration-300">
                             <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
@@ -269,7 +266,6 @@ export function FamilyBillingDetail({
                     )}
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                        {/* Summary Card 1: Balance Breakdown */}
                         <div className="bg-card text-card-foreground/50 border border-border/50 border-t-4 border-t-rose-500/80 rounded-3xl p-6 backdrop-blur-sm shadow-xl shadow-rose-500/5">
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="p-2 bg-rose-500/10 rounded-xl text-rose-400">
@@ -282,7 +278,6 @@ export function FamilyBillingDetail({
                             <p className="text-[10px] text-muted-foreground mt-2">Family Debt</p>
                         </div>
 
-                        {/* Summary Card 2: Students Covered */}
                         <div className="bg-card text-card-foreground/50 border border-border/50 border-t-4 border-t-cyan-500/80 rounded-3xl p-6 backdrop-blur-sm shadow-xl shadow-cyan-500/5">
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="p-2 bg-cyan-500/10 rounded-xl text-cyan-400">
@@ -299,7 +294,6 @@ export function FamilyBillingDetail({
                             <p className="text-[10px] text-muted-foreground mt-2">All children currently in active session.</p>
                         </div>
 
-                        {/* Summary Card 3: Payment Health */}
                         <div className="bg-card text-card-foreground/50 border border-border/50 border-t-4 border-t-emerald-500/80 rounded-3xl p-6 backdrop-blur-sm shadow-xl shadow-emerald-500/5">
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-400">
@@ -313,7 +307,6 @@ export function FamilyBillingDetail({
                         </div>
                     </div>
 
-                    {/* Unified Multi-Child View */}
                     <div className="space-y-12">
                         {(() => {
                             const filteredChildren = familyLedger.children.filter(child => {
@@ -344,7 +337,6 @@ export function FamilyBillingDetail({
                             }
 
                             return filteredChildren.map((child) => {
-                                // Apply status filter to the child's individual fee line-items
                                 const filteredFees = child.fees.filter((f: any) => {
                                     if (statusFilter === 'all') return true;
                                     if (statusFilter === 'unpaid') return f.amount > 0;
@@ -353,7 +345,6 @@ export function FamilyBillingDetail({
 
                                 return (
                                     <div key={child.id} className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
-                                        {/* Billing Card (Left Column) */}
                                         <div className="w-full">
                                             <div className="mb-4 flex items-center justify-between">
                                                 <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest pl-2 border-l-2 border-cyan-500">Student Ledger</h3>
@@ -369,7 +360,6 @@ export function FamilyBillingDetail({
                                             />
                                         </div>
 
-                                        {/* Individual Ledger History (Right Column) */}
                                         <div className="w-full">
                                             <div className="mb-4 flex items-center justify-between">
                                                 <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Recent Activity</h3>

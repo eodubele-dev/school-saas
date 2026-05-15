@@ -3,7 +3,10 @@ import { getClassGrades } from "@/lib/actions/gradebook"
 import { AlertCircle } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 
-export default async function GradebookPage({ searchParams }: { searchParams: { class_id?: string, subject_id?: string } }) {
+export default async function GradebookPage({ params, searchParams }: { params: { domain: string }, searchParams: { class_id?: string, subject_id?: string } }) {
+    const { domain } = params
+    const term = "1st Term"
+    const session = "2023/2024"
     const supabase = createClient()
 
     // Fetch valid defaults if params are missing
@@ -76,6 +79,9 @@ export default async function GradebookPage({ searchParams }: { searchParams: { 
                 initialGrades={res.data || []}
                 classId={classId}
                 subjectId={subjectId}
+                domain={domain}
+                term={term}
+                session={session}
             />
         </div>
     )

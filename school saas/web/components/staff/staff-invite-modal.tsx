@@ -78,7 +78,8 @@ export function StaffInviteModal({ domain, tenantId }: { domain: string, tenantI
                     role: "teacher",
                     department: "",
                     designation: "",
-                    signature: null
+                    signature: null,
+                    password: ""
                 })
             } else {
                 toast.error(res.error || "Failed to invite staff")

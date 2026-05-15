@@ -31,7 +31,7 @@ export default async function BursaryAuditPage() {
                 auditId={`AT-2026-${month.toUpperCase().slice(0, 3)}-${Math.floor(Math.random() * 9000) + 1000}`}
                 period={`${month} 1, ${year} – ${month} ${daysInMonth}, ${year}`}
                 stats={res.data.stats}
-                ledger={res.data.ledger}
+                ledger={res.data.ledger as any}
             />
         </div>
     )

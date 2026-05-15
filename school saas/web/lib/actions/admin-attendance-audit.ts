@@ -34,7 +34,7 @@ export async function getAuditStudents() {
             full_name: s.full_name,
             passport_url: s.passport_url,
             // Add class name to disambiguate
-            details: `${s.admission_number} • ${Array.isArray(s.class) ? s.class[0]?.name : s.class?.name || 'No Class'}`
+            details: `${s.admission_number} • ${(s.class as any)?.name || 'No Class'}`
         }))
     } else {
         // PARENT: Fetch ONLY linked students

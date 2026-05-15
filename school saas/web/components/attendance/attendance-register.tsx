@@ -52,12 +52,6 @@ export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
     const [stats, setStats] = useState({ present: 0, absent: 0, late: 0, excused: 0 })
     const [savingStatus, setSavingStatus] = useState<Record<string, boolean>>({}) // Track per-student saving
 
-    // Polling for real-time updates
-    useEffect(() => {
-        const interval = setInterval(() => fetchAttendanceData(true), 10000)
-        return () => clearInterval(interval)
-    }, [fetchAttendanceData])
-
     // Fetch data when class or date changes
     const fetchAttendanceData = useCallback(async (isBackground = false) => {
         if (!selectedClassId) return
@@ -119,7 +113,31 @@ export function AttendanceRegister({ classes }: AttendanceRegisterProps) {
         } finally {
             if (!isBackground) setLoading(false)
         }
-    }, [selectedClassId, selectedDate])
+    }, [selectedClassId, selectedDate, savingStatus])
+
+    const handleNotifications = async () => {
+        const absentees = students.filter(s => s.status === 'absent' && !s.smsSent)
+        if (absentees.length === 0) return
+
+        setSaving(true)
+        try {
+            for (const student of absentees) {
+                await sendAbsenceSMS([student.id])
+            }
+            toast.success(`Sent notifications to ${absentees.length} parents.`)
+            fetchAttendanceData(true) // Refresh
+        } catch (error) {
+            toast.error("Failed to send some notifications")
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    // Polling for real-time updates
+    useEffect(() => {
+        const interval = setInterval(() => fetchAttendanceData(true), 10000)
+        return () => clearInterval(interval)
+    }, [fetchAttendanceData])
 
     useEffect(() => {
         fetchAttendanceData()
