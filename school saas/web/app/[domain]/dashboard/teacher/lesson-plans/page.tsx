@@ -1,13 +1,15 @@
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { LessonTabs } from "@/components/academic/lesson-tabs"
 import { createClient } from "@/lib/supabase/server"
-import { BookOpen, FileText, Sparkles, Table, Clock, Archive } from "lucide-react"
+import { BookOpen, FileText, Sparkles, Table, Clock, Archive, Lock } from "lucide-react"
 import { TeacherLessonPublisher } from "@/components/dashboard/teacher-lesson-publisher"
 import { LessonGenerator } from "@/components/academic/lesson-generator"
 import { LessonArchive } from "@/components/academic/lesson-archive"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getTeacherClasses } from "@/lib/actions/classes"
 import { getLessonPlans } from "@/lib/actions/lesson-plan"
+import { getClockInStatus } from "@/lib/actions/staff-clock-in"
+import { Button } from "@/components/ui/button"
 
 // Error Boundary Component (Internal)
 function ErrorFallback({ error }: { error: any }) {
@@ -57,6 +59,37 @@ export default async function LessonPlansPage({ params, searchParams }: { params
 
         if (!tenantId) {
             return <div className="p-10 text-center text-slate-400">Profile configuration error. Tenant ID missing.</div>
+        }
+
+        // Security Audit: Check Clock-In Status & Admin Override
+        const isAdmin = ['admin', 'owner', 'super-admin'].includes(profileResponse.role || '')
+        const clockStatus = await getClockInStatus(undefined, tenantId)
+        const isAuthorized = isAdmin || (clockStatus.success && clockStatus.data?.clockedIn && clockStatus.data?.verified)
+
+        if (!isAuthorized) {
+            return (
+                <div className="h-full flex flex-col items-center justify-center p-4 sm:p-10 text-center min-h-[70vh] bg-slate-950">
+                    <div className="relative mb-6 sm:mb-8">
+                        <div className="absolute inset-0 bg-indigo-500 opacity-20 blur-[60px] rounded-full animate-pulse" />
+                        <div className="relative bg-slate-900/50 border border-white/10 p-5 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] backdrop-blur-3xl shadow-2xl">
+                            <Lock className="h-12 w-12 sm:h-16 sm:w-16 text-indigo-500" />
+                        </div>
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tighter mb-3 sm:mb-4 uppercase italic">
+                        Planning <span className="text-indigo-500">Locked</span>
+                    </h2>
+                    <p className="max-w-md text-slate-400 text-base sm:text-lg font-medium leading-relaxed mb-8 sm:mb-10">
+                        Lesson planning and publishing must be conducted while on <strong>Active Duty</strong> at school.
+                    </p>
+                    <div className="flex gap-4">
+                        <a href={`/${params.domain}/dashboard/attendance`}>
+                            <Button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 sm:px-8 h-11 sm:h-12 rounded-full shadow-lg shadow-indigo-500/20 text-sm sm:text-base">
+                                Go to Clock-In
+                            </Button>
+                        </a>
+                    </div>
+                </div>
+            )
         }
 
         // 2. Fetch Active Session and Allocations (Context Resolution)

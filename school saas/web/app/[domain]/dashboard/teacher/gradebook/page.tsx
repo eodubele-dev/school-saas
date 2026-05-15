@@ -1,13 +1,52 @@
 import { GradeEntryGrid } from "@/components/academic/grade-entry-grid"
 import { getClassGrades } from "@/lib/actions/gradebook"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, Lock } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
+import { getClockInStatus } from "@/lib/actions/staff-clock-in"
+import { Button } from "@/components/ui/button"
 
 export default async function GradebookPage({ params, searchParams }: { params: { domain: string }, searchParams: { class_id?: string, subject_id?: string } }) {
     const { domain } = params
     const term = "1st Term"
     const session = "2023/2024"
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // Security Audit: Check Clock-In Status & Admin Override
+    const [{ data: profile }, { data: tenant }] = await Promise.all([
+        supabase.from('profiles').select('role, tenant_id').eq('id', user?.id).single(),
+        supabase.from('tenants').select('id').eq('slug', domain).single()
+    ])
+
+    const isAdmin = ['admin', 'owner', 'super-admin'].includes(profile?.role || '')
+    const clockStatus = await getClockInStatus(undefined, tenant?.id)
+    const isAuthorized = isAdmin || (clockStatus.success && clockStatus.data?.clockedIn && clockStatus.data?.verified)
+
+    if (!isAuthorized) {
+        return (
+            <div className="h-full flex flex-col items-center justify-center p-4 sm:p-10 text-center min-h-[70vh] bg-slate-950">
+                <div className="relative mb-6 sm:mb-8">
+                    <div className="absolute inset-0 bg-blue-500 opacity-20 blur-[60px] rounded-full animate-pulse" />
+                    <div className="relative bg-slate-900/50 border border-white/10 p-5 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] backdrop-blur-3xl shadow-2xl">
+                        <Lock className="h-12 w-12 sm:h-16 sm:w-16 text-blue-500" />
+                    </div>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tighter mb-3 sm:mb-4 uppercase italic">
+                    Gradebook <span className="text-blue-500">Locked</span>
+                </h2>
+                <p className="max-w-md text-slate-400 text-base sm:text-lg font-medium leading-relaxed mb-8 sm:mb-10">
+                    Academic scores must be entered while on <strong>Active Duty</strong> at school. Please clock in to access the gradebook.
+                </p>
+                <div className="flex gap-4">
+                    <a href={`/${params.domain}/dashboard/attendance`}>
+                        <Button className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 sm:px-8 h-11 sm:h-12 rounded-full shadow-lg shadow-blue-500/20 text-sm sm:text-base">
+                            Go to Clock-In
+                        </Button>
+                    </a>
+                </div>
+            </div>
+        )
+    }
 
     // Fetch valid defaults if params are missing
     let classId = searchParams.class_id
