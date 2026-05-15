@@ -199,7 +199,7 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
         setLoading(true)
         try {
             if (isOnline) {
-                const res = await clockOutStaff(getLocalToday())
+                const res = await clockOutStaff(0, 0, getLocalToday(), tenantId || undefined)
                 if (res.success) {
                     toast.success("Clocked out successfully!")
                     setStatus(prev => ({ ...prev, clockedIn: false }))

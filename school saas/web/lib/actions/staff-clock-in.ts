@@ -212,7 +212,12 @@ export async function clockInStaff(
 /**
  * Clock out staff
  */
-export async function clockOutStaff(date?: string): Promise<{ success: boolean; error?: string }> {
+export async function clockOutStaff(
+    latitude: number = 0,
+    longitude: number = 0,
+    date?: string,
+    tenantId?: string
+): Promise<{ success: boolean; error?: string }> {
     const supabase = createClient()
 
     try {
@@ -221,15 +226,26 @@ export async function clockOutStaff(date?: string): Promise<{ success: boolean; 
             return { success: false, error: 'Not authenticated' }
         }
 
-        const today = date || new Date().toISOString().split('T')[0]
+        const today = date || new Date().toLocaleDateString('en-CA')
         const now = new Date()
         const checkOutTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`
 
-        const { error } = await supabase
+        const query = supabase
             .from('staff_attendance')
-            .update({ check_out_time: checkOutTime })
+            .update({ 
+                check_out_time: checkOutTime,
+                // Optional: Store location at clock out
+                check_out_latitude: latitude > 0 ? latitude : null,
+                check_out_longitude: longitude > 0 ? longitude : null
+            })
             .eq('staff_id', user.id)
             .eq('date', today)
+        
+        if (tenantId) {
+            query.eq('tenant_id', tenantId)
+        }
+
+        const { error } = await query
 
         if (error) {
             console.error('Error recording clock-out:', error)
@@ -384,7 +400,8 @@ export async function getClockInStatus(date?: string, tenantId?: string): Promis
  * Get staff attendance history
  */
 export async function getStaffAttendanceHistory(
-    limit: number = 30
+    limit: number = 30,
+    tenantId?: string
 ): Promise<{
     success: boolean
     data?: Array<{
@@ -405,12 +422,18 @@ export async function getStaffAttendanceHistory(
             return { success: false, error: 'Not authenticated' }
         }
 
-        const { data, error } = await supabaseAdmin
+        const query = supabaseAdmin
             .from('staff_attendance')
             .select('date, status, check_in_time, check_out_time, distance_meters, location_verified')
             .eq('staff_id', user.id)
             .order('date', { ascending: false })
             .limit(limit)
+        
+        if (tenantId) {
+            query.eq('tenant_id', tenantId)
+        }
+
+        const { data, error } = await query
 
         if (error) {
             console.error('Error fetching attendance history:', error)
