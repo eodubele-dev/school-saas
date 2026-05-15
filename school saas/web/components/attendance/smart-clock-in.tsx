@@ -20,10 +20,6 @@ const getLocalToday = () => {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
-const getLocalTime = () => {
-    return new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-}
-
 interface SmartClockInProps {
     onClockIn?: () => void
 }
@@ -33,10 +29,12 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
     const [loading, setLoading] = useState(false)
     const [status, setStatus] = useState<{
         clockedIn: boolean
-        clockInTime: string | null
+        clockInAt: string | null   // ISO 8601 UTC string from server
         isLate: boolean
         verificationMethod: string | null
-    }>({ clockedIn: false, clockInTime: null, isLate: false, verificationMethod: null })
+        spoofingRisk: string | null
+        ipLocation: string | null
+    }>({ clockedIn: false, clockInAt: null, isLate: false, verificationMethod: null, spoofingRisk: null, ipLocation: null })
     const [isWithinRange, setIsWithinRange] = useState<boolean | null>(null)
     const [showFailureAlert, setShowFailureAlert] = useState(false)
     const [showDisputeView, setShowDisputeView] = useState(false)
@@ -54,20 +52,21 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
         const tId = currentTenantId || tenantId
         const res = await getClockInStatus(getLocalToday(), tId || undefined)
         if (res.success && res.data) {
-            // Check if late (after 8:00 AM)
+            // Derive local time from the authoritative TIMESTAMPTZ
             let isLate = false
-            if (res.data.clockInTime) {
-                const [hours, minutes] = res.data.clockInTime.split(':').map(Number)
-                if (hours > 8 || (hours === 8 && minutes > 0)) {
-                    isLate = true
-                }
+            if (res.data.clockInAt) {
+                const localHour = new Date(res.data.clockInAt).getHours()
+                const localMin = new Date(res.data.clockInAt).getMinutes()
+                if (localHour > 8 || (localHour === 8 && localMin > 0)) isLate = true
             }
 
             setStatus({
                 clockedIn: res.data.clockedIn,
-                clockInTime: res.data.clockInTime,
+                clockInAt: res.data.clockInAt || null,
                 isLate,
-                verificationMethod: res.data.verificationMethod || 'gps'
+                verificationMethod: res.data.verificationMethod || 'gps',
+                spoofingRisk: res.data.spoofingRisk || 'low',
+                ipLocation: res.data.ipLocation || null
             })
         }
     }, [tenantId])
@@ -136,7 +135,7 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
             // Helper to perform the actual server-side clock in
             const performClockIn = async (lat: number, lng: number) => {
                 if (isOnline) {
-                    const res = await clockInStaff(lat, lng, getLocalToday(), overridePin, tenantId || undefined, getLocalTime())
+                    const res = await clockInStaff(lat, lng, getLocalToday(), overridePin, tenantId || undefined)
 
                     if (res.success) {
                         toast.success("Verification Successful", {
@@ -163,9 +162,11 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                     })
                     setStatus({
                         clockedIn: true,
-                        clockInTime: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-                        isLate: false,
-                        verificationMethod: overridePin ? 'pin' : 'gps'
+                        clockInAt: new Date().toISOString(), // Optimistic local timestamp for offline
+                        isLate: new Date().getHours() > 8,
+                        verificationMethod: overridePin ? 'pin' : 'gps',
+                        spoofingRisk: 'low',
+                        ipLocation: null
                     })
                 }
                 setLoading(false)
@@ -264,7 +265,12 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                             <div className="absolute inset-0 rounded-full border-t-2 border-emerald-500/40 animate-spin duration-[3000ms]" />
                             <CheckCircle2 className="h-12 w-12 text-emerald-500 mb-1" />
                         <div className="flex flex-col items-center gap-1">
-                            <span className="text-3xl font-black text-white tracking-tighter">{status.clockInTime?.slice(0, 5)}</span>
+                            {/* Display time in LOCAL timezone from authoritative UTC timestamp */}
+                            <span className="text-3xl font-black text-white tracking-tighter">
+                                {status.clockInAt
+                                    ? new Date(status.clockInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                    : '--:--'}
+                            </span>
                             <div className="flex items-center gap-2">
                                 <span className="text-[10px] uppercase text-emerald-400 font-black tracking-widest">Active Duty</span>
                                 <span className="h-1 w-1 rounded-full bg-emerald-500/50" />
@@ -276,6 +282,18 @@ export function SmartClockIn({ onClockIn }: SmartClockInProps) {
                             </div>
                         </div>
                         </div>
+
+                        {/* Spoofing Risk Warning — visible to staff as deterrent */}
+                        {(status.spoofingRisk === 'high' || status.spoofingRisk === 'medium') && (
+                            <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                                status.spoofingRisk === 'high'
+                                    ? 'bg-red-500/10 border-red-500/20 text-red-400'
+                                    : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                            }`}>
+                                <AlertTriangle className="h-3 w-3" />
+                                Location Mismatch Detected
+                            </div>
+                        )}
 
                         {status.isLate && (
                             <div className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-amber-500 text-[10px] font-black uppercase tracking-wider">

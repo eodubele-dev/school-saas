@@ -15,6 +15,35 @@ interface ClockInResult {
     debug?: { expected: SchoolLocation; actual: { latitude: number; longitude: number } }
 }
 
+interface IpGeoResult {
+    country: string | null
+    city: string | null
+    latitude: number | null
+    longitude: number | null
+}
+
+/**
+ * Resolve approximate geographic location from an IP address.
+ * Uses ip-api.com (free tier, no API key, 45 req/min).
+ * Returns null fields on failure — never throws.
+ */
+async function resolveIpGeolocation(ip: string): Promise<IpGeoResult> {
+    const empty: IpGeoResult = { country: null, city: null, latitude: null, longitude: null }
+    if (!ip || ip === 'unknown' || ip.startsWith('192.168') || ip.startsWith('10.') || ip === '127.0.0.1' || ip === '::1') {
+        // Private / loopback IP — cannot geolocate, treat as neutral
+        return empty
+    }
+    try {
+        const res = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,city,lat,lon`, { cache: 'no-store' })
+        if (!res.ok) return empty
+        const json = await res.json()
+        if (json.status !== 'success') return empty
+        return { country: json.country, city: json.city, latitude: json.lat, longitude: json.lon }
+    } catch {
+        return empty
+    }
+}
+
 interface SchoolLocation {
     latitude: number
     longitude: number
@@ -31,8 +60,7 @@ export async function clockInStaff(
     longitude: number,
     date?: string,
     pin?: string,
-    tenantId?: string,
-    localTime?: string
+    tenantId?: string
 ): Promise<ClockInResult> {
     const supabase = createClient()
 
@@ -129,9 +157,32 @@ export async function clockInStaff(
         }
 
         // 3. Record attendance with Forensic Metadata
+        //    SECURITY: Time is ALWAYS server-generated UTC (NOW()). Never trust client time.
         const today = date || new Date().toLocaleDateString('en-CA')
-        const now = new Date()
-        const checkInTime = localTime || now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        const serverNow = new Date() // UTC timestamp — used as TIMESTAMPTZ
+        // Retain legacy TIME column for backward compat with older queries
+        const legacyCheckInTime = `${serverNow.getUTCHours().toString().padStart(2, '0')}:${serverNow.getUTCMinutes().toString().padStart(2, '0')}:${serverNow.getUTCSeconds().toString().padStart(2, '0')}`
+
+        // 3a. IP Geolocation (non-blocking parallel lookup for spoofing detection)
+        const ipGeo = await resolveIpGeolocation(ip)
+
+        // 3b. Calculate spoofing risk: compare IP location to GPS claim
+        let spoofingRisk = 'low'
+        let ipGeoDistance: number | null = null
+        if (ipGeo.latitude !== null && ipGeo.longitude !== null) {
+            const { distance: geoDistance } = isWithinRadius(
+                latitude, longitude,
+                ipGeo.latitude, ipGeo.longitude,
+                999999 // We just want the distance, not the boolean
+            )
+            ipGeoDistance = Math.round(geoDistance / 1000) // convert m to km
+            if (ipGeoDistance > 50) spoofingRisk = 'high'
+            else if (ipGeoDistance > 10) spoofingRisk = 'medium'
+        }
+
+        if (spoofingRisk !== 'low') {
+            console.warn(`[ClockIn] Spoofing risk: ${spoofingRisk}. GPS says ${latitude},${longitude} but IP (${ip}) resolves to ${ipGeo.city}, ${ipGeo.country} (~${ipGeoDistance}km away).`)
+        }
 
         const { error } = await supabase
             .from('staff_attendance')
@@ -140,15 +191,23 @@ export async function clockInStaff(
                 staff_id: user.id,
                 date: today,
                 status: 'present',
-                check_in_time: checkInTime,
-                check_out_time: null, 
+                check_in_time: legacyCheckInTime,   // Legacy TIME column (UTC)
+                check_in_at: serverNow.toISOString(), // New TIMESTAMPTZ (authoritative)
+                check_out_time: null,
+                check_out_at: null,
                 latitude,
                 longitude,
                 distance_meters: distance,
                 location_verified: true,
                 check_in_ip: ip,
                 verification_method: verificationMethod,
-                device_info: userAgent
+                device_info: userAgent,
+                ip_country: ipGeo.country,
+                ip_city: ipGeo.city,
+                ip_latitude: ipGeo.latitude,
+                ip_longitude: ipGeo.longitude,
+                ip_geo_distance_km: ipGeoDistance,
+                spoofing_risk: spoofingRisk
             }, {
                 onConflict: 'staff_id,date,tenant_id'
             })
@@ -232,8 +291,8 @@ export async function clockOutStaff(
         }
 
         const today = date || new Date().toLocaleDateString('en-CA')
-        const now = new Date()
-        const checkOutTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`
+        const serverNow = new Date() // Server-generated UTC
+        const legacyCheckOutTime = `${serverNow.getUTCHours().toString().padStart(2, '0')}:${serverNow.getUTCMinutes().toString().padStart(2, '0')}:${serverNow.getUTCSeconds().toString().padStart(2, '0')}`
 
         const { headers } = await import('next/headers')
         const headerList = headers()
@@ -244,11 +303,9 @@ export async function clockOutStaff(
         const query = supabase
             .from('staff_attendance')
             .update({ 
-                check_out_time: checkOutTime,
+                check_out_time: legacyCheckOutTime,  // Legacy TIME column (UTC)
+                check_out_at: serverNow.toISOString(), // New TIMESTAMPTZ (authoritative)
                 check_out_ip: ip,
-                // Optional: Store location at clock out
-                check_out_latitude: latitude > 0 ? latitude : null,
-                check_out_longitude: longitude > 0 ? longitude : null
             })
             .eq('staff_id', user.id)
             .eq('date', today)
@@ -343,11 +400,15 @@ export async function getClockInStatus(date?: string, tenantId?: string): Promis
     success: boolean
     data?: {
         clockedIn: boolean
-        clockInTime: string | null
+        clockInTime: string | null      // Legacy UTC HH:MM:SS — use clockInAt for display
         clockOutTime: string | null
+        clockInAt: string | null         // TIMESTAMPTZ ISO string — authoritative
+        clockOutAt: string | null
         distance: number | null
         verified: boolean
         verificationMethod?: string
+        spoofingRisk?: string
+        ipLocation?: string | null       // "City, Country" for admin audit UI
     }
     error?: string
 }> {
@@ -370,6 +431,8 @@ export async function getClockInStatus(date?: string, tenantId?: string): Promis
                     clockedIn: false,
                     clockInTime: null,
                     clockOutTime: null,
+                    clockInAt: null,
+                    clockOutAt: null,
                     distance: null,
                     verified: false
                 }
@@ -378,7 +441,7 @@ export async function getClockInStatus(date?: string, tenantId?: string): Promis
 
         const query = supabaseAdmin
             .from('staff_attendance')
-            .select('check_in_time, check_out_time, distance_meters, location_verified, verification_method')
+            .select('check_in_time, check_out_time, check_in_at, check_out_at, distance_meters, location_verified, verification_method, spoofing_risk, ip_city, ip_country')
             .eq('staff_id', user.id)
             .eq('date', today)
             .eq('tenant_id', tenantId)
@@ -397,21 +460,31 @@ export async function getClockInStatus(date?: string, tenantId?: string): Promis
                     clockedIn: false,
                     clockInTime: null,
                     clockOutTime: null,
+                    clockInAt: null,
+                    clockOutAt: null,
                     distance: null,
                     verified: false
                 }
             }
         }
 
+        const ipLocation = data.ip_city && data.ip_country
+            ? `${data.ip_city}, ${data.ip_country}`
+            : null
+
         return {
             success: true,
             data: {
-                clockedIn: !data.check_out_time, // If checked out, they are no longer "clocked in" for active duty
+                clockedIn: !data.check_out_at && !data.check_out_time,
                 clockInTime: data.check_in_time,
                 clockOutTime: data.check_out_time,
+                clockInAt: data.check_in_at || null,   // Authoritative TIMESTAMPTZ
+                clockOutAt: data.check_out_at || null,
                 distance: data.distance_meters ? Number(data.distance_meters) : null,
                 verified: data.location_verified || false,
-                verificationMethod: data.verification_method || 'gps'
+                verificationMethod: data.verification_method || 'gps',
+                spoofingRisk: data.spoofing_risk || 'low',
+                ipLocation
             }
         }
 
